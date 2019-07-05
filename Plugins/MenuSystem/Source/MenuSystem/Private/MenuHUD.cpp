@@ -9,10 +9,10 @@
 
 AMenuHUD::AMenuHUD()
 {
-	static ConstructorHelpers::FClassFinder<UWidget> MasterMenuUI(TEXT("WidgetBlueprint'/Game/UI/UI_MasterMenu.UI_MasterMenu_C'"));
+	//static ConstructorHelpers::FClassFinder<UWidget> MasterMenuUI(TEXT("WidgetBlueprint'/Game/UI/UI_MasterMenu.UI_MasterMenu_C'"));
 
-	if (MasterMenuUI.Succeeded())
-		WidgetClass = MasterMenuUI.Class;
+	//if (MasterMenuUI.Succeeded())
+	//	WidgetClass = MasterMenuUI.Class;
 }
 
 UUserWidget* AMenuHUD::GetMenu(const int32 Index)
