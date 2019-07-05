@@ -5,7 +5,6 @@
 #include "Widget.h"
 #include "UserWidget.h"
 #include "MainMenu.h"
-#include "Debug.h"
 #include "MasterMenu.h"
 
 AMenuHUD::AMenuHUD()
@@ -19,6 +18,7 @@ AMenuHUD::AMenuHUD()
 UUserWidget* AMenuHUD::GetMenu(const int32 Index)
 {
 	//return MasterMenu->GetMenus()[Index];
+	return nullptr;
 }
 
 void AMenuHUD::ShowHUD()

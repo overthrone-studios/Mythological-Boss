@@ -7,7 +7,6 @@
 #include "Engine/Engine.h"
 #include "ButtonBase.h"
 #include "TimerManager.h"
-#include "Debug.h"
 #include "WidgetTree.h"
 #include "MenuSetting.h"
 #include "WidgetAnimation.h"
@@ -16,8 +15,8 @@ void UMenuBase::Init()
 {
 	MenuHUD = Cast<AMenuHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetHUD());
 
-	if (!Animation)
-		UDebug::LogDebugMessage(ERROR, FString(GetName() + " | Fade anim is null. You forgot to assign the fade animation in widget blueprint"), true);
+	//if (!Animation)
+	//	UDebug::LogDebugMessage(ERROR, FString(GetName() + " | Fade anim is null. You forgot to assign the fade animation in widget blueprint"), true);
 }
 
 void UMenuBase::InitializeSettings()
