@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogSuccess, All, All)
-
 class FMenuSystemModule : public IModuleInterface
 {
 public:

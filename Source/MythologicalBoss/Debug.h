@@ -19,7 +19,7 @@ enum ELogLevel
  * A list of log utility functions
  */
 UCLASS()
-class MENUSYSTEM_API UDebug : public UGameplayStatics
+class UDebug : public UGameplayStatics
 {
 	GENERATED_BODY()
 	

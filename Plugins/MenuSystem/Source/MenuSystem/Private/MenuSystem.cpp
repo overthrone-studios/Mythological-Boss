@@ -18,5 +18,3 @@ void FMenuSystemModule::ShutdownModule()
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(FMenuSystemModule, MenuSystem)
-
-DEFINE_LOG_CATEGORY(LogSuccess)

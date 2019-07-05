@@ -71,15 +71,6 @@ void AMythologicalBossCharacter::SetupPlayerInputComponent(class UInputComponent
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AMythologicalBossCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AMythologicalBossCharacter::TouchStopped);
-
-	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMythologicalBossCharacter::OnResetVR);
-}
-
-
-void AMythologicalBossCharacter::OnResetVR()
-{
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
 void AMythologicalBossCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)

@@ -2,7 +2,7 @@
 
 #include "Debug.h"
 #include "Engine.h"
-#include "MenuSystem.h"
+#include "MythologicalBoss.h"
 
 void UDebug::LogObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 {
