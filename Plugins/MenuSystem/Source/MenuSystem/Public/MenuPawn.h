@@ -1,31 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Ali El Saleh 2019
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "MenuPawn.generated.h"
 
-UCLASS()
-class MENUSYSTEM_API AMenuPawn : public APawn
+UCLASS(HideCategories = ("Rendering", "Replication", "Actor", "Collision", "LOD", "Cooking"))
+class MENUSYSTEM_API AMenuPawn final : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	AMenuPawn();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
+	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// Switches input mode to UI only
+	void EnableUIMode() const;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UCameraComponent* CameraComponent;
 };
