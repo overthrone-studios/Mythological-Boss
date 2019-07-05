@@ -39,6 +39,7 @@ public class MenuSystem : ModuleRules
 				"Slate",
 				"SlateCore",
                 "InputCore",
+                "UMG",
                 "RHI",
 				// ... add private dependencies that you statically link with here ...	
 			}
