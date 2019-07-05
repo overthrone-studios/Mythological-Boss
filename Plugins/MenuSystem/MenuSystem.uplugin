@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "MenuSystem",
+	"Description": "A fully-featured in-depth menu system for Unreal Engine 4 made in C++ ",
+	"Category": "Other",
+	"CreatedBy": "Ali El Saleh",
+	"CreatedByURL": "alielsaleh.com",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "MenuSystem",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
