@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Ali El Saleh 2019
 
 #include "VideoSetting.h"
 

@@ -1,20 +1,18 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Ali El Saleh 2019
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Widgets/Settings/GraphicsSetting.h"
 #include "PostProcessSetting.generated.h"
 
 /**
- * 
+ * Manages the post processing effects of the game
  */
 UCLASS()
-class MENUSYSTEM_API UPostProcessSetting : public UGraphicsSetting
+class MENUSYSTEM_API UPostProcessSetting final : public UGraphicsSetting
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	void Apply() override;
 };

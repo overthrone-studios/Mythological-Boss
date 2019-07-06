@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Ali El Saleh 2019
 
 #pragma once
 
@@ -23,14 +23,54 @@ enum EButtonType
 };
 
 /**
- * 
+ * Base class for a menu button
  */
 UCLASS()
 class MENUSYSTEM_API UButtonBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	virtual void Init();
+
+protected:
+	// For button functionality
+	UFUNCTION(BlueprintCallable, Category = "Events")
+		virtual void OnButtonReleased();
+
+	// For tooltip text change
+	UFUNCTION(BlueprintCallable, Category = "Events")
+		virtual void OnButtonHovered();
+	UFUNCTION(BlueprintCallable, Category = "Events")
+		virtual void OnButtonUnhovered();
+
+	virtual void HighlightText();
+	virtual void UnHighlightText();
+
+	UPROPERTY(EditInstanceOnly, Category = "Menu Button")
+		TEnumAsByte<EButtonType> ButtonType;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+		FText ButtonText;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+		FText ButtonTooltipText;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button", meta = (ClampMin = 0.0f, ClampMax=1.0f))
+		float HoveredOpacity = 1.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button", meta = (ClampMin = 0.0f, ClampMax=1.0f))
+		float UnhoveredOpacity = 0.8f;
+
+	class UTextBlock* TextWidget;
+
+	class AMenuHUD* MenuHUD;
+
+	class UMenuBase* Menu;
+
+	bool IsMenuNull() const;
+
+private:
+	bool IsMenuHUDNull() const;
+	bool IsTextWidgetNull() const;
 };
