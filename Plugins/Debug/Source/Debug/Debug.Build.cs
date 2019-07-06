@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class MenuSystem : ModuleRules
+public class Debug : ModuleRules
 {
-	public MenuSystem(ReadOnlyTargetRules Target) : base(Target)
+	public Debug(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -13,6 +13,7 @@ public class MenuSystem : ModuleRules
 				// ... add public include paths required here ...
 			}
 			);
+				
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
@@ -25,7 +26,6 @@ public class MenuSystem : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Debug"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,9 +38,6 @@ public class MenuSystem : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "InputCore",
-                "UMG",
-                "RHI",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

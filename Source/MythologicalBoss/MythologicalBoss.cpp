@@ -5,4 +5,3 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, MythologicalBoss, "MythologicalBoss" );
 
-DEFINE_LOG_CATEGORY(LogSuccess)

@@ -1,20 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Ali El Saleh 2019
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Widgets/Menus/MenuBase.h"
 #include "OptionsMenu.generated.h"
 
 /**
- * 
+ * Base class of an options menu widget blueprint
  */
 UCLASS()
-class MENUSYSTEM_API UOptionsMenu : public UMenuBase
+class MENUSYSTEM_API UOptionsMenu final : public UMenuBase
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	void Init() override;
+
+	void Forward(EButtonType Menu) override;
+	void Back() override;
+
+protected:
+	void GoForward() override;
+	void GoBack() override;
 };

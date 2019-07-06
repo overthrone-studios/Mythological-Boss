@@ -19,7 +19,7 @@ enum EMenuType
 };
 
 /**
- * 
+ * Base class for any type of menu widgets i.e (Main, Options, Video, Audio, Input, etc.)  
  */
 UCLASS()
 class MENUSYSTEM_API UMenuBase : public UUserWidget

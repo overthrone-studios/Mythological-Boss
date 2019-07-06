@@ -1,10 +1,10 @@
 // Copyright Overthrone Studios 2019
 
-#include "Debug.h"
+#include "Log.h"
 #include "Engine/Engine.h"
-#include "MythologicalBoss.h"
+#include "Debug.h"
 
-void UDebug::LogObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
+void ULog::LogObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 {
 	if (bLogInViewport)
 	{
@@ -22,7 +22,7 @@ void UDebug::LogObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 	}
 }
 
-void UDebug::LogDebugMessage(const ELogLevel LogLevel, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::LogDebugMessage(const ELogType LogLevel, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
 	switch (LogLevel)
 	{
@@ -58,3 +58,5 @@ void UDebug::LogDebugMessage(const ELogLevel LogLevel, const FString& LogMessage
 		break;
 	}
 }
+
+

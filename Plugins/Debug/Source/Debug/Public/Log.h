@@ -3,10 +3,10 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Debug.generated.h"
+#include "Log.generated.h"
 
 UENUM()
-enum ELogLevel
+enum ELogType
 {
 	INFO,
 	SUCCESS,
@@ -18,7 +18,7 @@ enum ELogLevel
  * A library of log utility functions
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API UDebug final : public UBlueprintFunctionLibrary
+class DEBUG_API ULog final : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 	
@@ -27,6 +27,6 @@ public:
 	static void LogObjectValidity(UObject* ObjectRef, bool bLogInViewport = false);
 
 	// Log a debug message to the console or viewport
-	static void LogDebugMessage(ELogLevel LogLevel, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
-
+	static void LogDebugMessage(ELogType LogLevel, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
+	
 };
