@@ -16,6 +16,8 @@ public:
 protected:
 	void BeginPlay() override;
 
+	void PossessedBy(AController* NewController) override;
+
 	// Switches input mode to UI only
 	void EnableUIMode() const;
 

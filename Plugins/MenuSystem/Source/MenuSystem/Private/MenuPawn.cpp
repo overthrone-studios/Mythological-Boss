@@ -21,7 +21,11 @@ void AMenuPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+}
+
+void AMenuPawn::PossessedBy(AController* NewController)
+{
+	PlayerController = Cast<APlayerController>(NewController);
 
 	EnableUIMode();
 }
