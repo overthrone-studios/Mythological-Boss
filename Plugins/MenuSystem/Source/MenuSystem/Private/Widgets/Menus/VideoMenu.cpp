@@ -13,7 +13,8 @@ void UVideoMenu::Init()
 
 	InitializeButtons();
 
-	Apply();
+	if (bApplyOnLaunch)
+		Apply();
 }
 
 void UVideoMenu::Back()

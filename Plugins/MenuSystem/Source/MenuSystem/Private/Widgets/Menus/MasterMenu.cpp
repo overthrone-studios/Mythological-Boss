@@ -20,6 +20,7 @@ void UMasterMenu::Init()
 	for (auto Menu : Menus)
 	{
 		Menu->Init();
+		ULog::LogDebugMessage(INFO, FString(Menu->GetName() + " initialized"), true);
 	}
 }
 

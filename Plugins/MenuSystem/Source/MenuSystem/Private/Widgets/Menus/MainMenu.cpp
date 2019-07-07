@@ -64,7 +64,6 @@ void UMainMenu::GoForward()
 
 	case BTN_OPTIONS:
 		MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
-		ULog::LogDebugMessage(INFO, FString("Button Options pressed"), true);
 		break;
 
 	default:

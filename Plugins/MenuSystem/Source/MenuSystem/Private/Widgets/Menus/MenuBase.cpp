@@ -10,6 +10,7 @@
 #include "WidgetTree.h"
 #include "MenuSetting.h"
 #include "WidgetAnimation.h"
+#include "Log.h"
 
 void UMenuBase::Init()
 {
@@ -25,6 +26,7 @@ void UMenuBase::InitializeSettings()
 	{
 		Setting->Init();
 		Setting->SetMenuReference(this);
+		ULog::LogDebugMessage(INFO, FString(Setting->GetName() + " initialized"), true);
 	}
 }
 
@@ -38,11 +40,6 @@ void UMenuBase::InitializeButtons()
 
 		Cast<UButtonBase>(Button)->Init();
 	}
-
-	//for (auto Button : ParentBox->GetAllChildren())
-	//{
-	//	Cast<UButtonBase>(Button)->Init();
-	//}
 }
 
 void UMenuBase::AddSetting(UMenuSetting* Setting)
@@ -58,11 +55,6 @@ void UMenuBase::StoreAllSettings(UPanelWidget* ParentWidget)
 
 		AddSetting(Cast<UMenuSetting>(Setting));
 	}
-
-	//for (auto Widget : ParentWidget->GetAllChildren())
-	//{
-	//	AddSetting(Cast<UMenuSetting>(Widget));
-	//}
 }
 
 void UMenuBase::FadeIn()

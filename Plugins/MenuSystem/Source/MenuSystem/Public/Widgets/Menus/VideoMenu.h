@@ -20,6 +20,9 @@ public:
 protected:
 	void GoBack() override;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Video Menu")
+		bool bApplyOnLaunch;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Video Menu")
 		TArray<class UVideoSetting*> VideoSettings;
 };
