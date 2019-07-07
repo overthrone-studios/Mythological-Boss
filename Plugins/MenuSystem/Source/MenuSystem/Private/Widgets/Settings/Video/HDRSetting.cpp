@@ -8,9 +8,9 @@ void UHDRSetting::Init()
 	Super::Init();
 
 	if (GameUserSettings->SupportsHDRDisplayOutput())
-		bIsEnabled = true;
+		SelectedOption = Options[1];
 	else
-		bIsEnabled = false;
+		SelectedOption = Options[0];
 }
 
 void UHDRSetting::Apply()
