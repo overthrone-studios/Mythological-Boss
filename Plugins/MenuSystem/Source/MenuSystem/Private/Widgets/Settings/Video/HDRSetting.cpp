@@ -7,10 +7,10 @@ void UHDRSetting::Init()
 {
 	Super::Init();
 
-	//if (GameUserSettings->SupportsHDRDisplayOutput())
-	//	SelectedIndex = 0;
-	//else
-	//	SelectedIndex = 1;
+	if (GameUserSettings->SupportsHDRDisplayOutput())
+		bIsEnabled = true;
+	else
+		bIsEnabled = false;
 }
 
 void UHDRSetting::Apply()
