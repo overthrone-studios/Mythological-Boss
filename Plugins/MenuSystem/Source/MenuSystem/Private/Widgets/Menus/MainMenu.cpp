@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "WidgetAnimation.h"
 #include "TimerManager.h"
+#include "NewGameMenu.h"
+#include "OptionsMenu.h"
+#include "Log.h"
 
 void UMainMenu::Init()
 {
@@ -17,6 +20,12 @@ void UMainMenu::Init()
 
 void UMainMenu::SlideOut()
 {
+	if (!Slide)
+	{
+		ULog::LogDebugMessage(WARNING, FString("Slide animation has not been assigned"), true);
+		return;
+	}
+
 	PlayAnimation(Slide);
 
 	GetWorld()->GetTimerManager().SetTimer(Timer, this, &UMainMenu::Remove, 1.0f, false, Slide->GetEndTime());
@@ -36,7 +45,7 @@ void UMainMenu::Forward(const EButtonType Button)
 		return;
 	}
 
-	MenuHUD->HideMenu(MAIN_MENU);
+	MenuHUD->HideMenu(StaticClass());
 
 	Super::Forward(Button);
 }
@@ -46,7 +55,7 @@ void UMainMenu::GoForward()
 	switch (MenuSelected)
 	{
 	case BTN_NEW_GAME:
-		MenuHUD->ShowMenu(NEW_GAME_MENU);
+		MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
 		break;
 
 	case BTN_CONTINUE:
@@ -54,11 +63,12 @@ void UMainMenu::GoForward()
 		break;
 
 	case BTN_OPTIONS:
-		MenuHUD->ShowMenu(OPTIONS_MENU);
+		MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
+		ULog::LogDebugMessage(INFO, FString("Button Options pressed"), true);
 		break;
 
 	default:
-		MenuHUD->ShowMenu(MAIN_MENU);
+		MenuHUD->ShowMenu(StaticClass());
 		break;
 	}
 

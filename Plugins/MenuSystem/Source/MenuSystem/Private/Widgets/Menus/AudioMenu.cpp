@@ -2,6 +2,7 @@
 
 #include "AudioMenu.h"
 #include "MenuHUD.h"
+#include "OptionsMenu.h"
 
 void UAudioMenu::Init()
 {
@@ -12,14 +13,14 @@ void UAudioMenu::Init()
 
 void UAudioMenu::Back()
 {
-	MenuHUD->HideMenu(AUDIO_MENU);
+	MenuHUD->HideMenu(StaticClass());
 
 	Super::Back();
 }
 
 void UAudioMenu::GoBack()
 {
-	MenuHUD->ShowMenu(OPTIONS_MENU);
+	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
 
 	Super::GoBack();
 }

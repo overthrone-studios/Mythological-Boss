@@ -10,7 +10,7 @@ void UVideoButton::Init()
 {
 	Super::Init();
 
-	Menu = Cast<UVideoMenu>(MenuHUD->GetMenu(VIDEO_MENU));
+	Menu = Cast<UVideoMenu>(MenuHUD->GetMenu(UVideoMenu::StaticClass()));
 	VideoMenu = Cast<UVideoMenu>(Menu);
 }
 

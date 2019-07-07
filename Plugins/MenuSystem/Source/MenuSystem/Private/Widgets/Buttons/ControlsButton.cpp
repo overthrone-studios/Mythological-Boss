@@ -9,7 +9,7 @@ void UControlsButton::Init()
 {
 	Super::Init();
 
-	Menu = Cast<UControlsMenu>(MenuHUD->GetMenu(CONTROLS_MENU));
+	Menu = Cast<UControlsMenu>(MenuHUD->GetMenu(UControlsMenu::StaticClass()));
 	ControlsMenu = Cast<UControlsMenu>(Menu);
 }
 

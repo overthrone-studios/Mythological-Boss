@@ -4,6 +4,7 @@
 #include "MenuHUD.h"
 #include "WidgetTree.h"
 #include "OutputDeviceNull.h"
+#include "OptionsMenu.h"
 
 void UControlsMenu::Init()
 {
@@ -14,14 +15,14 @@ void UControlsMenu::Init()
 
 void UControlsMenu::Back()
 {
-	MenuHUD->HideMenu(CONTROLS_MENU);
+	MenuHUD->HideMenu(StaticClass());
 
 	Super::Back();
 }
 
 void UControlsMenu::GoBack()
 {
-	MenuHUD->ShowMenu(OPTIONS_MENU);
+	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
 
 	Super::GoBack();
 }

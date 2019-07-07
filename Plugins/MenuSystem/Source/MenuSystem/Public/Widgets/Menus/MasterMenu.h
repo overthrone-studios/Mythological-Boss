@@ -16,7 +16,8 @@ class MENUSYSTEM_API UMasterMenu final : public UMenuBase
 public:
 	void Init() override;
 
-	UMenuBase* GetMenu(int32 Index) const;
+	//UMenuBase* GetMenu(int32 Index) const;
+	UMenuBase* GetMenu(TSubclassOf<UMenuBase> MenuClass) const;
 	TArray<UMenuBase*> GetMenus() const;
 
 	UWidget* GetCurrentMenuWidget() const;

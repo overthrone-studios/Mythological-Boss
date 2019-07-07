@@ -3,8 +3,7 @@
 #include "VideoMenu.h"
 #include "GameFramework/GameUserSettings.h"
 #include "MenuHUD.h"
-#include "TimerManager.h"
-#include "WidgetTree.h"
+#include "OptionsMenu.h"
 
 void UVideoMenu::Init()
 {
@@ -19,14 +18,14 @@ void UVideoMenu::Init()
 
 void UVideoMenu::Back()
 {
-	MenuHUD->HideMenu(VIDEO_MENU);
+	MenuHUD->HideMenu(StaticClass());
 
 	Super::Back();
 }
 
 void UVideoMenu::GoBack()
 {
-	MenuHUD->ShowMenu(OPTIONS_MENU);
+	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
 
 	Super::GoBack();
 }

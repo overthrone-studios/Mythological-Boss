@@ -8,7 +8,7 @@ void UOptionsButton::Init()
 {
 	Super::Init();
 
-	Menu = Cast<UOptionsMenu>(MenuHUD->GetMenu(OPTIONS_MENU));
+	Menu = Cast<UOptionsMenu>(MenuHUD->GetMenu(UOptionsMenu::StaticClass()));
 	OptionsMenu = Cast<UOptionsMenu>(Menu);
 }
 

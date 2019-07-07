@@ -6,19 +6,19 @@
 #include "UserWidget.h"
 #include "MainMenu.h"
 #include "MasterMenu.h"
+#include "Log.h"
 
 AMenuHUD::AMenuHUD()
 {
-	//static ConstructorHelpers::FClassFinder<UWidget> MasterMenuUI(TEXT("WidgetBlueprint'/Game/UI/UI_MasterMenu.UI_MasterMenu_C'"));
+	static ConstructorHelpers::FClassFinder<UWidget> MasterMenuUI(TEXT("WidgetBlueprint'/Game/UI/Menus/UI_MasterMenu.UI_MasterMenu_C'"));
 
-	//if (MasterMenuUI.Succeeded())
-	//	WidgetClass = MasterMenuUI.Class;
+	if (MasterMenuUI.Succeeded())
+		WidgetClass = MasterMenuUI.Class;
 }
 
-UUserWidget* AMenuHUD::GetMenu(const int32 Index)
+UUserWidget* AMenuHUD::GetMenu(const TSubclassOf<UMenuBase> MenuClass)
 {
-	//return MasterMenu->GetMenus()[Index];
-	return nullptr;
+	return MasterMenu->GetMenu(MenuClass);
 }
 
 void AMenuHUD::ShowHUD()
@@ -33,42 +33,48 @@ void AMenuHUD::HideHUD()
 	MasterMenu->RemoveFromViewport();
 }
 
-void AMenuHUD::ShowMenu(const int32 Index)
+void AMenuHUD::ShowMenu(const TSubclassOf<class UMenuBase> MenuClass)
 {
-	//if (Index < MasterMenu->GetMenus().Num())
-	//{
-	//	MasterMenu->GetMenu(Index)->FadeIn();
-	//	MasterMenu->SwitchToMenuIndex(Index);
-	//}
-	//else
-	//	UDebug::LogDebugMessage(ERROR, FString("Index out of range"), true);
+	const auto Menu = MasterMenu->GetMenu(MenuClass);
+
+	if (Menu)
+	{
+		MasterMenu->SwitchToMenu(Menu);
+		Menu->FadeIn();
+	}
+	else
+	{
+		ULog::LogDebugMessage(ERROR, FString("Cannot show menu because it does not exist within the master menu"), true);
+	}
 }
 
-void AMenuHUD::HideMenu(const int32 Index)
+void AMenuHUD::HideMenu(const TSubclassOf<class UMenuBase> MenuClass)
 {
-	//if (Index < MasterMenu->GetMenus().Num())
-	//	MasterMenu->GetMenu(Index)->FadeOut();
-	//else
-	//	ULogStatics::LogDebugMessage(ERROR, FString("Index out of range"), true);
+	MasterMenu->GetMenu(MenuClass)->FadeOut();
 }
 
 void AMenuHUD::SlideMainMenu()
 {
-	//Cast<UMainMenu>(MasterMenu->GetMenu(MAIN_MENU))->SlideOut();
+	const auto Menu = MasterMenu->GetMenu(UMainMenu::StaticClass());
+
+	if (Menu)
+		Cast<UMainMenu>(Menu)->SlideOut();
+	else
+		ULog::LogDebugMessage(ERROR, FString("Cannot slide menu because it does not exist within the master menu"), true);
 }
 
 void AMenuHUD::BeginPlay()
 {
-	//CreateWidgets();
-	//
-	//// Error check for newley created widgets
-	//if (AllWidgetsValid())
-	//{
-	//	AddWidgetsToScreen();
-	//	InitializeWidgets();
-	//}
-	//else
-	//	LogWidgetFailures();
+	CreateWidgets();
+	
+	// Error check for newly created widgets
+	if (AllWidgetsValid())
+	{
+		AddWidgetsToScreen();
+		InitializeWidgets();
+	}
+	else
+		LogWidgetFailures();
 }
 
 void AMenuHUD::CreateWidgets()
@@ -78,7 +84,7 @@ void AMenuHUD::CreateWidgets()
 
 void AMenuHUD::InitializeWidgets()
 {
-	//MasterMenu->Init();
+	MasterMenu->Init();
 }
 
 void AMenuHUD::AddWidgetsToScreen()
@@ -89,8 +95,8 @@ void AMenuHUD::AddWidgetsToScreen()
 
 void AMenuHUD::LogWidgetFailures()
 {
-	//if (!MasterMenu)
-	//	ULogStatics::LogDebugMessage(ERROR, FString("Failed to create master menu widget"), true);
+	if (!MasterMenu)
+		ULog::LogDebugMessage(ERROR, FString("Failed to create master menu widget"), true);
 }
 
 bool AMenuHUD::AllWidgetsValid()

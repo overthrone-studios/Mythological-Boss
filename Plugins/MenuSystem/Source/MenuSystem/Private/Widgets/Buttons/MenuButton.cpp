@@ -8,7 +8,7 @@ void UMenuButton::Init()
 {
 	Super::Init();
 
-	Menu = Cast<UMainMenu>(MenuHUD->GetMenu(MAIN_MENU));
+	Menu = Cast<UMainMenu>(MenuHUD->GetMenu(UMainMenu::StaticClass()));
 	MainMenu = Cast<UMainMenu>(Menu);
 }
 

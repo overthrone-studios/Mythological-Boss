@@ -10,7 +10,7 @@ void UAudioButton::Init()
 {
 	Super::Init();
 
-	Menu = Cast<UAudioMenu>(MenuHUD->GetMenu(AUDIO_MENU));
+	Menu = Cast<UAudioMenu>(MenuHUD->GetMenu(UAudioMenu::StaticClass()));
 	AudioMenu = Cast<UAudioMenu>(Menu);
 }
 

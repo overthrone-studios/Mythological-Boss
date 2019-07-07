@@ -5,14 +5,6 @@
 #include "GameFramework/HUD.h"
 #include "MenuHUD.generated.h"
 
-#define MAIN_MENU 0
-#define NEW_GAME_MENU 1
-#define OPTIONS_MENU 2
-#define VIDEO_MENU 3
-#define CONTROLS_MENU 4
-#define AUDIO_MENU 5
-#define CREDITS_SCREEN 6
-
 /**
  * A HUD that displays different menu screens to the user
  */
@@ -24,13 +16,13 @@ class MENUSYSTEM_API AMenuHUD final : public AHUD
 public:
 	AMenuHUD();
 
-	class UUserWidget* GetMenu(int32 Index);
+	class UUserWidget* GetMenu(TSubclassOf<class UMenuBase> MenuClass);
 
 	void ShowHUD() override;
 	void HideHUD();
 
-	void ShowMenu(int32 Index);
-	void HideMenu(int32 Index);
+	void ShowMenu(TSubclassOf<class UMenuBase> MenuClass);
+	void HideMenu(TSubclassOf<class UMenuBase> MenuClass);
 
 	void SlideMainMenu();
 

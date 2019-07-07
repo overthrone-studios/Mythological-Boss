@@ -23,10 +23,21 @@ void UMasterMenu::Init()
 	}
 }
 
-UMenuBase* UMasterMenu::GetMenu(const int32 Index) const
+UMenuBase* UMasterMenu::GetMenu(const TSubclassOf<UMenuBase> MenuClass) const
 {
-	return Menus[Index];
+	for (auto Menu : Menus)
+	{
+		if (Menu->IsA(MenuClass))
+			return Menu;
+	}
+
+	return nullptr;
 }
+
+//UMenuBase* UMasterMenu::GetMenu(const int32 Index) const
+//{
+//	return Menus[Index];
+//}
 
 TArray<UMenuBase*> UMasterMenu::GetMenus() const
 {

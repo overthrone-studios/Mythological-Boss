@@ -4,7 +4,10 @@
 #include "MenuHUD.h"
 #include "TimerManager.h"
 #include "ButtonBase.h"
-#include "WidgetTree.h"
+#include "VideoMenu.h"
+#include "AudioMenu.h"
+#include "ControlsMenu.h"
+#include "MainMenu.h"
 
 void UOptionsMenu::Init()
 {
@@ -15,7 +18,7 @@ void UOptionsMenu::Init()
 
 void UOptionsMenu::Forward(const EButtonType Menu)
 {
-	MenuHUD->HideMenu(OPTIONS_MENU);
+	MenuHUD->HideMenu(StaticClass());
 
 	Super::Forward(Menu);
 }
@@ -25,19 +28,19 @@ void UOptionsMenu::GoForward()
 	switch (MenuSelected)
 	{
 	case BTN_VIDEO:
-		MenuHUD->ShowMenu(VIDEO_MENU);
+		MenuHUD->ShowMenu(UVideoMenu::StaticClass());
 		break;
 
 	case BTN_AUDIO:
-		MenuHUD->ShowMenu(AUDIO_MENU);
+		MenuHUD->ShowMenu(UAudioMenu::StaticClass());
 		break;
 
 	case BTN_CONTROLS:
-		MenuHUD->ShowMenu(CONTROLS_MENU);
+		MenuHUD->ShowMenu(UControlsMenu::StaticClass());
 		break;
 
 	case BTN_BACK:
-		MenuHUD->ShowMenu(MAIN_MENU);
+		MenuHUD->ShowMenu(UMainMenu::StaticClass());
 		break;
 
 	default:
@@ -49,14 +52,14 @@ void UOptionsMenu::GoForward()
 
 void UOptionsMenu::Back()
 {
-	MenuHUD->HideMenu(OPTIONS_MENU);
+	MenuHUD->HideMenu(StaticClass());
 
 	Super::Back();
 }
 
 void UOptionsMenu::GoBack()
 {
-	MenuHUD->ShowMenu(MAIN_MENU);
+	MenuHUD->ShowMenu(UMainMenu::StaticClass());
 
 	Super::GoBack();
 }

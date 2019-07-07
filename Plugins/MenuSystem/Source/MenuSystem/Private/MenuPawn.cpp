@@ -21,20 +21,15 @@ void AMenuPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
 	EnableUIMode();
-}
-
-// Called to bind functionality to input
-void AMenuPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void AMenuPawn::EnableUIMode() const
 {
 	const FInputModeUIOnly InputModeUIOnly;
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(InputModeUIOnly);
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->bShowMouseCursor = true;
+	PlayerController->SetInputMode(InputModeUIOnly);
+	PlayerController->bShowMouseCursor = true;
 }
 

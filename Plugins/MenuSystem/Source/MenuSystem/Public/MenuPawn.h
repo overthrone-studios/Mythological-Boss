@@ -15,11 +15,12 @@ public:
 
 protected:
 	void BeginPlay() override;
-	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Switches input mode to UI only
 	void EnableUIMode() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCameraComponent* CameraComponent;
+
+	APlayerController* PlayerController;
 };
