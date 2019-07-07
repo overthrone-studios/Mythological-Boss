@@ -1,6 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "Public/BossBattleGameMode.h"
+#include "Public/PlayerHUD.h"
 #include "ConstructorHelpers.h"
 
 ABossBattleGameMode::ABossBattleGameMode()
@@ -12,4 +13,7 @@ ABossBattleGameMode::ABossBattleGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	// Set default HUD class to our PlayerHUD
+	HUDClass = APlayerHUD::StaticClass();
 }
