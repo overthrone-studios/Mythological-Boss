@@ -15,3 +15,10 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 
 	UGameplayStatics::SetBaseSoundMix(this, MasterMix);
 }
+
+void UOverthroneGameInstance::ChangeMasterVolume(const float SliderValue)
+{
+	MasterVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
+
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, MasterVolume);
+}

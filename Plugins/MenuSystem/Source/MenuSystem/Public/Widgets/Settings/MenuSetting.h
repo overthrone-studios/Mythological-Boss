@@ -24,10 +24,10 @@ protected:
 	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Menu Setting")
 		FText SettingLabel;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Menu Setting")
 		FText SettingTooltipText;
 
 	class UGameUserSettings* GameUserSettings;

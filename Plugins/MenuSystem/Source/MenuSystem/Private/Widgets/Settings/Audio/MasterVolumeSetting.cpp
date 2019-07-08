@@ -2,9 +2,4 @@
 
 #include "MasterVolumeSetting.h"
 
-void UMasterVolumeSetting::Apply()
-{
-	
-}
-
 

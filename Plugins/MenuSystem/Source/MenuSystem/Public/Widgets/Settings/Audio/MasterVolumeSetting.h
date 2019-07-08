@@ -12,7 +12,5 @@ UCLASS()
 class MENUSYSTEM_API UMasterVolumeSetting final : public UAudioSetting
 {
 	GENERATED_BODY()
-	
-public:
-	void Apply() override;
+
 };

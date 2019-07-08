@@ -8,6 +8,8 @@ void UAudioMenu::Init()
 {
 	Super::Init();
 
+	InitializeSettings();
+
 	InitializeButtons();
 }
 

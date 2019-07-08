@@ -6,7 +6,7 @@
 #include "OverthroneGameInstance.generated.h"
 
 /**
- * High-level manager object for the Overthrone game instance
+ * High-level manager object for Overthrone game
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
@@ -15,6 +15,12 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 	
 public:
 	UOverthroneGameInstance();
+
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+		void ChangeMasterVolume(float SliderValue);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+		float MasterVolume = 1.0f;
 
 private:
 	class USoundClass* MasterSoundClass;
