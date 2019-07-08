@@ -1,6 +1,5 @@
 // Copyright Ali El Saleh 2019
 
-
 #include "ButtonBase.h"
 #include "MenuHUD.h"
 #include "MenuBase.h"
@@ -14,6 +13,13 @@ void UButtonBase::Init()
 	// Get the Menu HUD
 	MenuHUD = Cast<AMenuHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetHUD());
 	TextWidget = Cast<UTextBlock>(WidgetTree->FindWidget("Text"));
+}
+
+void UButtonBase::NativePreConstruct()
+{
+	TextWidget = Cast<UTextBlock>(WidgetTree->FindWidget("Text"));
+
+	TextWidget->SetText(ButtonText);
 }
 
 void UButtonBase::OnButtonReleased()

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
+#include "SlateSound.h"
 #include "ButtonBase.generated.h"
 
 UENUM()
@@ -34,6 +35,8 @@ public:
 	virtual void Init();
 
 protected:
+	void NativePreConstruct() override;
+
 	// For button functionality
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		virtual void OnButtonReleased();
@@ -61,6 +64,12 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button", meta = (ClampMin = 0.0f, ClampMax=1.0f))
 		float UnhoveredOpacity = 0.8f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+		FSlateSound PressedSound;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+		FSlateSound HoveredSound;
 
 	class UTextBlock* TextWidget;
 
