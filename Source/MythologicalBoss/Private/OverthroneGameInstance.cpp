@@ -27,3 +27,31 @@ void UOverthroneGameInstance::ChangeMasterVolume(const float SliderValue)
 
 	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, SliderValue);
 }
+
+void UOverthroneGameInstance::ChangeMusicVolume(const float SliderValue)
+{
+	MusicVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
+
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MusicSoundClass, SliderValue);
+}
+
+void UOverthroneGameInstance::ChangeSFXVolume(const float SliderValue)
+{
+	SFXVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
+
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, SFXSoundClass, SliderValue);
+}
+
+void UOverthroneGameInstance::ChangeUIVolume(const float SliderValue)
+{
+	UIVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
+
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, UISoundClass, SliderValue);
+}
+
+void UOverthroneGameInstance::ChangeEnvironmentVolume(const float SliderValue)
+{
+	EnvironmentVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
+
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, EnvironmentSoundClass, SliderValue);
+}
