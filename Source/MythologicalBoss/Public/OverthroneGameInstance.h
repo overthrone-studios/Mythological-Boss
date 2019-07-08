@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Audio")
 		void ChangeEnvironmentVolume(float SliderValue);
 
+	UFUNCTION(BlueprintCallable, Category = "Audio")
+		void ToggleMute(bool bShouldMute);
+
 	UPROPERTY(BlueprintReadOnly, Category = "Audio")
 		float MasterVolume = 1.0f;
 

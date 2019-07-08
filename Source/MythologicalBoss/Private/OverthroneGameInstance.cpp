@@ -25,33 +25,53 @@ void UOverthroneGameInstance::ChangeMasterVolume(const float SliderValue)
 {
 	MasterVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
-	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, SliderValue);
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, SliderValue, 1.0f, 0.0f);
 }
 
 void UOverthroneGameInstance::ChangeMusicVolume(const float SliderValue)
 {
 	MusicVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
-	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MusicSoundClass, SliderValue);
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MusicSoundClass, SliderValue, 1.0f, 0.0f);
 }
 
 void UOverthroneGameInstance::ChangeSFXVolume(const float SliderValue)
 {
 	SFXVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
-	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, SFXSoundClass, SliderValue);
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, SFXSoundClass, SliderValue, 1.0f, 0.0f);
 }
 
 void UOverthroneGameInstance::ChangeUIVolume(const float SliderValue)
 {
 	UIVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
-	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, UISoundClass, SliderValue);
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, UISoundClass, SliderValue, 1.0f, 0.0f);
 }
 
 void UOverthroneGameInstance::ChangeEnvironmentVolume(const float SliderValue)
 {
 	EnvironmentVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
-	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, EnvironmentSoundClass, SliderValue);
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, EnvironmentSoundClass, SliderValue, 1.0f, 0.0f);
+}
+
+void UOverthroneGameInstance::ToggleMute(const bool bShouldMute)
+{
+	if (bShouldMute)
+	{
+		MasterSoundClass->Properties.Volume = 0.0f;
+		MusicSoundClass->Properties.Volume = 0.0f;
+		SFXSoundClass->Properties.Volume = 0.0f;
+		UISoundClass->Properties.Volume = 0.0f;
+		EnvironmentSoundClass->Properties.Volume = 0.0f;
+	}
+	else
+	{
+		MasterSoundClass->Properties.Volume = 1.0f;
+		MusicSoundClass->Properties.Volume = 1.0f;
+		SFXSoundClass->Properties.Volume = 1.0f;
+		UISoundClass->Properties.Volume = 1.0f;
+		EnvironmentSoundClass->Properties.Volume = 1.0f;
+	}
 }
