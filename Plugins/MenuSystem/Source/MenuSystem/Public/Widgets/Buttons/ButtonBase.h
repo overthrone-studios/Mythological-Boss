@@ -66,10 +66,10 @@ protected:
 		float UnhoveredOpacity = 0.8f;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
-		FSlateSound PressedSound;
+		USoundBase* PressedSound;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
-		FSlateSound HoveredSound;
+		USoundBase* HoveredSound;
 
 	class UTextBlock* TextWidget;
 

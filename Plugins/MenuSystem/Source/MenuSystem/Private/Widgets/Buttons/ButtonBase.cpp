@@ -18,13 +18,14 @@ void UButtonBase::Init()
 void UButtonBase::NativePreConstruct()
 {
 	TextWidget = Cast<UTextBlock>(WidgetTree->FindWidget("Text"));
-
 	TextWidget->SetText(ButtonText);
 }
 
 void UButtonBase::OnButtonReleased()
 {
 	IsMenuHUDNull();
+
+	UGameplayStatics::PlaySound2D(GetWorld(), PressedSound);
 }
 
 void UButtonBase::OnButtonHovered()
@@ -35,6 +36,8 @@ void UButtonBase::OnButtonHovered()
 		return;
 
 	Menu->SetMenuTooltipText(ButtonTooltipText);
+
+	UGameplayStatics::PlaySound2D(GetWorld(), HoveredSound);
 }
 
 void UButtonBase::OnButtonUnhovered()
