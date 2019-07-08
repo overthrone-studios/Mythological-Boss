@@ -26,7 +26,7 @@ void UMenuBase::InitializeSettings()
 	{
 		Setting->Init();
 		Setting->SetMenuReference(this);
-		ULog::LogDebugMessage(INFO, FString(Setting->GetName() + " initialized"), true);
+		//ULog::LogDebugMessage(INFO, FString(Setting->GetName() + " initialized"), true);
 	}
 }
 

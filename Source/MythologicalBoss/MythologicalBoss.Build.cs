@@ -10,6 +10,6 @@ public class MythologicalBoss : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "RHI", "MenuSystem" });
 
-        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "MenuSystem" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "MenuSystem", "Debug" });
     }
 }

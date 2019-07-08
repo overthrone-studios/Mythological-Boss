@@ -20,9 +20,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Audio Setting")
 		float GetSliderValueAtVolume(int32 Value);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio Setting", meta = (ClampMin=0, ClampMax=100))
-		int32 CurrentVolume = 100;
-
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Audio Setting", meta = (ClampMin=0, ClampMax=100))
 		int32 DefaultVolume = 100;
 };

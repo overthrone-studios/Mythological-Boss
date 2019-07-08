@@ -11,8 +11,13 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 	MusicSoundClass = Cast<USoundClass>(StaticLoadObject(USoundClass::StaticClass(), nullptr, TEXT("SoundClass'/Game/Sounds/Classes/MusicSoundClass.MusicSoundClass'")));
 	SFXSoundClass = Cast<USoundClass>(StaticLoadObject(USoundClass::StaticClass(), nullptr, TEXT("SoundClass'/Game/Sounds/Classes/SFXSoundClass.SFXSoundClass'")));
 	UISoundClass = Cast<USoundClass>(StaticLoadObject(USoundClass::StaticClass(), nullptr, TEXT("SoundClass'/Game/Sounds/Classes/UISoundClass.UISoundClass'")));
-	MasterMix = Cast<USoundMix>(StaticLoadObject(USoundMix::StaticClass(), nullptr, TEXT("SoundMix'/Game/Sounds/Mixes/MasterSoundMix.MasterSoundMix'")));
+	EnvironmentSoundClass = Cast<USoundClass>(StaticLoadObject(USoundClass::StaticClass(), nullptr, TEXT("SoundClass'/Game/Sounds/Classes/EnvironmentSoundClass.EnvironmentSoundClass'")));
 
+	MasterMix = Cast<USoundMix>(StaticLoadObject(USoundMix::StaticClass(), nullptr, TEXT("SoundMix'/Game/Sounds/Mixes/MasterSoundMix.MasterSoundMix'")));
+}
+
+void UOverthroneGameInstance::OnStart()
+{
 	UGameplayStatics::SetBaseSoundMix(this, MasterMix);
 }
 
@@ -20,5 +25,5 @@ void UOverthroneGameInstance::ChangeMasterVolume(const float SliderValue)
 {
 	MasterVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
-	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, MasterVolume);
+	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, SliderValue);
 }

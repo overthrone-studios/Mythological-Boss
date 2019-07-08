@@ -16,6 +16,8 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 public:
 	UOverthroneGameInstance();
 
+	void OnStart() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Audio")
 		void ChangeMasterVolume(float SliderValue);
 
@@ -27,5 +29,6 @@ private:
 	class USoundClass* MusicSoundClass;
 	class USoundClass* SFXSoundClass;
 	class USoundClass* UISoundClass;
+	class USoundClass* EnvironmentSoundClass;
 	class USoundMix* MasterMix;
 };
