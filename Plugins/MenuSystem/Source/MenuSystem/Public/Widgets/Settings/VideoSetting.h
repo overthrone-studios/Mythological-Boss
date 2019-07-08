@@ -12,7 +12,5 @@ UCLASS()
 class MENUSYSTEM_API UVideoSetting : public UMenuSetting
 {
 	GENERATED_BODY()
-	
-protected:
-	TArray<UVideoSetting*> Settings;	
+
 };
