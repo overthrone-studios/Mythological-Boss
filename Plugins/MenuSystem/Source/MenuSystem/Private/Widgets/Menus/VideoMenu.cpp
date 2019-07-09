@@ -46,8 +46,10 @@ void UVideoMenu::Back()
 {
 	if (AnyUnsavedChanges())
 	{
+		// Show the message box
 		ConfirmationBox->SetVisibility(ESlateVisibility::Visible);
 
+		// Generate the message based on the number of settings changed
 		FString NewMessage;
 		const int32 Changes = ChangedSettings.Num();
 		if (Changes > 1)
@@ -55,22 +57,23 @@ void UVideoMenu::Back()
 		else
 			NewMessage = FString("There is ") + FString::FromInt(Changes) + FString(" unsaved change. Do you want to apply this change?");
 
+		// Set the generated message
 		const auto MessageBox = Cast<UTextBlock>(ConfirmationBox->WidgetTree->FindWidget(FName("Message")));
-
 		MessageBox->SetText(FText::FromString(NewMessage));
 
+		// Back out, because we don't want to return to the options menu yet.
 		return;
 	}
 
+	// Hide this menu
 	MenuHUD->HideMenu(StaticClass());
-
 	Super::Back();
 }
 
 void UVideoMenu::GoBack()
 {
+	// Switch to the options menu
 	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
-
 	Super::GoBack();
 }
 
@@ -78,10 +81,11 @@ void UVideoMenu::Apply()
 {
 	Super::Apply();
 
-	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
-
+	// This is when we're in the confirmation back
 	if (ChangedSettings.Num() > 0)
 	{
+		ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
+
 		MenuHUD->HideMenu(StaticClass());
 		Super::Back();
 	}
@@ -91,22 +95,29 @@ void UVideoMenu::Apply()
 
 void UVideoMenu::DiscardChanges()
 {
+	// Go through all changed settings
 	for (auto Setting : ChangedSettings)
 	{
 		Setting->RevertChange();
 	}
 
+	// Hide the message box
 	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
+
+	// Discard the entire array
 	ChangedSettings.Empty();
 
+	// Hide this menu
 	MenuHUD->HideMenu(StaticClass());
 	Super::Back();
 }
 
 bool UVideoMenu::AnyUnsavedChanges()
 {
+	// Go through each setting in this menu
 	for (auto Setting : MenuSettings)
 	{
+		// Add settings that have been changed
 		if (Setting->HasChanged())
 		{
 			ULog::LogDebugMessage(INFO, Setting->GetName() + FString(" has changed"), true);
@@ -116,5 +127,6 @@ bool UVideoMenu::AnyUnsavedChanges()
 	
 	ULog::LogDebugMessage(INFO, FString::FromInt(ChangedSettings.Num()) + FString(" changes found"), true);
 
+	// Return true if at least 1 setting has been changed, otherwise return false
 	return ChangedSettings.Num() > 0;
 }
