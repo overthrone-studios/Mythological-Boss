@@ -55,9 +55,6 @@ void UGraphicsSetting::ChangeGraphicsSetting(const FString& SelectedItem)
 
 		Index++;
 	}
-
-	ULog::LogDebugMessage(INFO, FString("Current: ") + SelectedOption, true);
-	ULog::LogDebugMessage(INFO, FString("Previous: ") + AppliedChange, true);
 }
 
 void UGraphicsSetting::PopulateList(UComboBoxString* DropDownList)
