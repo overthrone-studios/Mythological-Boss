@@ -81,7 +81,7 @@ void UVideoMenu::Apply()
 {
 	Super::Apply();
 
-	// This is when we're in the confirmation back
+	// This is when we're in the confirmation box
 	if (ChangedSettings.Num() > 0)
 	{
 		ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
