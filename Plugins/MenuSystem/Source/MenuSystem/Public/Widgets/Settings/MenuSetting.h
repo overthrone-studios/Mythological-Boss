@@ -20,6 +20,10 @@ public:
 
 	void SetMenuReference(class UMenuBase* InMenu);
 
+	virtual bool HasChanged() {return false;}
+
+	virtual void RevertChange() {}
+
 protected:
 	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;

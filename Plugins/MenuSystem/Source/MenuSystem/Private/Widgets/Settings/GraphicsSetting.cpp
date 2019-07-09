@@ -2,6 +2,34 @@
 
 #include "GraphicsSetting.h"
 #include "ComboBoxString.h"
+#include "WidgetTree.h"
+
+void UGraphicsSetting::Init()
+{
+	Super::Init();
+
+	DefaultOption = SelectedOption;
+	PreviousSelectedOption = SelectedOption;
+
+	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
+}
+
+void UGraphicsSetting::Apply()
+{
+	SelectedOption = PreviousSelectedOption;
+}
+
+bool UGraphicsSetting::HasChanged()
+{
+	return SelectedOption != PreviousSelectedOption;
+}
+
+void UGraphicsSetting::RevertChange()
+{
+	SelectedOption = PreviousSelectedOption;
+	ChangeGraphicsSetting(SelectedOption);
+	SetSelectedOption(DropDownList);
+}
 
 void UGraphicsSetting::ChangeGraphicsSetting(const FString& SelectedItem)
 {
@@ -10,6 +38,7 @@ void UGraphicsSetting::ChangeGraphicsSetting(const FString& SelectedItem)
 	{
 		if (SelectedItem == Option)
 		{
+			PreviousSelectedOption = SelectedOption;
 			SelectedOption = Option;
 			QualityIndex = Index;
 			break;

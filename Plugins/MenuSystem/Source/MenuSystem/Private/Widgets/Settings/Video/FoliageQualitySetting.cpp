@@ -4,5 +4,7 @@
 
 void UFoliageQualitySetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetFoliageQuality(QualityIndex);
 }

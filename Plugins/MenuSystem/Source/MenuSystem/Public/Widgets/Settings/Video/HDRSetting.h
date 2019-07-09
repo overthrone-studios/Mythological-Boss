@@ -17,6 +17,9 @@ public:
 	void Init() override;
 	void Apply() override;
 
+	bool HasChanged() override;
+	void RevertChange() override;
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "HDR Setting")
 		void ChangeHDRSetting(const FString& SelectedItem);

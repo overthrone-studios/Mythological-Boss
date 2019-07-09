@@ -4,5 +4,7 @@
 
 void UShadowQualitySetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetShadowQuality(QualityIndex);
 }

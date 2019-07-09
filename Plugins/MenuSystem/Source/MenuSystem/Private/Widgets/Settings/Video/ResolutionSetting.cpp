@@ -1,10 +1,13 @@
 // Copyright Ali El Saleh 2019
 
 #include "ResolutionSetting.h"
-#include "Components/ComboBoxString.h"
+#include "WidgetTree.h"
+#include "ComboBoxString.h"
 
 void UResolutionSetting::ChangeResolution(const FString& SelectedItem)
 {
+	SelectedOption = SelectedItem;
+
 	// Get the selected resolution string and split it up
 	FString XRes;
 	FString YRes;
@@ -52,7 +55,29 @@ TArray<FString> UResolutionSetting::GetAllSupportedResolutions()
 	return Resolutions;
 }
 
+void UResolutionSetting::Init()
+{
+	Super::Init();
+
+	PreviousSelectedOption = SelectedOption;
+
+	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
+}
+
 void UResolutionSetting::Apply()
 {
+	SelectedOption = PreviousSelectedOption;
 	GameUserSettings->SetScreenResolution(NewResolution);
+}
+
+bool UResolutionSetting::HasChanged()
+{
+	return SelectedOption != PreviousSelectedOption;
+}
+
+void UResolutionSetting::RevertChange()
+{
+	SelectedOption = PreviousSelectedOption;
+	ChangeResolution(SelectedOption);
+	SetSelectedOption(DropDownList);
 }

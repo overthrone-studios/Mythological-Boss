@@ -14,7 +14,11 @@ class MENUSYSTEM_API UDisplayModeSetting final : public UVideoSetting
 	GENERATED_BODY()
 	
 public:
+	void Init() override;
 	void Apply() override;
+
+	bool HasChanged() override;
+	void RevertChange() override;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Display Mode Setting")
@@ -28,4 +32,9 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, Category = "Video Setting")
 		TEnumAsByte<EWindowMode::Type> DisplayMode;
+
+	FString SelectedOption;
+
+	TEnumAsByte<EWindowMode::Type> DefaultDisplayMode;
+	TEnumAsByte<EWindowMode::Type> PreviousDisplayMode;
 };

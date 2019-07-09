@@ -4,5 +4,7 @@
 
 void UEffectsQualitySetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetVisualEffectQuality(QualityIndex);
 }

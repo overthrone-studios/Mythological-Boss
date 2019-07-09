@@ -1,7 +1,9 @@
 // Copyright Ali El Saleh 2019
 
 #include "DisplayModeSetting.h"
+#include "WidgetTree.h"
 #include "ComboBoxString.h"
+#include "Log.h"
 
 void UDisplayModeSetting::PopulateDisplayModeList(UComboBoxString* DropDownList)
 {
@@ -15,15 +17,18 @@ void UDisplayModeSetting::SetSelectedOption(UComboBoxString* DropDownList)
 	switch (DisplayMode)
 	{
 	case EWindowMode::Windowed:
-		DropDownList->SetSelectedOption(FString("Windowed"));
+		SelectedOption = "Windowed";
+		DropDownList->SetSelectedOption(SelectedOption);
 	break;
 
 	case EWindowMode::WindowedFullscreen:
-		DropDownList->SetSelectedOption(FString("Windowed Fullscreen"));
+		SelectedOption = "Windowed Fullscreen";
+		DropDownList->SetSelectedOption(SelectedOption);
 	break;
 
 	case EWindowMode::Fullscreen:
-		DropDownList->SetSelectedOption(FString("Fullscreen"));
+		SelectedOption = "Fullscreen";
+		DropDownList->SetSelectedOption(SelectedOption);
 	break;
 
 	default:
@@ -33,6 +38,8 @@ void UDisplayModeSetting::SetSelectedOption(UComboBoxString* DropDownList)
 
 void UDisplayModeSetting::ChangeDisplayMode(const FString& SelectedItem)
 {
+	PreviousDisplayMode = DisplayMode;
+
 	if (SelectedItem == "Windowed")
 	{
 		DisplayMode = EWindowMode::Windowed;
@@ -47,7 +54,37 @@ void UDisplayModeSetting::ChangeDisplayMode(const FString& SelectedItem)
 	}
 }
 
+void UDisplayModeSetting::Init()
+{
+	Super::Init();
+
+	DefaultDisplayMode = DisplayMode;
+	PreviousDisplayMode = DisplayMode;
+
+	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
+}
+
 void UDisplayModeSetting::Apply()
 {
+	ULog::LogDebugMessage(INFO, FString("DisplayMode: ") + FString::FromInt(DisplayMode), true);
+	ULog::LogDebugMessage(INFO, FString("PreviousDisplayMode: ") + FString::FromInt(PreviousDisplayMode), true);
+
 	GameUserSettings->SetFullscreenMode(DisplayMode);
+	DisplayMode = PreviousDisplayMode;
+}
+
+bool UDisplayModeSetting::HasChanged()
+{
+	if (DisplayMode == PreviousDisplayMode)
+		return false;
+	
+	return true;
+}
+
+void UDisplayModeSetting::RevertChange()
+{
+	DisplayMode = PreviousDisplayMode;
+	SetSelectedOption(DropDownList);
+
+	ChangeDisplayMode(SelectedOption);
 }

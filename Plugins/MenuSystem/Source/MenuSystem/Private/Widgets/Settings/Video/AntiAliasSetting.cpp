@@ -4,5 +4,7 @@
 
 void UAntiAliasSetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetAntiAliasingQuality(QualityIndex);
 }

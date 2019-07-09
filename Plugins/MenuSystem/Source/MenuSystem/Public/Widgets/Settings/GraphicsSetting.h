@@ -12,7 +12,14 @@ UCLASS()
 class MENUSYSTEM_API UGraphicsSetting : public UVideoSetting
 {
 	GENERATED_BODY()
-	
+
+public:
+	void Init() override;
+	void Apply() override;
+
+	bool HasChanged() override;
+	void RevertChange() override;
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Graphics Setting")
 		virtual void ChangeGraphicsSetting(const FString& SelectedItem);
@@ -30,4 +37,6 @@ protected:
 		TArray<FString> Options;
 
 	int32 QualityIndex;
+
+	FString DefaultOption;
 };

@@ -4,5 +4,7 @@
 
 void UTextureQualitySetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetTextureQuality(QualityIndex);
 }

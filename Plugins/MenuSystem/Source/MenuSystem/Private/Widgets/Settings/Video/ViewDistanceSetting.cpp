@@ -4,5 +4,7 @@
 
 void UViewDistanceSetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetViewDistanceQuality(QualityIndex);
 }

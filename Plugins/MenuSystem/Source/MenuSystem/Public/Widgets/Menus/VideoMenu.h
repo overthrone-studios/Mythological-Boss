@@ -16,13 +16,26 @@ class MENUSYSTEM_API UVideoMenu final : public UMenuBase
 public:
 	void Init() override;
 	void Back() override;
+	void Apply() override;
+
+	void InitializeButtons() override;
+
+	void DiscardChanges();
 
 protected:
 	void GoBack() override;
 
+	void HideWidgets();
+
+	bool AnyUnsavedChanges();
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Video Menu")
 		bool bApplyOnLaunch;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Video Menu")
-		TArray<class UVideoSetting*> VideoSettings;
+	UUserWidget* ConfirmationBox;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Video Menu")
+		int32 Changes;
+
+	TArray<class UMenuSetting*> ChangedSettings;
 };

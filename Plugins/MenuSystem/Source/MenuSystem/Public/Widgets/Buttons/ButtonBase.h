@@ -18,6 +18,7 @@ enum EButtonType
 	BTN_CONTROLS	UMETA(DisplayName = "Controls"),
 	BTN_RESET_INPUT	UMETA(DisplayName = "Reset input bindings"),
 	BTN_APPLY		UMETA(DisplayName = "Apply"),
+	BTN_DISCARD		UMETA(DisplayName = "Discard"),
 	BTN_BACK		UMETA(DisplayName = "Back"),
 	BTN_EXIT		UMETA(DisplayName = "Exit"),
 	BTN_NONE		UMETA(DisplayName = "None")

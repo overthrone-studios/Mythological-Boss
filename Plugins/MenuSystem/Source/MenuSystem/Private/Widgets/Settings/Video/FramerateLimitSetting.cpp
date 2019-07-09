@@ -1,11 +1,34 @@
 // Copyright Ali El Saleh 2019
 
 #include "FramerateLimitSetting.h"
+#include "WidgetTree.h"
 #include "ComboBoxString.h"
+
+void UFramerateLimitSetting::Init()
+{
+	Super::Init();
+
+	PreviousSelectedOption = SelectedOption;
+
+	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
+}
 
 void UFramerateLimitSetting::Apply()
 {
+	SelectedOption = PreviousSelectedOption;
 	GameUserSettings->SetFrameRateLimit(NewFrameRateLimit);
+}
+
+bool UFramerateLimitSetting::HasChanged()
+{
+	return SelectedOption != PreviousSelectedOption;
+}
+
+void UFramerateLimitSetting::RevertChange()
+{
+	SelectedOption = PreviousSelectedOption;
+	ChangeFrameRate(SelectedOption);
+	SetSelectedOption(DropDownList);
 }
 
 void UFramerateLimitSetting::ChangeFrameRate(const FString& SelectedItem)
@@ -20,6 +43,7 @@ void UFramerateLimitSetting::ChangeFrameRate(const FString& SelectedItem)
 				break;
 			}
 
+			PreviousSelectedOption = SelectedOption;
 			SelectedOption = Option;
 
 			const FString SuffixToRemove = "FPS";

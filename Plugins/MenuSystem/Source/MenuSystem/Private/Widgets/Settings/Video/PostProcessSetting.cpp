@@ -4,5 +4,7 @@
 
 void UPostProcessSetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->SetPostProcessingQuality(QualityIndex);
 }

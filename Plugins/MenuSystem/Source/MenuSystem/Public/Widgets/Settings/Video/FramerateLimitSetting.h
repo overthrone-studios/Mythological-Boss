@@ -14,7 +14,11 @@ class MENUSYSTEM_API UFramerateLimitSetting final : public UVideoSetting
 	GENERATED_BODY()
 	
 public:
+	void Init() override;
 	void Apply() override;
+
+	bool HasChanged() override;
+	void RevertChange() override;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Framerate Limit Setting")
