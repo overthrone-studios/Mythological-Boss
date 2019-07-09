@@ -9,22 +9,28 @@ void UHDRSetting::Init()
 	Super::Init();
 
 	DefaultOption = SelectedOption;
-	PreviousSelectedOption = SelectedOption;
+	AppliedChange = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 
 	if (GameUserSettings->SupportsHDRDisplayOutput())
+	{
 		SelectedOption = Options[1];
+		AppliedChange = SelectedOption;
+	}
 	else
+	{
 		SelectedOption = Options[0];
+		AppliedChange = SelectedOption;
+	}
 }
 
 void UHDRSetting::Apply()
 {
+	Super::Apply();
+
 	if (GameUserSettings->SupportsHDRDisplayOutput())
 		GameUserSettings->EnableHDRDisplayOutput(bHDREnabled);
-
-	SelectedOption = PreviousSelectedOption;
 }
 
 void UHDRSetting::Reset()
@@ -33,19 +39,11 @@ void UHDRSetting::Reset()
 
 	ChangeHDRSetting(SelectedOption);
 	SetSelectedOption(DropDownList);
-
-	Apply();
-}
-
-bool UHDRSetting::HasChanged()
-{
-	return SelectedOption != PreviousSelectedOption;
 }
 
 void UHDRSetting::RevertChange()
 {
-	SelectedOption = PreviousSelectedOption;
-	ChangeHDRSetting(SelectedOption);
+	ChangeHDRSetting(AppliedChange);
 	SetSelectedOption(DropDownList);
 }
 
@@ -53,13 +51,11 @@ void UHDRSetting::ChangeHDRSetting(const FString& SelectedItem)
 {
 	if (SelectedItem == Options[0])
 	{
-		PreviousSelectedOption = SelectedOption;
 		SelectedOption = Options[0];
 		bHDREnabled = true;
 	}
 	else
 	{
-		PreviousSelectedOption = SelectedOption;
 		SelectedOption = Options[1];
 		bHDREnabled = false;
 	}
