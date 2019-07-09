@@ -3,26 +3,26 @@
 #include "GraphicsSetting.h"
 #include "ComboBoxString.h"
 #include "WidgetTree.h"
+#include "Log.h"
 
 void UGraphicsSetting::Init()
 {
 	Super::Init();
 
 	DefaultOption = SelectedOption;
-	PreviousSelectedOption = SelectedOption;
+	AppliedChange = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
 
 void UGraphicsSetting::Apply()
 {
-	SelectedOption = PreviousSelectedOption;
+	AppliedChange = SelectedOption;
 }
 
 void UGraphicsSetting::Reset()
 {
 	SelectedOption = DefaultOption;
-	PreviousSelectedOption = SelectedOption;
 
 	ChangeGraphicsSetting(SelectedOption);
 	SetSelectedOption(DropDownList);
@@ -32,13 +32,12 @@ void UGraphicsSetting::Reset()
 
 bool UGraphicsSetting::HasChanged()
 {
-	return SelectedOption != PreviousSelectedOption;
+	return SelectedOption != AppliedChange;
 }
 
 void UGraphicsSetting::RevertChange()
 {
-	SelectedOption = PreviousSelectedOption;
-	ChangeGraphicsSetting(SelectedOption);
+	ChangeGraphicsSetting(AppliedChange);
 	SetSelectedOption(DropDownList);
 }
 
@@ -49,7 +48,6 @@ void UGraphicsSetting::ChangeGraphicsSetting(const FString& SelectedItem)
 	{
 		if (SelectedItem == Option)
 		{
-			PreviousSelectedOption = SelectedOption;
 			SelectedOption = Option;
 			QualityIndex = Index;
 			break;
@@ -57,6 +55,9 @@ void UGraphicsSetting::ChangeGraphicsSetting(const FString& SelectedItem)
 
 		Index++;
 	}
+
+	ULog::LogDebugMessage(INFO, FString("Current: ") + SelectedOption, true);
+	ULog::LogDebugMessage(INFO, FString("Previous: ") + AppliedChange, true);
 }
 
 void UGraphicsSetting::PopulateList(UComboBoxString* DropDownList)

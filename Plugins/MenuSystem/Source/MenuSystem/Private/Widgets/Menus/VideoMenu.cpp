@@ -98,6 +98,7 @@ void UVideoMenu::DiscardChanges()
 	// Go through all changed settings
 	for (auto Setting : ChangedSettings)
 	{
+		// Revert to previous applied setting
 		Setting->RevertChange();
 	}
 

@@ -17,11 +17,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
 		FString SelectedOption;
 
-	FString DefaultOption;
-	FString PreviousSelectedOption;
-
 	UPROPERTY(EditInstanceOnly, Category = "Video Setting")
 		TArray<FString> Options;
+
+	FString AppliedChange;
+	FString DefaultOption;
+	FString PreviousSelectedOption;
 
 	class UComboBoxString* DropDownList;
 	class USlider* Slider;
