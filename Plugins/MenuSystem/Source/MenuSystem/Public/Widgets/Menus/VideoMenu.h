@@ -34,8 +34,5 @@ protected:
 
 	UUserWidget* ConfirmationBox;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Video Menu")
-		int32 Changes;
-
 	TArray<class UMenuSetting*> ChangedSettings;
 };

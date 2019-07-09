@@ -49,6 +49,7 @@ void UVideoMenu::Back()
 		ConfirmationBox->SetVisibility(ESlateVisibility::Visible);
 
 		FString NewMessage;
+		const int32 Changes = ChangedSettings.Num();
 		if (Changes > 1)
 			NewMessage = FString("There are ") + FString::FromInt(Changes) + FString(" unsaved changes. Do you want to apply these changes?");
 		else
@@ -79,14 +80,13 @@ void UVideoMenu::Apply()
 
 	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
 
-	if (Changes > 0)
+	if (ChangedSettings.Num() > 0)
 	{
 		MenuHUD->HideMenu(StaticClass());
 		Super::Back();
 	}
 
 	ChangedSettings.Empty();
-	Changes = 0;
 }
 
 void UVideoMenu::DiscardChanges()
@@ -98,7 +98,6 @@ void UVideoMenu::DiscardChanges()
 
 	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
 	ChangedSettings.Empty();
-	Changes = 0;
 
 	MenuHUD->HideMenu(StaticClass());
 	Super::Back();
@@ -112,11 +111,10 @@ bool UVideoMenu::AnyUnsavedChanges()
 		{
 			ULog::LogDebugMessage(INFO, Setting->GetName() + FString(" has changed"), true);
 			ChangedSettings.Add(Setting);
-			Changes++;
 		}
 	}
 	
-	ULog::LogDebugMessage(INFO, FString::FromInt(Changes) + FString(" Changes found"), true);
+	ULog::LogDebugMessage(INFO, FString::FromInt(ChangedSettings.Num()) + FString(" changes found"), true);
 
-	return Changes > 0;
+	return ChangedSettings.Num() > 0;
 }

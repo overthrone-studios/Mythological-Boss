@@ -37,7 +37,7 @@ void UVideoButton::OnButtonReleased()
 		break;
 
 	case BTN_BACK:
-		Menu->Back();
+		VideoMenu->Back();
 		break;
 
 	default:
