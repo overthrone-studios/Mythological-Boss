@@ -14,6 +14,7 @@ void UVideoMenu::Init()
 	Super::Init();
 
 	ConfirmationBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ConfirmationBox")));
+	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
 
 	InitializeSettings();
 
@@ -35,11 +36,29 @@ void UVideoMenu::InitializeButtons()
 	
 	ApplyButton->Init();
 	DiscardButton->Init();
+
+	// Initialise the buttons in the reset warning box
+	const auto YesButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("Yes")));
+	const auto NoButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("No")));
+	
+	YesButton->Init();
+	NoButton->Init();
+}
+
+void UVideoMenu::ShowResetWarning()
+{
+	ResetWarningBox->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UVideoMenu::HideResetWarning()
+{
+	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UVideoMenu::HideWidgets()
 {
 	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
+	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UVideoMenu::Back()

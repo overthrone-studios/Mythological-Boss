@@ -29,7 +29,16 @@ void UVideoButton::OnButtonReleased()
 		break;
 
 	case BTN_RESET_VIDEO:
+		VideoMenu->ShowResetWarning();
+		break;
+
+	case BTN_RESET_YES:
 		Menu->Reset();
+		VideoMenu->HideResetWarning();
+		break;
+
+	case BTN_RESET_NO:
+		VideoMenu->HideResetWarning();
 		break;
 
 	case BTN_DISCARD:

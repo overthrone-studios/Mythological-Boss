@@ -20,6 +20,9 @@ public:
 
 	void InitializeButtons() override;
 
+	void ShowResetWarning();
+	void HideResetWarning();
+
 	void DiscardChanges();
 
 protected:
@@ -32,6 +35,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Video Menu")
 		bool bApplyOnLaunch;
 
+	UUserWidget* ResetWarningBox;
 	UUserWidget* ConfirmationBox;
 
 	TArray<class UMenuSetting*> ChangedSettings;
