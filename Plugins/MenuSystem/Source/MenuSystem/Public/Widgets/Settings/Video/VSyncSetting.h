@@ -18,7 +18,6 @@ public:
 	void Apply() override;
 	void Reset() override;
 
-	bool HasChanged() override;
 	void RevertChange() override;
 
 protected:

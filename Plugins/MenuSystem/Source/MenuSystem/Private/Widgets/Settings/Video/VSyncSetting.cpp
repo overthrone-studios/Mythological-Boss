@@ -9,16 +9,17 @@ void UVSyncSetting::Init()
 	Super::Init();
 
 	DefaultOption = SelectedOption;
-	PreviousSelectedOption = SelectedOption;
+	AppliedChange = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
 
 void UVSyncSetting::Apply()
 {
+	Super::Apply();
+
 	GameUserSettings->bUseVSync = bVSyncEnabled;
 	GameUserSettings->SetVSyncEnabled(bVSyncEnabled);
-	SelectedOption = PreviousSelectedOption;
 }
 
 void UVSyncSetting::Reset()
@@ -27,19 +28,11 @@ void UVSyncSetting::Reset()
 
 	ChangeVSyncSetting(SelectedOption);
 	SetSelectedOption(DropDownList);
-
-	Apply();
-}
-
-bool UVSyncSetting::HasChanged()
-{
-	return SelectedOption != PreviousSelectedOption;
 }
 
 void UVSyncSetting::RevertChange()
 {
-	SelectedOption = PreviousSelectedOption;
-	ChangeVSyncSetting(SelectedOption);
+	ChangeVSyncSetting(AppliedChange);
 	SetSelectedOption(DropDownList);
 }
 
@@ -60,13 +53,11 @@ void UVSyncSetting::ChangeVSyncSetting(const FString& Selection)
 {
 	if (Selection == Options[0])
 	{	
-		PreviousSelectedOption = SelectedOption;
 		SelectedOption = Options[0];
 		bVSyncEnabled = true;
 	}
 	else
 	{
-		PreviousSelectedOption = SelectedOption;
 		SelectedOption = Options[1];
 		bVSyncEnabled = false;
 	}
