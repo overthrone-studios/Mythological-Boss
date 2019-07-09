@@ -29,7 +29,8 @@ void UVideoButton::OnButtonReleased()
 		break;
 
 	case BTN_RESET_VIDEO:
-		VideoMenu->ShowResetWarning();
+		if (!VideoMenu->AreAllSettingsDefault())
+			VideoMenu->ShowResetWarning();
 		break;
 
 	case BTN_RESET_YES:

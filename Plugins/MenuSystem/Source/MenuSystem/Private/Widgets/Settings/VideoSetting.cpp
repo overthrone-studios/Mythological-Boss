@@ -11,3 +11,8 @@ bool UVideoSetting::HasChanged()
 {
 	return SelectedOption != AppliedChange;
 }
+
+bool UVideoSetting::IsDefault()
+{
+	return SelectedOption == DefaultOption;
+}

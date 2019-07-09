@@ -21,8 +21,8 @@ public:
 
 	void SetMenuReference(class UMenuBase* InMenu);
 
+	virtual bool IsDefault() {return true;}
 	virtual bool HasChanged() {return false;}
-
 	virtual void RevertChange() {}
 
 protected:

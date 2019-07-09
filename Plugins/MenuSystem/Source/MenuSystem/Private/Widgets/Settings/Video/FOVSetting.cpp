@@ -61,3 +61,8 @@ void UFOVSetting::Reset()
 
 	Apply();
 }
+
+bool UFOVSetting::IsDefault()
+{
+	return CurrentFOV == DefaultFOV;
+}

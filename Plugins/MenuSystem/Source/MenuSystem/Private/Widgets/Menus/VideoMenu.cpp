@@ -153,3 +153,21 @@ bool UVideoMenu::AnyUnsavedChanges()
 	// Return true if at least 1 setting has been changed, otherwise return false
 	return ChangedSettings.Num() > 0;
 }
+
+bool UVideoMenu::AreAllSettingsDefault()
+{
+	int32 Changes = 0;
+
+	// Go through each setting in this menu
+	for (auto Setting : MenuSettings)
+	{
+		// Add settings that have been changed
+		if (!Setting->IsDefault())
+		{
+			Changes++;
+		}
+	}
+
+	return Changes == 0;
+}
+

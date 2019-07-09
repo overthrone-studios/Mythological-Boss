@@ -18,6 +18,8 @@ public:
 	void Apply() override;
 	void Reset() override;
 
+	bool IsDefault() override;
+
 protected:
 	void NativePreConstruct() override;
 

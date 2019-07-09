@@ -30,6 +30,11 @@ void UBrightnessSetting::Reset()
 	Apply();
 }
 
+bool UBrightnessSetting::IsDefault()
+{
+	return CurrentBrightness == DefaultBrightness;
+}
+
 void UBrightnessSetting::NativePreConstruct()
 {
 	Super::NativePreConstruct();

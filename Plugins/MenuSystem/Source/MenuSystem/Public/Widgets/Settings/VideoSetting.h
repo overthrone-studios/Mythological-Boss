@@ -16,6 +16,7 @@ class MENUSYSTEM_API UVideoSetting : public UMenuSetting
 public:
 	void Apply() override;
 	bool HasChanged() override;
+	bool IsDefault() override;
 
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")

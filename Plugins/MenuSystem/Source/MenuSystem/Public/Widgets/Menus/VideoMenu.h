@@ -25,6 +25,8 @@ public:
 
 	void DiscardChanges();
 
+	bool AreAllSettingsDefault();
+
 protected:
 	void GoBack() override;
 
