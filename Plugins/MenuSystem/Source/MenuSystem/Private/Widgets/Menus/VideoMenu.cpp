@@ -25,6 +25,23 @@ void UVideoMenu::Init()
 		Apply();
 }
 
+void UVideoMenu::InitializeButtons()
+{
+	Super::InitializeButtons();
+
+	// Initialise the buttons in the confirmation box
+	const auto ApplyButton = Cast<UButtonBase>(ConfirmationBox->WidgetTree->FindWidget(FName("ConfirmApply")));
+	const auto DiscardButton = Cast<UButtonBase>(ConfirmationBox->WidgetTree->FindWidget(FName("ConfirmDiscard")));
+	
+	ApplyButton->Init();
+	DiscardButton->Init();
+}
+
+void UVideoMenu::HideWidgets()
+{
+	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
+}
+
 void UVideoMenu::Back()
 {
 	if (AnyUnsavedChanges())
@@ -49,6 +66,13 @@ void UVideoMenu::Back()
 	Super::Back();
 }
 
+void UVideoMenu::GoBack()
+{
+	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
+
+	Super::GoBack();
+}
+
 void UVideoMenu::Apply()
 {
 	Super::Apply();
@@ -65,18 +89,6 @@ void UVideoMenu::Apply()
 	Changes = 0;
 }
 
-void UVideoMenu::InitializeButtons()
-{
-	Super::InitializeButtons();
-
-	// Initialise the buttons in the confirmation box
-	const auto ApplyButton = Cast<UButtonBase>(ConfirmationBox->WidgetTree->FindWidget(FName("ConfirmApply")));
-	const auto DiscardButton = Cast<UButtonBase>(ConfirmationBox->WidgetTree->FindWidget(FName("ConfirmDiscard")));
-	
-	ApplyButton->Init();
-	DiscardButton->Init();
-}
-
 void UVideoMenu::DiscardChanges()
 {
 	for (auto Setting : ChangedSettings)
@@ -90,18 +102,6 @@ void UVideoMenu::DiscardChanges()
 
 	MenuHUD->HideMenu(StaticClass());
 	Super::Back();
-}
-
-void UVideoMenu::GoBack()
-{
-	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
-
-	Super::GoBack();
-}
-
-void UVideoMenu::HideWidgets()
-{
-	ConfirmationBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 bool UVideoMenu::AnyUnsavedChanges()
