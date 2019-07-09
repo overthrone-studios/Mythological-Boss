@@ -9,14 +9,15 @@ void UFramerateLimitSetting::Init()
 	Super::Init();
 
 	DefaultOption = SelectedOption;
-	PreviousSelectedOption = SelectedOption;
+	AppliedChange = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
 
 void UFramerateLimitSetting::Apply()
 {
-	SelectedOption = PreviousSelectedOption;
+	Super::Apply();
+	
 	GameUserSettings->SetFrameRateLimit(NewFrameRateLimit);
 }
 
@@ -26,19 +27,11 @@ void UFramerateLimitSetting::Reset()
 
 	ChangeFrameRate(SelectedOption);
 	SetSelectedOption(DropDownList);
-
-	Apply();
-}
-
-bool UFramerateLimitSetting::HasChanged()
-{
-	return SelectedOption != PreviousSelectedOption;
 }
 
 void UFramerateLimitSetting::RevertChange()
 {
-	SelectedOption = PreviousSelectedOption;
-	ChangeFrameRate(SelectedOption);
+	ChangeFrameRate(AppliedChange);
 	SetSelectedOption(DropDownList);
 }
 
@@ -48,14 +41,13 @@ void UFramerateLimitSetting::ChangeFrameRate(const FString& SelectedItem)
 	{
 		if (SelectedItem == Option)
 		{
+			SelectedOption = Option;
+
 			if (Option == "Unlimited")
 			{
 				NewFrameRateLimit = 0.0f;
 				break;
 			}
-
-			PreviousSelectedOption = SelectedOption;
-			SelectedOption = Option;
 
 			const FString SuffixToRemove = "FPS";
 			Option.RemoveFromEnd(SuffixToRemove);

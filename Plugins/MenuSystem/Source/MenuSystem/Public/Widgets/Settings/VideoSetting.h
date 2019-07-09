@@ -26,7 +26,6 @@ protected:
 
 	FString AppliedChange;
 	FString DefaultOption;
-	FString PreviousSelectedOption;
 
 	class UComboBoxString* DropDownList;
 	class USlider* Slider;
