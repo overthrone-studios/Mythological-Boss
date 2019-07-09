@@ -13,6 +13,10 @@ class MENUSYSTEM_API UVideoSetting : public UMenuSetting
 {
 	GENERATED_BODY()
 
+public:
+	void Apply() override;
+	bool HasChanged() override;
+
 protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
 		FString SelectedOption;

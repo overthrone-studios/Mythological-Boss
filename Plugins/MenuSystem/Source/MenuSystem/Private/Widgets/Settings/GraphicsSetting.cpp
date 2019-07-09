@@ -30,11 +30,6 @@ void UGraphicsSetting::Reset()
 	Apply();
 }
 
-bool UGraphicsSetting::HasChanged()
-{
-	return SelectedOption != AppliedChange;
-}
-
 void UGraphicsSetting::RevertChange()
 {
 	ChangeGraphicsSetting(AppliedChange);

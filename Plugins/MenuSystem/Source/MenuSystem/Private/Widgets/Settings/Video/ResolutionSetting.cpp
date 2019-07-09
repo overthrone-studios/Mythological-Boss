@@ -67,7 +67,8 @@ void UResolutionSetting::Init()
 
 void UResolutionSetting::Apply()
 {
-	SelectedOption = PreviousSelectedOption;
+	Super::Apply();
+
 	GameUserSettings->SetScreenResolution(NewResolution);
 }
 
@@ -81,14 +82,8 @@ void UResolutionSetting::Reset()
 	Apply();
 }
 
-bool UResolutionSetting::HasChanged()
-{
-	return SelectedOption != PreviousSelectedOption;
-}
-
 void UResolutionSetting::RevertChange()
 {
-	SelectedOption = PreviousSelectedOption;
-	ChangeResolution(SelectedOption);
+	ChangeResolution(AppliedChange);
 	SetSelectedOption(DropDownList);
 }
