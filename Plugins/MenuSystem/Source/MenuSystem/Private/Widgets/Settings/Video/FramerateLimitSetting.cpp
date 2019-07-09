@@ -24,6 +24,7 @@ void UFramerateLimitSetting::Apply()
 void UFramerateLimitSetting::Reset()
 {
 	SelectedOption = DefaultOption;
+	AppliedChange = SelectedOption;
 
 	ChangeFrameRate(SelectedOption);
 	SetSelectedOption(DropDownList);

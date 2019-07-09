@@ -36,6 +36,7 @@ void UHDRSetting::Apply()
 void UHDRSetting::Reset()
 {
 	SelectedOption = DefaultOption;
+	AppliedChange = SelectedOption;
 
 	ChangeHDRSetting(SelectedOption);
 	SetSelectedOption(DropDownList);

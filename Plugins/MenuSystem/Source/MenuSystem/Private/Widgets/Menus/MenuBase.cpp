@@ -119,6 +119,8 @@ void UMenuBase::Reset()
 	{
 		Setting->Reset();
 	}
+
+	Apply();
 }
 
 void UMenuBase::GoBack()

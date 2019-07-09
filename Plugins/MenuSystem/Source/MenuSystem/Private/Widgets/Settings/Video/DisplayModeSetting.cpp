@@ -77,9 +77,12 @@ void UDisplayModeSetting::Apply()
 void UDisplayModeSetting::Reset()
 {
 	DisplayMode = DefaultDisplayMode;
-	
-	SetSelectedOption(DropDownList);
+	AppliedDisplayMode = DisplayMode;
+	SelectedOption = DefaultOption;
+	AppliedChange = SelectedOption;
+
 	ChangeDisplayMode(SelectedOption);
+	SetSelectedOption(DropDownList);
 }
 
 bool UDisplayModeSetting::HasChanged()

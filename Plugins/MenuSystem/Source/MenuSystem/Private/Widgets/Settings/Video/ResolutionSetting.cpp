@@ -75,6 +75,7 @@ void UResolutionSetting::Apply()
 void UResolutionSetting::Reset()
 {
 	SelectedOption = DefaultOption;
+	AppliedChange = SelectedOption;
 
 	ChangeResolution(SelectedOption);
 	SetSelectedOption(DropDownList);

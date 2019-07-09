@@ -25,6 +25,7 @@ void UVSyncSetting::Apply()
 void UVSyncSetting::Reset()
 {
 	SelectedOption = DefaultOption;
+	AppliedChange = SelectedOption;
 
 	ChangeVSyncSetting(SelectedOption);
 	SetSelectedOption(DropDownList);

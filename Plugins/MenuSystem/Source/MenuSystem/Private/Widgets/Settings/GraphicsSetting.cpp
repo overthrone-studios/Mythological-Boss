@@ -17,6 +17,7 @@ void UGraphicsSetting::Init()
 void UGraphicsSetting::Reset()
 {
 	SelectedOption = DefaultOption;
+	AppliedChange = SelectedOption;
 
 	ChangeGraphicsSetting(SelectedOption);
 	SetSelectedOption(DropDownList);
