@@ -66,11 +66,18 @@ void UDisplayModeSetting::Init()
 
 void UDisplayModeSetting::Apply()
 {
-	ULog::LogDebugMessage(INFO, FString("DisplayMode: ") + FString::FromInt(DisplayMode), true);
-	ULog::LogDebugMessage(INFO, FString("PreviousDisplayMode: ") + FString::FromInt(PreviousDisplayMode), true);
-
 	GameUserSettings->SetFullscreenMode(DisplayMode);
 	DisplayMode = PreviousDisplayMode;
+}
+
+void UDisplayModeSetting::Reset()
+{
+	DisplayMode = DefaultDisplayMode;
+	
+	SetSelectedOption(DropDownList);
+	ChangeDisplayMode(SelectedOption);
+
+	Apply();
 }
 
 bool UDisplayModeSetting::HasChanged()

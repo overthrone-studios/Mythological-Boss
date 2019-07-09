@@ -17,6 +17,7 @@ class MENUSYSTEM_API UMenuSetting : public UUserWidget
 public:
 	virtual void Apply();
 	virtual void Init();
+	virtual void Reset();
 
 	void SetMenuReference(class UMenuBase* InMenu);
 

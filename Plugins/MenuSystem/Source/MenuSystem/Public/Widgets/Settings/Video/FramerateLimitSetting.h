@@ -16,6 +16,7 @@ class MENUSYSTEM_API UFramerateLimitSetting final : public UVideoSetting
 public:
 	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 	bool HasChanged() override;
 	void RevertChange() override;
@@ -29,12 +30,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Framerate Limit Setting")
 		void SetSelectedOption(class UComboBoxString* DropDownList);
-
-	UPROPERTY(EditInstanceOnly, Category = "Framerate Limit Setting")
-		FString SelectedOption;
-
-	UPROPERTY(EditInstanceOnly, Category = "Framerate Limit Setting")
-		TArray<FString> Options;
 
 private:
 	float NewFrameRateLimit;

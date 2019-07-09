@@ -8,6 +8,7 @@ void UHDRSetting::Init()
 {
 	Super::Init();
 
+	DefaultOption = SelectedOption;
 	PreviousSelectedOption = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
@@ -24,6 +25,16 @@ void UHDRSetting::Apply()
 		GameUserSettings->EnableHDRDisplayOutput(bHDREnabled);
 
 	SelectedOption = PreviousSelectedOption;
+}
+
+void UHDRSetting::Reset()
+{
+	SelectedOption = DefaultOption;
+
+	ChangeHDRSetting(SelectedOption);
+	SetSelectedOption(DropDownList);
+
+	Apply();
 }
 
 bool UHDRSetting::HasChanged()

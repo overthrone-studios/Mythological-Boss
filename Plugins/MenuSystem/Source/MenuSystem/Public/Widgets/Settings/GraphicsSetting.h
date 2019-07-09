@@ -16,6 +16,7 @@ class MENUSYSTEM_API UGraphicsSetting : public UVideoSetting
 public:
 	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 	bool HasChanged() override;
 	void RevertChange() override;
@@ -30,13 +31,5 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Graphics Setting")
 		virtual void SetSelectedOption(class UComboBoxString* DropDownList);
 
-	UPROPERTY(EditInstanceOnly, Category = "Graphics Setting")
-		FString SelectedOption;
-
-	UPROPERTY(EditInstanceOnly, Category = "Graphics Setting")
-		TArray<FString> Options;
-
 	int32 QualityIndex;
-
-	FString DefaultOption;
 };

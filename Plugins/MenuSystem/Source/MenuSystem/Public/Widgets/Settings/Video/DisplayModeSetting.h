@@ -16,6 +16,7 @@ class MENUSYSTEM_API UDisplayModeSetting final : public UVideoSetting
 public:
 	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 	bool HasChanged() override;
 	void RevertChange() override;

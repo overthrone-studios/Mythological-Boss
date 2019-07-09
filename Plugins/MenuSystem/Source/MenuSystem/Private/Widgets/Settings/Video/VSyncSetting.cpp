@@ -8,6 +8,7 @@ void UVSyncSetting::Init()
 {
 	Super::Init();
 
+	DefaultOption = SelectedOption;
 	PreviousSelectedOption = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
@@ -18,6 +19,16 @@ void UVSyncSetting::Apply()
 	GameUserSettings->bUseVSync = bVSyncEnabled;
 	GameUserSettings->SetVSyncEnabled(bVSyncEnabled);
 	SelectedOption = PreviousSelectedOption;
+}
+
+void UVSyncSetting::Reset()
+{
+	SelectedOption = DefaultOption;
+
+	ChangeVSyncSetting(SelectedOption);
+	SetSelectedOption(DropDownList);
+
+	Apply();
 }
 
 bool UVSyncSetting::HasChanged()

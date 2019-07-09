@@ -8,6 +8,7 @@ void UFramerateLimitSetting::Init()
 {
 	Super::Init();
 
+	DefaultOption = SelectedOption;
 	PreviousSelectedOption = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
@@ -17,6 +18,16 @@ void UFramerateLimitSetting::Apply()
 {
 	SelectedOption = PreviousSelectedOption;
 	GameUserSettings->SetFrameRateLimit(NewFrameRateLimit);
+}
+
+void UFramerateLimitSetting::Reset()
+{
+	SelectedOption = DefaultOption;
+
+	ChangeFrameRate(SelectedOption);
+	SetSelectedOption(DropDownList);
+
+	Apply();
 }
 
 bool UFramerateLimitSetting::HasChanged()

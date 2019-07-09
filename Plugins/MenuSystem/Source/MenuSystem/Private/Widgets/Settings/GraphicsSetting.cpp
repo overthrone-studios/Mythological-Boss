@@ -19,6 +19,17 @@ void UGraphicsSetting::Apply()
 	SelectedOption = PreviousSelectedOption;
 }
 
+void UGraphicsSetting::Reset()
+{
+	SelectedOption = DefaultOption;
+	PreviousSelectedOption = SelectedOption;
+
+	ChangeGraphicsSetting(SelectedOption);
+	SetSelectedOption(DropDownList);
+
+	Apply();
+}
+
 bool UGraphicsSetting::HasChanged()
 {
 	return SelectedOption != PreviousSelectedOption;

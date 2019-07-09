@@ -16,6 +16,7 @@ class MENUSYSTEM_API UVSyncSetting final : public UVideoSetting
 public:
 	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 	bool HasChanged() override;
 	void RevertChange() override;
@@ -29,12 +30,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "V-Sync Setting")
 		void ChangeVSyncSetting(const FString& Selection);
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "V-Sync Setting")
-		FString SelectedOption;
-
-	UPROPERTY(EditInstanceOnly, Category = "V-Sync Setting")
-		TArray<FString> Options;
 
 private:
 	bool bVSyncEnabled;

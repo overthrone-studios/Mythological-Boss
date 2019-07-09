@@ -16,6 +16,7 @@ class MENUSYSTEM_API UResolutionSetting final : public UVideoSetting
 public:
 	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 	bool HasChanged() override;
 	void RevertChange() override;
@@ -32,9 +33,6 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Video Settings")
 		TArray<FString> GetAllSupportedResolutions();
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Resolution Setting")
-		FString SelectedOption;
 
 private:
 	FIntPoint NewResolution;

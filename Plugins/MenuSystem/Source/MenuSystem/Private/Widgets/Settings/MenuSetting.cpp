@@ -13,6 +13,11 @@ void UMenuSetting::Init()
 	GameUserSettings = GEngine->GetGameUserSettings();
 }
 
+void UMenuSetting::Reset()
+{
+	GameUserSettings->ApplySettings(false);
+}
+
 void UMenuSetting::SetMenuReference(UMenuBase* InMenu)
 {
 	Menu = InMenu;

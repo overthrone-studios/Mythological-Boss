@@ -16,6 +16,7 @@ class MENUSYSTEM_API UHDRSetting final : public UVideoSetting
 public:
 	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 	bool HasChanged() override;
 	void RevertChange() override;
@@ -29,12 +30,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "HDR Setting")
 		void SetSelectedOption(class UComboBoxString* DropDownList);
-
-	UPROPERTY(EditInstanceOnly, Category = "HDR Setting")
-		FString SelectedOption;
-
-	UPROPERTY(EditInstanceOnly, Category = "HDR Setting")
-		TArray<FString> Options;
 
 private:
 	bool bHDREnabled;

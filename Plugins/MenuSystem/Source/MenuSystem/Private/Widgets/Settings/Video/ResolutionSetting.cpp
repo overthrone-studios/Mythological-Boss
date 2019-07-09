@@ -59,6 +59,7 @@ void UResolutionSetting::Init()
 {
 	Super::Init();
 
+	DefaultOption = SelectedOption;
 	PreviousSelectedOption = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
@@ -68,6 +69,16 @@ void UResolutionSetting::Apply()
 {
 	SelectedOption = PreviousSelectedOption;
 	GameUserSettings->SetScreenResolution(NewResolution);
+}
+
+void UResolutionSetting::Reset()
+{
+	SelectedOption = DefaultOption;
+
+	ChangeResolution(SelectedOption);
+	SetSelectedOption(DropDownList);
+
+	Apply();
 }
 
 bool UResolutionSetting::HasChanged()

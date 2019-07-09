@@ -113,6 +113,14 @@ void UMenuBase::Back()
 		GoBack();
 }
 
+void UMenuBase::Reset()
+{
+	for (auto Setting : MenuSettings)
+	{
+		Setting->Reset();
+	}
+}
+
 void UMenuBase::GoBack()
 {
 	GetWorld()->GetTimerManager().ClearTimer(BackTimerHandle);

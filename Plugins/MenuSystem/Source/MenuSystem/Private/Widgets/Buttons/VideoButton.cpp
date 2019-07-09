@@ -28,6 +28,10 @@ void UVideoButton::OnButtonReleased()
 		Menu->Apply();
 		break;
 
+	case BTN_RESET_VIDEO:
+		Menu->Reset();
+		break;
+
 	case BTN_DISCARD:
 		VideoMenu->DiscardChanges();
 		break;

@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void Back();
 
+	UFUNCTION(BlueprintCallable)
+		virtual void Reset();
+
 	virtual void SetMenuTooltipText(const FText& Text);
 
 protected:

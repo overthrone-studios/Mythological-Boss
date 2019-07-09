@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
-#include "SlateSound.h"
 #include "ButtonBase.generated.h"
 
 UENUM()
@@ -19,6 +18,7 @@ enum EButtonType
 	BTN_RESET_INPUT	UMETA(DisplayName = "Reset input bindings"),
 	BTN_APPLY		UMETA(DisplayName = "Apply"),
 	BTN_DISCARD		UMETA(DisplayName = "Discard"),
+	BTN_RESET_VIDEO UMETA(DisplayName = "Reset video settings"),
 	BTN_BACK		UMETA(DisplayName = "Back"),
 	BTN_EXIT		UMETA(DisplayName = "Exit"),
 	BTN_NONE		UMETA(DisplayName = "None")

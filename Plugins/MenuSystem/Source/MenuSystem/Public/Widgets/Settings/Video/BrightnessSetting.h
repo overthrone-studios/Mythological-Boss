@@ -14,7 +14,9 @@ class MENUSYSTEM_API UBrightnessSetting final : public UVideoSetting
 	GENERATED_BODY()
 	
 public:
+	void Init() override;
 	void Apply() override;
+	void Reset() override;
 
 protected:
 	void NativePreConstruct() override;
@@ -42,4 +44,6 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting")
 		bool bApplyOnChange;	
+
+	class UTextBlock* Value;
 };
