@@ -60,7 +60,7 @@ void UResolutionSetting::Init()
 	Super::Init();
 
 	DefaultOption = SelectedOption;
-	PreviousSelectedOption = SelectedOption;
+	AppliedChange = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
@@ -78,8 +78,6 @@ void UResolutionSetting::Reset()
 
 	ChangeResolution(SelectedOption);
 	SetSelectedOption(DropDownList);
-
-	Apply();
 }
 
 void UResolutionSetting::RevertChange()

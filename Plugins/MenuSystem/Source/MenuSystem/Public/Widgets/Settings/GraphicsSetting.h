@@ -15,7 +15,6 @@ class MENUSYSTEM_API UGraphicsSetting : public UVideoSetting
 
 public:
 	void Init() override;
-	void Apply() override;
 	void Reset() override;
 
 	void RevertChange() override;

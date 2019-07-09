@@ -34,8 +34,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Video Setting")
 		TEnumAsByte<EWindowMode::Type> DisplayMode;
 
-	FString SelectedOption;
-
 	TEnumAsByte<EWindowMode::Type> DefaultDisplayMode;
-	TEnumAsByte<EWindowMode::Type> PreviousDisplayMode;
+	TEnumAsByte<EWindowMode::Type> AppliedDisplayMode;
 };

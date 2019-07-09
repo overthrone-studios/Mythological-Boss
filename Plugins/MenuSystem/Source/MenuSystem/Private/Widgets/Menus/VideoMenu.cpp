@@ -108,6 +108,9 @@ void UVideoMenu::DiscardChanges()
 	// Discard the entire array
 	ChangedSettings.Empty();
 
+	// Apply the changes
+	Super::Apply();
+
 	// Hide this menu
 	MenuHUD->HideMenu(StaticClass());
 	Super::Back();

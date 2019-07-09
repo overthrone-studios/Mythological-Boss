@@ -3,7 +3,6 @@
 #include "DisplayModeSetting.h"
 #include "WidgetTree.h"
 #include "ComboBoxString.h"
-#include "Log.h"
 
 void UDisplayModeSetting::PopulateDisplayModeList(UComboBoxString* DropDownList)
 {
@@ -38,7 +37,7 @@ void UDisplayModeSetting::SetSelectedOption(UComboBoxString* DropDownList)
 
 void UDisplayModeSetting::ChangeDisplayMode(const FString& SelectedItem)
 {
-	PreviousDisplayMode = DisplayMode;
+	SelectedOption = SelectedItem;
 
 	if (SelectedItem == "Windowed")
 	{
@@ -58,16 +57,21 @@ void UDisplayModeSetting::Init()
 {
 	Super::Init();
 
+	DefaultOption = SelectedOption;
+	AppliedChange = SelectedOption;
 	DefaultDisplayMode = DisplayMode;
-	PreviousDisplayMode = DisplayMode;
+	AppliedDisplayMode = DisplayMode;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
 
 void UDisplayModeSetting::Apply()
 {
+	Super::Apply();
+
+	AppliedDisplayMode = DisplayMode;
+
 	GameUserSettings->SetFullscreenMode(DisplayMode);
-	DisplayMode = PreviousDisplayMode;
 }
 
 void UDisplayModeSetting::Reset()
@@ -76,13 +80,11 @@ void UDisplayModeSetting::Reset()
 	
 	SetSelectedOption(DropDownList);
 	ChangeDisplayMode(SelectedOption);
-
-	Apply();
 }
 
 bool UDisplayModeSetting::HasChanged()
 {
-	if (DisplayMode == PreviousDisplayMode)
+	if (DisplayMode == AppliedDisplayMode)
 		return false;
 	
 	return true;
@@ -90,8 +92,6 @@ bool UDisplayModeSetting::HasChanged()
 
 void UDisplayModeSetting::RevertChange()
 {
-	DisplayMode = PreviousDisplayMode;
+	ChangeDisplayMode(AppliedChange);
 	SetSelectedOption(DropDownList);
-
-	ChangeDisplayMode(SelectedOption);
 }

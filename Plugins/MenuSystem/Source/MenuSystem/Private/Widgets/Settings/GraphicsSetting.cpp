@@ -3,7 +3,6 @@
 #include "GraphicsSetting.h"
 #include "ComboBoxString.h"
 #include "WidgetTree.h"
-#include "Log.h"
 
 void UGraphicsSetting::Init()
 {
@@ -15,19 +14,12 @@ void UGraphicsSetting::Init()
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
 
-void UGraphicsSetting::Apply()
-{
-	AppliedChange = SelectedOption;
-}
-
 void UGraphicsSetting::Reset()
 {
 	SelectedOption = DefaultOption;
 
 	ChangeGraphicsSetting(SelectedOption);
 	SetSelectedOption(DropDownList);
-
-	Apply();
 }
 
 void UGraphicsSetting::RevertChange()
