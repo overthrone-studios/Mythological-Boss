@@ -35,6 +35,9 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Video Settings")
 		TArray<FString> GetAllSupportedResolutions();
 
+	UPROPERTY(EditInstanceOnly, Category = "Video Settings", meta = (ClampMin=5, ClampMax=20))
+		int32 MaxResolutions = 5;
+
 private:
 	FIntPoint NewResolution;
 

@@ -32,6 +32,9 @@ void UResolutionSetting::PopulateResolutionList(UComboBoxString* DropDownList)
 		FString Option = FString::FromInt(ScreenResolutions[i].Width) + "x" + FString::FromInt(ScreenResolutions[i].Height);
 
 		DropDownList->AddOption(Option);
+		
+		if (DropDownList->GetOptionCount() == MaxResolutions)
+			break;
 	}
 }
 
