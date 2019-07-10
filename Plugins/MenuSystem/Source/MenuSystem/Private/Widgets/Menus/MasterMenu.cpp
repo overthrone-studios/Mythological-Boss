@@ -35,11 +35,6 @@ UMenuBase* UMasterMenu::GetMenu(const TSubclassOf<UMenuBase> MenuClass) const
 	return nullptr;
 }
 
-//UMenuBase* UMasterMenu::GetMenu(const int32 Index) const
-//{
-//	return Menus[Index];
-//}
-
 TArray<UMenuBase*> UMasterMenu::GetMenus() const
 {
 	return Menus;
@@ -71,12 +66,12 @@ TArray<UMenuBase*> UMasterMenu::GetAllChildMenus() const
 
 	for (int32 i = 0; i < WidgetSwitcher->GetChildrenCount(); i++)
 	{
-		const auto Menu = Cast<UMenuBase>(WidgetSwitcher->GetChildAt(i));
+		const auto Menu = WidgetSwitcher->GetChildAt(i);
 
-		if (Cast<UMenuBase>(Menu))
-			FoundMenus.Add(Menu);
+		if (Menu->IsA(UMenuBase::StaticClass()))
+			FoundMenus.Add(Cast<UMenuBase>(Menu));
 		else
-			ULog::LogDebugMessage(WARNING, FString(Menu->GetName() + " is not a UMenuBase"), true);
+			ULog::LogDebugMessage(WARNING, FString(Menu->GetName() + " is not a UMenuBase. Remove " + Menu->GetName() + " from " + GetName()), true);
 	}
 
 	return FoundMenus;
