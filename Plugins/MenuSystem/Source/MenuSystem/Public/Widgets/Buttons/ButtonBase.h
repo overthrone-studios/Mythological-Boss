@@ -18,9 +18,9 @@ enum EButtonType
 	BTN_RESET_INPUT	UMETA(DisplayName = "Reset input bindings"),
 	BTN_APPLY		UMETA(DisplayName = "Apply"),
 	BTN_DISCARD		UMETA(DisplayName = "Discard"),
-	BTN_RESET_VIDEO UMETA(DisplayName = "Reset video settings"),
-	BTN_RESET_YES	UMETA(DisplayName = "Reset video settings Yes"),
-	BTN_RESET_NO	UMETA(DisplayName = "Reset video settings No"),
+	BTN_RESET		UMETA(DisplayName = "Reset"),
+	BTN_RESET_YES	UMETA(DisplayName = "Reset confirm Yes"),
+	BTN_RESET_NO	UMETA(DisplayName = "Reset confirm No"),
 	BTN_BACK		UMETA(DisplayName = "Back"),
 	BTN_EXIT		UMETA(DisplayName = "Exit"),
 	BTN_NONE		UMETA(DisplayName = "None")
