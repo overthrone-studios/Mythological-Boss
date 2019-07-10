@@ -129,6 +129,23 @@ void UMenuBase::GoBack()
 	GetWorld()->GetTimerManager().ClearTimer(BackTimerHandle);
 }
 
+bool UMenuBase::AreAllSettingsDefault()
+{
+	int32 Changes = 0;
+
+	// Go through each setting in this menu
+	for (auto Setting : MenuSettings)
+	{
+		// Add settings that have been changed
+		if (!Setting->IsDefault())
+		{
+			Changes++;
+		}
+	}
+
+	return Changes == 0;
+}
+
 void UMenuBase::SetMenuTooltipText(const FText& Text)
 {
 	MenuTooltipText = Text;

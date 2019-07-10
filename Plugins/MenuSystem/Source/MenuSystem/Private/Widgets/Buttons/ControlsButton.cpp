@@ -23,8 +23,18 @@ void UControlsButton::OnButtonReleased()
 
 	switch (ButtonType)
 	{
-	case BTN_RESET_INPUT:
-		ControlsMenu->ResetKeyBindings();
+	case BTN_RESET:
+		if (!Menu->AreAllSettingsDefault())
+			ControlsMenu->ShowResetWarning();
+		break;
+
+	case BTN_RESET_YES:
+		Menu->Reset();
+		ControlsMenu->HideResetWarning();
+		break;
+
+	case BTN_RESET_NO:
+		ControlsMenu->HideResetWarning();
 		break;
 
 	case BTN_BACK:

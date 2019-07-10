@@ -10,9 +10,25 @@ void UControlsMenu::Init()
 {
 	Super::Init();
 
+	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
+
 	InitializeButtons();
 
 	InitializeSettings();
+
+	HideWidgets();
+}
+
+void UControlsMenu::InitializeButtons()
+{
+	Super::InitializeButtons();
+
+	// Initialise the buttons in the reset warning box
+	const auto YesButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("Yes")));
+	const auto NoButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("No")));
+	
+	YesButton->Init();
+	NoButton->Init();
 }
 
 void UControlsMenu::Back()
@@ -27,6 +43,21 @@ void UControlsMenu::GoBack()
 	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
 
 	Super::GoBack();
+}
+
+void UControlsMenu::ShowResetWarning()
+{
+	ResetWarningBox->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UControlsMenu::HideResetWarning()
+{
+	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UControlsMenu::HideWidgets()
+{
+	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UControlsMenu::ResetKeyBindings()

@@ -26,7 +26,7 @@ void UMouseSensitivitySetting::Init()
 {
 	Super::Init();
 
-	CurrentSensitivity = DefaultSensitivity;
+	DefaultSensitivity = CurrentSensitivity;
 
 	Slider = Cast<USlider>(WidgetTree->FindWidget(FName("SensitivitySlider")));
 	Value = Cast<UTextBlock>(WidgetTree->FindWidget(FName("Value")));
@@ -63,10 +63,10 @@ void UMouseSensitivitySetting::ChangeSensitivity(float SliderValue)
 
 float UMouseSensitivitySetting::GetSliderValueAtDefaultSensitivity()
 {
-	return FMath::GetMappedRangeValueClamped(FVector2D(MinSensitivity, MaxSensitivity), FVector2D(0.1f, 1.0f), DefaultSensitivity);
+	return FMath::GetMappedRangeValueClamped(FVector2D(MinSensitivity, MaxSensitivity), FVector2D(0.0f, 1.0f), DefaultSensitivity);
 }
 
 float UMouseSensitivitySetting::GetSliderValueAtSensitivity(const float Value)
 {
-	return FMath::GetMappedRangeValueClamped(FVector2D(MinSensitivity, MaxSensitivity), FVector2D(0.1f, 1.0f), Value);
+	return FMath::GetMappedRangeValueClamped(FVector2D(MinSensitivity, MaxSensitivity), FVector2D(0.0f, 1.0f), Value);
 }

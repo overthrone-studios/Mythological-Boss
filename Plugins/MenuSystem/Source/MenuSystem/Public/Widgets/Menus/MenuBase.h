@@ -47,6 +47,8 @@ public:
 
 	virtual void SetMenuTooltipText(const FText& Text);
 
+	virtual bool AreAllSettingsDefault();
+
 protected:
 	virtual void InitializeSettings();
 	virtual void InitializeButtons();

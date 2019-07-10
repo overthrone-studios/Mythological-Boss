@@ -17,11 +17,19 @@ public:
 	void ResetKeyBindings();
 
 	void Init() override;
+	void InitializeButtons() override;
 
 	void Back() override;
 	void GoBack() override;
 
+	void ShowResetWarning();
+	void HideResetWarning();
+
 protected:
+	void HideWidgets();
+
 	UPROPERTY(BlueprintReadWrite)
 		TArray<UUserWidget*> ControlsSlots;
+
+	UUserWidget* ResetWarningBox;
 };
