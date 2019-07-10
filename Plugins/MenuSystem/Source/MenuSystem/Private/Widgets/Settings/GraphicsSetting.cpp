@@ -29,6 +29,33 @@ void UGraphicsSetting::RevertChange()
 	SetSelectedOption(DropDownList);
 }
 
+void UGraphicsSetting::ChangeGraphicsSetting(const int32 Index)
+{
+	QualityIndex = Index;
+}
+
+void UGraphicsSetting::SetSelectedOption(const int32 Index)
+{
+	switch (Index)
+	{
+	case 0:
+		DropDownList->SetSelectedOption(Options[0]);
+		break;
+	case 1:
+		DropDownList->SetSelectedOption(Options[1]);
+		break;
+	case 2:
+		DropDownList->SetSelectedOption(Options[2]);
+		break;
+	case 3:
+		DropDownList->SetSelectedOption(Options[3]);
+		break;
+
+	default:
+		break;
+	}
+}
+
 void UGraphicsSetting::ChangeGraphicsSetting(const FString& SelectedItem)
 {
 	int32 Index = 0;

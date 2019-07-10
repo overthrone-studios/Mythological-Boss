@@ -18,6 +18,7 @@ public:
 	void Apply() override;
 	void Reset() override;
 
+	bool IsAffectedByReset() override;
 	bool HasChanged() override;
 	void RevertChange() override;
 

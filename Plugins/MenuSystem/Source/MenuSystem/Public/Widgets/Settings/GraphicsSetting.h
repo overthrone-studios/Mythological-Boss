@@ -19,6 +19,9 @@ public:
 
 	void RevertChange() override;
 
+	void ChangeGraphicsSetting(int32 Index);
+	void SetSelectedOption(int32 Index);
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Graphics Setting")
 		virtual void ChangeGraphicsSetting(const FString& SelectedItem);

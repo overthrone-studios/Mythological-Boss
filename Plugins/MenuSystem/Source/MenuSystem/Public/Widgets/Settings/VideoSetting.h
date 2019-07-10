@@ -14,6 +14,7 @@ class MENUSYSTEM_API UVideoSetting : public UMenuSetting
 	GENERATED_BODY()
 
 public:
+	void Init() override;
 	void Apply() override;
 	bool HasChanged() override;
 	bool IsDefault() override;

@@ -25,6 +25,8 @@ public:
 	virtual bool HasChanged() {return false;}
 	virtual void RevertChange() {}
 
+	virtual bool IsAffectedByReset();
+
 protected:
 	void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;

@@ -24,13 +24,18 @@ void UMenuSetting::SetMenuReference(UMenuBase* InMenu)
 	Menu = InMenu;
 }
 
+bool UMenuSetting::IsAffectedByReset()
+{
+	return true;
+}
+
 void UMenuSetting::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
 	if (!Menu)
 	{
-		ULog::LogDebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in the menu's Init function"), true);
+		ULog::LogDebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in this menu's Init function"), true);
 		return;
 	}
 

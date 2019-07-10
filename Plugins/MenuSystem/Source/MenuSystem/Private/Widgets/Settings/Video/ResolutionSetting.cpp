@@ -81,6 +81,11 @@ void UResolutionSetting::Reset()
 	SetSelectedOption(DropDownList);
 }
 
+bool UResolutionSetting::IsAffectedByReset()
+{
+	return false;
+}
+
 void UResolutionSetting::RevertChange()
 {
 	ChangeResolution(AppliedChange);

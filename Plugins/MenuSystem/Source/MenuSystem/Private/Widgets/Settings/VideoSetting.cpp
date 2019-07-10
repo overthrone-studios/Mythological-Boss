@@ -2,6 +2,14 @@
 
 #include "VideoSetting.h"
 
+void UVideoSetting::Init()
+{
+	Super::Init();
+
+	DefaultOption = SelectedOption;
+	AppliedChange = SelectedOption;
+}
+
 void UVideoSetting::Apply()
 {
 	AppliedChange = SelectedOption;

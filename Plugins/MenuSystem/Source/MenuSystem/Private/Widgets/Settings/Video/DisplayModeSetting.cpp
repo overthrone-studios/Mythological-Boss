@@ -85,6 +85,11 @@ void UDisplayModeSetting::Reset()
 	SetSelectedOption(DropDownList);
 }
 
+bool UDisplayModeSetting::IsAffectedByReset()
+{
+	return false;
+}
+
 bool UDisplayModeSetting::HasChanged()
 {
 	if (DisplayMode == AppliedDisplayMode)

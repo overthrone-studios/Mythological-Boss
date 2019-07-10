@@ -24,8 +24,8 @@ void UMenuBase::InitializeSettings()
 {
 	for (auto Setting : MenuSettings)
 	{
-		Setting->Init();
 		Setting->SetMenuReference(this);
+		Setting->Init();
 		//ULog::LogDebugMessage(INFO, FString(Setting->GetName() + " initialized"), true);
 	}
 }
@@ -118,7 +118,8 @@ void UMenuBase::Reset()
 {
 	for (auto Setting : MenuSettings)
 	{
-		Setting->Reset();
+		if (Setting->IsAffectedByReset())
+			Setting->Reset();
 	}
 
 	Apply();
@@ -136,9 +137,10 @@ bool UMenuBase::AreAllSettingsDefault()
 	// Go through each setting in this menu
 	for (auto Setting : MenuSettings)
 	{
-		// Add settings that have been changed
-		if (!Setting->IsDefault())
+		// Add settings that have been changed and can be reset
+		if (!Setting->IsDefault() && Setting->IsAffectedByReset())
 		{
+			ULog::LogDebugMessage(INFO, Setting->GetName() + " is not default", true);
 			Changes++;
 		}
 	}
