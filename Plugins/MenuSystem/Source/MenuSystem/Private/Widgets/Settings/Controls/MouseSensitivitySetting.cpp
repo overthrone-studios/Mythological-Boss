@@ -6,6 +6,22 @@
 #include "Slider.h"
 #include "Kismet/KismetMathLibrary.h"
 
+void UMouseSensitivitySetting::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	if (DefaultSensitivity < MinSensitivity)
+		DefaultSensitivity = MinSensitivity;
+
+	if (DefaultSensitivity > MaxSensitivity)
+		DefaultSensitivity = MaxSensitivity;
+
+	StepSize = 1/(MaxSensitivity-MinSensitivity);
+	DefaultSensitivity = UKismetMathLibrary::GridSnap_Float(DefaultSensitivity, StepSize);
+
+	CurrentSensitivity = DefaultSensitivity;
+}
+
 void UMouseSensitivitySetting::Init()
 {
 	Super::Init();
@@ -35,9 +51,9 @@ bool UMouseSensitivitySetting::IsDefault()
 
 void UMouseSensitivitySetting::ChangeSensitivity(float SliderValue)
 {
-	SliderValue = UKismetMathLibrary::GridSnap_Float(SliderValue, 0.1f);
+	SliderValue = UKismetMathLibrary::GridSnap_Float(SliderValue, StepSize);
 
-	CurrentSensitivity = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(MinSensitivity), float(MaxSensitivity)), SliderValue));
+	CurrentSensitivity = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(MinSensitivity, MaxSensitivity), SliderValue));
 
 	Slider->SetValue(SliderValue);
 	Value->SetText(FText::AsNumber(CurrentSensitivity));
@@ -47,10 +63,10 @@ void UMouseSensitivitySetting::ChangeSensitivity(float SliderValue)
 
 float UMouseSensitivitySetting::GetSliderValueAtDefaultSensitivity()
 {
-	return DefaultSensitivity / MaxSensitivity;
+	return FMath::GetMappedRangeValueClamped(FVector2D(MinSensitivity, MaxSensitivity), FVector2D(0.1f, 1.0f), DefaultSensitivity);
 }
 
 float UMouseSensitivitySetting::GetSliderValueAtSensitivity(const float Value)
 {
-	return FMath::GetMappedRangeValueClamped(FVector2D(float(MinSensitivity), float(MaxSensitivity)), FVector2D(0.0f, 1.0f), Value);
+	return FMath::GetMappedRangeValueClamped(FVector2D(MinSensitivity, MaxSensitivity), FVector2D(0.1f, 1.0f), Value);
 }
