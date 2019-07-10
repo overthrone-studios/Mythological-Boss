@@ -4,6 +4,7 @@
 #include "WidgetTree.h"
 #include "Slider.h"
 #include "TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 void UBrightnessSetting::Init()
 {
@@ -15,9 +16,9 @@ void UBrightnessSetting::Init()
 
 void UBrightnessSetting::Apply()
 {
-	const FString Command = FString("r.Gamma ") + FString::SanitizeFloat(CurrentBrightness);
+	const FString Command = FString("gamma ") + FString::SanitizeFloat(CurrentBrightness);
 
-	//GetOwningPlayer()->ConsoleCommand(Command);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand(Command);
 }
 
 void UBrightnessSetting::Reset()
@@ -26,8 +27,6 @@ void UBrightnessSetting::Reset()
 
 	ChangeBrightnessSetting(GetSliderValueAtBrightness(CurrentBrightness));
 	Slider->SetValue(GetSliderValueAtDefaultBrightness());
-
-	Apply();
 }
 
 bool UBrightnessSetting::IsDefault()
@@ -52,7 +51,10 @@ void UBrightnessSetting::ChangeBrightnessSetting(const float SliderValue)
 {
 	CurrentBrightness = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(MinBrightness, MaxBrightness), SliderValue);
 
-	Value->SetText(FText::AsNumber(CurrentBrightness));
+	FNumberFormattingOptions NumberFormatting;
+	NumberFormatting.MaximumFractionalDigits = 1;
+
+	Value->SetText(FText::AsNumber(CurrentBrightness, &NumberFormatting));
 
 	if (bApplyOnChange)
 		Apply();

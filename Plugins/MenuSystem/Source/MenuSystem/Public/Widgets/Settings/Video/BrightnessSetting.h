@@ -42,10 +42,10 @@ protected:
 		float MaxBrightness = 5.0f;
 	
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting", meta = (ClampMin=0.5f, ClampMax=5.0f))
-		float DefaultBrightness = 1.0f;
+		float DefaultBrightness = 2.2f;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting")
-		bool bApplyOnChange;	
+		bool bApplyOnChange;
 
 	class UTextBlock* Value;
 };
