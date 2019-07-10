@@ -5,6 +5,13 @@
 #include "Widgets/Settings/MenuSetting.h"
 #include "ControlSetting.generated.h"
 
+UENUM()
+enum class EMouseAxis : uint8
+{
+	X UMETA(DisplayName="X"),
+	Y UMETA(DisplayName="Y"),
+};
+
 /**
  * Base class for a setting in the controls menu
  */

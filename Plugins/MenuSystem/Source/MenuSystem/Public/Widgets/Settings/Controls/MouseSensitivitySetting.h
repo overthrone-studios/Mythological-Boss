@@ -5,13 +5,6 @@
 #include "Widgets/Settings/ControlSetting.h"
 #include "MouseSensitivitySetting.generated.h"
 
-UENUM()
-enum class EMouseAxis : uint8
-{
-	X,
-	Y
-};
-
 /**
  * Manages the mouse's sensitivity setting
  */
