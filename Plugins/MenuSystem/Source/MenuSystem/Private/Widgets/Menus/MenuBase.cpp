@@ -51,9 +51,10 @@ void UMenuBase::StoreAllSettings(UPanelWidget* ParentWidget)
 {
 	for (int32 i = 0; i < ParentWidget->GetChildrenCount(); i++)
 	{
-		const auto Setting = Cast<UMenuSetting>(ParentWidget->GetChildAt(i));
+		const auto Setting = ParentWidget->GetChildAt(i);
 
-		AddSetting(Cast<UMenuSetting>(Setting));
+		if (Setting->IsA(UMenuSetting::StaticClass()))
+			AddSetting(Cast<UMenuSetting>(Setting));
 	}
 }
 
