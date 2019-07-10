@@ -11,6 +11,8 @@ void UControlsMenu::Init()
 	Super::Init();
 
 	InitializeButtons();
+
+	InitializeSettings();
 }
 
 void UControlsMenu::Back()

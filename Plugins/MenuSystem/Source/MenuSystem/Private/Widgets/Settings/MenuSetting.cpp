@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "WidgetTree.h"
 #include "Kismet/GameplayStatics.h"
+#include "Log.h"
 
 void UMenuSetting::Init()
 {
@@ -27,12 +28,24 @@ void UMenuSetting::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointe
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
+	if (!Menu)
+	{
+		ULog::LogDebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in the menu's Init function"), true);
+		return;
+	}
+
 	Menu->SetMenuTooltipText(SettingTooltipText);
 }
 
 void UMenuSetting::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
+
+	if (!Menu)
+	{
+		ULog::LogDebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in the menu's Init function"), true);
+		return;
+	}
 
 	Menu->SetMenuTooltipText(FText());
 }
