@@ -52,9 +52,20 @@ void UMenuBase::StoreAllSettings(UPanelWidget* ParentWidget)
 	for (int32 i = 0; i < ParentWidget->GetChildrenCount(); i++)
 	{
 		const auto Setting = ParentWidget->GetChildAt(i);
-
+		
 		if (Setting->IsA(UMenuSetting::StaticClass()))
 			AddSetting(Cast<UMenuSetting>(Setting));
+		else
+		{
+			// Recursively check every panel widget
+			// We need to check the children of panel widgets as well, we should not discard them because they could contain child widgets
+			if (Setting->IsA(UPanelWidget::StaticClass()))
+			{
+				const auto PanelWidget = Cast<UPanelWidget>(Setting);
+
+				StoreAllSettings(PanelWidget);
+			}
+		}
 	}
 }
 
