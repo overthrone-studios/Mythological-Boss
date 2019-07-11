@@ -19,6 +19,8 @@ void UInputKeyBinding::Reset()
 {
 	CurrentPrimaryInput = DefaultPrimaryInput;
 	CurrentGamepadInput = DefaultGamepadInput;
+
+	SetDefaultInput(PrimaryKeySelector, GamepadKeySelector);
 }
 
 bool UInputKeyBinding::IsDefault()
@@ -26,7 +28,7 @@ bool UInputKeyBinding::IsDefault()
 	return PrimaryKeySelector->SelectedKey == DefaultPrimaryInput && GamepadKeySelector->SelectedKey == DefaultGamepadInput;
 }
 
-void UInputKeyBinding::SetDefaultInputChord(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad)
+void UInputKeyBinding::SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad)
 {
 	DefaultPrimaryInput = CurrentPrimaryInput;
 	DefaultGamepadInput = CurrentGamepadInput;

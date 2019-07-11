@@ -19,9 +19,28 @@ public:
 
 	bool IsDefault() override;
 
+	bool IsAxis() const {return bIsAxis;}
+	FName GetInputName() const {return InputName;}
+	float GetScale() const {return Scale;}
+
+	FInputChord GetCurrentPrimaryInput() const {return CurrentPrimaryInput;}
+	FInputChord GetCurrentGamepadInput() const {return CurrentGamepadInput;}
+
+	FInputChord GetDefaultPrimaryInput() const {return CurrentPrimaryInput;}
+	FInputChord GetDefaultGamepadInput() const {return DefaultGamepadInput;}
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
-		void SetDefaultInputChord(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
+		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
+		FName InputName;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
+		bool bIsAxis;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting", meta = (EditCondition="bIsAxis", ClampMin=-1.0f, ClampMax=1.0f))
+		float Scale = 1.0f;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
 		FInputChord CurrentPrimaryInput;

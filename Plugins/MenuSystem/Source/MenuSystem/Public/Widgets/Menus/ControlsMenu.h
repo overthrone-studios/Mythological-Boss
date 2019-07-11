@@ -26,10 +26,11 @@ public:
 	void HideResetWarning();
 
 protected:
-	void HideWidgets();
+	TArray<class UInputKeyBinding*> GetAllControls();
 
-	UPROPERTY(BlueprintReadWrite)
-		TArray<UUserWidget*> ControlsSlots;
+	void InitializeControls();
+
+	void HideWidgets();
 
 	UUserWidget* ResetWarningBox;
 };
