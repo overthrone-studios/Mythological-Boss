@@ -3,6 +3,7 @@
 #include "InputKeyBinding.h"
 #include "WidgetTree.h"
 #include "InputKeySelector.h"
+#include "ControlsMenu.h"
 
 void UInputKeyBinding::Init()
 {
@@ -13,6 +14,8 @@ void UInputKeyBinding::Init()
 
 	PrimaryKeySelector = Cast<UInputKeySelector>(WidgetTree->FindWidget(FName("PrimaryKeySelector")));
 	GamepadKeySelector = Cast<UInputKeySelector>(WidgetTree->FindWidget(FName("GamepadKeySelector")));
+
+	ControlsMenu = Cast<UControlsMenu>(Menu);
 }
 
 void UInputKeyBinding::Reset()
@@ -35,4 +38,18 @@ void UInputKeyBinding::SetDefaultInput(class UInputKeySelector* Primary, class U
 
 	Primary->SetSelectedKey(DefaultPrimaryInput);
 	Gamepad->SetSelectedKey(DefaultGamepadInput);
+}
+
+void UInputKeyBinding::UpdatePrimaryInput(const FInputChord& NewInput)
+{
+	CurrentPrimaryInput = NewInput;
+
+	ControlsMenu->UpdateInputMapping(InputName, bIsAxis, NewInput);
+}
+
+void UInputKeyBinding::UpdateGamepadInput(const FInputChord& NewInput)
+{
+	CurrentGamepadInput = NewInput;
+
+	ControlsMenu->UpdateInputMapping(InputName, bIsAxis, NewInput);
 }

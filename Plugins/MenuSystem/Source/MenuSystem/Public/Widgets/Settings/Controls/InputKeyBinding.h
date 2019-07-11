@@ -33,6 +33,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
 
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void UpdatePrimaryInput(const FInputChord& NewInput);
+
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void UpdateGamepadInput(const FInputChord& NewInput);
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
 		FName InputName;
 
@@ -54,4 +60,6 @@ private:
 
 	FInputChord DefaultPrimaryInput;
 	FInputChord DefaultGamepadInput;
+
+	class UControlsMenu* ControlsMenu;
 };

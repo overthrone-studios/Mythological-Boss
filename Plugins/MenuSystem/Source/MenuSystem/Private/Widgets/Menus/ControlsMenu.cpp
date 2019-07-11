@@ -59,6 +59,27 @@ void UControlsMenu::HideResetWarning()
 	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UControlsMenu::UpdateInputMapping(const FName& InputName, const bool bIsAxis, const FInputChord& NewInput)
+{
+	// Get access to the input settings
+	const auto Input = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+
+	if (bIsAxis)
+	{
+		FInputAxisKeyMapping AxisMapping;
+		AxisMapping.AxisName = InputName;
+		AxisMapping.Key = NewInput.Key;
+		Input->AddAxisMapping(AxisMapping);
+	}
+	else
+	{
+		FInputActionKeyMapping ActionMapping;
+		ActionMapping.ActionName = InputName;
+		ActionMapping.Key = NewInput.Key;
+		Input->AddActionMapping(ActionMapping);
+	}
+}
+
 TArray<UInputKeyBinding*> UControlsMenu::GetAllControls()
 {
 	TArray<UInputKeyBinding*> FoundControls;
