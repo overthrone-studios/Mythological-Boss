@@ -9,7 +9,7 @@
  * Manages the sensitivity setting of a controller (e.g mouse, gamepad, etc.)
  */
 UCLASS()
-class MENUSYSTEM_API USensitivitySetting : public UControlSetting
+class MENUSYSTEM_API USensitivitySetting final : public UControlSetting
 {
 	GENERATED_BODY()
 	

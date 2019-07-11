@@ -3,13 +3,13 @@
 #pragma once
 
 #include "Widgets/Settings/ControlSetting.h"
-#include "MouseInvertSetting.generated.h"
+#include "InvertSetting.generated.h"
 
 /**
- * Manages the mouse inverting setting
+ * Manages the invertion setting of a controller's axis (e.g mouse, gamepad, etc.)
  */
 UCLASS()
-class MENUSYSTEM_API UMouseInvertSetting final : public UControlSetting
+class MENUSYSTEM_API UInvertSetting final : public UControlSetting
 {
 	GENERATED_BODY()
 	

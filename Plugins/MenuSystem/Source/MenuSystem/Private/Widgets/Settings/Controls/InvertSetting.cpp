@@ -1,10 +1,10 @@
 // Copyright Ali El Saleh 2019
 
-#include "Controls/MouseInvertSetting.h"
+#include "InvertSetting.h"
 #include "WidgetTree.h"
 #include "ComboBoxString.h"
 
-void UMouseInvertSetting::Init()
+void UInvertSetting::Init()
 {
 	Super::Init();
 
@@ -13,12 +13,12 @@ void UMouseInvertSetting::Init()
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 }
 
-void UMouseInvertSetting::Apply()
+void UInvertSetting::Apply()
 {
 	
 }
 
-void UMouseInvertSetting::Reset()
+void UInvertSetting::Reset()
 {
 	SelectedOption = DefaultOption;
 
@@ -26,12 +26,12 @@ void UMouseInvertSetting::Reset()
 	SetSelectedOption(DropDownList);
 }
 
-bool UMouseInvertSetting::IsDefault()
+bool UInvertSetting::IsDefault()
 {
 	return SelectedOption == DefaultOption;
 }
 
-void UMouseInvertSetting::ChangeMouseInvert(const FString& SelectedItem)
+void UInvertSetting::ChangeMouseInvert(const FString& SelectedItem)
 {
 	if (SelectedItem == Options[0])
 	{	
@@ -45,13 +45,13 @@ void UMouseInvertSetting::ChangeMouseInvert(const FString& SelectedItem)
 	}
 }
 
-void UMouseInvertSetting::PopulateList(UComboBoxString* DropDownList)
+void UInvertSetting::PopulateList(UComboBoxString* DropDownList)
 {
 	for (const FString& Option : Options)
 		DropDownList->AddOption(Option);
 }
 
-void UMouseInvertSetting::SetSelectedOption(UComboBoxString* DropDownList)
+void UInvertSetting::SetSelectedOption(UComboBoxString* DropDownList)
 {
 	DropDownList->SetSelectedOption(SelectedOption);
 }
