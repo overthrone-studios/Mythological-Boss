@@ -42,14 +42,14 @@ void UInputKeyBinding::SetDefaultInput(class UInputKeySelector* Primary, class U
 
 void UInputKeyBinding::UpdatePrimaryInput(const FInputChord& NewInput)
 {
-	CurrentPrimaryInput = NewInput;
+	ControlsMenu->UpdateInputMapping(this, CurrentPrimaryInput, NewInput);
 
-	ControlsMenu->UpdateInputMapping(InputName, bIsAxis, NewInput);
+	CurrentPrimaryInput = NewInput;
 }
 
 void UInputKeyBinding::UpdateGamepadInput(const FInputChord& NewInput)
 {
-	CurrentGamepadInput = NewInput;
+	ControlsMenu->UpdateInputMapping(this, CurrentGamepadInput, NewInput);
 
-	ControlsMenu->UpdateInputMapping(InputName, bIsAxis, NewInput);
+	CurrentGamepadInput = NewInput;
 }

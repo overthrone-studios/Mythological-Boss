@@ -59,24 +59,42 @@ void UControlsMenu::HideResetWarning()
 	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UControlsMenu::UpdateInputMapping(const FName& InputName, const bool bIsAxis, const FInputChord& NewInput)
+void UControlsMenu::UpdateInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput)
 {
 	// Get access to the input settings
 	const auto Input = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
 
-	if (bIsAxis)
+	const FName InputName = InputKeyBinding->GetInputName();
+
+	if (InputKeyBinding->IsAxis())
 	{
-		FInputAxisKeyMapping AxisMapping;
-		AxisMapping.AxisName = InputName;
-		AxisMapping.Key = NewInput.Key;
-		Input->AddAxisMapping(AxisMapping);
+		// Remove the old input
+		FInputAxisKeyMapping OldAxisMapping;
+		OldAxisMapping.AxisName = InputName;
+		OldAxisMapping.Key = OldInput.Key;
+		OldAxisMapping.Scale = InputKeyBinding->GetScale();
+		Input->RemoveAxisMapping(OldAxisMapping);
+
+		// Add the new input
+		FInputAxisKeyMapping NewAxisMapping;
+		NewAxisMapping.AxisName = InputName;
+		NewAxisMapping.Key = NewInput.Key;
+		NewAxisMapping.Scale = InputKeyBinding->GetScale();
+		Input->AddAxisMapping(NewAxisMapping);
 	}
 	else
 	{
-		FInputActionKeyMapping ActionMapping;
-		ActionMapping.ActionName = InputName;
-		ActionMapping.Key = NewInput.Key;
-		Input->AddActionMapping(ActionMapping);
+		// Remove the old input
+		FInputActionKeyMapping OldActionMapping;
+		OldActionMapping.ActionName = InputName;
+		OldActionMapping.Key = OldInput.Key;
+		Input->RemoveActionMapping(OldActionMapping);
+
+		// Add the new input
+		FInputActionKeyMapping NewActionMapping;
+		NewActionMapping.ActionName = InputName;
+		NewActionMapping.Key = NewInput.Key;
+		Input->AddActionMapping(NewActionMapping);
 	}
 }
 

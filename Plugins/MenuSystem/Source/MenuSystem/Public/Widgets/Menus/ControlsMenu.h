@@ -25,7 +25,7 @@ public:
 	void ShowResetWarning();
 	void HideResetWarning();
 
-	void UpdateInputMapping(const FName& InputName, bool bIsAxis, const FInputChord& NewInput);
+	void UpdateInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput);
 
 protected:
 	TArray<class UInputKeyBinding*> GetAllControls();
