@@ -101,7 +101,7 @@ bool UInputKeyBinding::IsInputAGamepadKey(const FInputChord& NewInput)
 	// Check if the new input is in fact a gamepad key
 	for (const auto& GamepadKey : GamepadKeys)
 	{
-		if (NewInput.Key == GamepadKey) // If true, NewInput is not a gamepad key!
+		if (NewInput.Key == GamepadKey)
 		{
 			return true;
 		}
