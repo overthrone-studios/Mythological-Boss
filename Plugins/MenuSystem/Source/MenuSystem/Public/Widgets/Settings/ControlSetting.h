@@ -23,5 +23,4 @@ class MENUSYSTEM_API UControlSetting : public UMenuSetting
 protected:
 	class UComboBoxString* DropDownList;
 	class USlider* Slider;
-	class UInputKeySelector* KeySelector;
 };
