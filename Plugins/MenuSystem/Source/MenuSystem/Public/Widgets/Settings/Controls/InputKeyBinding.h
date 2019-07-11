@@ -29,6 +29,9 @@ public:
 	FInputChord GetDefaultPrimaryInput() const {return CurrentPrimaryInput;}
 	FInputChord GetDefaultGamepadInput() const {return DefaultGamepadInput;}
 
+	void SetCurrentPrimaryInput(const FInputChord& NewInput) {CurrentPrimaryInput = NewInput;}
+	void SetCurrentGamepadInput(const FInputChord& NewInput) {CurrentGamepadInput = NewInput;}
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
