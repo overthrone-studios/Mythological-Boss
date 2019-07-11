@@ -20,7 +20,8 @@ class MENUSYSTEM_API UControlSetting : public UMenuSetting
 {
 	GENERATED_BODY()
 	
-public:
-	bool IsDefault() override;
-	
+protected:
+	class UComboBoxString* DropDownList;
+	class USlider* Slider;
+	class UInputKeySelector* KeySelector;
 };

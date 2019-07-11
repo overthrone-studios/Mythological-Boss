@@ -40,6 +40,4 @@ protected:
 		TArray<FString> Options;
 
 	FString DefaultOption;
-
-	class UComboBoxString* DropDownList;
 };
