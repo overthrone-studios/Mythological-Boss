@@ -34,6 +34,12 @@ protected:
 		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void SetSelectedPrimaryInput(class UInputKeySelector* Primary);
+	
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void SetSelectedGamepadInput(class UInputKeySelector* Gamepad);
+
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void UpdatePrimaryInput(const FInputChord& NewInput);
 
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
@@ -55,6 +61,8 @@ protected:
 		FInputChord CurrentGamepadInput;
 	
 private:
+	static bool IsInputAGamepadKey(const FInputChord& NewInput);
+
 	class UInputKeySelector* PrimaryKeySelector;
 	class UInputKeySelector* GamepadKeySelector;
 
