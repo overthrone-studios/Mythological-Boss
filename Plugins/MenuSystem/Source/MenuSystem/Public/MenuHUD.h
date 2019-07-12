@@ -18,6 +18,8 @@ public:
 
 	class UUserWidget* GetMenu(TSubclassOf<class UMenuBase> MenuClass);
 
+	void EnableGameInputMode();
+
 	void ShowHUD() override;
 	void HideHUD();
 

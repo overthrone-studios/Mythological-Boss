@@ -7,6 +7,7 @@
 #include "MainMenu.h"
 #include "MasterMenu.h"
 #include "Log.h"
+#include "Kismet/GameplayStatics.h"
 
 AMenuHUD::AMenuHUD()
 {
@@ -19,6 +20,15 @@ AMenuHUD::AMenuHUD()
 UUserWidget* AMenuHUD::GetMenu(const TSubclassOf<UMenuBase> MenuClass)
 {
 	return MasterMenu->GetMenu(MenuClass);
+}
+
+void AMenuHUD::EnableGameInputMode()
+{
+	const auto PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+	const FInputModeGameOnly InputModeGameOnly;
+	PlayerController->SetInputMode(InputModeGameOnly);
+	PlayerController->bShowMouseCursor = false;
 }
 
 void AMenuHUD::ShowHUD()

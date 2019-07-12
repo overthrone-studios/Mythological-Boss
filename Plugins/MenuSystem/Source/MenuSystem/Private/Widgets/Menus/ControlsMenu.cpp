@@ -197,6 +197,8 @@ void UControlsMenu::InitializeControls()
 	AddAxisMapping(FName("LookUp"), EKeys::MouseY, MouseInvertYSetting->IsInvertEnabled() ? 1.0f : -1.0f);
 	AddAxisMapping(FName("TurnRate"), EKeys::Gamepad_RightX, GamepadInvertXSetting->IsInvertEnabled() ? -1.0f : 1.0f);
 	AddAxisMapping(FName("LookUpRate"), EKeys::Gamepad_RightY, GamepadInvertYSetting->IsInvertEnabled() ? -1.0f : 1.0f);
+	AddActionMapping(FName("Pause"), EKeys::Escape);
+	AddActionMapping(FName("Pause"), EKeys::Gamepad_Special_Right);
 
 	// Save to input config file (DefaultInput.ini)
 	Input->SaveKeyMappings();

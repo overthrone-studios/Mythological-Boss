@@ -3,6 +3,7 @@
 #include "MainMenu.h"
 #include "MenuHUD.h"
 #include "ButtonBase.h"
+#include "WidgetTree.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "WidgetAnimation.h"
@@ -16,6 +17,8 @@ void UMainMenu::Init()
 	Super::Init();
 
 	InitializeButtons();
+
+	WidgetTree->FindWidget("NewGame")->SetKeyboardFocus();
 }
 
 void UMainMenu::SlideOut()
@@ -55,7 +58,9 @@ void UMainMenu::GoForward()
 	switch (MenuSelected)
 	{
 	case BTN_NEW_GAME:
-		MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
+		MenuHUD->EnableGameInputMode();
+		UGameplayStatics::OpenLevel(GetWorld(), FName("ThirdPersonExampleMap"));
+		//MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
 		break;
 
 	case BTN_CONTINUE:

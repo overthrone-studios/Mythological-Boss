@@ -13,6 +13,8 @@ void UButtonBase::Init()
 	// Get the Menu HUD
 	MenuHUD = Cast<AMenuHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetHUD());
 	TextWidget = Cast<UTextBlock>(WidgetTree->FindWidget("Text"));
+
+	bIsFocusable = true;
 }
 
 void UButtonBase::NativePreConstruct()
