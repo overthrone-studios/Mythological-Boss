@@ -30,10 +30,17 @@ public:
 	void RemoveAllKeyBindings();
 	void RebindInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput);
 
+	void ApplyInvertSettings();
+
 protected:
 	TArray<class UInputKeyBinding*> GetAllControls();
 
 	void HideWidgets();
+
+	class UInvertSetting* MouseInvertXSetting;
+	class UInvertSetting* MouseInvertYSetting;
+	class UInvertSetting* GamepadInvertXSetting;
+	class UInvertSetting* GamepadInvertYSetting;
 
 	UUserWidget* ResetWarningBox;
 };

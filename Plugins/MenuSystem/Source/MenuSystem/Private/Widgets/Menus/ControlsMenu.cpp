@@ -8,13 +8,18 @@
 #include "InputKeyBinding.h"
 #include "GameFramework/InputSettings.h"
 #include "ConfigCacheIni.h"
-#include "Log.h"
+#include "ComboBoxString.h"
+#include "InvertSetting.h"
 
 void UControlsMenu::Init()
 {
 	Super::Init();
 
 	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
+	MouseInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertX")));
+	MouseInvertYSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertY")));
+	GamepadInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("GamepadInvertX")));
+	GamepadInvertYSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("GamepadInvertY")));
 
 	InitializeButtons();
 
@@ -39,6 +44,8 @@ void UControlsMenu::InitializeButtons()
 
 void UControlsMenu::Back()
 {
+	ApplyInvertSettings();
+
 	MenuHUD->HideMenu(StaticClass());
 
 	Super::Back();
@@ -186,10 +193,10 @@ void UControlsMenu::InitializeControls()
 	}
 
 	// Add the standard default controls for mouse and gamepad
-	AddAxisMapping(FName("Turn"), EKeys::MouseX, 1.0f);
-	AddAxisMapping(FName("LookUp"), EKeys::MouseY, -1.0f);
-	AddAxisMapping(FName("TurnRate"), EKeys::Gamepad_RightX, 1.0f);
-	AddAxisMapping(FName("LookUpRate"), EKeys::Gamepad_RightY, 1.0f);
+	AddAxisMapping(FName("Turn"), EKeys::MouseX, MouseInvertXSetting->IsInvertEnabled() ? -1.0f : 1.0f);
+	AddAxisMapping(FName("LookUp"), EKeys::MouseY, MouseInvertYSetting->IsInvertEnabled() ? 1.0f : -1.0f);
+	AddAxisMapping(FName("TurnRate"), EKeys::Gamepad_RightX, GamepadInvertXSetting->IsInvertEnabled() ? -1.0f : 1.0f);
+	AddAxisMapping(FName("LookUpRate"), EKeys::Gamepad_RightY, GamepadInvertYSetting->IsInvertEnabled() ? -1.0f : 1.0f);
 
 	// Save to input config file (DefaultInput.ini)
 	Input->SaveKeyMappings();
@@ -216,3 +223,33 @@ void UControlsMenu::ResetKeyBindings()
 
 	InitializeControls();
 }
+
+void UControlsMenu::ApplyInvertSettings()
+{
+	// Get access to the input settings
+	const auto Input = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+
+	// Lambda function to add an axis mapping to input settings
+	const auto UpdateAxisMapping = [&](const FName& AxisName, const FKey& Key, const float Scale)
+	{
+		FInputAxisKeyMapping AxisMapping;
+		AxisMapping.AxisName = AxisName;
+		AxisMapping.Key = Key;
+		AxisMapping.Scale = Scale;
+		Input->RemoveAxisMapping(AxisMapping);
+		Input->AddAxisMapping(AxisMapping);
+	};
+
+	// Add the standard default controls for mouse and gamepad
+	UpdateAxisMapping(FName("Turn"), EKeys::MouseX, MouseInvertXSetting->IsInvertEnabled() ? -1.0f : 1.0f);
+	UpdateAxisMapping(FName("LookUp"), EKeys::MouseY, MouseInvertYSetting->IsInvertEnabled() ? 1.0f : -1.0f);
+	UpdateAxisMapping(FName("TurnRate"), EKeys::Gamepad_RightX, GamepadInvertXSetting->IsInvertEnabled() ? -1.0f : 1.0f);
+	UpdateAxisMapping(FName("LookUpRate"), EKeys::Gamepad_RightY, GamepadInvertYSetting->IsInvertEnabled() ? -1.0f : 1.0f);
+
+	// Save to config file
+	Input->SaveKeyMappings();
+
+	// Update in Project Settings -> Engine -> Input
+	Input->ForceRebuildKeymaps();
+}
+

@@ -15,10 +15,19 @@ class MENUSYSTEM_API UInvertSetting final : public UControlSetting
 	
 public:
 	void Init() override;
-	void Apply() override;
 	void Reset() override;
 
 	bool IsDefault() override;
+	bool IsInvertEnabled() const {return bIsInverted;}
+
+	UFUNCTION(BlueprintCallable, Category = "Mouse Invert Setting")
+		void SetSelectedOption(class UComboBoxString* DropDownList);
+	
+	UPROPERTY(EditInstanceOnly, Category = "Mouse Invert Setting")
+		FString SelectedOption;
+
+	UPROPERTY(EditInstanceOnly, Category = "Mouse Invert Setting")
+		TArray<FString> Options;
 
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Mouse Invert Setting")
@@ -26,18 +35,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mouse Invert Setting")
 		void PopulateList(class UComboBoxString* DropDownList);
-
-	UFUNCTION(BlueprintCallable, Category = "Mouse Invert Setting")
-		void SetSelectedOption(class UComboBoxString* DropDownList);
-	
 	UPROPERTY(EditInstanceOnly, Category = "Mouse Invert Setting")
 		EMouseAxis Axis;
 
-	UPROPERTY(EditInstanceOnly, Category = "Mouse Invert Setting")
-		FString SelectedOption;
-
-	UPROPERTY(EditInstanceOnly, Category = "Mouse Invert Setting")
-		TArray<FString> Options;
+	bool bIsInverted;
 
 	FString DefaultOption;
 };

@@ -11,11 +11,8 @@ void UInvertSetting::Init()
 	DefaultOption = SelectedOption;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
-}
 
-void UInvertSetting::Apply()
-{
-	
+	SetSelectedOption(DropDownList);
 }
 
 void UInvertSetting::Reset()
@@ -36,12 +33,12 @@ void UInvertSetting::ChangeMouseInvert(const FString& SelectedItem)
 	if (SelectedItem == Options[0])
 	{	
 		SelectedOption = Options[0];
-		// Enable
+		bIsInverted = true;
 	}
 	else
 	{
 		SelectedOption = Options[1];
-		// Disable
+		bIsInverted = false;
 	}
 }
 
