@@ -5,16 +5,58 @@
 #include "InputKeySelector.h"
 #include "ControlsMenu.h"
 #include "Log.h"
+#include "GameFramework/InputSettings.h"
 
 void UInputKeyBinding::Init()
 {
 	Super::Init();
 
-	DefaultPrimaryInput = CurrentPrimaryInput;
-	DefaultGamepadInput = CurrentGamepadInput;
+	// Get access to the input settings
+	const auto Input = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+
+	if (bIsAxis)
+	{
+		TArray<FInputAxisKeyMapping> OutMappings;
+		Input->GetAxisMappingByName(InputName, OutMappings);
+
+		// Setup axis inputs
+		for (auto& KeyMapping : OutMappings)
+		{
+			if (KeyMapping.Scale == Scale && !IsInputAGamepadKey(KeyMapping.Key))
+			{
+				CurrentPrimaryInput = KeyMapping.Key;
+			}
+			
+			if (KeyMapping.Scale == Scale && IsInputAGamepadKey(KeyMapping.Key))
+			{
+				CurrentGamepadInput = KeyMapping.Key;
+			}
+		}
+	}
+	else
+	{
+		TArray<FInputActionKeyMapping> OutMappings;
+		Input->GetActionMappingByName(InputName, OutMappings);
+
+		// Setup action inputs
+		for (const auto& KeyMapping : OutMappings)
+		{
+			if (!IsInputAGamepadKey(KeyMapping.Key))
+			{
+				CurrentPrimaryInput = KeyMapping.Key;
+			}
+
+			if (IsInputAGamepadKey(KeyMapping.Key))
+			{
+				CurrentGamepadInput = KeyMapping.Key;
+			}
+		}
+	}
 
 	PrimaryKeySelector = Cast<UInputKeySelector>(WidgetTree->FindWidget(FName("PrimaryKeySelector")));
 	GamepadKeySelector = Cast<UInputKeySelector>(WidgetTree->FindWidget(FName("GamepadKeySelector")));
+
+	SetCurrentInput(PrimaryKeySelector, GamepadKeySelector);
 
 	ControlsMenu = Cast<UControlsMenu>(Menu);
 }
@@ -34,11 +76,14 @@ bool UInputKeyBinding::IsDefault()
 
 void UInputKeyBinding::SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad)
 {
-	DefaultPrimaryInput = CurrentPrimaryInput;
-	DefaultGamepadInput = CurrentGamepadInput;
-
 	Primary->SetSelectedKey(DefaultPrimaryInput);
 	Gamepad->SetSelectedKey(DefaultGamepadInput);
+}
+
+void UInputKeyBinding::SetCurrentInput(UInputKeySelector* Primary, UInputKeySelector* Gamepad)
+{
+	Primary->SetSelectedKey(CurrentPrimaryInput);
+	Gamepad->SetSelectedKey(CurrentGamepadInput);
 }
 
 void UInputKeyBinding::SetSelectedPrimaryInput(UInputKeySelector* Primary)
@@ -57,7 +102,7 @@ void UInputKeyBinding::SetSelectedGamepadInput(UInputKeySelector* Gamepad)
 	Gamepad->SetSelectedKey(CurrentGamepadInput);
 }
 
-void UInputKeyBinding::UpdatePrimaryInput(const FInputChord& NewInput)
+void UInputKeyBinding::RebindPrimaryInput(const FInputChord& NewInput)
 {
 	if (IsInputAGamepadKey(NewInput))
 	{
@@ -65,12 +110,12 @@ void UInputKeyBinding::UpdatePrimaryInput(const FInputChord& NewInput)
 		return;
 	}
 
-	ControlsMenu->UpdateInputMapping(this, CurrentPrimaryInput, NewInput);
+	ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
 
 	CurrentPrimaryInput = NewInput;
 }
 
-void UInputKeyBinding::UpdateGamepadInput(const FInputChord& NewInput)
+void UInputKeyBinding::RebindGamepadInput(const FInputChord& NewInput)
 {
 	if (!IsInputAGamepadKey(NewInput))
 	{
@@ -78,7 +123,7 @@ void UInputKeyBinding::UpdateGamepadInput(const FInputChord& NewInput)
 		return;
 	}
 
-	ControlsMenu->UpdateInputMapping(this, CurrentGamepadInput, NewInput);
+	ControlsMenu->RebindInputMapping(this, CurrentGamepadInput, NewInput);
 
 	CurrentGamepadInput = NewInput;
 }

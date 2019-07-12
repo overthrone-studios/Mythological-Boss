@@ -29,7 +29,7 @@ void UControlsButton::OnButtonReleased()
 		break;
 
 	case BTN_RESET_YES:
-		Menu->Reset();
+		ControlsMenu->Reset();
 		ControlsMenu->HideResetWarning();
 		break;
 

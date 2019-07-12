@@ -19,6 +19,7 @@ public:
 
 	bool IsDefault() override;
 
+	bool IsNegativeAxis() const {return Scale < 0.0f;}
 	bool IsAxis() const {return bIsAxis;}
 	FName GetInputName() const {return InputName;}
 	float GetScale() const {return Scale;}
@@ -32,9 +33,14 @@ public:
 	void SetCurrentPrimaryInput(const FInputChord& NewInput) {CurrentPrimaryInput = NewInput;}
 	void SetCurrentGamepadInput(const FInputChord& NewInput) {CurrentGamepadInput = NewInput;}
 
+	static bool IsInputAGamepadKey(const FInputChord& NewInput);
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
+
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void SetCurrentInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void SetSelectedPrimaryInput(class UInputKeySelector* Primary);
@@ -43,10 +49,10 @@ protected:
 		void SetSelectedGamepadInput(class UInputKeySelector* Gamepad);
 
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
-		void UpdatePrimaryInput(const FInputChord& NewInput);
+		void RebindPrimaryInput(const FInputChord& NewInput);
 
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
-		void UpdateGamepadInput(const FInputChord& NewInput);
+		void RebindGamepadInput(const FInputChord& NewInput);
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
 		FName InputName;
@@ -58,19 +64,17 @@ protected:
 		float Scale = 1.0f;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
-		FInputChord CurrentPrimaryInput;
+		FInputChord DefaultPrimaryInput;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
-		FInputChord CurrentGamepadInput;
+		FInputChord DefaultGamepadInput;
 	
 private:
-	static bool IsInputAGamepadKey(const FInputChord& NewInput);
-
 	class UInputKeySelector* PrimaryKeySelector;
 	class UInputKeySelector* GamepadKeySelector;
 
-	FInputChord DefaultPrimaryInput;
-	FInputChord DefaultGamepadInput;
+	FInputChord CurrentPrimaryInput;
+	FInputChord CurrentGamepadInput;
 
 	class UControlsMenu* ControlsMenu;
 };

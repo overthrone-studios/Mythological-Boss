@@ -18,6 +18,8 @@ public:
 
 	void Init() override;
 	void InitializeButtons() override;
+	void InitializeControls();
+	void Reset() override;
 
 	void Back() override;
 	void GoBack() override;
@@ -25,12 +27,11 @@ public:
 	void ShowResetWarning();
 	void HideResetWarning();
 
-	void UpdateInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput);
+	void RemoveAllKeyBindings();
+	void RebindInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput);
 
 protected:
 	TArray<class UInputKeyBinding*> GetAllControls();
-
-	void InitializeControls();
 
 	void HideWidgets();
 

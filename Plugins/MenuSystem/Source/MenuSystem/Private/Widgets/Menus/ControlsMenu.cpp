@@ -7,6 +7,8 @@
 #include "OptionsMenu.h"
 #include "InputKeyBinding.h"
 #include "GameFramework/InputSettings.h"
+#include "ConfigCacheIni.h"
+#include "Log.h"
 
 void UControlsMenu::Init()
 {
@@ -59,7 +61,19 @@ void UControlsMenu::HideResetWarning()
 	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UControlsMenu::UpdateInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput)
+void UControlsMenu::RemoveAllKeyBindings()
+{
+	// Get access to the input settings
+	const auto Input = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+
+	// Get the current array of axis mappings from input settings
+	Input->AxisMappings.Empty();
+
+	// Get the current array of action mappings from input settings
+	Input->ActionMappings.Empty();
+}
+
+void UControlsMenu::RebindInputMapping(const class UInputKeyBinding* InputKeyBinding, const FInputChord& OldInput, const FInputChord& NewInput)
 {
 	// Get access to the input settings
 	const auto Input = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
@@ -96,6 +110,10 @@ void UControlsMenu::UpdateInputMapping(const class UInputKeyBinding* InputKeyBin
 		NewActionMapping.Key = NewInput.Key;
 		Input->AddActionMapping(NewActionMapping);
 	}
+
+	Input->SaveKeyMappings();
+	Input->SaveConfig();
+	Input->ForceRebuildKeymaps();
 }
 
 TArray<UInputKeyBinding*> UControlsMenu::GetAllControls()
@@ -122,12 +140,9 @@ void UControlsMenu::InitializeControls()
 	// Get the current array of action mappings from input settings
 	const auto ActionMappings = Input->ActionMappings;
 
-	// Remove all input bindings from input settings
-	for (const auto& AxisMapping : AxisMappings)
-		Input->RemoveAxisMapping(AxisMapping);
-
-	for (const auto& ActionMapping : ActionMappings)
-		Input->RemoveActionMapping(ActionMapping);
+	// If number of mappings is greater than the default engine input mappings, then load our inputs
+	if (AxisMappings.Num() > 6 || ActionMappings.Num() > 10)
+		return;
 
 	// Lambda function to add an axis mapping to input settings
 	const auto AddAxisMapping = [&](const FName& AxisName, const FKey& Key, const float Scale)
@@ -153,15 +168,15 @@ void UControlsMenu::InitializeControls()
 	for (auto Control : Controls)
 	{
 		const FName InputName = Control->GetInputName();
-		const FInputChord DefaultPrimaryInput = Control->GetDefaultPrimaryInput();
-		const FInputChord DefaultGamepadInput = Control->GetDefaultGamepadInput();
+		const FInputChord DefaultPrimaryInput = Control->GetCurrentPrimaryInput();
+		const FInputChord DefaultGamepadInput = Control->GetCurrentGamepadInput();
 		const float AxisScale = Control->GetScale();
-
+	
 		// Add this control to input settings
 		if (Control->IsAxis())
 		{
 			AddAxisMapping(InputName, DefaultPrimaryInput.Key, AxisScale);
-			AddAxisMapping(InputName, DefaultGamepadInput.Key, 1.0f);
+			AddAxisMapping(InputName, DefaultGamepadInput.Key, AxisScale);
 		}
 		else
 		{
@@ -176,11 +191,16 @@ void UControlsMenu::InitializeControls()
 	AddAxisMapping(FName("TurnRate"), EKeys::Gamepad_RightX, 1.0f);
 	AddAxisMapping(FName("LookUpRate"), EKeys::Gamepad_RightY, 1.0f);
 
-	// Save to input config file
+	// Save to input config file (DefaultInput.ini)
 	Input->SaveKeyMappings();
 
 	// Update in Project Settings -> Engine -> Input
 	Input->ForceRebuildKeymaps();
+}
+
+void UControlsMenu::Reset()
+{
+	ResetKeyBindings();
 }
 
 void UControlsMenu::HideWidgets()
@@ -190,9 +210,9 @@ void UControlsMenu::HideWidgets()
 
 void UControlsMenu::ResetKeyBindings()
 {
-	const auto Controls = GetAllControls();
-	for (auto Control : Controls)
-	{
-		Control->Reset();
-	}
+	RemoveAllKeyBindings();
+
+	Super::Reset();
+
+	InitializeControls();
 }
