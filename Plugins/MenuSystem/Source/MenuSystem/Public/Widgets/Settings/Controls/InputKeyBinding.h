@@ -35,6 +35,15 @@ public:
 
 	static bool IsInputAGamepadKey(const FInputChord& NewInput);
 
+	void HighlightError();
+	void UnHighlightError();
+
+	FInputChord DuplicatePrimaryInput;
+	FInputChord DuplicateGamepadInput;
+
+	FInputChord PreviousPrimaryInput;
+	FInputChord PreviousGamepadInput;
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);
@@ -54,6 +63,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void RebindGamepadInput(const FInputChord& NewInput);
 
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void OnIsSelectingPrimaryKeyChanged();
+
+	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
+		void OnIsSelectingGamepadKeyChanged();
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
 		FName InputName;
 
@@ -68,7 +83,10 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
 		FInputChord DefaultGamepadInput;
-	
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
+		FLinearColor DuplicateErrorColor = FLinearColor(FColor::Red);
+
 private:
 	class UInputKeySelector* PrimaryKeySelector;
 	class UInputKeySelector* GamepadKeySelector;

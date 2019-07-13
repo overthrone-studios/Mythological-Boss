@@ -4,8 +4,9 @@
 #include "WidgetTree.h"
 #include "InputKeySelector.h"
 #include "ControlsMenu.h"
-#include "Log.h"
+#include "TextBlock.h"
 #include "GameFramework/InputSettings.h"
+#include "Log.h"
 
 void UInputKeyBinding::Init()
 {
@@ -59,6 +60,8 @@ void UInputKeyBinding::Init()
 	SetCurrentInput(PrimaryKeySelector, GamepadKeySelector);
 
 	ControlsMenu = Cast<UControlsMenu>(Menu);
+
+	bInitialized = true;
 }
 
 void UInputKeyBinding::Reset()
@@ -110,8 +113,18 @@ void UInputKeyBinding::RebindPrimaryInput(const FInputChord& NewInput)
 		return;
 	}
 
-	ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
+	if (bInitialized)
+	{
+		if (ControlsMenu->IsPrimaryInputKeyDuplicate(this, NewInput))
+		{
+			//DuplicatePrimaryInput = NewInput;
+			//ControlsMenu->RebindInputMapping(this, PreviousPrimaryInput, NewInput);
+			return;
+		}
+	}
 
+	ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
+			
 	CurrentPrimaryInput = NewInput;
 }
 
@@ -123,9 +136,25 @@ void UInputKeyBinding::RebindGamepadInput(const FInputChord& NewInput)
 		return;
 	}
 
-	ControlsMenu->RebindInputMapping(this, CurrentGamepadInput, NewInput);
+	if (bInitialized)
+	{
+		if (ControlsMenu->IsGamepadInputKeyDuplicate(this, NewInput))
+			return;
+	}
 
+	ControlsMenu->RebindInputMapping(this, CurrentGamepadInput, NewInput);
+			
 	CurrentGamepadInput = NewInput;
+}
+
+void UInputKeyBinding::OnIsSelectingPrimaryKeyChanged()
+{
+	PreviousPrimaryInput = CurrentPrimaryInput;
+}
+
+void UInputKeyBinding::OnIsSelectingGamepadKeyChanged()
+{
+	PreviousGamepadInput = CurrentGamepadInput;
 }
 
 bool UInputKeyBinding::IsInputAGamepadKey(const FInputChord& NewInput)
@@ -153,4 +182,14 @@ bool UInputKeyBinding::IsInputAGamepadKey(const FInputChord& NewInput)
 	}
 
 	return false;
+}
+
+void UInputKeyBinding::HighlightError()
+{
+	SetColorAndOpacity(DuplicateErrorColor);
+}
+
+void UInputKeyBinding::UnHighlightError()
+{
+	SetColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f));
 }

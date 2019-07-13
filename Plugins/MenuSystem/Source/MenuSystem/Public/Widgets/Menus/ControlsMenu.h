@@ -32,6 +32,9 @@ public:
 
 	void ApplyInvertSettings();
 
+	bool IsPrimaryInputKeyDuplicate(class UInputKeyBinding* ControlToCheck, const FInputChord& InputToCheck);
+	bool IsGamepadInputKeyDuplicate(class UInputKeyBinding* ControlToCheck, const FInputChord& InputToCheck);
+
 protected:
 	TArray<class UInputKeyBinding*> GetAllControls();
 
@@ -43,4 +46,6 @@ protected:
 	class UInvertSetting* GamepadInvertYSetting;
 
 	UUserWidget* ResetWarningBox;
+	UUserWidget* DuplicateWarningBox;
+	UUserWidget* BackButton;
 };

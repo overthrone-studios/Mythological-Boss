@@ -40,4 +40,6 @@ protected:
 	class UGameUserSettings* GameUserSettings;
 	class AMenuHUD* MenuHUD;
 	class UMenuBase* Menu;
+
+	bool bInitialized;
 };

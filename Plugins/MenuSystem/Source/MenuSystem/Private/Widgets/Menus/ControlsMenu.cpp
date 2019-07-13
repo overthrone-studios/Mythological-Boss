@@ -8,7 +8,6 @@
 #include "InputKeyBinding.h"
 #include "GameFramework/InputSettings.h"
 #include "ConfigCacheIni.h"
-#include "ComboBoxString.h"
 #include "InvertSetting.h"
 
 void UControlsMenu::Init()
@@ -16,6 +15,8 @@ void UControlsMenu::Init()
 	Super::Init();
 
 	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
+	DuplicateWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DuplicateWarningBox")));
+	BackButton = Cast<UUserWidget>(WidgetTree->FindWidget(FName("Back")));
 	MouseInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertX")));
 	MouseInvertYSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertY")));
 	GamepadInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("GamepadInvertX")));
@@ -215,6 +216,7 @@ void UControlsMenu::Reset()
 void UControlsMenu::HideWidgets()
 {
 	ResetWarningBox->SetVisibility(ESlateVisibility::Hidden);
+	DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UControlsMenu::ResetKeyBindings()
@@ -253,5 +255,60 @@ void UControlsMenu::ApplyInvertSettings()
 
 	// Update in Project Settings -> Engine -> Input
 	Input->ForceRebuildKeymaps();
+}
+
+bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck, const FInputChord& InputToCheck)
+{
+	const auto Controls = GetAllControls();
+	for (auto Control : Controls)
+	{
+		if (Control != ControlToCheck && Control->GetCurrentPrimaryInput() == InputToCheck)
+		{
+			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
+			BackButton->SetIsEnabled(false);
+
+			Control->SetCurrentGamepadInput(ControlToCheck->PreviousPrimaryInput);
+			RebindInputMapping(Control, Control->GetCurrentPrimaryInput(), InputToCheck);
+
+			ControlToCheck->HighlightError();
+			Control->HighlightError();
+			
+			return true;
+		}
+		
+		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
+		BackButton->SetIsEnabled(true);
+		
+		ControlToCheck->UnHighlightError();
+		Control->UnHighlightError();
+	}
+
+	return false;
+}
+
+bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck, const FInputChord& InputToCheck)
+{
+	const auto Controls = GetAllControls();
+	for (auto Control : Controls)
+	{
+		if (Control != ControlToCheck && Control->GetCurrentGamepadInput() == InputToCheck)
+		{
+			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
+			BackButton->SetIsEnabled(false);
+			
+			ControlToCheck->HighlightError();
+			Control->HighlightError();
+
+			return true;
+		}
+		
+		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
+		BackButton->SetIsEnabled(true);
+
+		ControlToCheck->UnHighlightError();
+		Control->UnHighlightError();
+	}
+
+	return false;
 }
 
