@@ -113,15 +113,15 @@ void UInputKeyBinding::RebindPrimaryInput(const FInputChord& NewInput)
 		return;
 	}
 
-	if (bInitialized)
-	{
-		if (ControlsMenu->IsPrimaryInputKeyDuplicate(this, NewInput))
-		{
-			//DuplicatePrimaryInput = NewInput;
-			//ControlsMenu->RebindInputMapping(this, PreviousPrimaryInput, NewInput);
-			return;
-		}
-	}
+	//if (bInitialized)
+	//{
+	//	if (ControlsMenu->IsPrimaryInputKeyDuplicate(this, NewInput))
+	//	{
+	//		//DuplicatePrimaryInput = NewInput;
+	//		//ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
+	//		return;
+	//	}
+	//}
 
 	ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
 			
@@ -136,11 +136,11 @@ void UInputKeyBinding::RebindGamepadInput(const FInputChord& NewInput)
 		return;
 	}
 
-	if (bInitialized)
-	{
-		if (ControlsMenu->IsGamepadInputKeyDuplicate(this, NewInput))
-			return;
-	}
+	//if (bInitialized)
+	//{
+	//	if (ControlsMenu->IsGamepadInputKeyDuplicate(this, NewInput))
+	//		return;
+	//}
 
 	ControlsMenu->RebindInputMapping(this, CurrentGamepadInput, NewInput);
 			
@@ -155,6 +155,11 @@ void UInputKeyBinding::OnIsSelectingPrimaryKeyChanged()
 void UInputKeyBinding::OnIsSelectingGamepadKeyChanged()
 {
 	PreviousGamepadInput = CurrentGamepadInput;
+}
+
+FInputChord UInputKeyBinding::GetSelectedPrimaryKey() const
+{
+	return PrimaryKeySelector->SelectedKey;
 }
 
 bool UInputKeyBinding::IsInputAGamepadKey(const FInputChord& NewInput)

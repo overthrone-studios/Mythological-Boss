@@ -9,6 +9,7 @@
 #include "GameFramework/InputSettings.h"
 #include "ConfigCacheIni.h"
 #include "InvertSetting.h"
+#include "Log.h"
 
 void UControlsMenu::Init()
 {
@@ -120,7 +121,6 @@ void UControlsMenu::RebindInputMapping(const class UInputKeyBinding* InputKeyBin
 	}
 
 	Input->SaveKeyMappings();
-	Input->SaveConfig();
 	Input->ForceRebuildKeymaps();
 }
 
@@ -262,13 +262,16 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 	const auto Controls = GetAllControls();
 	for (auto Control : Controls)
 	{
-		if (Control != ControlToCheck && Control->GetCurrentPrimaryInput() == InputToCheck)
+		if (Control != ControlToCheck && Control->GetSelectedPrimaryKey() == InputToCheck)
 		{
 			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
 			BackButton->SetIsEnabled(false);
 
-			Control->SetCurrentGamepadInput(ControlToCheck->PreviousPrimaryInput);
-			RebindInputMapping(Control, Control->GetCurrentPrimaryInput(), InputToCheck);
+			ULog::LogDebugMessage(INFO, Control->GetName() + FString(" is in conflict with ") + ControlToCheck->GetName(), true);
+
+			RebindInputMapping(ControlToCheck, Control->GetCurrentPrimaryInput(), InputToCheck);
+			//Control->SetCurrentPrimaryInput(InputToCheck);
+			ControlToCheck->SetCurrentPrimaryInput(Control->GetCurrentPrimaryInput());
 
 			ControlToCheck->HighlightError();
 			Control->HighlightError();
@@ -278,7 +281,7 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		
 		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
 		BackButton->SetIsEnabled(true);
-		
+
 		ControlToCheck->UnHighlightError();
 		Control->UnHighlightError();
 	}

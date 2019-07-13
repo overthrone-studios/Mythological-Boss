@@ -30,6 +30,8 @@ public:
 	FInputChord GetDefaultPrimaryInput() const {return CurrentPrimaryInput;}
 	FInputChord GetDefaultGamepadInput() const {return DefaultGamepadInput;}
 
+	FInputChord GetSelectedPrimaryKey() const;
+
 	void SetCurrentPrimaryInput(const FInputChord& NewInput) {CurrentPrimaryInput = NewInput;}
 	void SetCurrentGamepadInput(const FInputChord& NewInput) {CurrentGamepadInput = NewInput;}
 
