@@ -107,22 +107,24 @@ void UInputKeyBinding::SetSelectedGamepadInput(UInputKeySelector* Gamepad)
 
 void UInputKeyBinding::RebindPrimaryInput(const FInputChord& NewInput)
 {
+	// Check if it's a gamepad key
 	if (IsInputAGamepadKey(NewInput))
 	{
 		SetSelectedPrimaryInput(PrimaryKeySelector);
 		return;
 	}
 
-	//if (bInitialized)
-	//{
-	//	if (ControlsMenu->IsPrimaryInputKeyDuplicate(this, NewInput))
-	//	{
-	//		//DuplicatePrimaryInput = NewInput;
-	//		//ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
-	//		return;
-	//	}
-	//}
+	if (bInitialized)// This is here to prevent a crash when pre-constructing
+	{
+		// Check if it's a duplicate key with any other bound primary key
+		if (ControlsMenu->IsPrimaryInputKeyDuplicate(this, NewInput))
+		{
+			SetSelectedPrimaryInput(PrimaryKeySelector);
+			return;
+		}
+	}
 
+	// Rebind key
 	ControlsMenu->RebindInputMapping(this, CurrentPrimaryInput, NewInput);
 			
 	CurrentPrimaryInput = NewInput;
@@ -130,31 +132,26 @@ void UInputKeyBinding::RebindPrimaryInput(const FInputChord& NewInput)
 
 void UInputKeyBinding::RebindGamepadInput(const FInputChord& NewInput)
 {
+	// Check if it's not a gamepad key
 	if (!IsInputAGamepadKey(NewInput))
 	{
 		SetSelectedGamepadInput(GamepadKeySelector);
 		return;
 	}
 
-	//if (bInitialized)
-	//{
-	//	if (ControlsMenu->IsGamepadInputKeyDuplicate(this, NewInput))
-	//		return;
-	//}
+	if (bInitialized)// This is here to prevent a crash when pre-constructing
+	{
+		// Check if it's a duplicate key with any other bound gamepad key
+		if (ControlsMenu->IsGamepadInputKeyDuplicate(this, NewInput))
+		{
+			SetSelectedGamepadInput(GamepadKeySelector);
+			return;
+		}
+	}
 
 	ControlsMenu->RebindInputMapping(this, CurrentGamepadInput, NewInput);
 			
 	CurrentGamepadInput = NewInput;
-}
-
-void UInputKeyBinding::OnIsSelectingPrimaryKeyChanged()
-{
-	PreviousPrimaryInput = CurrentPrimaryInput;
-}
-
-void UInputKeyBinding::OnIsSelectingGamepadKeyChanged()
-{
-	PreviousGamepadInput = CurrentGamepadInput;
 }
 
 FInputChord UInputKeyBinding::GetSelectedPrimaryKey() const
@@ -187,14 +184,4 @@ bool UInputKeyBinding::IsInputAGamepadKey(const FInputChord& NewInput)
 	}
 
 	return false;
-}
-
-void UInputKeyBinding::HighlightError()
-{
-	SetColorAndOpacity(DuplicateErrorColor);
-}
-
-void UInputKeyBinding::UnHighlightError()
-{
-	SetColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f));
 }

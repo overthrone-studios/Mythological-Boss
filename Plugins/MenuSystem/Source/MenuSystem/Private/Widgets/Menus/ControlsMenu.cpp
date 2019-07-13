@@ -269,12 +269,12 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 
 			ULog::LogDebugMessage(INFO, Control->GetName() + FString(" is in conflict with ") + ControlToCheck->GetName(), true);
 
-			RebindInputMapping(ControlToCheck, Control->GetCurrentPrimaryInput(), InputToCheck);
+			//RebindInputMapping(ControlToCheck, Control->GetCurrentPrimaryInput(), InputToCheck);
 			//Control->SetCurrentPrimaryInput(InputToCheck);
-			ControlToCheck->SetCurrentPrimaryInput(Control->GetCurrentPrimaryInput());
+			//ControlToCheck->SetCurrentPrimaryInput(Control->GetCurrentPrimaryInput());
 
-			ControlToCheck->HighlightError();
-			Control->HighlightError();
+			//ControlToCheck->HighlightError();
+			//Control->HighlightError();
 			
 			return true;
 		}
@@ -282,8 +282,8 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
 		BackButton->SetIsEnabled(true);
 
-		ControlToCheck->UnHighlightError();
-		Control->UnHighlightError();
+		//ControlToCheck->UnHighlightError();
+		//Control->UnHighlightError();
 	}
 
 	return false;
@@ -299,8 +299,8 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
 			BackButton->SetIsEnabled(false);
 			
-			ControlToCheck->HighlightError();
-			Control->HighlightError();
+			//ControlToCheck->HighlightError();
+			//Control->HighlightError();
 
 			return true;
 		}
@@ -308,8 +308,8 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
 		BackButton->SetIsEnabled(true);
 
-		ControlToCheck->UnHighlightError();
-		Control->UnHighlightError();
+		//ControlToCheck->UnHighlightError();
+		//Control->UnHighlightError();
 	}
 
 	return false;

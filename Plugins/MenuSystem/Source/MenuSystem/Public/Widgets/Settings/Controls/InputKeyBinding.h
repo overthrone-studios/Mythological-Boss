@@ -37,9 +37,6 @@ public:
 
 	static bool IsInputAGamepadKey(const FInputChord& NewInput);
 
-	void HighlightError();
-	void UnHighlightError();
-
 	FInputChord DuplicatePrimaryInput;
 	FInputChord DuplicateGamepadInput;
 
@@ -64,12 +61,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void RebindGamepadInput(const FInputChord& NewInput);
-
-	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
-		void OnIsSelectingPrimaryKeyChanged();
-
-	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
-		void OnIsSelectingGamepadKeyChanged();
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Input Key Binding Setting")
 		FName InputName;

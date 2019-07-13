@@ -15,6 +15,7 @@
 void UMenuBase::Init()
 {
 	MenuHUD = Cast<AMenuHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetHUD());
+	GEngine->GetGameUserSettings()->LoadSettings(false);
 
 	//if (!Animation)
 	//	UDebug::LogDebugMessage(ERROR, FString(GetName() + " | Fade anim is null. You forgot to assign the fade animation in widget blueprint"), true);
@@ -100,6 +101,8 @@ void UMenuBase::Apply()
 	}
 
 	GEngine->GetGameUserSettings()->ApplySettings(false);
+	GEngine->GetGameUserSettings()->SaveSettings();
+	GEngine->GetGameUserSettings()->SaveConfig();
 }
 
 void UMenuBase::Forward(const EButtonType Menu)
