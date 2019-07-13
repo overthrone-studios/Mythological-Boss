@@ -8,7 +8,7 @@
 /**
  * Manages the window mode setting
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UDisplayModeSetting final : public UVideoSetting
 {
 	GENERATED_BODY()
@@ -32,9 +32,11 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Display Mode Setting")
 		void ChangeDisplayMode(const FString& SelectedItem);
 
-	UPROPERTY(EditInstanceOnly, Category = "Video Setting")
+	UPROPERTY(config)
 		TEnumAsByte<EWindowMode::Type> DisplayMode;
 
-	TEnumAsByte<EWindowMode::Type> DefaultDisplayMode;
+	UPROPERTY(config, EditInstanceOnly, Category = "Video Setting")
+		TEnumAsByte<EWindowMode::Type> DefaultDisplayMode;
+
 	TEnumAsByte<EWindowMode::Type> AppliedDisplayMode;
 };

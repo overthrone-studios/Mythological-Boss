@@ -8,7 +8,7 @@
 /**
  * Manages the overal brightness setting of the game
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UBrightnessSetting final : public UVideoSetting
 {
 	GENERATED_BODY()
@@ -32,7 +32,7 @@ protected:
 	UFUNCTION(BlueprintPure)
 		float GetSliderValueAtBrightness(float Value);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Brightness Setting")
+	UPROPERTY(config, VisibleAnywhere, BlueprintReadOnly, Category = "Brightness Setting")
 		float CurrentBrightness = 1.0f;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting", meta = (ClampMin=0.5f, ClampMax=5.0f))
@@ -41,7 +41,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting", meta = (ClampMin=0.5f, ClampMax=5.0f))
 		float MaxBrightness = 5.0f;
 	
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting", meta = (ClampMin=0.5f, ClampMax=5.0f))
+	UPROPERTY(config, EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting", meta = (ClampMin=0.5f, ClampMax=5.0f))
 		float DefaultBrightness = 2.2f;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Brightness Setting")

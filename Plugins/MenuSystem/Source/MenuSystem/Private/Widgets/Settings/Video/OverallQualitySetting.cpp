@@ -13,11 +13,24 @@ void UOverallQualitySetting::Init()
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
 
+	SetSelectedOption(DropDownList);
+
 	// Disable all graphics settings
-	const auto Settings = GetAllGraphicsSettings();
-	for (auto Setting : Settings)
+	if (SelectedOption == Options[4])
 	{
-		Setting->SetIsEnabled(false);
+		const auto Settings = GetAllGraphicsSettings();
+		for (auto Setting : Settings)
+		{
+			Setting->SetIsEnabled(true);
+		}
+	}
+	else
+	{
+		const auto Settings = GetAllGraphicsSettings();
+		for (auto Setting : Settings)
+		{
+			Setting->SetIsEnabled(false);
+		}
 	}
 }
 
@@ -78,6 +91,8 @@ void UOverallQualitySetting::ChangeAllQualitySettings(const FString& SelectedIte
 		// Enable all graphics settings
 		for (auto Setting : Settings)
 			Setting->SetIsEnabled(true);
+		
+		SaveConfig(CPF_Config, *GGameUserSettingsIni);
 	}
 }
 

@@ -8,7 +8,7 @@
 /**
  * High-level manager object for Overthrone game
  */
-UCLASS()
+UCLASS(config=Game)
 class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 {
 	GENERATED_BODY()
@@ -36,19 +36,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Audio")
 		void ToggleMute(bool bShouldMute);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
 		float MasterVolume = 1.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
 		float UIVolume = 1.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
 		float MusicVolume = 1.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
 		float SFXVolume = 1.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
 		float EnvironmentVolume = 1.0f;
 
 private:

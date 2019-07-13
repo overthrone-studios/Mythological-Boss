@@ -22,7 +22,7 @@ void UVideoMenu::Init()
 
 	HideWidgets();
 
-	if (bApplyOnLaunch)
+	//if (bApplyOnLaunch)
 		Apply();
 }
 

@@ -8,7 +8,7 @@
 /**
  * Manages the change of screen resolution
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UResolutionSetting final : public UVideoSetting
 {
 	GENERATED_BODY()

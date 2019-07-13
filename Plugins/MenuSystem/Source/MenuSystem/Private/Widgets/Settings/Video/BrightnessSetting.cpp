@@ -12,6 +12,17 @@ void UBrightnessSetting::Init()
 
 	Slider = Cast<USlider>(WidgetTree->FindWidget(FName("BrightnessSlider")));
 	Value = Cast<UTextBlock>(WidgetTree->FindWidget(FName("Value")));
+
+	Slider->SetValue(GetSliderValueAtBrightness(CurrentBrightness));
+
+	FNumberFormattingOptions NumberFormatting;
+	NumberFormatting.MaximumFractionalDigits = 1;
+	Value->SetText(FText::AsNumber(CurrentBrightness, &NumberFormatting));
+
+	const FString Command = FString("gamma ") + FString::SanitizeFloat(CurrentBrightness);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand(Command);
+
+	bInitialized = true;
 }
 
 void UBrightnessSetting::Apply()
@@ -19,6 +30,8 @@ void UBrightnessSetting::Apply()
 	const FString Command = FString("gamma ") + FString::SanitizeFloat(CurrentBrightness);
 
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand(Command);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UBrightnessSetting::Reset()
@@ -38,26 +51,29 @@ void UBrightnessSetting::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	if (DefaultBrightness < MinBrightness)
-		DefaultBrightness = MinBrightness;
-
-	if (DefaultBrightness > MaxBrightness)
-		DefaultBrightness = MaxBrightness;
-
-	CurrentBrightness = DefaultBrightness;
+	//if (DefaultBrightness < MinBrightness)
+	//	DefaultBrightness = MinBrightness;
+	//
+	//if (DefaultBrightness > MaxBrightness)
+	//	DefaultBrightness = MaxBrightness;
+	//
+	//CurrentBrightness = DefaultBrightness;
 }
 
 void UBrightnessSetting::ChangeBrightnessSetting(const float SliderValue)
 {
-	CurrentBrightness = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(MinBrightness, MaxBrightness), SliderValue);
+	if (bInitialized)
+	{
+		CurrentBrightness = FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(MinBrightness, MaxBrightness), SliderValue);
 
-	FNumberFormattingOptions NumberFormatting;
-	NumberFormatting.MaximumFractionalDigits = 1;
+		FNumberFormattingOptions NumberFormatting;
+		NumberFormatting.MaximumFractionalDigits = 1;
 
-	Value->SetText(FText::AsNumber(CurrentBrightness, &NumberFormatting));
+		Value->SetText(FText::AsNumber(CurrentBrightness, &NumberFormatting));
 
-	if (bApplyOnChange)
-		Apply();
+		if (bApplyOnChange)
+			Apply();
+	}
 }
 
 float UBrightnessSetting::GetSliderValueAtDefaultBrightness()

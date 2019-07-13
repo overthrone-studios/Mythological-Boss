@@ -8,7 +8,7 @@
 /**
  * Manages the Field of View setting
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UFOVSetting final : public UVideoSetting
 {
 	GENERATED_BODY()
@@ -32,7 +32,7 @@ protected:
 	UFUNCTION(BlueprintPure)
 		float GetSliderValueAtFOV(int32 Value);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "FOV")
+	UPROPERTY(config, VisibleAnywhere, BlueprintReadOnly, Category = "FOV")
 		int32 CurrentFOV = 90;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FOV")
@@ -41,7 +41,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FOV")
 		int32 MaxFOV = 120;
 	
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FOV")
+	UPROPERTY(config, EditInstanceOnly, BlueprintReadWrite, Category = "FOV")
 		int32 DefaultFOV = 90;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FOV")

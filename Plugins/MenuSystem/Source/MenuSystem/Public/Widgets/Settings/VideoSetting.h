@@ -8,7 +8,7 @@
 /**
  * Base class for any type of video setting
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UVideoSetting : public UMenuSetting
 {
 	GENERATED_BODY()
@@ -20,14 +20,16 @@ public:
 	bool IsDefault() override;
 
 protected:
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
-		FString SelectedOption;
+	UPROPERTY(config, EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
+		FString DefaultOption;
 
 	UPROPERTY(EditInstanceOnly, Category = "Video Setting")
 		TArray<FString> Options;
 
+	UPROPERTY(config)
+		FString SelectedOption;
+	
 	FString AppliedChange;
-	FString DefaultOption;
 
 	class UComboBoxString* DropDownList;
 	class USlider* Slider;

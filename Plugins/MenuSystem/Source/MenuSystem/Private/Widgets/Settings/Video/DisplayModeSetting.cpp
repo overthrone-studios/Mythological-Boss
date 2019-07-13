@@ -37,6 +37,9 @@ void UDisplayModeSetting::SetSelectedOption(UComboBoxString* DropDownList)
 
 void UDisplayModeSetting::ChangeDisplayMode(const FString& SelectedItem)
 {
+	if (!bInitialized)
+		return;
+
 	SelectedOption = SelectedItem;
 
 	if (SelectedItem == "Windowed")
@@ -57,12 +60,12 @@ void UDisplayModeSetting::Init()
 {
 	Super::Init();
 
-	DefaultOption = SelectedOption;
-	AppliedChange = SelectedOption;
-	DefaultDisplayMode = DisplayMode;
 	AppliedDisplayMode = DisplayMode;
 
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
+	SetSelectedOption(DropDownList);
+
+	bInitialized = true;
 }
 
 void UDisplayModeSetting::Apply()
@@ -72,6 +75,8 @@ void UDisplayModeSetting::Apply()
 	AppliedDisplayMode = DisplayMode;
 
 	GameUserSettings->SetFullscreenMode(DisplayMode);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UDisplayModeSetting::Reset()

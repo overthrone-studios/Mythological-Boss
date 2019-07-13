@@ -10,23 +10,26 @@ void UFOVSetting::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	if (DefaultFOV < MinFOV)
-		DefaultFOV = MinFOV;
-
-	if (DefaultFOV > MaxFOV)
-		DefaultFOV = MaxFOV;
-
-	CurrentFOV = DefaultFOV;
+	//if (DefaultFOV < MinFOV)
+	//	DefaultFOV = MinFOV;
+	//
+	//if (DefaultFOV > MaxFOV)
+	//	DefaultFOV = MaxFOV;
+	//
+	//CurrentFOV = DefaultFOV;
 }
 
 void UFOVSetting::ChangeFOVSetting(const float SliderValue)
 {
-	CurrentFOV = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(MinFOV), float(MaxFOV)), SliderValue));
+	if (bInitialized)
+	{
+		CurrentFOV = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(MinFOV), float(MaxFOV)), SliderValue));
 
-	Value->SetText(FText::AsNumber(CurrentFOV));
+		Value->SetText(FText::AsNumber(CurrentFOV));
 
-	if (bApplyOnChange)
-		Apply();
+		if (bApplyOnChange)
+			Apply();
+	}
 }
 
 float UFOVSetting::GetSliderValueAtDefaultFOV()
@@ -45,11 +48,19 @@ void UFOVSetting::Init()
 
 	Slider = Cast<USlider>(WidgetTree->FindWidget(FName("FOVSlider")));
 	Value = Cast<UTextBlock>(WidgetTree->FindWidget(FName("Value")));
+
+	Slider->SetValue(GetSliderValueAtFOV(CurrentFOV));
+	Value->SetText(FText::AsNumber(CurrentFOV));
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->SetFOV(CurrentFOV);
+
+	bInitialized = true;
 }
 
 void UFOVSetting::Apply()
 {
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->SetFOV(CurrentFOV);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UFOVSetting::Reset()
@@ -58,8 +69,6 @@ void UFOVSetting::Reset()
 
 	ChangeFOVSetting(GetSliderValueAtFOV(CurrentFOV));
 	Slider->SetValue(GetSliderValueAtDefaultFOV());
-
-	Apply();
 }
 
 bool UFOVSetting::IsDefault()

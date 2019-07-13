@@ -8,7 +8,7 @@
 /**
  * Manages the HDR enabling and disabling setting
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UHDRSetting final : public UVideoSetting
 {
 	GENERATED_BODY()

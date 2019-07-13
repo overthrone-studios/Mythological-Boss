@@ -6,13 +6,16 @@ void UVideoSetting::Init()
 {
 	Super::Init();
 
-	DefaultOption = SelectedOption;
+	LoadConfig(GetClass(), *GGameUserSettingsIni);
+
 	AppliedChange = SelectedOption;
 }
 
 void UVideoSetting::Apply()
 {
 	AppliedChange = SelectedOption;
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 bool UVideoSetting::HasChanged()

@@ -8,7 +8,7 @@
 /**
  * Base class of a graphics setting
  */
-UCLASS()
+UCLASS(config=Game)
 class MENUSYSTEM_API UGraphicsSetting : public UVideoSetting
 {
 	GENERATED_BODY()

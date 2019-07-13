@@ -8,10 +8,8 @@ void UFramerateLimitSetting::Init()
 {
 	Super::Init();
 
-	DefaultOption = SelectedOption;
-	AppliedChange = SelectedOption;
-
 	DropDownList = Cast<UComboBoxString>(WidgetTree->FindWidget(FName("DropDown")));
+	SetSelectedOption(DropDownList);
 }
 
 void UFramerateLimitSetting::Apply()

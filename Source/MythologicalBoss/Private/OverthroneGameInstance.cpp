@@ -18,6 +18,8 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 
 void UOverthroneGameInstance::OnStart()
 {
+	LoadConfig(GetClass(), *GGameUserSettingsIni);
+
 	UGameplayStatics::SetBaseSoundMix(this, MasterMix);
 }
 
@@ -26,6 +28,8 @@ void UOverthroneGameInstance::ChangeMasterVolume(const float SliderValue)
 	MasterVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
 	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MasterSoundClass, SliderValue, 1.0f, 0.0f);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UOverthroneGameInstance::ChangeMusicVolume(const float SliderValue)
@@ -33,6 +37,8 @@ void UOverthroneGameInstance::ChangeMusicVolume(const float SliderValue)
 	MusicVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
 	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, MusicSoundClass, SliderValue, 1.0f, 0.0f);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UOverthroneGameInstance::ChangeSFXVolume(const float SliderValue)
@@ -40,6 +46,8 @@ void UOverthroneGameInstance::ChangeSFXVolume(const float SliderValue)
 	SFXVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
 	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, SFXSoundClass, SliderValue, 1.0f, 0.0f);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UOverthroneGameInstance::ChangeUIVolume(const float SliderValue)
@@ -47,6 +55,8 @@ void UOverthroneGameInstance::ChangeUIVolume(const float SliderValue)
 	UIVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
 	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, UISoundClass, SliderValue, 1.0f, 0.0f);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UOverthroneGameInstance::ChangeEnvironmentVolume(const float SliderValue)
@@ -54,6 +64,8 @@ void UOverthroneGameInstance::ChangeEnvironmentVolume(const float SliderValue)
 	EnvironmentVolume = int32(FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 1.0f), FVector2D(float(0), float(100)), SliderValue));
 
 	UGameplayStatics::SetSoundMixClassOverride(this, MasterMix, EnvironmentSoundClass, SliderValue, 1.0f, 0.0f);
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UOverthroneGameInstance::ToggleMute(const bool bShouldMute)

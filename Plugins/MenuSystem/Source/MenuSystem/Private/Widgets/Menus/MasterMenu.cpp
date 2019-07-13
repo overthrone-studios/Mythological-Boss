@@ -9,8 +9,7 @@
 
 void UMasterMenu::Init()
 {
-	// Get the Menu HUD
-	MenuHUD = Cast<AMenuHUD>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetHUD());
+	Super::Init();
 
 	// Get the widget switcher
 	WidgetSwitcher = Cast<UWidgetSwitcher>(WidgetTree->FindWidget(FName("MenuSwitcher")));
