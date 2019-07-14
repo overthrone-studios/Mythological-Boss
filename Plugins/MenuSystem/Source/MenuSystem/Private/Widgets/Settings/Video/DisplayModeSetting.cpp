@@ -3,6 +3,7 @@
 #include "DisplayModeSetting.h"
 #include "WidgetTree.h"
 #include "ComboBoxString.h"
+#include "Log.h"
 
 void UDisplayModeSetting::PopulateDisplayModeList(UComboBoxString* DropDownList)
 {
@@ -13,26 +14,7 @@ void UDisplayModeSetting::PopulateDisplayModeList(UComboBoxString* DropDownList)
 
 void UDisplayModeSetting::SetSelectedOption(UComboBoxString* DropDownList)
 {
-	switch (DisplayMode)
-	{
-	case EWindowMode::Windowed:
-		SelectedOption = "Windowed";
-		DropDownList->SetSelectedOption(SelectedOption);
-	break;
-
-	case EWindowMode::WindowedFullscreen:
-		SelectedOption = "Windowed Fullscreen";
-		DropDownList->SetSelectedOption(SelectedOption);
-	break;
-
-	case EWindowMode::Fullscreen:
-		SelectedOption = "Fullscreen";
-		DropDownList->SetSelectedOption(SelectedOption);
-	break;
-
-	default:
-	break;
-	}
+	DropDownList->SetSelectedOption(SelectedOption);
 }
 
 void UDisplayModeSetting::ChangeDisplayMode(const FString& SelectedItem)
@@ -54,6 +36,8 @@ void UDisplayModeSetting::ChangeDisplayMode(const FString& SelectedItem)
 	{
 		DisplayMode = EWindowMode::Fullscreen;
 	}
+
+	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UDisplayModeSetting::Init()
@@ -66,6 +50,7 @@ void UDisplayModeSetting::Init()
 	SetSelectedOption(DropDownList);
 
 	bInitialized = true;
+	ChangeDisplayMode(SelectedOption);
 }
 
 void UDisplayModeSetting::Apply()
@@ -75,8 +60,6 @@ void UDisplayModeSetting::Apply()
 	AppliedDisplayMode = DisplayMode;
 
 	GameUserSettings->SetFullscreenMode(DisplayMode);
-
-	SaveConfig(CPF_Config, *GGameUserSettingsIni);
 }
 
 void UDisplayModeSetting::Reset()

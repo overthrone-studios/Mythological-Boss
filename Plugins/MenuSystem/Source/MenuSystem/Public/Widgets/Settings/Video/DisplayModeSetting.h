@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(config)
 		TEnumAsByte<EWindowMode::Type> DisplayMode;
 
-	UPROPERTY(config, EditInstanceOnly, Category = "Video Setting")
+	UPROPERTY(EditInstanceOnly, Category = "Video Setting")
 		TEnumAsByte<EWindowMode::Type> DefaultDisplayMode;
 
 	TEnumAsByte<EWindowMode::Type> AppliedDisplayMode;

@@ -60,10 +60,9 @@ void UOverallQualitySetting::RevertChange()
 
 void UOverallQualitySetting::Reset()
 {
-	SelectedOption = DefaultOption;
-	AppliedChange = SelectedOption;
+	AppliedChange = DefaultOption;
 
-	ChangeAllQualitySettings(SelectedOption);
+	ChangeAllQualitySettings(DefaultOption);
 	SetSelectedOption(DropDownList);
 }
 

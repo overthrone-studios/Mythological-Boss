@@ -20,7 +20,7 @@ public:
 	bool IsDefault() override;
 
 protected:
-	UPROPERTY(config, EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Video Setting")
 		FString DefaultOption;
 
 	UPROPERTY(EditInstanceOnly, Category = "Video Setting")

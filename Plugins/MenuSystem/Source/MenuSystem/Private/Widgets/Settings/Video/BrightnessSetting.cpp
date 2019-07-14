@@ -51,13 +51,7 @@ void UBrightnessSetting::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	//if (DefaultBrightness < MinBrightness)
-	//	DefaultBrightness = MinBrightness;
-	//
-	//if (DefaultBrightness > MaxBrightness)
-	//	DefaultBrightness = MaxBrightness;
-	//
-	//CurrentBrightness = DefaultBrightness;
+	CurrentBrightness = DefaultBrightness;
 }
 
 void UBrightnessSetting::ChangeBrightnessSetting(const float SliderValue)

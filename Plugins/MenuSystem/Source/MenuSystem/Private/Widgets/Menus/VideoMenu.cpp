@@ -22,8 +22,7 @@ void UVideoMenu::Init()
 
 	HideWidgets();
 
-	//if (bApplyOnLaunch)
-		Apply();
+	Apply();
 }
 
 void UVideoMenu::InitializeButtons()
