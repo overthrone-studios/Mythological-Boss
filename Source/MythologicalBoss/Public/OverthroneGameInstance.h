@@ -16,47 +16,4 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 public:
 	UOverthroneGameInstance();
 
-	void OnStart() override;
-
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-		void ChangeMasterVolume(float SliderValue);
-
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-		void ChangeMusicVolume(float SliderValue);
-
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-		void ChangeSFXVolume(float SliderValue);
-
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-		void ChangeUIVolume(float SliderValue);
-
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-		void ChangeEnvironmentVolume(float SliderValue);
-
-	UFUNCTION(BlueprintCallable, Category = "Audio")
-		void ToggleMute(bool bShouldMute);
-
-	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
-		float MasterVolume = 1.0f;
-
-	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
-		float UIVolume = 1.0f;
-
-	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
-		float MusicVolume = 1.0f;
-
-	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
-		float SFXVolume = 1.0f;
-
-	UPROPERTY(config, BlueprintReadOnly, Category = "Audio")
-		float EnvironmentVolume = 1.0f;
-
-private:
-	class USoundClass* MasterSoundClass;
-	class USoundClass* MusicSoundClass;
-	class USoundClass* SFXSoundClass;
-	class USoundClass* UISoundClass;
-	class USoundClass* EnvironmentSoundClass;
-
-	class USoundMix* MasterMix;
 };
