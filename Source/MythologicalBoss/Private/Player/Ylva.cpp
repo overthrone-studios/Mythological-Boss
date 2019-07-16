@@ -105,7 +105,6 @@ AYlva::AYlva()
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-	GetCharacterMovement()->bNotifyApex = true;
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -201,12 +200,15 @@ void AYlva::LookUpAtRate(const float Rate)
 
 void AYlva::Block()
 {	
-	PlayerStateMachine->SetActiveState("Block");
+	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ ||
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/)
+		PlayerStateMachine->SetActiveState("Block");
 }
 
 void AYlva::StopBlocking()
 {
-	PlayerStateMachine->SetActiveState("Idle");
+	if (PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/)
+		PlayerStateMachine->SetActiveState("Idle");
 }
 
 void AYlva::OnJumped_Implementation()

@@ -5,13 +5,6 @@
 #include "GameFramework/Character.h"
 #include "Ylva.generated.h"
 
- UENUM()
- enum ECustomMovementMode
- {
-     YLVA_Idle			UMETA(DisplayName = "Idle"),
-     YLVA_Walking		UMETA(DisplayName = "Walking")
- };
-
 /*
  * The player character
  */
@@ -128,5 +121,5 @@ protected:
 	UWorld* World{};
 
 	// Cached movement component
-	UCharacterMovementComponent* MovementComponent;
+	UCharacterMovementComponent* MovementComponent{};
 };
