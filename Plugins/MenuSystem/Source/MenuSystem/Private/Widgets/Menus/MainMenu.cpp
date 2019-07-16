@@ -59,7 +59,8 @@ void UMainMenu::GoForward()
 	{
 	case BTN_NEW_GAME:
 		MenuHUD->EnableGameInputMode();
-		UGameplayStatics::OpenLevel(GetWorld(), FName("ThirdPersonExampleMap"));
+		if (!MapToOpen.ToString().IsEmpty())
+			UGameplayStatics::OpenLevel(GetWorld(), MapToOpen);
 		//MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
 		break;
 

@@ -27,6 +27,9 @@ protected:
 
 	void GoForward() override;
 
+	UPROPERTY(EditInstanceOnly, Category = "Main Menu")
+		FName MapToOpen;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Animations")
 		UWidgetAnimation* Slide{};
 
