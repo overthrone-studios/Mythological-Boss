@@ -39,8 +39,6 @@ public:
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
-	void Falling() override;
-	void NotifyJumpApex() override;
 	void OnJumped_Implementation() override;
 	void Landed(const FHitResult& Hit) override;
 

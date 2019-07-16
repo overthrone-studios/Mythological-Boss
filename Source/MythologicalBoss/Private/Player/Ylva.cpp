@@ -209,20 +209,6 @@ void AYlva::StopBlocking()
 	PlayerStateMachine->SetActiveState("Idle");
 }
 
-void AYlva::Falling()
-{
-	Super::Falling();
-
-	PlayerStateMachine->SetActiveState("Falling");
-}
-
-void AYlva::NotifyJumpApex()
-{
-	Super::NotifyJumpApex();
-	
-	PlayerStateMachine->SetActiveState("Falling");
-}
-
 void AYlva::OnJumped_Implementation()
 {
 	PlayerStateMachine->SetActiveState("Jump");
@@ -231,7 +217,6 @@ void AYlva::OnJumped_Implementation()
 void AYlva::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	GetCharacterMovement()->bNotifyApex = true;
 
 	PlayerStateMachine->SetActiveState("Idle");
 }
@@ -245,10 +230,11 @@ void AYlva::UpdateIdleState()
 {
 	ULog::LogDebugMessage(INFO, FString("In Idle state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && PlayerStateMachine->GetActiveStateID() != 1) // Walk
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		PlayerStateMachine->SetActiveState("Walk");
-	else if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && PlayerStateMachine->GetActiveStateID() != 0) // Run
-		PlayerStateMachine->SetActiveState("Idle");
+
+	if (GetVelocity().Z < 0.0f)
+		PlayerStateMachine->SetActiveState("Falling");
 }
 
 void AYlva::OnExitIdleState()
@@ -264,6 +250,12 @@ void AYlva::OnEnterWalkState()
 void AYlva::UpdateWalkState()
 {
 	ULog::LogDebugMessage(INFO, FString("In Walk state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+	
+	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+		PlayerStateMachine->SetActiveState("Idle");
+
+	if (GetVelocity().Z < 0.0f)
+		PlayerStateMachine->SetActiveState("Falling");
 }
 
 void AYlva::OnExitWalkState()
@@ -294,6 +286,9 @@ void AYlva::OnEnterJumpState()
 void AYlva::UpdateJumpState()
 {
 	ULog::LogDebugMessage(INFO, FString("In jump state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+
+	if (GetVelocity().Z < 0.0f)
+		PlayerStateMachine->SetActiveState("Falling");
 }
 
 void AYlva::OnExitJumpState()
@@ -309,6 +304,9 @@ void AYlva::OnEnterFallingState()
 void AYlva::UpdateFallingState()
 {
 	ULog::LogDebugMessage(INFO, FString("In falling state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+
+	if (GetVelocity().Z == 0.0f)
+		PlayerStateMachine->SetActiveState("Idle");
 }
 
 void AYlva::OnExitFallingState()
