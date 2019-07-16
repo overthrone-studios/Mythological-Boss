@@ -65,6 +65,12 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	// Called via input to enter the block state
+	void Block();
+
+	// Called via input to exit the block state
+	void StopBlocking();
+
 	UFUNCTION()
 		void OnEnterIdleState();
 	UFUNCTION()
@@ -79,10 +85,12 @@ protected:
 	UFUNCTION()
 		void OnExitWalkState();
 
-	//UFUNCTION()
-	//	void OnEnterRunState();
-	//UFUNCTION()
-	//	void OnExitRunState();
+	UFUNCTION()
+		void OnEnterBlockingState();
+	UFUNCTION()
+		void UpdateBlockingState();
+	UFUNCTION()
+		void OnExitBlockingState();
 
 	//UFUNCTION()
 	//	void OnEnterAttackState();
