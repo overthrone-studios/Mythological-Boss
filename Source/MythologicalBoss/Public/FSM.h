@@ -14,12 +14,11 @@ struct FState
 {
 	GENERATED_USTRUCT_BODY()
 
-	FState() : ID(0), PreviousState(nullptr) {}
+	FState() : ID(0) {}
 	FState(const int32 ID, const FName Name, FState* PreviousState = nullptr)
 	{
 		this->ID = ID;
 		this->Name = Name;
-		this->PreviousState = PreviousState;
 	}
 
 	UPROPERTY()
@@ -32,9 +31,7 @@ struct FState
 	int32 ID;
 	FName Name;
 
-	float RunningTime = 0;
-
-	FState* PreviousState;
+	float Uptime = 0;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -56,8 +53,12 @@ public:
 	FState* GetActiveState() const;
 	int32 GetActiveStateID() const;
 	FName GetActiveStateName() const;
+	float GetActiveStateUptime() const;
 
-	float GetActiveStateRunningTime() const;
+	FState* GetPreviousState() const;
+	int32 GetPreviousStateID() const;
+	FName GetPreviousStateName() const;
+	float GetPreviousStateUptime() const;
 
 	void SetActiveState(int32 StateID);
 	void SetActiveState(const FName& StateName);
@@ -67,6 +68,7 @@ protected:
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	FState* ActiveState{};
+	FState* PreviousState{};
 
 	TArray<FState> States;
 };

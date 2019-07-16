@@ -21,7 +21,7 @@ void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	ActiveState->OnUpdateState.Broadcast();
-	ActiveState->RunningTime += DeltaTime;
+	ActiveState->Uptime += DeltaTime;
 }
 
 void UFSM::InitState(const int32 StateID)
@@ -30,6 +30,7 @@ void UFSM::InitState(const int32 StateID)
 	{
 		if (State.ID == StateID)
 		{
+			PreviousState = &State;
 			ActiveState = &State;
 			return;
 		}
@@ -98,9 +99,29 @@ FName UFSM::GetActiveStateName() const
 	return ActiveState->Name;
 }
 
-float UFSM::GetActiveStateRunningTime() const
+FState* UFSM::GetPreviousState() const
 {
-	return ActiveState->RunningTime;
+	return PreviousState;
+}
+
+int32 UFSM::GetPreviousStateID() const
+{
+	return PreviousState->ID;
+}
+
+FName UFSM::GetPreviousStateName() const
+{
+	return PreviousState->Name;
+}
+
+float UFSM::GetPreviousStateUptime() const
+{
+	return PreviousState->Uptime;
+}
+
+float UFSM::GetActiveStateUptime() const
+{
+	return ActiveState->Uptime;
 }
 
 void UFSM::SetActiveState(const int32 StateID)
@@ -114,10 +135,13 @@ void UFSM::SetActiveState(const int32 StateID)
 	{
 		if (State.ID == StateID)
 		{
+			PreviousState = ActiveState;
+
 			ActiveState->OnExitState.Broadcast();
-			ActiveState->RunningTime = 0;
+			ActiveState->Uptime = 0;
 			ActiveState = &State;
 			ActiveState->OnEnterState.Broadcast();
+
 			return;
 		}
 	}
@@ -134,10 +158,13 @@ void UFSM::SetActiveState(const FName& StateName)
 		// Does the state exist?
 		if (State.Name == StateName)
 		{
+			PreviousState = ActiveState;
+
 			ActiveState->OnExitState.Broadcast();
-			ActiveState->RunningTime = 0;
+			ActiveState->Uptime = 0;
 			ActiveState = &State;
 			ActiveState->OnEnterState.Broadcast();
+
 			return;
 		}
 	}

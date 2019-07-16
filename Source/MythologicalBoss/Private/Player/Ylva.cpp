@@ -123,6 +123,10 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && PlayerStateMachine->GetActiveStateID() != 1) // Walk
+		PlayerStateMachine->SetActiveState("Walk");
+	else if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && PlayerStateMachine->GetActiveStateID() != 0) // Run
+		PlayerStateMachine->SetActiveState("Idle");
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -227,7 +231,6 @@ void AYlva::OnEnterIdleState()
 void AYlva::UpdateIdleState()
 {
 	ULog::LogDebugMessage(INFO, FString("In Idle state"), true);
-	ULog::LogDebugMessage(INFO, FString("Idle state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
 }
 
 void AYlva::OnExitIdleState()
@@ -243,7 +246,6 @@ void AYlva::OnEnterWalkState()
 void AYlva::UpdateWalkState()
 {
 	ULog::LogDebugMessage(INFO, FString("In Walk state"), true);
-	ULog::LogDebugMessage(INFO, FString("Walk state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
 }
 
 void AYlva::OnExitWalkState()
@@ -254,7 +256,6 @@ void AYlva::OnExitWalkState()
 void AYlva::OnEnterJumpState()
 {
 	ULog::LogDebugMessage(INFO, FString("Entering jump state"), true);
-	ULog::LogDebugMessage(INFO, FString("Jump state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
 }
 
 void AYlva::UpdateJumpState()
@@ -275,7 +276,6 @@ void AYlva::OnEnterFallingState()
 void AYlva::UpdateFallingState()
 {
 	ULog::LogDebugMessage(INFO, FString("In falling state"), true);
-	ULog::LogDebugMessage(INFO, FString("Falling state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
 }
 
 void AYlva::OnExitFallingState()
