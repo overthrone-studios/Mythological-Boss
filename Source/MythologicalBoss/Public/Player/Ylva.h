@@ -5,6 +5,13 @@
 #include "GameFramework/Character.h"
 #include "Ylva.generated.h"
 
+ UENUM()
+ enum ECustomMovementMode
+ {
+     YLVA_Idle			UMETA(DisplayName = "Idle"),
+     YLVA_Walking		UMETA(DisplayName = "Walking")
+ };
+
 /*
  * The player character
  */
@@ -32,6 +39,10 @@ public:
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
+	void Falling() override;
+	void NotifyJumpApex() override;
+	void OnJumped_Implementation() override;
+	void Landed(const FHitResult& Hit) override;
 
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -54,6 +65,44 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	UFUNCTION()
+		void OnEnterIdleState();
+	UFUNCTION()
+		void UpdateIdleState();
+	UFUNCTION()
+		void OnExitIdleState();
+
+	UFUNCTION()
+		void OnEnterWalkState();
+	UFUNCTION()
+		void UpdateWalkState();
+	UFUNCTION()
+		void OnExitWalkState();
+
+	//UFUNCTION()
+	//	void OnEnterRunState();
+	//UFUNCTION()
+	//	void OnExitRunState();
+
+	//UFUNCTION()
+	//	void OnEnterAttackState();
+	//UFUNCTION()
+	//	void OnExitAttackState();
+
+	UFUNCTION()
+		void OnEnterJumpState();
+	UFUNCTION()
+		void UpdateJumpState();
+	UFUNCTION()
+		void OnExitJumpState();
+
+	UFUNCTION()
+		void OnEnterFallingState();
+	UFUNCTION()
+		void UpdateFallingState();
+	UFUNCTION()
+		void OnExitFallingState();
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
@@ -65,6 +114,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
+	// The player's Finite State Machine
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
+		class UFSM* PlayerStateMachine;
+
 	// Cached world pointer
 	UWorld* World{};
+
+	// Cached movement component
+	UCharacterMovementComponent* MovementComponent;
 };

@@ -8,8 +8,9 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/Controller.h"
+#include "GameFramework/PlayerController.h"
 #include "Animation/AnimInstance.h"
+#include "FSM.h"
 #include "Log.h"
 
 AYlva::AYlva()
@@ -34,6 +35,35 @@ AYlva::AYlva()
 		else
 			ULog::LogDebugMessage(ERROR, FString("AnimBP did not succeed."));
 	}
+
+	// Create a FSM
+	PlayerStateMachine = CreateDefaultSubobject<UFSM>(FName("Player FSM"));
+	PlayerStateMachine->AddState(0, "Idle");
+	PlayerStateMachine->AddState(1, "Walk");
+	PlayerStateMachine->AddState(2, "Run");
+	PlayerStateMachine->AddState(3, "Attack");
+	PlayerStateMachine->AddState(4, "Block");
+	PlayerStateMachine->AddState(5, "Death");
+	PlayerStateMachine->AddState(6, "Jump");
+	PlayerStateMachine->AddState(7, "Falling");
+
+	PlayerStateMachine->InitState(0);
+
+	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
+	PlayerStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
+	PlayerStateMachine->GetState(0)->OnExitState.AddDynamic(this, &AYlva::OnExitIdleState);
+
+	PlayerStateMachine->GetState(1)->OnEnterState.AddDynamic(this, &AYlva::OnEnterWalkState);
+	PlayerStateMachine->GetState(1)->OnUpdateState.AddDynamic(this, &AYlva::UpdateWalkState);
+	PlayerStateMachine->GetState(1)->OnExitState.AddDynamic(this, &AYlva::OnExitWalkState);
+
+	PlayerStateMachine->GetState(6)->OnEnterState.AddDynamic(this, &AYlva::OnEnterJumpState);
+	PlayerStateMachine->GetState(6)->OnUpdateState.AddDynamic(this, &AYlva::UpdateJumpState);
+	PlayerStateMachine->GetState(6)->OnExitState.AddDynamic(this, &AYlva::OnExitJumpState);
+
+	PlayerStateMachine->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterFallingState);
+	PlayerStateMachine->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateFallingState);
+	PlayerStateMachine->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitFallingState);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -71,6 +101,7 @@ AYlva::AYlva()
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+	GetCharacterMovement()->bNotifyApex = true;
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -81,9 +112,11 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get the world
+	// Cache the world object
 	World = GetWorld();
-	
+
+	// Cache the movement component
+	MovementComponent = GetCharacterMovement();
 }
 
 void AYlva::Tick(const float DeltaTime)
@@ -98,7 +131,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	// Crash if we don't have a valid Input component
 	check(PlayerInputComponent);
-
+	
 	// Set up gameplay key bindings
 	PlayerInputComponent->BindAxis("MoveForward", this, &AYlva::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AYlva::MoveRight);
@@ -111,8 +144,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AYlva::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AYlva::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AYlva::StopJumping);
 }
 
 void AYlva::MoveForward(const float Value)
@@ -157,4 +190,95 @@ void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
+}
+
+void AYlva::Falling()
+{
+	Super::Falling();
+
+	PlayerStateMachine->SetActiveState("Falling");
+}
+
+void AYlva::NotifyJumpApex()
+{
+	Super::NotifyJumpApex();
+	GetCharacterMovement()->bNotifyApex = true;
+	
+	PlayerStateMachine->SetActiveState("Falling");
+}
+
+void AYlva::OnJumped_Implementation()
+{
+	PlayerStateMachine->SetActiveState("Jump");
+}
+
+void AYlva::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	PlayerStateMachine->SetActiveState("Idle");
+}
+
+void AYlva::OnEnterIdleState()
+{
+	ULog::LogDebugMessage(INFO, FString("Entered Idle state"), true);
+}
+
+void AYlva::UpdateIdleState()
+{
+	ULog::LogDebugMessage(INFO, FString("In Idle state"), true);
+	ULog::LogDebugMessage(INFO, FString("Idle state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
+}
+
+void AYlva::OnExitIdleState()
+{
+	ULog::LogDebugMessage(INFO, FString("Exited Idle state"), true);
+}
+
+void AYlva::OnEnterWalkState()
+{
+	ULog::LogDebugMessage(INFO, FString("Entered Walk state"), true);
+}
+
+void AYlva::UpdateWalkState()
+{
+	ULog::LogDebugMessage(INFO, FString("In Walk state"), true);
+	ULog::LogDebugMessage(INFO, FString("Walk state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
+}
+
+void AYlva::OnExitWalkState()
+{
+	ULog::LogDebugMessage(INFO, FString("Exited Walk state"), true);
+}
+
+void AYlva::OnEnterJumpState()
+{
+	ULog::LogDebugMessage(INFO, FString("Entering jump state"), true);
+	ULog::LogDebugMessage(INFO, FString("Jump state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
+}
+
+void AYlva::UpdateJumpState()
+{
+	ULog::LogDebugMessage(INFO, FString("In jump state"), true);
+}
+
+void AYlva::OnExitJumpState()
+{
+	ULog::LogDebugMessage(INFO, FString("Exiting jump state"), true);
+}
+
+void AYlva::OnEnterFallingState()
+{
+	ULog::LogDebugMessage(INFO, FString("Entered falling state"), true);
+}
+
+void AYlva::UpdateFallingState()
+{
+	ULog::LogDebugMessage(INFO, FString("In falling state"), true);
+	ULog::LogDebugMessage(INFO, FString("Falling state time: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateRunningTime()), true);
+}
+
+void AYlva::OnExitFallingState()
+{
+	ULog::LogDebugMessage(INFO, FString("Exiting falling state"), true);
 }
