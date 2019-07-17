@@ -47,6 +47,9 @@ public:
 
 	void AddState(int32 ID, const FName& StateName);
 
+	FORCEINLINE TArray<FState> GetAllStates() const { return States; }
+	FORCEINLINE int32 GetStatesCount() const { return States.Num(); }
+
 	FState* GetState(int32 StateID);
 	FState* GetState(const FName& StateName);
 

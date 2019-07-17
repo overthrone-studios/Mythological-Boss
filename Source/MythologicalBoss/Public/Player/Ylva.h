@@ -129,4 +129,5 @@ protected:
 	UCharacterMovementComponent* MovementComponent{};
 
 	class AOverthroneHUD* PlayerHUD{};
+	class UFSMVisualizerHUD* FSMVisualizer{};
 };

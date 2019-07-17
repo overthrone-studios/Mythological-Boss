@@ -11,9 +11,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Animation/AnimInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Widgets/HUD/MasterHUD.h"
+#include "Widgets/HUD/FSMVisualizerHUD.h"
 #include "FSM.h"
 #include "Log.h"
-#include "Kismet/GameplayStatics.h"
 
 AYlva::AYlva()
 {
@@ -128,6 +130,9 @@ void AYlva::BeginPlay()
 	// Cache the player HUD
 	PlayerHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	PlayerHUD->Init();
+
+	// Cache the FSM Visualizer HUD
+	FSMVisualizer = Cast<UFSMVisualizerHUD>(PlayerHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
 
 	PlayerStateMachine->InitState(0);
 }
@@ -250,12 +255,14 @@ void AYlva::OnEnterIdleState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Entered Idle state"), true);
 
-	PlayerHUD->HighlightState("Idle");
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateIdleState()
 {
-	PlayerHUD->UpdateStateUptime("Idle", PlayerStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	//PlayerHUD->UpdateStateUptime("Idle", PlayerStateMachine->GetActiveStateUptime());
 
 	//ULog::LogDebugMessage(INFO, FString("In Idle state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
@@ -270,19 +277,19 @@ void AYlva::OnExitIdleState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Exited Idle state"), true);
 
-	PlayerHUD->UnhighlightState("Idle");
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::OnEnterWalkState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Entered Walk state"), true);
 
-	PlayerHUD->HighlightState("Walk");
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateWalkState()
 {
-	PlayerHUD->UpdateStateUptime("Walk", PlayerStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	//ULog::LogDebugMessage(INFO, FString("In Walk state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 	
@@ -297,19 +304,19 @@ void AYlva::OnExitWalkState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Exited Walk state"), true);
 
-	PlayerHUD->UnhighlightState("Walk");
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::OnEnterBlockingState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Entering blocking state"), true);
 
-	PlayerHUD->HighlightState("Block");
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateBlockingState()
 {
-	PlayerHUD->UpdateStateUptime("Block", PlayerStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 	//ULog::LogDebugMessage(INFO, FString("In blocking state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 }
 
@@ -317,7 +324,7 @@ void AYlva::OnExitBlockingState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Exited blocking state"), true);
 
-	PlayerHUD->UnhighlightState("Block");
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::OnEnterAttackState()
@@ -326,12 +333,12 @@ void AYlva::OnEnterAttackState()
 
 	// If attack animation has finished, go back to Idle state
 
-	PlayerHUD->HighlightState("Attack");
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateAttackState()
 {
-	PlayerHUD->UpdateStateUptime("Attack", PlayerStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 	//ULog::LogDebugMessage(INFO, FString("In Attack state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 }
 
@@ -339,19 +346,19 @@ void AYlva::OnExitAttackState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Exited Attack state"), true);
 
-	PlayerHUD->UnhighlightState("Attack");
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::OnEnterJumpState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Entering jump state"), true);
 
-	PlayerHUD->HighlightState("Jump");
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateJumpState()
 {
-	PlayerHUD->UpdateStateUptime("Jump", PlayerStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 	//ULog::LogDebugMessage(INFO, FString("In jump state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
 	if (GetVelocity().Z < 0.0f)
@@ -362,19 +369,19 @@ void AYlva::OnExitJumpState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Exiting jump state"), true);
 
-	PlayerHUD->UnhighlightState("Jump");
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::OnEnterFallingState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Entered falling state"), true);
 
-	PlayerHUD->HighlightState("Fall");
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateFallingState()
 {
-	PlayerHUD->UpdateStateUptime("Fall", PlayerStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 	//ULog::LogDebugMessage(INFO, FString("In falling state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
 	if (GetVelocity().Z == 0.0f)
@@ -385,5 +392,5 @@ void AYlva::OnExitFallingState()
 {
 	//ULog::LogDebugMessage(INFO, FString("Exiting falling state"), true);
 
-	PlayerHUD->UnhighlightState("Fall");
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }

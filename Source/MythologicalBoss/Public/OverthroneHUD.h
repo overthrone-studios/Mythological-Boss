@@ -18,23 +18,13 @@ public:
 
 	void Init();
 
-	void HighlightState(const FString& StateName);
-	void UpdateStateUptime(const FString& StateName, float Uptime);
-	void UnhighlightState(const FString& StateName);
+	FORCEINLINE class UMasterHUD* GetMasterHUD() const { return MasterHUD; }
 
 protected:
-	void BeginPlay() override;
-
 	void CreateWidgets();
 	void AddWidgetsToScreen();
 	void InitWidgets();
 
 	class UMasterHUD* MasterHUD{};
-	class UUserWidget* IdleStateWidget{};
-	class UUserWidget* WalkStateWidget{};
-	class UUserWidget* JumpStateWidget{};
-	class UUserWidget* FallStateWidget{};
-	class UUserWidget* AttackStateWidget{};
-	class UUserWidget* BlockStateWidget{};
-	TSubclassOf<class UHUDBase> WidgetClass;
+	TSubclassOf<class UHUDBase> HUDWidgetClass;
 };
