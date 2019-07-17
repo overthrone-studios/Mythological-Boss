@@ -62,6 +62,9 @@ protected:
 	// Called via input to exit the block state
 	void StopBlocking();
 
+	// Called via input to enter the attacking state
+	void Attack();
+
 	UFUNCTION()
 		void OnEnterIdleState();
 	UFUNCTION()
@@ -83,10 +86,12 @@ protected:
 	UFUNCTION()
 		void OnExitBlockingState();
 
-	//UFUNCTION()
-	//	void OnEnterAttackState();
-	//UFUNCTION()
-	//	void OnExitAttackState();
+	UFUNCTION()
+		void OnEnterAttackState();
+	UFUNCTION()
+		void UpdateAttackState();
+	UFUNCTION()
+		void OnExitAttackState();
 
 	UFUNCTION()
 		void OnEnterJumpState();
@@ -122,4 +127,6 @@ protected:
 
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
+
+	class APlayerHUD* PlayerHUD{};
 };

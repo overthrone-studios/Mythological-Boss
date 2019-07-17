@@ -1,6 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "Player/Ylva.h"
+#include "Public/PlayerHUD.h"
 #include "ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -12,13 +13,14 @@
 #include "Animation/AnimInstance.h"
 #include "FSM.h"
 #include "Log.h"
+#include "Kismet/GameplayStatics.h"
 
 AYlva::AYlva()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Get our anim blueprint class
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Player/Bot/Animations/AnimBP_bot.AnimBP_Bot_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Player/Bot/Animations/AnimBP_Bot.AnimBP_Bot_C'"));
 
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Player/Bot/SKM_Bot.SKM_Bot'")));
@@ -47,11 +49,13 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(6, "Jump");
 	PlayerStateMachine->AddState(7, "Falling");
 
-	PlayerStateMachine->InitState(0);
-
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
 	PlayerStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
 	PlayerStateMachine->GetState(0)->OnExitState.AddDynamic(this, &AYlva::OnExitIdleState);
+
+	PlayerStateMachine->GetState(3)->OnEnterState.AddDynamic(this, &AYlva::OnEnterAttackState);
+	PlayerStateMachine->GetState(3)->OnUpdateState.AddDynamic(this, &AYlva::UpdateAttackState);
+	PlayerStateMachine->GetState(3)->OnExitState.AddDynamic(this, &AYlva::OnExitAttackState);
 
 	PlayerStateMachine->GetState(4)->OnEnterState.AddDynamic(this, &AYlva::OnEnterBlockingState);
 	PlayerStateMachine->GetState(4)->OnUpdateState.AddDynamic(this, &AYlva::UpdateBlockingState);
@@ -120,6 +124,12 @@ void AYlva::BeginPlay()
 
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
+
+	// Cache the player HUD
+	PlayerHUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	PlayerHUD->Init();
+
+	PlayerStateMachine->InitState(0);
 }
 
 void AYlva::Tick(const float DeltaTime)
@@ -152,6 +162,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Block", IE_Pressed, this, &AYlva::Block);
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
+
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AYlva::Attack);
 }
 
 void AYlva::MoveForward(const float Value)
@@ -200,8 +212,9 @@ void AYlva::LookUpAtRate(const float Rate)
 
 void AYlva::Block()
 {	
-	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ ||
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/)
+	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/)
 		PlayerStateMachine->SetActiveState("Block");
 }
 
@@ -209,6 +222,16 @@ void AYlva::StopBlocking()
 {
 	if (PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/)
 		PlayerStateMachine->SetActiveState("Idle");
+}
+
+void AYlva::Attack()
+{
+	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ ||
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ ||
+		PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/)
+	{
+		PlayerStateMachine->SetActiveState("Attack");
+	}
 }
 
 void AYlva::OnJumped_Implementation()
@@ -225,12 +248,16 @@ void AYlva::Landed(const FHitResult& Hit)
 
 void AYlva::OnEnterIdleState()
 {
-	ULog::LogDebugMessage(INFO, FString("Entered Idle state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Entered Idle state"), true);
+
+	PlayerHUD->HighlightState("Idle");
 }
 
 void AYlva::UpdateIdleState()
 {
-	ULog::LogDebugMessage(INFO, FString("In Idle state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+	PlayerHUD->UpdateStateUptime("Idle", PlayerStateMachine->GetActiveStateUptime());
+
+	//ULog::LogDebugMessage(INFO, FString("In Idle state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		PlayerStateMachine->SetActiveState("Walk");
@@ -241,17 +268,23 @@ void AYlva::UpdateIdleState()
 
 void AYlva::OnExitIdleState()
 {
-	ULog::LogDebugMessage(INFO, FString("Exited Idle state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Exited Idle state"), true);
+
+	PlayerHUD->UnhighlightState("Idle");
 }
 
 void AYlva::OnEnterWalkState()
 {
-	ULog::LogDebugMessage(INFO, FString("Entered Walk state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Entered Walk state"), true);
+
+	PlayerHUD->HighlightState("Walk");
 }
 
 void AYlva::UpdateWalkState()
 {
-	ULog::LogDebugMessage(INFO, FString("In Walk state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+	PlayerHUD->UpdateStateUptime("Walk", PlayerStateMachine->GetActiveStateUptime());
+
+	//ULog::LogDebugMessage(INFO, FString("In Walk state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 	
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		PlayerStateMachine->SetActiveState("Idle");
@@ -262,32 +295,64 @@ void AYlva::UpdateWalkState()
 
 void AYlva::OnExitWalkState()
 {
-	ULog::LogDebugMessage(INFO, FString("Exited Walk state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Exited Walk state"), true);
+
+	PlayerHUD->UnhighlightState("Walk");
 }
 
 void AYlva::OnEnterBlockingState()
 {
-	ULog::LogDebugMessage(INFO, FString("Entering blocking state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Entering blocking state"), true);
+
+	PlayerHUD->HighlightState("Block");
 }
 
 void AYlva::UpdateBlockingState()
 {
-	ULog::LogDebugMessage(INFO, FString("In blocking state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+	PlayerHUD->UpdateStateUptime("Block", PlayerStateMachine->GetActiveStateUptime());
+	//ULog::LogDebugMessage(INFO, FString("In blocking state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 }
 
 void AYlva::OnExitBlockingState()
 {
-	ULog::LogDebugMessage(INFO, FString("Exited blocking state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Exited blocking state"), true);
+
+	PlayerHUD->UnhighlightState("Block");
+}
+
+void AYlva::OnEnterAttackState()
+{
+	//ULog::LogDebugMessage(INFO, FString("Entered Attack state"), true);
+
+	// If attack animation has finished, go back to Idle state
+
+	PlayerHUD->HighlightState("Attack");
+}
+
+void AYlva::UpdateAttackState()
+{
+	PlayerHUD->UpdateStateUptime("Attack", PlayerStateMachine->GetActiveStateUptime());
+	//ULog::LogDebugMessage(INFO, FString("In Attack state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+}
+
+void AYlva::OnExitAttackState()
+{
+	//ULog::LogDebugMessage(INFO, FString("Exited Attack state"), true);
+
+	PlayerHUD->UnhighlightState("Attack");
 }
 
 void AYlva::OnEnterJumpState()
 {
-	ULog::LogDebugMessage(INFO, FString("Entering jump state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Entering jump state"), true);
+
+	PlayerHUD->HighlightState("Jump");
 }
 
 void AYlva::UpdateJumpState()
 {
-	ULog::LogDebugMessage(INFO, FString("In jump state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+	PlayerHUD->UpdateStateUptime("Jump", PlayerStateMachine->GetActiveStateUptime());
+	//ULog::LogDebugMessage(INFO, FString("In jump state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
 	if (GetVelocity().Z < 0.0f)
 		PlayerStateMachine->SetActiveState("Falling");
@@ -295,17 +360,22 @@ void AYlva::UpdateJumpState()
 
 void AYlva::OnExitJumpState()
 {
-	ULog::LogDebugMessage(INFO, FString("Exiting jump state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Exiting jump state"), true);
+
+	PlayerHUD->UnhighlightState("Jump");
 }
 
 void AYlva::OnEnterFallingState()
 {
-	ULog::LogDebugMessage(INFO, FString("Entered falling state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Entered falling state"), true);
+
+	PlayerHUD->HighlightState("Fall");
 }
 
 void AYlva::UpdateFallingState()
 {
-	ULog::LogDebugMessage(INFO, FString("In falling state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
+	PlayerHUD->UpdateStateUptime("Fall", PlayerStateMachine->GetActiveStateUptime());
+	//ULog::LogDebugMessage(INFO, FString("In falling state: ") + FString::SanitizeFloat(PlayerStateMachine->GetActiveStateUptime()), true);
 
 	if (GetVelocity().Z == 0.0f)
 		PlayerStateMachine->SetActiveState("Idle");
@@ -313,5 +383,7 @@ void AYlva::UpdateFallingState()
 
 void AYlva::OnExitFallingState()
 {
-	ULog::LogDebugMessage(INFO, FString("Exiting falling state"), true);
+	//ULog::LogDebugMessage(INFO, FString("Exiting falling state"), true);
+
+	PlayerHUD->UnhighlightState("Fall");
 }

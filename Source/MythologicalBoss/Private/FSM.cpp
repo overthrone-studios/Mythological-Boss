@@ -31,7 +31,10 @@ void UFSM::InitState(const int32 StateID)
 		if (State.ID == StateID)
 		{
 			PreviousState = &State;
+
 			ActiveState = &State;
+			ActiveState->OnEnterState.Broadcast();
+
 			return;
 		}
 	}

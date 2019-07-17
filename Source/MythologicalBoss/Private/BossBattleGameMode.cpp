@@ -2,17 +2,17 @@
 
 #include "Public/BossBattleGameMode.h"
 #include "Public/PlayerHUD.h"
-#include "ConstructorHelpers.h"
+#include "Player/Ylva.h"
 
 ABossBattleGameMode::ABossBattleGameMode()
 {
 	// Set default pawn class to our blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Player/ThirdPersonCharacter"));
+	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Player/ThirdPersonCharacter"));
 
-	if (PlayerPawnBPClass.Class)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
+	//if (PlayerPawnBPClass.Class)
+	//{
+		DefaultPawnClass = AYlva::StaticClass();
+	//}
 
 	// Set default HUD class to our PlayerHUD
 	HUDClass = APlayerHUD::StaticClass();
