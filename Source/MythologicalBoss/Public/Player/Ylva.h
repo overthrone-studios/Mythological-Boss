@@ -128,5 +128,5 @@ protected:
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
-	class APlayerHUD* PlayerHUD{};
+	class AOverthroneHUD* PlayerHUD{};
 };

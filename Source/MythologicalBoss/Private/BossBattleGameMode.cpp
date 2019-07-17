@@ -1,7 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "Public/BossBattleGameMode.h"
-#include "Public/PlayerHUD.h"
+#include "Public/OverthroneHUD.h"
 #include "Player/Ylva.h"
 
 ABossBattleGameMode::ABossBattleGameMode()
@@ -15,5 +15,5 @@ ABossBattleGameMode::ABossBattleGameMode()
 	//}
 
 	// Set default HUD class to our PlayerHUD
-	HUDClass = APlayerHUD::StaticClass();
+	HUDClass = AOverthroneHUD::StaticClass();
 }

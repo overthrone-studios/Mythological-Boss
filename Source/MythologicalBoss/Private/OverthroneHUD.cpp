@@ -1,6 +1,7 @@
 // Copyright Overthrone Studios 2019
 
-#include "Public/PlayerHUD.h"
+#include "Public/OverthroneHUD.h"
+#include "Widgets/HUD/MasterHUD.h"
 #include "Widget.h"
 #include "WidgetTree.h"
 #include "UserWidget.h"
@@ -12,22 +13,30 @@
 static FLinearColor White = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
 static FLinearColor Green = FLinearColor(0.187166f, 1.0f, 0.198517f, 1.0f);
 
-APlayerHUD::APlayerHUD()
+AOverthroneHUD::AOverthroneHUD()
 {
-	static ConstructorHelpers::FClassFinder<UWidget> MasterHUDWidget(TEXT("WidgetBlueprint'/Game/UI/PlayerHUD/MasterPlayerHUD.MasterPlayerHUD_C'"));
+	static ConstructorHelpers::FClassFinder<UWidget> MasterHUDWidget(TEXT("WidgetBlueprint'/Game/UI/PlayerHUD/UI_MasterPlayerHUD.UI_MasterPlayerHUD_C'"));
 
 	if (MasterHUDWidget.Succeeded())
 		WidgetClass = MasterHUDWidget.Class;
 }
 
-void APlayerHUD::Init()
+void AOverthroneHUD::Init()
 {
 	CreateWidgets();
-	AddWidgetsToScreen();
-	InitWidgets();
+
+	if (MasterHUD)
+	{
+		AddWidgetsToScreen();
+		InitWidgets();
+	}
+	else
+	{
+		ULog::LogDebugMessage(ERROR, "Failed to create the MasterHUD widget!", true);
+	}
 }
 
-void APlayerHUD::HighlightState(const FString& StateName)
+void AOverthroneHUD::HighlightState(const FString& StateName)
 {
 	if (StateName == "Idle")
 	{
@@ -93,7 +102,7 @@ void APlayerHUD::HighlightState(const FString& StateName)
 		ULog::LogDebugMessage(WARNING, "Nothing to highlight", true);
 }
 
-void APlayerHUD::UpdateStateUptime(const FString& StateName, const float Uptime)
+void AOverthroneHUD::UpdateStateUptime(const FString& StateName, const float Uptime)
 {
 	if (StateName == "Idle")
 	{
@@ -151,7 +160,7 @@ void APlayerHUD::UpdateStateUptime(const FString& StateName, const float Uptime)
 	}
 }
 
-void APlayerHUD::UnhighlightState(const FString& StateName)
+void AOverthroneHUD::UnhighlightState(const FString& StateName)
 {
 	if (StateName == "Idle")
 	{
@@ -247,26 +256,26 @@ void APlayerHUD::UnhighlightState(const FString& StateName)
 		ULog::LogDebugMessage(WARNING, "Nothing to Un-highlight", true);
 }
 
-void APlayerHUD::BeginPlay()
+void AOverthroneHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
-void APlayerHUD::CreateWidgets()
+void AOverthroneHUD::CreateWidgets()
 {
-	MasterHUD = CreateWidget<UUserWidget>(GetWorld(), WidgetClass, FName("Master Player HUD"));
+	MasterHUD = CreateWidget<UMasterHUD>(GetWorld(), WidgetClass, FName("Master Player HUD"));
 }
 
-void APlayerHUD::AddWidgetsToScreen()
+void AOverthroneHUD::AddWidgetsToScreen()
 {
 	MasterHUD->AddToViewport();
 	MasterHUD->SetVisibility(ESlateVisibility::Visible);
 }
 
-void APlayerHUD::InitWidgets()
+void AOverthroneHUD::InitWidgets()
 {
-	//MasterHUD->Init();
+	MasterHUD->Init();
 
 	/*IdleStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("IdleState"));
 	WalkStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("WalkState"));

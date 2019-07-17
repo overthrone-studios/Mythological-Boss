@@ -1,7 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "Player/Ylva.h"
-#include "Public/PlayerHUD.h"
+#include "Public/OverthroneHUD.h"
 #include "ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -126,7 +126,7 @@ void AYlva::BeginPlay()
 	MovementComponent = GetCharacterMovement();
 
 	// Cache the player HUD
-	PlayerHUD = Cast<APlayerHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	PlayerHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	PlayerHUD->Init();
 
 	PlayerStateMachine->InitState(0);

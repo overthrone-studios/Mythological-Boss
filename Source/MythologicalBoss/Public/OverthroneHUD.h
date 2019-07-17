@@ -3,18 +3,18 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
-#include "PlayerHUD.generated.h"
+#include "OverthroneHUD.generated.h"
 
 /**
  * The main HUD the player will use when playing the game
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API APlayerHUD final : public AHUD
+class MYTHOLOGICALBOSS_API AOverthroneHUD final : public AHUD
 {
 	GENERATED_BODY()
 
 public:
-	APlayerHUD();
+	AOverthroneHUD();
 
 	void Init();
 
@@ -29,12 +29,12 @@ protected:
 	void AddWidgetsToScreen();
 	void InitWidgets();
 
-	class UUserWidget* MasterHUD{};
+	class UMasterHUD* MasterHUD{};
 	class UUserWidget* IdleStateWidget{};
 	class UUserWidget* WalkStateWidget{};
 	class UUserWidget* JumpStateWidget{};
 	class UUserWidget* FallStateWidget{};
 	class UUserWidget* AttackStateWidget{};
 	class UUserWidget* BlockStateWidget{};
-	TSubclassOf<class UUserWidget> WidgetClass;
+	TSubclassOf<class UHUDBase> WidgetClass;
 };
