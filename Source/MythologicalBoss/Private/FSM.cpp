@@ -10,54 +10,54 @@ UFSM::UFSM()
 
 }
 
-void UFSM::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
 void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	ActiveState->OnUpdateState.Broadcast();
-	ActiveState->Uptime += DeltaTime;
+	Stack[0]->OnUpdateState.Broadcast();
+	Stack[0]->Uptime += DeltaTime;
 }
 
 void UFSM::InitState(const int32 StateID)
 {
+	// Back out if we have already been initialized
+	if (bHasFSMInitialized)
+		return;
+
 	for (FState& State : States)
 	{
 		if (State.ID == StateID)
 		{
-			PreviousState = &State;
+			Stack.Add(&State);
+			Stack[0]->OnEnterState.Broadcast();
 
-			ActiveState = &State;
-			ActiveState->OnEnterState.Broadcast();
-
+			bHasFSMInitialized = true;
 			return;
 		}
 	}
 
-	ULog::LogDebugMessage(WARNING, FString("State does not exist"), true);
+	ULog::LogDebugMessage(WARNING, FString("InitState: State does not exist"), true);
 }
 
 void UFSM::InitState(const FName& StateName)
 {
+	// Back out if we have already been initialized
+	if (bHasFSMInitialized)
+		return;
+
 	for (FState& State : States)
 	{
 		if (State.Name == StateName)
 		{
-			PreviousState = &State;
+			Stack.Add(&State);
+			Stack[0]->OnEnterState.Broadcast();
 
-			ActiveState = &State;
-			ActiveState->OnEnterState.Broadcast();
-
+			bHasFSMInitialized = true;
 			return;
 		}
 	}
 
-	ULog::LogDebugMessage(WARNING, FString("State does not exist"), true);
+	ULog::LogDebugMessage(WARNING, FString("InitState: State does not exist"), true);
 }
 
 void UFSM::AddState(const int32 ID, const FName& StateName)
@@ -65,6 +65,78 @@ void UFSM::AddState(const int32 ID, const FName& StateName)
 	const FState NewState(ID, StateName);
 
 	States.Add(NewState);
+}
+
+void UFSM::PushState(const int32 StateID)
+{
+	for (FState& State : States)
+	{
+		if (State.ID == StateID)
+		{
+			Stack[0]->OnExitState.Broadcast();
+			Stack[0]->Uptime = 0;
+			Stack.Insert(&State, 0);
+			Stack[0]->OnEnterState.Broadcast();
+
+			return;
+		}
+	}
+
+	ULog::LogDebugMessage(WARNING, FString("PushState: State does not exist"), true);
+}
+
+void UFSM::PushState(const FName& StateName)
+{
+	for (FState& State : States)
+	{
+		if (State.Name == StateName)
+		{
+			Stack[0]->OnExitState.Broadcast();
+			Stack[0]->Uptime = 0;
+			Stack.Insert(&State, 0);
+			Stack[0]->OnEnterState.Broadcast();
+
+			return;
+		}
+	}
+
+	ULog::LogDebugMessage(WARNING, FString("PushState: State does not exist"), true);
+}
+
+void UFSM::PopState(const int32 StateID)
+{
+	for (FState* State : Stack)
+	{
+		if (State->ID == StateID)
+		{
+			Stack[0]->OnExitState.Broadcast();
+			Stack[0]->Uptime = 0;
+			Stack.Remove(State);
+			Stack[0]->OnEnterState.Broadcast();
+
+			return;
+		}
+	}
+
+	ULog::LogDebugMessage(WARNING, FString("PopState: State ID ") + FString::FromInt(StateID) + FString(" does not exist"), true);
+}
+
+void UFSM::PopState(const FName& StateName)
+{
+	for (FState* State : Stack)
+	{
+		if (State->Name == StateName)
+		{
+			Stack[0]->OnExitState.Broadcast();
+			Stack[0]->Uptime = 0;
+			Stack.Remove(State);
+			Stack[0]->OnEnterState.Broadcast();
+
+			return;	
+		}
+	}
+
+	ULog::LogDebugMessage(WARNING, FString("PopState: State ") + StateName.ToString() + FString(" does not exist"), true);
 }
 
 FState* UFSM::GetState(const int32 StateID)
@@ -75,7 +147,7 @@ FState* UFSM::GetState(const int32 StateID)
 			return &State;
 	}
 
-	ULog::LogDebugMessage(WARNING, FString("State does not exist"), true);
+	ULog::LogDebugMessage(WARNING, FString("GetState: State does not exist"), true);
 	return nullptr;
 }
 
@@ -87,92 +159,50 @@ FState* UFSM::GetState(const FName& StateName)
 			return &State;
 	}
 
-	ULog::LogDebugMessage(WARNING, FString("State does not exist"), true);
+	ULog::LogDebugMessage(WARNING, FString("GetState: State does not exist"), true);
+	return nullptr;
+}
+
+FState* UFSM::GetStateInStack(const int32 StateID)
+{
+	for (FState* State : Stack)
+	{
+		if (State->ID == StateID)
+			return State;	
+	}
+
+	ULog::LogDebugMessage(WARNING, FString("GetStateInStack: State ID ") + FString::FromInt(StateID) + FString(" does not exist"), true);
+	return nullptr;
+}
+
+FState* UFSM::GetStateInStack(const FName& StateName)
+{
+	for (FState* State : Stack)
+	{
+		if (State->Name == StateName)
+			return State;	
+	}
+
+	ULog::LogDebugMessage(WARNING, FString("GetStateInStack: State ") + StateName.ToString() + FString(" does not exist"), true);
 	return nullptr;
 }
 
 FState* UFSM::GetActiveState() const
 {
-	return ActiveState;
+	return Stack[0];
 }
 
 int32 UFSM::GetActiveStateID() const
 {
-	return ActiveState->ID;
+	return Stack[0]->ID;
 }
 
 FName UFSM::GetActiveStateName() const
 {
-	return ActiveState->Name;
-}
-
-FState* UFSM::GetPreviousState() const
-{
-	return PreviousState;
-}
-
-int32 UFSM::GetPreviousStateID() const
-{
-	return PreviousState->ID;
-}
-
-FName UFSM::GetPreviousStateName() const
-{
-	return PreviousState->Name;
-}
-
-float UFSM::GetPreviousStateUptime() const
-{
-	return PreviousState->Uptime;
+	return Stack[0]->Name;
 }
 
 float UFSM::GetActiveStateUptime() const
 {
-	return ActiveState->Uptime;
-}
-
-void UFSM::SetActiveState(const int32 StateID)
-{
-	// Exit if we are changing to the same state
-	if (ActiveState->ID == StateID)
-		return;
-
-	// Does the state exist?
-	for (FState& State : States)
-	{
-		if (State.ID == StateID)
-		{
-			PreviousState = ActiveState;
-
-			ActiveState->OnExitState.Broadcast();
-			ActiveState->Uptime = 0;
-			ActiveState = &State;
-			ActiveState->OnEnterState.Broadcast();
-
-			return;
-		}
-	}
-}
-
-void UFSM::SetActiveState(const FName& StateName)
-{
-	// Exit if we are changing to the same state
-	if (ActiveState->Name == StateName)
-		return;
-
-	for (FState& State : States)
-	{
-		// Does the state exist?
-		if (State.Name == StateName)
-		{
-			PreviousState = ActiveState;
-
-			ActiveState->OnExitState.Broadcast();
-			ActiveState->Uptime = 0;
-			ActiveState = &State;
-			ActiveState->OnEnterState.Broadcast();
-
-			return;
-		}
-	}
+	return Stack[0]->Uptime;
 }

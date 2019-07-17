@@ -166,7 +166,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AYlva::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AYlva::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AYlva::StartJumping);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AYlva::StopJumping);
 
 	PlayerInputComponent->BindAction("Block", IE_Pressed, this, &AYlva::Block);
@@ -234,37 +234,38 @@ void AYlva::Block()
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/)
-		PlayerStateMachine->SetActiveState("Block");
+		PlayerStateMachine->PushState("Block");
 }
 
 void AYlva::StopBlocking()
 {
-	if (PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/)
-		PlayerStateMachine->SetActiveState("Idle");
+	PlayerStateMachine->PopState("Block");
 }
 
 void AYlva::Attack()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
 	{
-		PlayerStateMachine->SetActiveState("Attack");
+		PlayerStateMachine->PushState("Attack");
 	}
 }
 
 void AYlva::Run()
 {
-	MovementComponent->MaxWalkSpeed = RunSpeed;
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+	{
+		MovementComponent->MaxWalkSpeed = RunSpeed;
 
-	PlayerStateMachine->SetActiveState("Run");
+		PlayerStateMachine->PushState("Run");
+	}
 }
 
 void AYlva::StopRunning()
 {
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
-
-	PlayerStateMachine->SetActiveState("Walk");
 }
 
 void AYlva::ShowFSMVisualizer()
@@ -282,16 +283,11 @@ void AYlva::ShowNoHUD()
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 }
 
-void AYlva::OnJumped_Implementation()
+void AYlva::StartJumping()
 {
-	PlayerStateMachine->SetActiveState("Jump");
-}
-
-void AYlva::Landed(const FHitResult& Hit)
-{
-	Super::Landed(Hit);
-
-	PlayerStateMachine->SetActiveState("Idle");
+	if (PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/ &&
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
+		PlayerStateMachine->PushState("Jump");
 }
 
 void AYlva::OnEnterIdleState()
@@ -304,10 +300,10 @@ void AYlva::UpdateIdleState()
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		PlayerStateMachine->SetActiveState("Walk");
+		PlayerStateMachine->PushState("Walk");
 
 	if (GetVelocity().Z < 0.0f)
-		PlayerStateMachine->SetActiveState("Falling");
+		PlayerStateMachine->PushState("Falling");
 }
 
 void AYlva::OnExitIdleState()
@@ -325,10 +321,10 @@ void AYlva::UpdateWalkState()
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		PlayerStateMachine->SetActiveState("Idle");
+		PlayerStateMachine->PopState("Walk");
 
 	if (GetVelocity().Z < 0.0f)
-		PlayerStateMachine->SetActiveState("Falling");
+		PlayerStateMachine->PushState("Falling");
 }
 
 void AYlva::OnExitWalkState()
@@ -344,6 +340,12 @@ void AYlva::OnEnterRunState()
 void AYlva::UpdateRunState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed)
+	{
+		MovementComponent->MaxWalkSpeed = WalkSpeed;
+		PlayerStateMachine->PopState("Run");
+	}
 }
 
 void AYlva::OnExitRunState()
@@ -359,6 +361,12 @@ void AYlva::OnEnterBlockingState()
 void AYlva::UpdateBlockingState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+		
+	if (GetVelocity().Z < 0.0f)
+	{
+		PlayerStateMachine->PopState("Block");
+		PlayerStateMachine->PushState("Falling");
+	}
 }
 
 void AYlva::OnExitBlockingState()
@@ -368,14 +376,16 @@ void AYlva::OnExitBlockingState()
 
 void AYlva::OnEnterAttackState()
 {
-	// If attack animation has finished, go back to Idle state
-
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	if (PlayerStateMachine->GetActiveStateUptime() > 0.5f)
+		PlayerStateMachine->PopState("Attack");
 }
 
 void AYlva::OnExitAttackState()
@@ -386,6 +396,8 @@ void AYlva::OnExitAttackState()
 void AYlva::OnEnterJumpState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+	
+	Jump();
 }
 
 void AYlva::UpdateJumpState()
@@ -393,7 +405,10 @@ void AYlva::UpdateJumpState()
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	if (GetVelocity().Z < 0.0f)
-		PlayerStateMachine->SetActiveState("Falling");
+	{
+		PlayerStateMachine->PopState("Jump");
+		PlayerStateMachine->PushState("Falling");
+	}
 }
 
 void AYlva::OnExitJumpState()
@@ -411,7 +426,7 @@ void AYlva::UpdateFallingState()
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	if (GetVelocity().Z == 0.0f)
-		PlayerStateMachine->SetActiveState("Idle");
+		PlayerStateMachine->PopState("Falling");
 }
 
 void AYlva::OnExitFallingState()

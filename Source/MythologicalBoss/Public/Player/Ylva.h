@@ -32,8 +32,6 @@ public:
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
-	void OnJumped_Implementation() override;
-	void Landed(const FHitResult& Hit) override;
 
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -55,6 +53,9 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	// Called via input to enter the jumping state
+	void StartJumping();
 
 	// Called via input to enter the block state
 	void Block();
