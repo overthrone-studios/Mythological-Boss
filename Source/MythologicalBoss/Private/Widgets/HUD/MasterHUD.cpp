@@ -57,12 +57,17 @@ void UMasterHUD::HighlightBox(const int32 Index)
 		{
 			const auto Background = Cast<UImage>(NoHUDBox->WidgetTree->FindWidget("BGImage"));
 			Background->SetColorAndOpacity(Green);
+
+			SetVisibility(ESlateVisibility::Hidden);
+
+			return;
 		}
-		break;
 
 		default:
 		break;
 	}
+
+	SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMasterHUD::UnhighlightBox(const int32 Index)
