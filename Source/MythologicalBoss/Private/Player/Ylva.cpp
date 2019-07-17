@@ -233,7 +233,8 @@ void AYlva::Block()
 {	
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
-		PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/)
+		PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/ &&
+		PlayerStateMachine->GetActiveStateID() != 2 /*Running*/)
 		PlayerStateMachine->PushState("Block");
 }
 
@@ -345,6 +346,11 @@ void AYlva::UpdateRunState()
 	{
 		MovementComponent->MaxWalkSpeed = WalkSpeed;
 		PlayerStateMachine->PopState("Run");
+	}
+
+	if (GetVelocity().Z < 0.0f)
+	{
+		PlayerStateMachine->PushState("Falling");
 	}
 }
 
