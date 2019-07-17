@@ -14,10 +14,10 @@ static FLinearColor Green = FLinearColor(0.187166f, 1.0f, 0.198517f, 1.0f);
 
 APlayerHUD::APlayerHUD()
 {
-	static ConstructorHelpers::FClassFinder<UWidget> FSMVisualizer(TEXT("WidgetBlueprint'/Game/UI/Debug/FSM/UI_FSMVisualizer.UI_FSMVisualizer_C'"));
+	static ConstructorHelpers::FClassFinder<UWidget> MasterHUDWidget(TEXT("WidgetBlueprint'/Game/UI/PlayerHUD/MasterPlayerHUD.MasterPlayerHUD_C'"));
 
-	if (FSMVisualizer.Succeeded())
-		FSMVisualizerClass = FSMVisualizer.Class;
+	if (MasterHUDWidget.Succeeded())
+		WidgetClass = MasterHUDWidget.Class;
 }
 
 void APlayerHUD::Init()
@@ -255,21 +255,23 @@ void APlayerHUD::BeginPlay()
 
 void APlayerHUD::CreateWidgets()
 {
-	FSMVisualizer = CreateWidget<UUserWidget>(GetWorld(), FSMVisualizerClass, FName("FSM Visualizer"));
+	MasterHUD = CreateWidget<UUserWidget>(GetWorld(), WidgetClass, FName("Master Player HUD"));
 }
 
 void APlayerHUD::AddWidgetsToScreen()
 {
-	FSMVisualizer->AddToViewport();
-	FSMVisualizer->SetVisibility(ESlateVisibility::Visible);
+	MasterHUD->AddToViewport();
+	MasterHUD->SetVisibility(ESlateVisibility::Visible);
 }
 
 void APlayerHUD::InitWidgets()
 {
-	IdleStateWidget = Cast<UUserWidget>(FSMVisualizer->WidgetTree->FindWidget("IdleState"));
-	WalkStateWidget = Cast<UUserWidget>(FSMVisualizer->WidgetTree->FindWidget("WalkState"));
-	JumpStateWidget = Cast<UUserWidget>(FSMVisualizer->WidgetTree->FindWidget("JumpState"));
-	FallStateWidget = Cast<UUserWidget>(FSMVisualizer->WidgetTree->FindWidget("FallState"));
-	BlockStateWidget = Cast<UUserWidget>(FSMVisualizer->WidgetTree->FindWidget("BlockState"));
-	AttackStateWidget = Cast<UUserWidget>(FSMVisualizer->WidgetTree->FindWidget("AttackState"));
+	//MasterHUD->Init();
+
+	/*IdleStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("IdleState"));
+	WalkStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("WalkState"));
+	JumpStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("JumpState"));
+	FallStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("FallState"));
+	BlockStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("BlockState"));
+	AttackStateWidget = Cast<UUserWidget>(MasterHUD->WidgetTree->FindWidget("AttackState"));*/
 }

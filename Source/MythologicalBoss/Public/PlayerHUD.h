@@ -29,12 +29,12 @@ protected:
 	void AddWidgetsToScreen();
 	void InitWidgets();
 
-	class UUserWidget* FSMVisualizer{};
+	class UUserWidget* MasterHUD{};
 	class UUserWidget* IdleStateWidget{};
 	class UUserWidget* WalkStateWidget{};
 	class UUserWidget* JumpStateWidget{};
 	class UUserWidget* FallStateWidget{};
 	class UUserWidget* AttackStateWidget{};
 	class UUserWidget* BlockStateWidget{};
-	TSubclassOf<class UUserWidget> FSMVisualizerClass;
+	TSubclassOf<class UUserWidget> WidgetClass;
 };
