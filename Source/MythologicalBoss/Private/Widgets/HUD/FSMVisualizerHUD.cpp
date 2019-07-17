@@ -19,6 +19,7 @@ void UFSMVisualizerHUD::Init()
 	FallStateWidget = Cast<UUserWidget>(WidgetTree->FindWidget("FallState"));
 	BlockStateWidget = Cast<UUserWidget>(WidgetTree->FindWidget("BlockState"));
 	AttackStateWidget = Cast<UUserWidget>(WidgetTree->FindWidget("AttackState"));
+	RunStateWidget = Cast<UUserWidget>(WidgetTree->FindWidget("RunState"));
 }
 
 void UFSMVisualizerHUD::HighlightState(const FString& StateName)
@@ -79,6 +80,16 @@ void UFSMVisualizerHUD::HighlightState(const FString& StateName)
 		{
 			// Change background color to green
 			const auto Background = Cast<UImage>(BlockStateWidget->WidgetTree->FindWidget("BGImage"));
+			if (Background)
+				Background->SetColorAndOpacity(Green);
+		}
+	}
+	else if (StateName == "Run")
+	{
+		if (RunStateWidget)
+		{
+			// Change background color to green
+			const auto Background = Cast<UImage>(RunStateWidget->WidgetTree->FindWidget("BGImage"));
 			if (Background)
 				Background->SetColorAndOpacity(Green);
 		}
@@ -159,6 +170,19 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		if (BlockStateWidget)
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(BlockStateWidget->WidgetTree->FindWidget("Uptime"));
+			if (UptimeTextWidget)
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 2;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
+		}
+	}
+	else if (StateName == "Run")
+	{
+		if (RunStateWidget)
+		{
+			const auto UptimeTextWidget = Cast<UTextBlock>(RunStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
 			{
 				FNumberFormattingOptions NumberFormattingOptions;
@@ -257,6 +281,21 @@ void UFSMVisualizerHUD::UnhighlightState(const FString& StateName)
 
 			// Set uptime text back to 0
 			const auto UptimeTextWidget = Cast<UTextBlock>(BlockStateWidget->WidgetTree->FindWidget("Uptime"));
+			if (UptimeTextWidget)
+				UptimeTextWidget->SetText(FText::AsNumber(0));
+		}
+	}
+	else if (StateName == "Run")
+	{
+		if (RunStateWidget)
+		{
+			// Change background color to green
+			const auto Background = Cast<UImage>(RunStateWidget->WidgetTree->FindWidget("BGImage"));
+			if (Background)
+				Background->SetColorAndOpacity(White);
+
+			// Set uptime text back to 0
+			const auto UptimeTextWidget = Cast<UTextBlock>(RunStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
 				UptimeTextWidget->SetText(FText::AsNumber(0));
 		}

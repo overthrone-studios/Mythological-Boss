@@ -27,6 +27,7 @@ protected:
 	class UUserWidget* FallStateWidget{};
 	class UUserWidget* AttackStateWidget{};
 	class UUserWidget* BlockStateWidget{};
+	class UUserWidget* RunStateWidget{};
 
 	TArray<struct FState*> States;
 };

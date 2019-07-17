@@ -65,6 +65,12 @@ protected:
 	// Called via input to enter the attacking state
 	void Attack();
 
+	// Called via input to enter the running state
+	void Run();
+
+	// Called via input to exit the running state
+	void StopRunning();
+
 	// Called via input to show the FSM Visualizer widget
 	void ShowFSMVisualizer();
 
@@ -87,6 +93,13 @@ protected:
 		void UpdateWalkState();
 	UFUNCTION()
 		void OnExitWalkState();
+
+	UFUNCTION()
+		void OnEnterRunState();
+	UFUNCTION()
+		void UpdateRunState();
+	UFUNCTION()
+		void OnExitRunState();
 
 	UFUNCTION()
 		void OnEnterBlockingState();
@@ -130,6 +143,14 @@ protected:
 	// The player's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		class UFSM* PlayerStateMachine;
+
+	// The maximum movement speed while walking
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+		float WalkSpeed = 300.0f;
+
+	// The maximum movement speed while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+		float RunSpeed = 600.0f;
 
 	// Cached world pointer
 	UWorld* World{};
