@@ -65,6 +65,15 @@ protected:
 	// Called via input to enter the attacking state
 	void Attack();
 
+	// Called via input to show the FSM Visualizer widget
+	void ShowFSMVisualizer();
+
+	// Called via input to show the FSM Visualizer widget
+	void ShowMainHUD();
+
+	// Called via input to show the FSM Visualizer widget
+	void ShowNoHUD();
+
 	UFUNCTION()
 		void OnEnterIdleState();
 	UFUNCTION()
@@ -128,6 +137,6 @@ protected:
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
-	class AOverthroneHUD* PlayerHUD{};
+	class AOverthroneHUD* OverthroneHUD{};
 	class UFSMVisualizerHUD* FSMVisualizer{};
 };

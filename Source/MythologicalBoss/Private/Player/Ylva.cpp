@@ -128,11 +128,11 @@ void AYlva::BeginPlay()
 	MovementComponent = GetCharacterMovement();
 
 	// Cache the player HUD
-	PlayerHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-	PlayerHUD->Init();
+	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	OverthroneHUD->Init();
 
 	// Cache the FSM Visualizer HUD
-	FSMVisualizer = Cast<UFSMVisualizerHUD>(PlayerHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
+	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
 
 	PlayerStateMachine->InitState(0);
 }
@@ -169,6 +169,13 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AYlva::Attack);
+
+#if !UE_BUILD_SHIPPING
+	// Debugging
+	PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AYlva::ShowFSMVisualizer);
+	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AYlva::ShowMainHUD);
+	PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AYlva::ShowNoHUD);
+#endif
 }
 
 void AYlva::MoveForward(const float Value)
@@ -237,6 +244,21 @@ void AYlva::Attack()
 	{
 		PlayerStateMachine->SetActiveState("Attack");
 	}
+}
+
+void AYlva::ShowFSMVisualizer()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(0);
+}
+
+void AYlva::ShowMainHUD()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(1);
+}
+
+void AYlva::ShowNoHUD()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 }
 
 void AYlva::OnJumped_Implementation()

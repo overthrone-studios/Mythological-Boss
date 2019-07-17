@@ -25,10 +25,17 @@ public:
 	void SwitchToHUD(UHUDBase* HUD);
 	void SwitchToHUDIndex(int32 Index);
 
+	void HighlightBox(int32 Index);
+	void UnhighlightBox(int32 Index);
+
 protected:
 	TArray<UHUDBase*> GetAllChildHUDs() const;
 
 	class UWidgetSwitcher* WidgetSwitcher;
 
 	TArray<UHUDBase*> HUDs;
+
+	UUserWidget* DebugBox;
+	UUserWidget* MainBox;
+	UUserWidget* NoHUDBox;
 };
