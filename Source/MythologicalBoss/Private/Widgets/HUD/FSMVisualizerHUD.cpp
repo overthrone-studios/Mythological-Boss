@@ -95,7 +95,11 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(IdleStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
-				UptimeTextWidget->SetText(FText::AsNumber(Uptime));
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 2;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
 		}
 	}
 	else if (StateName == "Walk")
@@ -104,7 +108,11 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(WalkStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
-				UptimeTextWidget->SetText(FText::AsNumber(Uptime));
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 2;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
 		}
 	}
 	else if (StateName == "Jump")
@@ -113,7 +121,11 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(JumpStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
-				UptimeTextWidget->SetText(FText::AsNumber(Uptime));
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 1;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
 		}
 	}
 	else if (StateName == "Falling")
@@ -122,7 +134,11 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(FallStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
-				UptimeTextWidget->SetText(FText::AsNumber(Uptime));
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 2;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
 		}
 	}
 	else if (StateName == "Attack")
@@ -131,7 +147,11 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(AttackStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
-				UptimeTextWidget->SetText(FText::AsNumber(Uptime));
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 2;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
 		}
 	}
 	else if (StateName == "Block")
@@ -140,7 +160,11 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 		{
 			const auto UptimeTextWidget = Cast<UTextBlock>(BlockStateWidget->WidgetTree->FindWidget("Uptime"));
 			if (UptimeTextWidget)
-				UptimeTextWidget->SetText(FText::AsNumber(Uptime));
+			{
+				FNumberFormattingOptions NumberFormattingOptions;
+				NumberFormattingOptions.MaximumFractionalDigits = 2;
+				UptimeTextWidget->SetText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+			}
 		}
 	}
 }

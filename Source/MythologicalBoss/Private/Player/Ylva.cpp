@@ -238,9 +238,9 @@ void AYlva::StopBlocking()
 
 void AYlva::Attack()
 {
-	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ ||
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ ||
-		PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/)
+	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
 	{
 		PlayerStateMachine->SetActiveState("Attack");
 	}
