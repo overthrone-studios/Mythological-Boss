@@ -21,13 +21,6 @@ public:
 	void UnhighlightState(const FString& StateName);
 
 protected:
-	class UUserWidget* IdleStateWidget{};
-	class UUserWidget* WalkStateWidget{};
-	class UUserWidget* JumpStateWidget{};
-	class UUserWidget* FallStateWidget{};
-	class UUserWidget* AttackStateWidget{};
-	class UUserWidget* BlockStateWidget{};
-	class UUserWidget* RunStateWidget{};
-
-	TArray<struct FState*> States;
+	TArray<class UStateDebugWidget*> GetAllStateDebugWidgets();
+	TArray<class UStateDebugWidget*> StateDebugWidgets;
 };
