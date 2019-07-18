@@ -1,6 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "Player/Ylva.h"
+#include "Player/YlvaAnimInstance.h"
 #include "Public/OverthroneHUD.h"
 #include "ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
@@ -131,6 +132,9 @@ void AYlva::BeginPlay()
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
 
+	// Cache our anim instance
+	AnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
+
 	// Cache the player HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	OverthroneHUD->Init();
@@ -229,6 +233,14 @@ void AYlva::LookUpAtRate(const float Rate)
 	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
 }
 
+void AYlva::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (PlayerStateMachine->GetActiveStateName() == "Jump")
+		PlayerStateMachine->PopState("Jump");
+}
+
 void AYlva::Block()
 {	
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Falling*/ &&
@@ -240,7 +252,8 @@ void AYlva::Block()
 
 void AYlva::StopBlocking()
 {
-	PlayerStateMachine->PopState("Block");
+	if (PlayerStateMachine->GetActiveStateName() == "Block")
+		PlayerStateMachine->PopState("Block");
 }
 
 void AYlva::Attack()
@@ -267,6 +280,8 @@ void AYlva::Run()
 void AYlva::StopRunning()
 {
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
+	
+	PlayerStateMachine->PopState("Run");
 }
 
 void AYlva::ShowFSMVisualizer()
@@ -315,6 +330,8 @@ void AYlva::OnExitIdleState()
 void AYlva::OnEnterWalkState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsWalking = true;
 }
 
 void AYlva::UpdateWalkState()
@@ -331,11 +348,15 @@ void AYlva::UpdateWalkState()
 void AYlva::OnExitWalkState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsWalking = false;
 }
 
 void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsRunning = true;
 }
 
 void AYlva::UpdateRunState()
@@ -357,11 +378,16 @@ void AYlva::UpdateRunState()
 void AYlva::OnExitRunState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsRunning = false;
 }
 
 void AYlva::OnEnterBlockingState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsBlocking = true;
+	bUseControllerRotationYaw = true;
 }
 
 void AYlva::UpdateBlockingState()
@@ -378,11 +404,16 @@ void AYlva::UpdateBlockingState()
 void AYlva::OnExitBlockingState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsBlocking = false;
+	bUseControllerRotationYaw = false;
 }
 
 void AYlva::OnEnterAttackState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsAttacking = true;
 }
 
 void AYlva::UpdateAttackState()
@@ -397,6 +428,8 @@ void AYlva::UpdateAttackState()
 void AYlva::OnExitAttackState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsAttacking = false;
 }
 
 void AYlva::OnEnterJumpState()
@@ -404,6 +437,8 @@ void AYlva::OnEnterJumpState()
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 	
 	Jump();
+
+	AnimInstance->bIsJumping = true;
 }
 
 void AYlva::UpdateJumpState()
@@ -420,11 +455,15 @@ void AYlva::UpdateJumpState()
 void AYlva::OnExitJumpState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsJumping = false;
 }
 
 void AYlva::OnEnterFallingState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsFalling = true;
 }
 
 void AYlva::UpdateFallingState()
@@ -438,4 +477,6 @@ void AYlva::UpdateFallingState()
 void AYlva::OnExitFallingState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsFalling = false;
 }

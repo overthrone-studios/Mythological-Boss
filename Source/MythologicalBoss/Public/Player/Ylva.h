@@ -33,6 +33,8 @@ protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 
+	void Landed(const FHitResult& Hit) override;
+
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -158,6 +160,9 @@ protected:
 
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
+
+	// Cached player's anim instance
+	class UYlvaAnimInstance* AnimInstance{};
 
 	class AOverthroneHUD* OverthroneHUD{};
 	class UFSMVisualizerHUD* FSMVisualizer{};
