@@ -37,4 +37,7 @@ void UYlvaAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 
 	// Set whether falling or not
 	bIsFalling = PawnMovementComponent->IsFalling();
+
+	// Update movement speed for use in the Idle/Run blendspace
+	MovementSpeed = Ylva->GetVelocity().Size();
 }

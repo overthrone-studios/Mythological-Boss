@@ -16,6 +16,9 @@ class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UAnimInstance
 public:
 	UYlvaAnimInstance();
 
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float MovementSpeed = 0.0f;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 		bool bIsWalking;
 	

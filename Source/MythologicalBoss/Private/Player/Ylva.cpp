@@ -327,7 +327,9 @@ void AYlva::ShowNoHUD()
 
 void AYlva::StartJumping()
 {
-	if (PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
+	if (PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
+		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/)
 		PlayerStateMachine->PushState("Jump");
 }
 
