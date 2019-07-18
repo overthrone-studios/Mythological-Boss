@@ -29,7 +29,13 @@ public:
 		bool bIsJumping;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
-		bool bIsAttacking;
+		bool bAcceptLightAttack;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+		bool bAcceptSecondLightAttack;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+		bool bAcceptThirdLightAttack;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 		bool bIsBlocking;

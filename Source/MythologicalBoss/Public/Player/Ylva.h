@@ -112,11 +112,18 @@ protected:
 		void OnExitBlockingState();
 
 	UFUNCTION()
-		void OnEnterAttackState();
+		void OnEnterLightAttackState();
 	UFUNCTION()
-		void UpdateAttackState();
+		void UpdateLightAttackState();
 	UFUNCTION()
-		void OnExitAttackState();
+		void OnExitLightAttackState();
+
+	UFUNCTION()
+		void OnEnterLightAttack2State();
+	UFUNCTION()
+		void UpdateLightAttack2State();
+	UFUNCTION()
+		void OnExitLightAttack2State();
 
 	UFUNCTION()
 		void OnEnterJumpState();
