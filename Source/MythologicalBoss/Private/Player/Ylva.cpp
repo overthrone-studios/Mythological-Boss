@@ -299,6 +299,7 @@ void AYlva::Run()
 	{
 		MovementComponent->MaxWalkSpeed = RunSpeed;
 
+		PlayerStateMachine->PopState(PlayerStateMachine->GetActiveStateName());
 		PlayerStateMachine->PushState("Run");
 	}
 }
