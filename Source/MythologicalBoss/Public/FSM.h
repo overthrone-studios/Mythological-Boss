@@ -47,6 +47,7 @@ public:
 
 	void AddState(int32 ID, const FName& StateName);
 
+	void PopState();
 	void PushState(int32 StateID);
 	void PushState(const FName& StateName);
 	void PopState(int32 StateID);

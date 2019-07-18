@@ -67,6 +67,11 @@ void UFSM::AddState(const int32 ID, const FName& StateName)
 	States.Add(NewState);
 }
 
+void UFSM::PopState()
+{
+	PopState(GetActiveStateID());
+}
+
 void UFSM::PushState(const int32 StateID)
 {
 	for (FState& State : States)
