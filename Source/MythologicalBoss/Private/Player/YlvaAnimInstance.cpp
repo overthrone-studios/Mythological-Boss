@@ -4,6 +4,10 @@
 #include "Player/Ylva.h"
 #include "GameFramework/PawnMovementComponent.h"
 
+UYlvaAnimInstance::UYlvaAnimInstance()
+{
+}
+
 void UYlvaAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -20,6 +24,8 @@ void UYlvaAnimInstance::NativeInitializeAnimation()
 		if (OwningPawn->IsA(AYlva::StaticClass()))
 			Ylva = Cast<AYlva>(OwningPawn);
 	}
+
+	GenericsMachineIndex = GetStateMachineIndex("Generics");
 }
 
 void UYlvaAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)

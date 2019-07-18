@@ -14,6 +14,8 @@ class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UAnimInstance
 	GENERATED_BODY()
 	
 public:
+	UYlvaAnimInstance();
+
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 		bool bIsWalking;
 	
@@ -31,6 +33,8 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 		bool bIsBlocking;
+
+	int32 GenericsMachineIndex;
 
 protected:
 	void NativeInitializeAnimation() override;

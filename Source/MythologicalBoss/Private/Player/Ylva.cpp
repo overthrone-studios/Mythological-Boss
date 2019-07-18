@@ -15,6 +15,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/HUD/MasterHUD.h"
 #include "Widgets/HUD/FSMVisualizerHUD.h"
+#include "Animation/AnimNode_StateMachine.h"
 #include "FSM.h"
 #include "Log.h"
 
@@ -252,8 +253,7 @@ void AYlva::Block()
 
 void AYlva::StopBlocking()
 {
-	if (PlayerStateMachine->GetActiveStateName() == "Block")
-		PlayerStateMachine->PopState("Block");
+	PlayerStateMachine->PopState("Block");
 }
 
 void AYlva::Attack()
@@ -421,7 +421,10 @@ void AYlva::UpdateAttackState()
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	// If attack animation has finished, go back to previous state
-	if (PlayerStateMachine->GetActiveStateUptime() > 0.5f)
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
 		PlayerStateMachine->PopState("Attack");
 }
 
