@@ -251,7 +251,8 @@ void AYlva::Block()
 {	
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
-		PlayerStateMachine->GetActiveStateID() != 3 /*Attacking*/)
+		PlayerStateMachine->GetActiveStateID() != 3 /* Light Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/)
 		PlayerStateMachine->PushState("Block");
 }
 
