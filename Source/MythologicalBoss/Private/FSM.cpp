@@ -105,16 +105,16 @@ void UFSM::PushState(const FName& StateName)
 
 void UFSM::PopState(const int32 StateID)
 {
-	if (Stack.Num() == 1)
-	{
-		ULog::LogDebugMessage(WARNING, FString("PopState: Cannot pop state ") + FString::FromInt(StateID) + FString(" from the stack. At least one state should be in the stack!"), true);
-		return;
-	}
-
 	for (FState* State : Stack)
 	{
 		if (State->ID == StateID)
 		{
+			if (Stack.Num() == 1)
+			{
+				ULog::LogDebugMessage(WARNING, FString("PopState: Cannot pop state ") + FString::FromInt(StateID) + FString(" from the stack. At least one state should be in the stack!"), true);
+				return;
+			}
+
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack.Remove(State);
@@ -129,16 +129,16 @@ void UFSM::PopState(const int32 StateID)
 
 void UFSM::PopState(const FName& StateName)
 {
-	if (Stack.Num() == 1)
-	{
-		ULog::LogDebugMessage(WARNING, FString("PopState: Cannot pop ") + StateName.ToString() + FString(" state from the stack. At least one state should be in the stack!"), true);
-		return;
-	}
-
 	for (FState* State : Stack)
 	{
 		if (State->Name == StateName)
 		{
+			if (Stack.Num() == 1)
+			{
+				ULog::LogDebugMessage(WARNING, FString("PopState: Cannot pop ") + StateName.ToString() + FString(" state from the stack. At least one state should be in the stack!"), true);
+				return;
+			}
+
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack.Remove(State);
