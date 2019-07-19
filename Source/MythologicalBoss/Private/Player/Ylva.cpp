@@ -53,6 +53,8 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(6, "Jump");
 	PlayerStateMachine->AddState(7, "Fall");
 	PlayerStateMachine->AddState(8, "Light Attack 2");
+	PlayerStateMachine->AddState(9, "Heavy Attack 1");
+	PlayerStateMachine->AddState(10, "Heavy Attack 2");
 
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
 	PlayerStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
@@ -85,6 +87,14 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterLightAttack2State);
 	PlayerStateMachine->GetState(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateLightAttack2State);
 	PlayerStateMachine->GetState(8)->OnExitState.AddDynamic(this, &AYlva::OnExitLightAttack2State);
+
+	PlayerStateMachine->GetState(9)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttackState);
+	PlayerStateMachine->GetState(9)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttackState);
+	PlayerStateMachine->GetState(9)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttackState);
+
+	PlayerStateMachine->GetState(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttack2State);
+	PlayerStateMachine->GetState(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttack2State);
+	PlayerStateMachine->GetState(10)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttack2State);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -182,7 +192,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Block", IE_Pressed, this, &AYlva::Block);
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
 
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AYlva::Attack);
+	PlayerInputComponent->BindAction("Light Attack", IE_Pressed, this, &AYlva::LightAttack);
+	PlayerInputComponent->BindAction("Heavy Attack", IE_Pressed, this, &AYlva::HeavyAttack);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AYlva::Run);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning);
@@ -261,12 +272,14 @@ void AYlva::StopBlocking()
 	PlayerStateMachine->PopState("Block");
 }
 
-void AYlva::Attack()
+void AYlva::LightAttack()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
 	{
 		PlayerStateMachine->PushState("Light Attack 1");
@@ -275,6 +288,8 @@ void AYlva::Attack()
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
 		PlayerStateMachine->GetActiveStateID() == 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.5f)
 	{
@@ -285,11 +300,50 @@ void AYlva::Attack()
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.8f)
 	{
 		PlayerStateMachine->PopState("Light Attack 2");
 		PlayerStateMachine->PushState("Light Attack 1");
+	}
+}
+
+void AYlva::HeavyAttack()
+{
+	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
+	{
+		PlayerStateMachine->PushState("Heavy Attack 1");
+	}
+	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
+		PlayerStateMachine->GetActiveStateUptime() > 1.0f)
+	{
+		PlayerStateMachine->PopState("Heavy Attack 1");
+		PlayerStateMachine->PushState("Heavy Attack 2");
+	}
+	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() == 10 /*Heavy Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
+		PlayerStateMachine->GetActiveStateUptime() > 0.8f)
+	{
+		PlayerStateMachine->PopState("Heavy Attack 2");
+		PlayerStateMachine->PushState("Heavy Attack 1");
 	}
 }
 
@@ -330,10 +384,13 @@ void AYlva::StartJumping()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/)
+		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/)
 		PlayerStateMachine->PushState("Jump");
 }
 
+#pragma region Idle
 void AYlva::OnEnterIdleState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
@@ -354,7 +411,9 @@ void AYlva::OnExitIdleState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 }
+#pragma endregion
 
+#pragma region Walk
 void AYlva::OnEnterWalkState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
@@ -379,7 +438,9 @@ void AYlva::OnExitWalkState()
 
 	AnimInstance->bIsWalking = false;
 }
+#pragma endregion
 
+#pragma region Run
 void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
@@ -406,86 +467,9 @@ void AYlva::OnExitRunState()
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
 	AnimInstance->bIsRunning = false;
 }
+#pragma endregion
 
-void AYlva::OnEnterBlockingState()
-{
-	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bIsBlocking = true;
-	bUseControllerRotationYaw = true;
-}
-
-void AYlva::UpdateBlockingState()
-{
-	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-		
-	if (GetVelocity().Z < 0.0f)
-	{
-		PlayerStateMachine->PopState("Block");
-		PlayerStateMachine->PushState("Fall");
-	}
-}
-
-void AYlva::OnExitBlockingState()
-{
-	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bIsBlocking = false;
-	bUseControllerRotationYaw = false;
-}
-
-void AYlva::OnEnterLightAttackState()
-{
-	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptLightAttack = true;
-}
-
-void AYlva::UpdateLightAttackState()
-{
-	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
-		PlayerStateMachine->PopState(PlayerStateMachine->GetActiveStateName());
-}
-
-void AYlva::OnExitLightAttackState()
-{
-	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptLightAttack = false;
-}
-
-void AYlva::OnEnterLightAttack2State()
-{
-	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptSecondLightAttack = true;
-}
-
-void AYlva::UpdateLightAttack2State()
-{
-	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
-		PlayerStateMachine->PopState(PlayerStateMachine->GetActiveStateName());
-}
-
-void AYlva::OnExitLightAttack2State()
-{
-	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptSecondLightAttack = false;
-}
-
+#pragma region Jump
 void AYlva::OnEnterJumpState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
@@ -512,7 +496,9 @@ void AYlva::OnExitJumpState()
 
 	AnimInstance->bIsJumping = false;
 }
+#pragma endregion
 
+#pragma region Fall
 void AYlva::OnEnterFallingState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
@@ -534,3 +520,145 @@ void AYlva::OnExitFallingState()
 
 	AnimInstance->bIsFalling = false;
 }
+#pragma endregion
+
+#pragma region Shield Block
+void AYlva::OnEnterBlockingState()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsBlocking = true;
+	bUseControllerRotationYaw = true;
+}
+
+void AYlva::UpdateBlockingState()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+		
+	if (GetVelocity().Z < 0.0f)
+	{
+		PlayerStateMachine->PopState("Block");
+		PlayerStateMachine->PushState("Fall");
+	}
+}
+
+void AYlva::OnExitBlockingState()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsBlocking = false;
+	bUseControllerRotationYaw = false;
+}
+#pragma endregion
+
+#pragma region Light Attack 1
+void AYlva::OnEnterLightAttackState()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptLightAttack = true;
+}
+
+void AYlva::UpdateLightAttackState()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+}
+
+void AYlva::OnExitLightAttackState()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptLightAttack = false;
+}
+#pragma endregion
+
+#pragma region Light Attack 2
+void AYlva::OnEnterLightAttack2State()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptSecondLightAttack = true;
+}
+
+void AYlva::UpdateLightAttack2State()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+}
+
+void AYlva::OnExitLightAttack2State()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptSecondLightAttack = false;
+}
+#pragma endregion
+
+#pragma region Heavy Attack 1
+void AYlva::OnEnterHeavyAttackState()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptHeavyAttack = true;
+}
+
+void AYlva::UpdateHeavyAttackState()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+}
+
+void AYlva::OnExitHeavyAttackState()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptHeavyAttack = false;
+}
+#pragma endregion
+
+#pragma region Heavy Attack 2
+void AYlva::OnEnterHeavyAttack2State()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptSecondHeavyAttack = true;
+}
+
+void AYlva::UpdateHeavyAttack2State()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+}
+
+void AYlva::OnExitHeavyAttack2State()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bAcceptSecondHeavyAttack = false;
+}
+#pragma endregion

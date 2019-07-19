@@ -19,28 +19,37 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		bool bIsWalking;
 	
-	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		bool bIsRunning;
 	
-	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		bool bIsFalling;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		bool bIsJumping;
 	
-	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptLightAttack;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptSecondLightAttack;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptThirdLightAttack;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bAcceptHeavyAttack;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bAcceptSecondHeavyAttack;
 	
-	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bAcceptThirdHeavyAttack;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsBlocking;
 
 	int32 GenericsMachineIndex;

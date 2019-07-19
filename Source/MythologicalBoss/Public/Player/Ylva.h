@@ -65,8 +65,11 @@ protected:
 	// Called via input to exit the block state
 	void StopBlocking();
 
-	// Called via input to enter the attacking state
-	void Attack();
+	// Called via input to enter the light attacking state
+	void LightAttack();
+
+	// Called via input to enter the heavy attacking state
+	void HeavyAttack();
 
 	// Called via input to enter the running state
 	void Run();
@@ -83,61 +86,96 @@ protected:
 	// Called via input to show the FSM Visualizer widget
 	void ShowNoHUD();
 
-	UFUNCTION()
-		void OnEnterIdleState();
-	UFUNCTION()
-		void UpdateIdleState();
-	UFUNCTION()
-		void OnExitIdleState();
+	// Player states
+	#pragma region Idle
+		UFUNCTION()
+			void OnEnterIdleState();
+		UFUNCTION()
+			void UpdateIdleState();
+		UFUNCTION()
+			void OnExitIdleState();
+	#pragma endregion 
 
+	#pragma region Walk
 	UFUNCTION()
 		void OnEnterWalkState();
 	UFUNCTION()
 		void UpdateWalkState();
 	UFUNCTION()
 		void OnExitWalkState();
+	#pragma endregion 
 
+	#pragma region Run
 	UFUNCTION()
 		void OnEnterRunState();
 	UFUNCTION()
 		void UpdateRunState();
 	UFUNCTION()
 		void OnExitRunState();
+	#pragma endregion 
 
+	#pragma region Shield Block
 	UFUNCTION()
 		void OnEnterBlockingState();
 	UFUNCTION()
 		void UpdateBlockingState();
 	UFUNCTION()
 		void OnExitBlockingState();
+	#pragma endregion 
 
+	#pragma region Light Attack 1
 	UFUNCTION()
 		void OnEnterLightAttackState();
 	UFUNCTION()
 		void UpdateLightAttackState();
 	UFUNCTION()
 		void OnExitLightAttackState();
+	#pragma endregion 
 
+	#pragma region Light Attack 2
 	UFUNCTION()
 		void OnEnterLightAttack2State();
 	UFUNCTION()
 		void UpdateLightAttack2State();
 	UFUNCTION()
 		void OnExitLightAttack2State();
+	#pragma endregion 
 
+	#pragma region Heavy Attack 1
+	UFUNCTION()
+		void OnEnterHeavyAttackState();
+	UFUNCTION()
+		void UpdateHeavyAttackState();
+	UFUNCTION()
+		void OnExitHeavyAttackState();
+	#pragma endregion 
+
+	#pragma region Heavy Attack 2
+	UFUNCTION()
+		void OnEnterHeavyAttack2State();
+	UFUNCTION()
+		void UpdateHeavyAttack2State();
+	UFUNCTION()
+		void OnExitHeavyAttack2State();
+	#pragma endregion 
+
+	#pragma region Jump
 	UFUNCTION()
 		void OnEnterJumpState();
 	UFUNCTION()
 		void UpdateJumpState();
 	UFUNCTION()
 		void OnExitJumpState();
+	#pragma endregion 
 
+	#pragma region Fall
 	UFUNCTION()
 		void OnEnterFallingState();
 	UFUNCTION()
 		void UpdateFallingState();
 	UFUNCTION()
 		void OnExitFallingState();
+	#pragma endregion 
 
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
@@ -168,9 +206,12 @@ protected:
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
-	// Cached player's anim instance
+	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* AnimInstance{};
 
+	// Cached Overthrone HUD reference, used to access menus
 	class AOverthroneHUD* OverthroneHUD{};
+
+	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 };
