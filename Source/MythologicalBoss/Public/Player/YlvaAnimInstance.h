@@ -52,7 +52,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsBlocking;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Misc")
+		bool bCanTaunt;
+
 	int32 GenericsMachineIndex;
+
+	int32 IdleLoopCount = 0;
 
 protected:
 	void NativeInitializeAnimation() override;

@@ -177,6 +177,15 @@ protected:
 		void OnExitFallingState();
 	#pragma endregion 
 
+	#pragma region Taunt 1
+		UFUNCTION()
+			void OnEnterTauntState();
+		UFUNCTION()
+			void UpdateTauntState();
+		UFUNCTION()
+			void OnExitTauntState();
+	#pragma endregion 
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 

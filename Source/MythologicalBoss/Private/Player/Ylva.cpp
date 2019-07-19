@@ -55,6 +55,7 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(8, "Light Attack 2");
 	PlayerStateMachine->AddState(9, "Heavy Attack 1");
 	PlayerStateMachine->AddState(10, "Heavy Attack 2");
+	PlayerStateMachine->AddState(11, "Taunt 1");
 
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
 	PlayerStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
@@ -95,6 +96,10 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttack2State);
 	PlayerStateMachine->GetState(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttack2State);
 	PlayerStateMachine->GetState(10)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttack2State);
+
+	PlayerStateMachine->GetState(11)->OnEnterState.AddDynamic(this, &AYlva::OnEnterTauntState);
+	PlayerStateMachine->GetState(11)->OnUpdateState.AddDynamic(this, &AYlva::UpdateTauntState);
+	PlayerStateMachine->GetState(11)->OnExitState.AddDynamic(this, &AYlva::OnExitTauntState);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -399,6 +404,28 @@ void AYlva::OnEnterIdleState()
 void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+	
+	// If attack animation has finished, enter the taunt state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+	{
+		AnimInstance->IdleLoopCount++;
+		const int32 RandomNumber = FMath::RandRange(3, 7);
+
+		if (AnimInstance->IdleLoopCount > 7)
+		{
+			AnimInstance->IdleLoopCount = 0;
+			PlayerStateMachine->PushState("Taunt 1");
+		}
+
+		if (AnimInstance->IdleLoopCount == RandomNumber)
+		{
+			AnimInstance->IdleLoopCount = 0;
+			PlayerStateMachine->PushState("Taunt 1");
+		}
+	}
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		PlayerStateMachine->PushState("Walk");
@@ -662,3 +689,43 @@ void AYlva::OnExitHeavyAttack2State()
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 }
 #pragma endregion
+
+#pragma region Taunt 1
+void AYlva::OnEnterTauntState()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bCanTaunt = true;
+}
+
+void AYlva::UpdateTauntState()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+	{
+		PlayerStateMachine->PopState();
+		PlayerStateMachine->PushState("Walk");
+	}
+
+	if (GetVelocity().Z < 0.0f)
+	{
+		PlayerStateMachine->PopState();
+		PlayerStateMachine->PushState("Fall");
+	}
+}
+
+void AYlva::OnExitTauntState()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bCanTaunt = false;
+}
+#pragma endregion 
