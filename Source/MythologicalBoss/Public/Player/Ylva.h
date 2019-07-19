@@ -186,6 +186,9 @@ protected:
 			void OnExitTauntState();
 	#pragma endregion 
 
+	// Events
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 

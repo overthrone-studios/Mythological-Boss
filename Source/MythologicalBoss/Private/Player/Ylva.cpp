@@ -729,3 +729,10 @@ void AYlva::OnExitTauntState()
 	AnimInstance->bCanTaunt = false;
 }
 #pragma endregion 
+
+float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
+
+	return DamageAmount;
+}
