@@ -33,12 +33,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void SetInputModeGame() const;
 
-protected:
-	void OnStart() override;
+	void InitInstance();
 
 private:
-	class UMenuBase* PauseMenu{};
-	TSubclassOf<class UMenuBase> PauseMenuWidgetClass;
+	class UUserWidget* PauseMenu{};
+	TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
 	APlayerController* PlayerController{};
 };

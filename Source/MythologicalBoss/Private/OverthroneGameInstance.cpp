@@ -53,11 +53,11 @@ void UOverthroneGameInstance::SetInputModeGame() const
 	PlayerController->bShowMouseCursor = false;
 }
 
-void UOverthroneGameInstance::OnStart()
+void UOverthroneGameInstance::InitInstance()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 
-	PauseMenu = CreateWidget<UMenuBase>(GetWorld(), PauseMenuWidgetClass, FName("Pause Menu"));
+	PauseMenu = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidgetClass, FName("Pause Menu"));
 	PauseMenu->AddToViewport();
 	PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 }

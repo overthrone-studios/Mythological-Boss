@@ -163,6 +163,7 @@ void AYlva::BeginPlay()
 	OverthroneHUD->Init();
 
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance->InitInstance();
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
