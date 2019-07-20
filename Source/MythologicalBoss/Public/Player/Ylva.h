@@ -71,6 +71,9 @@ protected:
 	// Called via input to enter the heavy attacking state
 	void HeavyAttack();
 
+	// Called via input released to stop using controller rotation yaw
+	void DisableControllerRotationYaw();
+
 	// Called via input to enter the running state
 	void Run();
 
@@ -85,6 +88,9 @@ protected:
 
 	// Called via input to show the FSM Visualizer widget
 	void ShowNoHUD();
+
+	// Called via input to pause the game
+	void Pause();
 
 	// Player states
 	#pragma region Idle
@@ -214,6 +220,9 @@ protected:
 
 	// Cached world pointer
 	UWorld* World{};
+
+	// Cached game instance pointer
+	class UOverthroneGameInstance* GameInstance{};
 
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};

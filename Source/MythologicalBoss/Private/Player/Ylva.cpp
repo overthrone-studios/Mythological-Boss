@@ -3,7 +3,9 @@
 #include "Player/Ylva.h"
 #include "Player/YlvaAnimInstance.h"
 #include "Public/OverthroneHUD.h"
-#include "ConstructorHelpers.h"
+#include "Public/OverthroneGameInstance.h"
+#include "Widgets/HUD/MasterHUD.h"
+#include "Widgets/HUD/FSMVisualizerHUD.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -12,10 +14,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Animation/AnimInstance.h"
-#include "Kismet/GameplayStatics.h"
-#include "Widgets/HUD/MasterHUD.h"
-#include "Widgets/HUD/FSMVisualizerHUD.h"
 #include "Animation/AnimNode_StateMachine.h"
+#include "Kismet/GameplayStatics.h"
+#include "ConstructorHelpers.h"
 #include "FSM.h"
 #include "Log.h"
 
@@ -57,6 +58,7 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(10, "Heavy Attack 2");
 	PlayerStateMachine->AddState(11, "Taunt 1");
 
+	// Bind state events to our functions
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
 	PlayerStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
 	PlayerStateMachine->GetState(0)->OnExitState.AddDynamic(this, &AYlva::OnExitIdleState);
@@ -160,6 +162,8 @@ void AYlva::BeginPlay()
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	OverthroneHUD->Init();
 
+	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
 
@@ -198,10 +202,15 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
 
 	PlayerInputComponent->BindAction("Light Attack", IE_Pressed, this, &AYlva::LightAttack);
+	PlayerInputComponent->BindAction("Light Attack", IE_Released, this, &AYlva::DisableControllerRotationYaw);
 	PlayerInputComponent->BindAction("Heavy Attack", IE_Pressed, this, &AYlva::HeavyAttack);
+	PlayerInputComponent->BindAction("Heavy Attack", IE_Released, this, &AYlva::DisableControllerRotationYaw);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AYlva::Run);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning);
+
+	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
 
 #if !UE_BUILD_SHIPPING
 	// Debugging
@@ -268,8 +277,12 @@ void AYlva::Block()
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /* Light Attack 1*/ &&
-		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/)
+		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/ &&
+		PlayerStateMachine->GetActiveStateID() != 9 /* Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 10 /* Heavy Attack 2*/)
+	{
 		PlayerStateMachine->PushState("Block");
+	}
 }
 
 void AYlva::StopBlocking()
@@ -288,6 +301,7 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
 	{
 		PlayerStateMachine->PushState("Light Attack 1");
+		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
@@ -300,6 +314,7 @@ void AYlva::LightAttack()
 	{
 		PlayerStateMachine->PopState("Light Attack 1");
 		PlayerStateMachine->PushState("Light Attack 2");
+		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
@@ -312,6 +327,7 @@ void AYlva::LightAttack()
 	{
 		PlayerStateMachine->PopState("Light Attack 2");
 		PlayerStateMachine->PushState("Light Attack 1");
+		bUseControllerRotationYaw = true;
 	}
 }
 
@@ -326,6 +342,7 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
 	{
 		PlayerStateMachine->PushState("Heavy Attack 1");
+		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
@@ -337,6 +354,7 @@ void AYlva::HeavyAttack()
 	{
 		PlayerStateMachine->PopState("Heavy Attack 1");
 		PlayerStateMachine->PushState("Heavy Attack 2");
+		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
 		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
@@ -349,7 +367,13 @@ void AYlva::HeavyAttack()
 	{
 		PlayerStateMachine->PopState("Heavy Attack 2");
 		PlayerStateMachine->PushState("Heavy Attack 1");
+		bUseControllerRotationYaw = true;
 	}
+}
+
+void AYlva::DisableControllerRotationYaw()
+{
+	bUseControllerRotationYaw = false;
 }
 
 void AYlva::Run()
@@ -385,9 +409,18 @@ void AYlva::ShowNoHUD()
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 }
 
+void AYlva::Pause()
+{
+	if (GameInstance->IsGamePaused())
+		GameInstance->UnPauseGame();
+	else
+		GameInstance->PauseGame();
+}
+
 void AYlva::StartJumping()
 {
-	if (PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
+	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&

@@ -16,4 +16,10 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 public:
 	UOverthroneGameInstance();
 
+	bool IsGamePaused();
+
+	void PauseGame();
+	void UnPauseGame();
+
+private:
 };
