@@ -16,10 +16,29 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 public:
 	UOverthroneGameInstance();
 
-	bool IsGamePaused();
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		bool IsGamePaused();
 
-	void PauseGame();
-	void UnPauseGame();
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		void PauseGame();
+
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		void UnPauseGame();
+
+	// Switches input mode to UI only
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		void SetInputModeUI() const;
+
+	// Switches input mode to Game only
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		void SetInputModeGame() const;
+
+protected:
+	void OnStart() override;
 
 private:
+	class UMenuBase* PauseMenu{};
+	TSubclassOf<class UMenuBase> PauseMenuWidgetClass;
+
+	APlayerController* PlayerController{};
 };
