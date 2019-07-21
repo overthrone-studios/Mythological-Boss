@@ -21,6 +21,11 @@ public:
 	// Returns FollowCamera component
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	FORCEINLINE float GetLightAttackDamage() const { return LightAttackDamage; }
+	FORCEINLINE float GetHeavyAttackDamage() const { return HeavyAttackDamage; }
+	FORCEINLINE float GetAttackRange() const { return AttackDistance; }
+	FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
+
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
@@ -211,12 +216,28 @@ protected:
 		class UFSM* PlayerStateMachine;
 
 	// The maximum movement speed while walking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float WalkSpeed = 300.0f;
 
 	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float RunSpeed = 600.0f;
+
+	// The attack damage we deal when light attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+		float LightAttackDamage = 50.0f;
+
+	// The attack damage we deal when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+		float HeavyAttackDamage = 100.0f;
+
+	// The attack range when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+		float AttackDistance = 100.0f;
+
+	// The radius of the sphere raycast when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=1000.0f))
+		float AttackRadius = 10.0f;
 
 	// Cached world pointer
 	UWorld* World{};

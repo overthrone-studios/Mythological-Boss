@@ -3,6 +3,7 @@
 #include "Player/AnimNotifyState/ApplyDamage.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Ylva.h"
 
 void UApplyDamage::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
@@ -11,18 +12,32 @@ void UApplyDamage::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 	FVector Direction = RightHandLocation - RightForeArm;
 	Direction.Normalize();
 
+	const auto Ylva = Cast<AYlva>(MeshComp->GetOwner());
+	float AttackDistance = 100.0f;
+	float AttackRadius = 10.0f;
+	if (Ylva)
+	{
+		AttackDistance = Ylva->GetAttackRange();
+		AttackRadius = Ylva->GetAttackRadius();
+	}
+
 	const FVector StartTrace = MeshComp->GetSocketLocation(FName("RightHand"));
-	const FVector EndTrace = MeshComp->GetSocketLocation(FName("RightHand")) + Direction * 100.0f;
+	const FVector EndTrace = MeshComp->GetSocketLocation(FName("RightHand")) + Direction * AttackDistance;
 
 	FHitResult HitResult;
-	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, 10.0f, ETraceTypeQuery::TraceTypeQuery1, true, {}, EDrawDebugTrace::ForDuration, HitResult, true);
+	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, ETraceTypeQuery::TraceTypeQuery1, true, {}, EDrawDebugTrace::ForDuration, HitResult, true);
 
 	if (HitResult.bBlockingHit)
 	{
 		const auto HitActor = HitResult.GetActor();
 		const FDamageEvent DamageEvent;
+		
+		float AttackDamage = 10.0f;
+
+		if (Ylva)
+			AttackDamage = Ylva->GetLightAttackDamage();
 
 		if (HitActor)
-			HitActor->TakeDamage(10.0f, DamageEvent, nullptr, nullptr);
+			HitActor->TakeDamage(AttackDamage, DamageEvent, nullptr, nullptr);
 	}
 }
