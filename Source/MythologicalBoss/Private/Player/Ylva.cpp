@@ -452,40 +452,12 @@ void AYlva::OnEnterIdleState()
 void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-	
-	// If attack animation has finished, enter the taunt state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
-	{
-		AnimInstance->IdleLoopCount++;
-		const int32 RandomNumber = FMath::RandRange(3, 7);
-
-		if (AnimInstance->IdleLoopCount > 7)
-		{
-			AnimInstance->IdleLoopCount = 0;
-			PlayerStateMachine->PushState("Taunt 1");
-		}
-
-		if (AnimInstance->IdleLoopCount == RandomNumber)
-		{
-			AnimInstance->IdleLoopCount = 0;
-			PlayerStateMachine->PushState("Taunt 1");
-		}
-	}
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-	{
-		AnimInstance->IdleLoopCount = 0;
 		PlayerStateMachine->PushState("Walk");
-	}
 
 	if (GetVelocity().Z < 0.0f)
-	{
-		AnimInstance->IdleLoopCount = 0;
 		PlayerStateMachine->PushState("Fall");
-	}
 }
 
 void AYlva::OnExitIdleState()
