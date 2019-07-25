@@ -225,6 +225,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AYlva::Run);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning);
 
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AYlva::Dash);
+
 	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
 
@@ -430,6 +432,19 @@ void AYlva::StopRunning()
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
 	
 	PlayerStateMachine->PopState("Run");
+}
+
+void AYlva::Dash()
+{
+	if (MovementComponent->IsMovingOnGround())
+	{
+		// Do the dash
+		FVector VelocityNormalized = GetVelocity();
+		VelocityNormalized.Normalize();
+		VelocityNormalized.Z = 0;
+
+		LaunchCharacter(VelocityNormalized * DashForce, true, true);
+	}
 }
 
 void AYlva::ShowFSMVisualizer()

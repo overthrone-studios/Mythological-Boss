@@ -90,6 +90,9 @@ protected:
 	// Called via input to exit the running state
 	void StopRunning();
 
+	// Called via input to start dashing
+	void Dash();
+
 	// Called via input to show the FSM Visualizer widget
 	void ShowFSMVisualizer();
 
@@ -230,6 +233,10 @@ protected:
 	// The maximum movement speed while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float RunSpeed = 600.0f;
+
+	// The maximum movement speed while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
+		float DashForce = 2000.0f;
 
 	// Should the camera look towards the boss?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
