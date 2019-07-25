@@ -40,15 +40,15 @@ void AOverthroneHUD::AddWidgetsToScreen()
 {
 	MasterHUD->AddToViewport();
 	MasterHUD->SetVisibility(ESlateVisibility::Visible);
+}
+
+void AOverthroneHUD::InitWidgets()
+{
+	MasterHUD->Init();
 
 #if !UE_BUILD_SHIPPING
 	MasterHUD->SwitchToHUDIndex(0);
 #elif
 	MasterHUD->SwitchToHUDIndex(2);
 #endif
-}
-
-void AOverthroneHUD::InitWidgets()
-{
-	MasterHUD->Init();
 }
