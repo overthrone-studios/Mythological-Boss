@@ -15,6 +15,7 @@ void UMasterHUD::Init()
 
 	// Get the boxes in this HUD
 	DebugBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DebugBox")));
+	BossDebugBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DebugBox_2")));
 	MainBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("MainHUDBox")));
 	NoHUDBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("NoHUDBox")));
 
@@ -45,15 +46,22 @@ void UMasterHUD::HighlightBox(const int32 Index)
 			Background->SetColorAndOpacity(Green);
 		}
 		break;
-		
+
 		case 1:
+		{
+			const auto Background = Cast<UImage>(BossDebugBox->WidgetTree->FindWidget("BGImage"));
+			Background->SetColorAndOpacity(Green);
+		}
+		break;
+		
+		case 2:
 		{
 			const auto Background = Cast<UImage>(MainBox->WidgetTree->FindWidget("BGImage"));
 			Background->SetColorAndOpacity(Green);
 		}
 		break;
 		
-		case 2:
+		case 3:
 		{
 			const auto Background = Cast<UImage>(NoHUDBox->WidgetTree->FindWidget("BGImage"));
 			Background->SetColorAndOpacity(Green);
@@ -80,15 +88,22 @@ void UMasterHUD::UnhighlightBox(const int32 Index)
 			Background->SetColorAndOpacity(White);
 		}
 		break;
-		
+
 		case 1:
+		{
+			const auto Background = Cast<UImage>(BossDebugBox->WidgetTree->FindWidget("BGImage"));
+			Background->SetColorAndOpacity(White);
+		}
+		break;
+		
+		case 2:
 		{
 			const auto Background = Cast<UImage>(MainBox->WidgetTree->FindWidget("BGImage"));
 			Background->SetColorAndOpacity(White);
 		}
 		break;
 		
-		case 2:
+		case 3:
 		{
 			const auto Background = Cast<UImage>(NoHUDBox->WidgetTree->FindWidget("BGImage"));
 			Background->SetColorAndOpacity(White);
@@ -105,6 +120,17 @@ UHUDBase* UMasterHUD::GetHUD(const TSubclassOf<UHUDBase> HUDClass) const
 	for (auto HUD : HUDs)
 	{
 		if (HUD->IsA(HUDClass))
+			return HUD;
+	}
+
+	return nullptr;
+}
+
+UHUDBase* UMasterHUD::GetHUD(const FString& HUDWidgetName) const
+{
+	for (auto HUD : HUDs)
+	{
+		if (HUD->GetName() == HUDWidgetName)
 			return HUD;
 	}
 

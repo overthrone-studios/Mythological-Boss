@@ -88,6 +88,9 @@ protected:
 	// Called via input to show the FSM Visualizer widget
 	void ShowFSMVisualizer();
 
+	// Called via input to show the Boss FSM Visualizer widget
+	void ShowBossFSMVisualizer();
+
 	// Called via input to show the FSM Visualizer widget
 	void ShowMainHUD();
 

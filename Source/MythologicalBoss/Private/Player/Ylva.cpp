@@ -216,8 +216,9 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 #if !UE_BUILD_SHIPPING
 	// Debugging
 	PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AYlva::ShowFSMVisualizer);
-	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AYlva::ShowMainHUD);
-	PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AYlva::ShowNoHUD);
+	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AYlva::ShowBossFSMVisualizer);
+	PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AYlva::ShowMainHUD);
+	PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AYlva::ShowNoHUD);
 #endif
 }
 
@@ -400,14 +401,19 @@ void AYlva::ShowFSMVisualizer()
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(0);
 }
 
-void AYlva::ShowMainHUD()
+void AYlva::ShowBossFSMVisualizer()
 {
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(1);
 }
 
-void AYlva::ShowNoHUD()
+void AYlva::ShowMainHUD()
 {
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
+}
+
+void AYlva::ShowNoHUD()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(3);
 }
 
 void AYlva::Pause()

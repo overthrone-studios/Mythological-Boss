@@ -17,6 +17,7 @@ public:
 	void Init() override;
 
 	UHUDBase* GetHUD(TSubclassOf<UHUDBase> HUDClass) const;
+	UHUDBase* GetHUD(const FString& HUDWidgetName) const;
 	TArray<UHUDBase*> GetAllHUDs() const;
 
 	UWidget* GetActiveHUDWidget() const;
@@ -36,6 +37,7 @@ protected:
 	TArray<UHUDBase*> HUDs;
 
 	UUserWidget* DebugBox;
+	UUserWidget* BossDebugBox;
 	UUserWidget* MainBox;
 	UUserWidget* NoHUDBox;
 };
