@@ -154,6 +154,9 @@ void AYlva::BeginPlay()
 	// Cache the world object
 	World = GetWorld();
 
+	// Cache the player controller
+	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
 
@@ -177,12 +180,17 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossLocation);
-	const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
+	if (bShouldLockOnTarget)
+	{
+		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossLocation);
+		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
 
-	const FRotator NewRotation = FRotator(GetControlRotation().Pitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
+		const FRotator NewRotation = FRotator(LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
-	GetController()->SetControlRotation(NewRotation);
+		GetController()->SetControlRotation(NewRotation);
+
+		bUseControllerRotationYaw = true;
+	}
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -204,8 +212,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AYlva::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AYlva::StartJumping);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AYlva::StopJumping);
+	PlayerInputComponent->BindAction("LockOn", IE_Pressed, this, &AYlva::ToggleLockOn);
 
 	PlayerInputComponent->BindAction("Block", IE_Pressed, this, &AYlva::Block);
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
@@ -272,6 +279,27 @@ void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
+}
+
+void AYlva::ToggleLockOn()
+{
+	bShouldLockOnTarget = !bShouldLockOnTarget;
+	PlayerController->SetIgnoreLookInput(bShouldLockOnTarget);
+	bUseControllerRotationYaw = bShouldLockOnTarget;
+}
+
+void AYlva::EnableLockOn()
+{
+	bShouldLockOnTarget = true;
+	PlayerController->SetIgnoreLookInput(true);
+	bUseControllerRotationYaw = true;
+}
+
+void AYlva::DisableLockOn()
+{
+	bShouldLockOnTarget = false;
+	PlayerController->SetIgnoreLookInput(false);
+	bUseControllerRotationYaw = false;
 }
 
 void AYlva::Landed(const FHitResult& Hit)
@@ -430,17 +458,6 @@ void AYlva::Pause()
 		GameInstance->UnPauseGame();
 	else
 		GameInstance->PauseGame();
-}
-
-void AYlva::StartJumping()
-{
-	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
-		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/)
-		PlayerStateMachine->PushState("Jump");
 }
 
 #pragma region Idle

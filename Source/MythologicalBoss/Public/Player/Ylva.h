@@ -61,8 +61,13 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-	// Called via input to enter the jumping state
-	void StartJumping();
+	// Called via input to toggle lock on mechanic
+	void ToggleLockOn();
+
+	// Utility function to enable lock on
+	void EnableLockOn();
+	// Utility function to disable lock on
+	void DisableLockOn();
 
 	// Called via input to enter the block state
 	void Block();
@@ -226,6 +231,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float RunSpeed = 600.0f;
 
+	// Should the camera look towards the boss?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
+		bool bShouldLockOnTarget = false;
+
+	// The target pitch when locking on
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 270.0f, ClampMax = 360.0f))
+		float LockOnPitch = 350.0f;
+
 	// The attack damage we deal when light attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float LightAttackDamage = 50.0f;
@@ -244,6 +257,9 @@ protected:
 
 	// Cached world pointer
 	UWorld* World{};
+
+	// Cached player controller pointer
+	APlayerController* PlayerController;
 
 	// Cached game instance pointer
 	class UOverthroneGameInstance* GameInstance{};
