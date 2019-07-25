@@ -16,9 +16,11 @@
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimNode_StateMachine.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "ConstructorHelpers.h"
 #include "FSM.h"
 #include "Log.h"
+#include "Mordath.h"
 
 AYlva::AYlva()
 {
@@ -175,6 +177,12 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossLocation);
+	const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
+
+	const FRotator NewRotation = FRotator(GetControlRotation().Pitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
+
+	GetController()->SetControlRotation(NewRotation);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -184,7 +192,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Crash if we don't have a valid Input component
 	check(PlayerInputComponent);
 	
-	// Set up gameplay key bindings
+	// Set up game-play key bindings
 	PlayerInputComponent->BindAxis("MoveForward", this, &AYlva::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AYlva::MoveRight);
 
@@ -277,7 +285,7 @@ void AYlva::Landed(const FHitResult& Hit)
 void AYlva::Block()
 {	
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /* Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /* Heavy Attack 1*/ &&
@@ -295,7 +303,7 @@ void AYlva::StopBlocking()
 void AYlva::LightAttack()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -306,7 +314,7 @@ void AYlva::LightAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() == 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -319,7 +327,7 @@ void AYlva::LightAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -336,7 +344,7 @@ void AYlva::LightAttack()
 void AYlva::HeavyAttack()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -347,7 +355,7 @@ void AYlva::HeavyAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
@@ -359,7 +367,7 @@ void AYlva::HeavyAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Juming*/ &&
+		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -468,10 +476,16 @@ void AYlva::UpdateIdleState()
 	}
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+	{
+		AnimInstance->IdleLoopCount = 0;
 		PlayerStateMachine->PushState("Walk");
+	}
 
 	if (GetVelocity().Z < 0.0f)
+	{
+		AnimInstance->IdleLoopCount = 0;
 		PlayerStateMachine->PushState("Fall");
+	}
 }
 
 void AYlva::OnExitIdleState()

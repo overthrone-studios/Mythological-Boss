@@ -19,6 +19,8 @@ protected:
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	void SendLocation();
+
 	#pragma region Idle
 	UFUNCTION()
 		void OnEnterIdleState();
@@ -118,4 +120,6 @@ protected:
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
+
+	FTimerHandle UpdateLocationTimerHandle;
 };

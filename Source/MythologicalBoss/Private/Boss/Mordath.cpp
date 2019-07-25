@@ -12,6 +12,7 @@
 #include "ConstructorHelpers.h"
 #include "HUD/MasterHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
+#include "TimerManager.h"
 #include "FSM.h"
 #include "Log.h"
 
@@ -117,6 +118,8 @@ void AMordath::BeginPlay()
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	BossStateMachine->InitState(0);
+
+	GetWorld()->GetTimerManager().SetTimer(UpdateLocationTimerHandle, this, &AMordath::SendLocation, 0.05f, true);
 }
 
 void AMordath::Tick(const float DeltaTime)
@@ -135,6 +138,11 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	return DamageAmount;
+}
+
+void AMordath::SendLocation()
+{
+	GameInstance->BossLocation = GetActorLocation();
 }
 
 void AMordath::OnEnterIdleState()

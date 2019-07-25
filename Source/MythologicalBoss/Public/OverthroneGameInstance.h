@@ -35,6 +35,8 @@ public:
 
 	void InitInstance();
 
+	FVector BossLocation{};
+
 private:
 	class UUserWidget* PauseMenu{};
 	TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
