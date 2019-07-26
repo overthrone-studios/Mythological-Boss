@@ -121,5 +121,7 @@ protected:
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
+	UAnimationAsset* HitAnimation{};
+
 	FTimerHandle UpdateLocationTimerHandle;
 };

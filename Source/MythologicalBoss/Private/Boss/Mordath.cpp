@@ -23,6 +23,9 @@ AMordath::AMordath()
 	// Get our anim blueprint class
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Boss/Animations/AnimBP_Boss.AnimBP_Boss_C'"));
 
+	// Get the hit animation to use when being hit
+	HitAnimation = Cast<UAnimationAsset>(StaticLoadObject(UAnimationAsset::StaticClass(), nullptr, TEXT("AnimSequence'/Game/Characters/Boss/Animations/Boss_Damaged.Boss_Damaged'")));
+
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Boss/SKM_Boss.SKM_Boss'")));
 
@@ -132,9 +135,9 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 {
 	if (!GetMesh()->IsPlaying())
 	{
-		//Mesh->PlayAnimation()
+		GetMesh()->PlayAnimation(HitAnimation, false);
 		
-		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"));
+		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
 	}
 
 	return DamageAmount;
