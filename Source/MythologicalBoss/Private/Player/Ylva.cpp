@@ -176,6 +176,8 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GameInstance->PlayerLocation = GetActorLocation();
+
 	if (bShouldLockOnTarget)
 	{
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossLocation);

@@ -3,6 +3,7 @@
 #include "Mordath.h"
 #include "Public/OverthroneHUD.h"
 #include "Public/OverthroneGameInstance.h"
+#include "BossAIController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
@@ -14,6 +15,7 @@
 #include "HUD/MainPlayerHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "FSM.h"
 #include "Log.h"
 
@@ -84,6 +86,9 @@ AMordath::AMordath()
 	BossStateMachine->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack3State);
 	BossStateMachine->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack3State);
 
+	// Assign the behaviour tree
+	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
+
 	// Configure capsule component
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(185.0f, true);
@@ -98,6 +103,7 @@ AMordath::AMordath()
 
 	// Configure character settings
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AIControllerClass = ABossAIController::StaticClass();
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 }
 
@@ -129,13 +135,20 @@ void AMordath::BeginPlay()
 
 	BossStateMachine->InitState(0);
 
-	GetWorld()->GetTimerManager().SetTimer(UpdateLocationTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
+	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 }
 
 void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AMordath::PossessedBy(AController* NewController)
+{
+	BossAIController = Cast<ABossAIController>(NewController);
+
+	Super::PossessedBy(NewController);
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

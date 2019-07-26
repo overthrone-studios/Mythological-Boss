@@ -48,7 +48,7 @@ void AOverthroneHUD::InitWidgets()
 
 #if !UE_BUILD_SHIPPING
 	MasterHUD->SwitchToHUDIndex(0);
-#elif
+#else
 	MasterHUD->SwitchToHUDIndex(2);
 #endif
 }

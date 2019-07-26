@@ -39,6 +39,9 @@ public:
 	void SetLockOnRotation(const FRotator& LockOnRotation) const;
 	void ToggleLockOnVisibility(bool bIsVisible) const;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		FVector PlayerLocation{};
+
 	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Game Instance | Boss Info")
 		float PlayerStartingHealth{};
 

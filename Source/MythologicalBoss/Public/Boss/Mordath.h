@@ -13,9 +13,12 @@ class MYTHOLOGICALBOSS_API AMordath final : public ACharacter
 public:
 	AMordath();
 
+	class UBehaviorTree* GetBT() const { return BossBT; }
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
+	void PossessedBy(AController* NewController) override;
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -78,12 +81,16 @@ protected:
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
+	class UBehaviorTree* BossBT;
+
+	class ABossAIController* BossAIController;
+
 	// The player's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* BossStateMachine;
 
 	// The starting health of the boss
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
 		float StartingHealth = 1000.0f;
 
 	// The current health of the boss
@@ -133,5 +140,5 @@ protected:
 
 	UAnimationAsset* HitAnimation{};
 
-	FTimerHandle UpdateLocationTimerHandle;
+	FTimerHandle UpdateInfoTimerHandle;
 };
