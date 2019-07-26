@@ -35,7 +35,26 @@ public:
 
 	void InitInstance();
 
-	FVector BossLocation{};
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Game Instance | Boss Info")
+		float PlayerStartingHealth{};
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		float PlayerHealth{};
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		float PlayerStartingStamina{};
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		float PlayerStamina{};
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		FVector BossLocation{};
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		float BossHealth{};
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+		float BossStartingHealth{};
 
 private:
 	class UUserWidget* PauseMenu{};

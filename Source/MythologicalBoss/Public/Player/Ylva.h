@@ -181,15 +181,6 @@ protected:
 		void OnExitHeavyAttack2State();
 	#pragma endregion 
 
-	#pragma region Jump
-	UFUNCTION()
-		void OnEnterJumpState();
-	UFUNCTION()
-		void UpdateJumpState();
-	UFUNCTION()
-		void OnExitJumpState();
-	#pragma endregion 
-
 	#pragma region Fall
 	UFUNCTION()
 		void OnEnterFallingState();
@@ -197,15 +188,6 @@ protected:
 		void UpdateFallingState();
 	UFUNCTION()
 		void OnExitFallingState();
-	#pragma endregion 
-
-	#pragma region Taunt 1
-		UFUNCTION()
-			void OnEnterTauntState();
-		UFUNCTION()
-			void UpdateTauntState();
-		UFUNCTION()
-			void OnExitTauntState();
 	#pragma endregion 
 
 	// Events
@@ -226,6 +208,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		class UFSM* PlayerStateMachine;
 
+	// The player's starting health
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
+		float StartingHealth = 100.0f;
+
+	// The player's current health
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
+		float Health = 100.0f;
+
+	// The player's starting stamina
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
+		float StartingStamina = 100.0f;
+
+	// The player's current stamina level
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
+		float Stamina = 100.0f;
+
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float WalkSpeed = 300.0f;
@@ -235,7 +233,7 @@ protected:
 		float RunSpeed = 600.0f;
 
 	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Movement", meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
 		float DashForce = 2000.0f;
 
 	// Should the camera look towards the boss?
@@ -261,6 +259,26 @@ protected:
 	// The radius of the sphere raycast when attacking light or heavy
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=1000.0f))
 		float AttackRadius = 10.0f;
+
+	// The stamina value to subtract when light attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float LightAttackStamina = 10.0f;
+
+	// The stamina value to subtract when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float HeavyAttackStamina = 30.0f;
+
+	// The stamina value to subtract when dashing
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float DashStamina = 40.0f;
+
+	// The stamina value to subtract while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float RunStamina = 2.0f;
+
+	// The stamina value to subtract while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float ShieldHitStamina = 10.0f;
 
 	// Cached world pointer
 	UWorld* World{};

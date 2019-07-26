@@ -53,12 +53,10 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(3, "Light Attack 1");
 	PlayerStateMachine->AddState(4, "Block");
 	PlayerStateMachine->AddState(5, "Death");
-	PlayerStateMachine->AddState(6, "Jump");
 	PlayerStateMachine->AddState(7, "Fall");
 	PlayerStateMachine->AddState(8, "Light Attack 2");
 	PlayerStateMachine->AddState(9, "Heavy Attack 1");
 	PlayerStateMachine->AddState(10, "Heavy Attack 2");
-	PlayerStateMachine->AddState(11, "Taunt 1");
 
 	// Bind state events to our functions
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
@@ -81,10 +79,6 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(4)->OnUpdateState.AddDynamic(this, &AYlva::UpdateBlockingState);
 	PlayerStateMachine->GetState(4)->OnExitState.AddDynamic(this, &AYlva::OnExitBlockingState);
 
-	PlayerStateMachine->GetState(6)->OnEnterState.AddDynamic(this, &AYlva::OnEnterJumpState);
-	PlayerStateMachine->GetState(6)->OnUpdateState.AddDynamic(this, &AYlva::UpdateJumpState);
-	PlayerStateMachine->GetState(6)->OnExitState.AddDynamic(this, &AYlva::OnExitJumpState);
-
 	PlayerStateMachine->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterFallingState);
 	PlayerStateMachine->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateFallingState);
 	PlayerStateMachine->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitFallingState);
@@ -100,10 +94,6 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttack2State);
 	PlayerStateMachine->GetState(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttack2State);
 	PlayerStateMachine->GetState(10)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttack2State);
-
-	PlayerStateMachine->GetState(11)->OnEnterState.AddDynamic(this, &AYlva::OnEnterTauntState);
-	PlayerStateMachine->GetState(11)->OnUpdateState.AddDynamic(this, &AYlva::UpdateTauntState);
-	PlayerStateMachine->GetState(11)->OnExitState.AddDynamic(this, &AYlva::OnExitTauntState);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -151,6 +141,9 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Health = StartingHealth;
+	Stamina = StartingStamina;
+
 	// Cache the world object
 	World = GetWorld();
 
@@ -169,6 +162,10 @@ void AYlva::BeginPlay()
 
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->InitInstance();
+	GameInstance->PlayerStartingHealth = StartingHealth;
+	GameInstance->PlayerHealth = Health;
+	GameInstance->PlayerStartingStamina = StartingStamina;
+	GameInstance->PlayerStamina = Stamina;
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
@@ -188,8 +185,6 @@ void AYlva::Tick(const float DeltaTime)
 		const FRotator NewRotation = FRotator(LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
 		GetController()->SetControlRotation(NewRotation);
-
-		bUseControllerRotationYaw = true;
 	}
 }
 
@@ -287,7 +282,6 @@ void AYlva::ToggleLockOn()
 {
 	bShouldLockOnTarget = !bShouldLockOnTarget;
 	PlayerController->SetIgnoreLookInput(bShouldLockOnTarget);
-	bUseControllerRotationYaw = bShouldLockOnTarget;
 }
 
 void AYlva::EnableLockOn()
@@ -315,7 +309,6 @@ void AYlva::Landed(const FHitResult& Hit)
 void AYlva::Block()
 {	
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /* Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /* Heavy Attack 1*/ &&
@@ -333,7 +326,6 @@ void AYlva::StopBlocking()
 void AYlva::LightAttack()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -344,7 +336,6 @@ void AYlva::LightAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() == 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -357,7 +348,6 @@ void AYlva::LightAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -374,7 +364,6 @@ void AYlva::LightAttack()
 void AYlva::HeavyAttack()
 {
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -385,7 +374,6 @@ void AYlva::HeavyAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
@@ -397,7 +385,6 @@ void AYlva::HeavyAttack()
 		bUseControllerRotationYaw = true;
 	}
 	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
-		PlayerStateMachine->GetActiveStateID() != 6 /*Jumping*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -442,6 +429,9 @@ void AYlva::Dash()
 		FVector VelocityNormalized = GetVelocity();
 		VelocityNormalized.Normalize();
 		VelocityNormalized.Z = 0;
+
+		Stamina -= DashStamina;
+		GameInstance->PlayerStamina = Stamina;
 
 		LaunchCharacter(VelocityNormalized * DashForce, true, true);
 	}
@@ -538,6 +528,9 @@ void AYlva::UpdateRunState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
+	Stamina -= RunStamina;
+	GameInstance->PlayerStamina = Stamina;
+
 	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed)
 		PlayerStateMachine->PopState("Run");
 
@@ -551,35 +544,6 @@ void AYlva::OnExitRunState()
 
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
 	AnimInstance->bIsRunning = false;
-}
-#pragma endregion
-
-#pragma region Jump
-void AYlva::OnEnterJumpState()
-{
-	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-	
-	Jump();
-
-	AnimInstance->bIsJumping = true;
-}
-
-void AYlva::UpdateJumpState()
-{
-	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-
-	if (GetVelocity().Z < 0.0f)
-	{
-		PlayerStateMachine->PopState("Jump");
-		PlayerStateMachine->PushState("Fall");
-	}
-}
-
-void AYlva::OnExitJumpState()
-{
-	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bIsJumping = false;
 }
 #pragma endregion
 
@@ -642,6 +606,17 @@ void AYlva::OnEnterLightAttackState()
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptLightAttack = true;
+
+	if (Stamina > 0)
+	{
+		Stamina -= LightAttackStamina;
+		GameInstance->PlayerStamina = Stamina;
+	}
+	else
+	{
+		Stamina = 0;
+		GameInstance->PlayerStamina = Stamina;
+	}
 }
 
 void AYlva::UpdateLightAttackState()
@@ -670,6 +645,17 @@ void AYlva::OnEnterLightAttack2State()
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondLightAttack = true;
+
+	if (Stamina > 0)
+	{
+		Stamina -= LightAttackStamina;
+		GameInstance->PlayerStamina = Stamina;
+	}
+	else
+	{
+		Stamina = 0;
+		GameInstance->PlayerStamina = Stamina;
+	}
 }
 
 void AYlva::UpdateLightAttack2State()
@@ -698,6 +684,17 @@ void AYlva::OnEnterHeavyAttackState()
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptHeavyAttack = true;
+
+	if (Stamina > 0)
+	{
+		Stamina -= HeavyAttackStamina;
+		GameInstance->PlayerStamina = Stamina;
+	}
+	else
+	{
+		Stamina = 0;
+		GameInstance->PlayerStamina = Stamina;
+	}
 }
 
 void AYlva::UpdateHeavyAttackState()
@@ -726,6 +723,17 @@ void AYlva::OnEnterHeavyAttack2State()
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondHeavyAttack = true;
+
+	if (Stamina > 0)
+	{
+		Stamina -= HeavyAttackStamina;
+		GameInstance->PlayerStamina = Stamina;
+	}
+	else
+	{
+		Stamina = 0;
+		GameInstance->PlayerStamina = Stamina;
+	}
 }
 
 void AYlva::UpdateHeavyAttack2State()
@@ -746,51 +754,17 @@ void AYlva::OnExitHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 }
-#pragma endregion
-
-#pragma region Taunt 1
-void AYlva::OnEnterTauntState()
-{
-	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bCanTaunt = true;
-}
-
-void AYlva::UpdateTauntState()
-{
-	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
-		PlayerStateMachine->PopState();
-
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-	{
-		PlayerStateMachine->PopState();
-		PlayerStateMachine->PushState("Walk");
-	}
-
-	if (GetVelocity().Z < 0.0f)
-	{
-		PlayerStateMachine->PopState();
-		PlayerStateMachine->PushState("Fall");
-	}
-}
-
-void AYlva::OnExitTauntState()
-{
-	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
-
-	AnimInstance->bCanTaunt = false;
-}
 #pragma endregion 
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
+
+	if (Health > 0)
+	{
+		Health -= DamageAmount;
+		GameInstance->PlayerHealth = Health;
+	}
 
 	return DamageAmount;
 }

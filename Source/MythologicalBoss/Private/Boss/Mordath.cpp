@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
 #include "HUD/MasterHUD.h"
+#include "HUD/MainPlayerHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
 #include "FSM.h"
@@ -110,19 +111,25 @@ void AMordath::BeginPlay()
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
 
-	// Cache the player HUD
+	Health = StartingHealth;
+
+	// Cache the Overthrone HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	OverthroneHUD->Init();
 
+	PlayerHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
+
 	// Cache our game instance
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance->BossStartingHealth = StartingHealth;
+	SendInfo();
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	BossStateMachine->InitState(0);
 
-	GetWorld()->GetTimerManager().SetTimer(UpdateLocationTimerHandle, this, &AMordath::SendLocation, 0.05f, true);
+	GetWorld()->GetTimerManager().SetTimer(UpdateLocationTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 }
 
 void AMordath::Tick(const float DeltaTime)
@@ -136,15 +143,20 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	if (!GetMesh()->IsPlaying())
 	{
 		GetMesh()->PlayAnimation(HitAnimation, false);
-		
-		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
+
+		if (Health > 0.0f)
+		{
+			Health -= DamageAmount;
+			ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
+		}
 	}
 
 	return DamageAmount;
 }
 
-void AMordath::SendLocation()
+void AMordath::SendInfo()
 {
+	GameInstance->BossHealth = Health;
 	GameInstance->BossLocation = GetActorLocation();
 }
 

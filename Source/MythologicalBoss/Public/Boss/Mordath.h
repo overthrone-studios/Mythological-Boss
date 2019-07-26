@@ -19,7 +19,7 @@ protected:
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	void SendLocation();
+	void SendInfo();
 
 	#pragma region Idle
 	UFUNCTION()
@@ -82,6 +82,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* BossStateMachine;
 
+	// The starting health of the boss
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
+		float StartingHealth = 1000.0f;
+
+	// The current health of the boss
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
+		float Health = 1000.0f;
+
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float WalkSpeed = 300.0f;
@@ -117,6 +125,8 @@ protected:
 
 	// Cached Overthrone HUD reference, used to access menus
 	class AOverthroneHUD* OverthroneHUD{};
+
+	class UMainPlayerHUD* PlayerHUD{};
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
