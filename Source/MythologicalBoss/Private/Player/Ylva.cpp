@@ -302,8 +302,6 @@ void AYlva::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (PlayerStateMachine->GetActiveStateName() == "Jump")
-		PlayerStateMachine->PopState("Jump");
 }
 
 void AYlva::Block()
@@ -330,7 +328,8 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
+		Stamina > LightAttackStamina)
 	{
 		PlayerStateMachine->PushState("Light Attack 1");
 		bUseControllerRotationYaw = true;
@@ -341,7 +340,8 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
-		PlayerStateMachine->GetActiveStateUptime() > 0.5f)
+		PlayerStateMachine->GetActiveStateUptime() > 0.5f &&
+		Stamina > LightAttackStamina)
 	{
 		PlayerStateMachine->PopState("Light Attack 1");
 		PlayerStateMachine->PushState("Light Attack 2");
@@ -353,7 +353,8 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
-		PlayerStateMachine->GetActiveStateUptime() > 0.8f)
+		PlayerStateMachine->GetActiveStateUptime() > 0.8f &&
+		Stamina > LightAttackStamina)
 	{
 		PlayerStateMachine->PopState("Light Attack 2");
 		PlayerStateMachine->PushState("Light Attack 1");
@@ -368,7 +369,8 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/)
+		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
+		Stamina > HeavyAttackStamina)
 	{
 		PlayerStateMachine->PushState("Heavy Attack 1");
 		bUseControllerRotationYaw = true;
@@ -378,7 +380,8 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
-		PlayerStateMachine->GetActiveStateUptime() > 1.0f)
+		PlayerStateMachine->GetActiveStateUptime() > 1.0f &&
+		Stamina > HeavyAttackStamina)
 	{
 		PlayerStateMachine->PopState("Heavy Attack 1");
 		PlayerStateMachine->PushState("Heavy Attack 2");
@@ -390,7 +393,8 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
-		PlayerStateMachine->GetActiveStateUptime() > 0.8f)
+		PlayerStateMachine->GetActiveStateUptime() > 0.8f &&
+		Stamina > HeavyAttackStamina)
 	{
 		PlayerStateMachine->PopState("Heavy Attack 2");
 		PlayerStateMachine->PushState("Heavy Attack 1");
@@ -405,7 +409,7 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > RunStamina)
 	{
 		MovementComponent->MaxWalkSpeed = RunSpeed;
 
@@ -423,7 +427,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (MovementComponent->IsMovingOnGround())
+	if (MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
 	{
 		// Do the dash
 		FVector VelocityNormalized = GetVelocity();
@@ -532,7 +536,10 @@ void AYlva::UpdateRunState()
 	GameInstance->PlayerStamina = Stamina;
 
 	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed)
-		PlayerStateMachine->PopState("Run");
+		PlayerStateMachine->PopState();
+
+	if (Stamina <= RunStamina)
+		PlayerStateMachine->PopState();
 
 	if (GetVelocity().Z < 0.0f)
 		PlayerStateMachine->PushState("Fall");
