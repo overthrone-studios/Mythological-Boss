@@ -186,6 +186,8 @@ void AYlva::Tick(const float DeltaTime)
 
 		GetController()->SetControlRotation(NewRotation);
 	}
+
+		RegenerateStamina(StaminaRegenerationRate);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -409,7 +411,7 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > RunStamina)
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > RunStamina * World->DeltaTimeSeconds)
 	{
 		MovementComponent->MaxWalkSpeed = RunSpeed;
 
@@ -467,6 +469,15 @@ void AYlva::Pause()
 		GameInstance->UnPauseGame();
 	else
 		GameInstance->PauseGame();
+}
+
+void AYlva::RegenerateStamina(const float Rate)
+{
+	if (Stamina < StartingStamina)
+	{
+		Stamina += Rate * World->DeltaTimeSeconds;
+		GameInstance->PlayerStamina = Stamina;
+	}
 }
 
 #pragma region Idle
@@ -532,13 +543,10 @@ void AYlva::UpdateRunState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
-	Stamina -= RunStamina;
+	Stamina -= RunStamina * World->DeltaTimeSeconds;
 	GameInstance->PlayerStamina = Stamina;
 
-	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed)
-		PlayerStateMachine->PopState();
-
-	if (Stamina <= RunStamina)
+	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed || Stamina <= RunStamina * World->DeltaTimeSeconds)
 		PlayerStateMachine->PopState();
 
 	if (GetVelocity().Z < 0.0f)

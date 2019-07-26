@@ -108,6 +108,8 @@ protected:
 	// Called via input to pause the game
 	void Pause();
 
+	void RegenerateStamina(float Rate);
+
 	// Player states
 	#pragma region Idle
 		UFUNCTION()
@@ -224,6 +226,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		float Stamina = 100.0f;
 
+	// The rate of stamina regeneration
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float StaminaRegenerationRate = 10.0f;
+
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
 		float WalkSpeed = 300.0f;
@@ -300,4 +306,6 @@ protected:
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
+
+	FTimerHandle StaminaRegenerationTrigger;
 };
