@@ -35,6 +35,10 @@ public:
 
 	void InitInstance();
 
+	void SetLockOnLocation(const FVector& LockOnLocation) const;
+	void SetLockOnRotation(const FRotator& LockOnRotation) const;
+	void ToggleLockOnVisibility(bool bIsVisible) const;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Game Instance | Boss Info")
 		float PlayerStartingHealth{};
 
@@ -55,6 +59,8 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
 		float BossStartingHealth{};
+
+	class ALockOn* LockOn;
 
 private:
 	class UUserWidget* PauseMenu{};

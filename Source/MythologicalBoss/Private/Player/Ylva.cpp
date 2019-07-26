@@ -184,9 +184,12 @@ void AYlva::Tick(const float DeltaTime)
 		const FRotator NewRotation = FRotator(LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
 		GetController()->SetControlRotation(NewRotation);
+
+		GameInstance->SetLockOnLocation(GameInstance->BossLocation);
+		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
 
-		RegenerateStamina(StaminaRegenerationRate);
+	RegenerateStamina(StaminaRegenerationRate);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -283,6 +286,7 @@ void AYlva::ToggleLockOn()
 {
 	bShouldLockOnTarget = !bShouldLockOnTarget;
 	PlayerController->SetIgnoreLookInput(bShouldLockOnTarget);
+	GameInstance->ToggleLockOnVisibility(!bShouldLockOnTarget);
 }
 
 void AYlva::EnableLockOn()
@@ -290,6 +294,7 @@ void AYlva::EnableLockOn()
 	bShouldLockOnTarget = true;
 	PlayerController->SetIgnoreLookInput(true);
 	bUseControllerRotationYaw = true;
+	GameInstance->ToggleLockOnVisibility(true);
 }
 
 void AYlva::DisableLockOn()
@@ -297,6 +302,7 @@ void AYlva::DisableLockOn()
 	bShouldLockOnTarget = false;
 	PlayerController->SetIgnoreLookInput(false);
 	bUseControllerRotationYaw = false;
+	GameInstance->ToggleLockOnVisibility(false);
 }
 
 void AYlva::Landed(const FHitResult& Hit)

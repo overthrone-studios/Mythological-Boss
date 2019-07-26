@@ -2,10 +2,9 @@
 
 #include "OverthroneGameInstance.h"
 #include "UserWidget.h"
-#include "MenuBase.h"
+#include "LockOn.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
-#include "Log.h"
 
 UOverthroneGameInstance::UOverthroneGameInstance()
 {
@@ -60,4 +59,19 @@ void UOverthroneGameInstance::InitInstance()
 	PauseMenu = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidgetClass, FName("Pause Menu"));
 	PauseMenu->AddToViewport();
 	PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) const
+{
+	LockOn->SetActorLocation(LockOnLocation);
+}
+
+void UOverthroneGameInstance::SetLockOnRotation(const FRotator& LockOnRotation) const
+{
+	LockOn->SetActorRotation(LockOnRotation);
+}
+
+void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
+{
+	LockOn->SetActorHiddenInGame(bIsVisible);
 }
