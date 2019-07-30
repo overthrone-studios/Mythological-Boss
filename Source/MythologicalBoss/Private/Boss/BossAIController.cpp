@@ -20,6 +20,11 @@ ABossAIController::ABossAIController()
 	PlayerLocationKeyID = BlackBoardComponent->GetKeyID(FName("PlayerLocation"));
 }
 
+void ABossAIController::StopBT()
+{
+	BehaviourTreeComponent->StopTree();
+}
+
 void ABossAIController::Possess(APawn* InPawn)
 {
 	Super::Possess(InPawn);

@@ -62,6 +62,7 @@ AMordath::AMordath()
 	BossStateMachine->AddState(10, "Special Attack 2");
 	BossStateMachine->AddState(11, "Special Attack 3");
 	BossStateMachine->AddState(12, "Damaged");
+	BossStateMachine->AddState(13, "Death");
 
 	// Bind state events to our functions
 	BossStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -91,6 +92,10 @@ AMordath::AMordath()
 	BossStateMachine->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	BossStateMachine->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
 	BossStateMachine->GetState(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
+
+	BossStateMachine->GetState(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDeathState);
+	BossStateMachine->GetState(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
+	BossStateMachine->GetState(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
 
 	// Assign the behaviour tree
 	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
@@ -164,16 +169,19 @@ void AMordath::PossessedBy(AController* NewController)
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (!GetMesh()->IsPlaying())
+	if (Health > 0.0f)
 	{
-		BossStateMachine->PopState();
+		if (BossStateMachine->GetActiveStateName() != "Idle")
+			BossStateMachine->PopState();
+
 		BossStateMachine->PushState("Damaged");
 
-		if (Health > 0.0f)
-		{
-			Health -= DamageAmount;
-			ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
-		}
+		Health -= DamageAmount;
+		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
+	}
+	else if (Health <= 0.0f)
+	{
+		BossStateMachine->PushState("Death");
 	}
 
 	return DamageAmount;
@@ -321,5 +329,31 @@ void AMordath::UpdateDamagedState()
 void AMordath::OnExitDamagedState()
 {
 	AnimInstance->bIsHit = false;
+}
+
+void AMordath::OnEnterDeathState()
+{
+	AnimInstance->bIsDead = true;
+
+	BossAIController->StopBT();
+}
+
+void AMordath::UpdateDeathState()
+{
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+	{
+		BossStateMachine->PopState();
+
+		Destroy();
+	}
+}
+
+void AMordath::OnExitDeathState()
+{
+	AnimInstance->bIsDead = false;
 }
 

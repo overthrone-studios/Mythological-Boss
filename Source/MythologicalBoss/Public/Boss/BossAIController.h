@@ -17,6 +17,8 @@ class MYTHOLOGICALBOSS_API ABossAIController final : public AAIController
 public:
 	ABossAIController();
 
+	void StopBT();
+
 	void Possess(APawn* InPawn) override;
 
 	void SetPlayerLocation(const FVector& Location);

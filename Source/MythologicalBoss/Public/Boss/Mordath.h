@@ -99,6 +99,15 @@ protected:
 		void OnExitDamagedState();
 	#pragma endregion 
 
+	#pragma region Death
+	UFUNCTION()
+		void OnEnterDeathState();
+	UFUNCTION()
+		void UpdateDeathState();
+	UFUNCTION()
+		void OnExitDeathState();
+	#pragma endregion 
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 

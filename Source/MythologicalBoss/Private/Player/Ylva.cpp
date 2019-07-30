@@ -329,6 +329,7 @@ void AYlva::Block()
 		PlayerStateMachine->GetActiveStateID() != 3 /* Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /* Heavy Attack 1*/ &&
+		PlayerStateMachine->GetActiveStateID() != 20 /*Damaged*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /* Heavy Attack 2*/)
 	{
 		PlayerStateMachine->PushState("Block");
@@ -342,23 +343,28 @@ void AYlva::StopBlocking()
 
 void AYlva::LightAttack()
 {
-	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+	// Are we in any of these states?
+	if (PlayerStateMachine->GetActiveStateID() == 7 /*Fall*/ ||
+		PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/ ||
+		PlayerStateMachine->GetActiveStateID() == 5 /*Death*/ ||
+		PlayerStateMachine->GetActiveStateID() == 20 /*Damaged*/)
+		return;
+
+	if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		Stamina > LightAttackStamina)
 	{
 		PlayerStateMachine->PushState("Light Attack 1");
 		bUseControllerRotationYaw = true;
 	}
-	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+	else if (
 		PlayerStateMachine->GetActiveStateID() == 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.5f &&
 		Stamina > LightAttackStamina)
 	{
@@ -366,12 +372,11 @@ void AYlva::LightAttack()
 		PlayerStateMachine->PushState("Light Attack 2");
 		bUseControllerRotationYaw = true;
 	}
-	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+	else if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.8f &&
 		Stamina > LightAttackStamina)
 	{
@@ -383,22 +388,27 @@ void AYlva::LightAttack()
 
 void AYlva::HeavyAttack()
 {
-	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+	// Are we in any of these states?
+	if (PlayerStateMachine->GetActiveStateID() == 7 /*Fall*/ ||
+		PlayerStateMachine->GetActiveStateID() == 4 /*Blocking*/ ||
+		PlayerStateMachine->GetActiveStateID() == 5 /*Death*/ ||
+		PlayerStateMachine->GetActiveStateID() == 20 /*Damaged*/)
+		return;
+
+	if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		Stamina > HeavyAttackStamina)
 	{
 		PlayerStateMachine->PushState("Heavy Attack 1");
 		bUseControllerRotationYaw = true;
 	}
-	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+	else if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 1.0f &&
 		Stamina > HeavyAttackStamina)
 	{
@@ -406,12 +416,11 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->PushState("Heavy Attack 2");
 		bUseControllerRotationYaw = true;
 	}
-	else if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+	else if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 10 /*Heavy Attack 2*/ &&
-		PlayerStateMachine->GetActiveStateID() != 4 /*Blocking*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.8f &&
 		Stamina > HeavyAttackStamina)
 	{
@@ -814,6 +823,8 @@ void AYlva::OnExitDamagedState()
 void AYlva::OnEnterDeathState()
 {
 	AnimInstance->bIsDead = true;
+
+	MovementComponent->DisableMovement();
 }
 
 void AYlva::UpdateDeathState()
@@ -840,7 +851,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 {
 	ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
 
-	if (Health > 0)
+	if (Health > 0.0f)
 	{
 		if (PlayerStateMachine->GetActiveStateName() != "Idle")
 			PlayerStateMachine->PopState();
@@ -850,7 +861,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		Health -= DamageAmount;
 		GameInstance->PlayerHealth = Health;
 	}
-	else
+	else if (Health <= 0.0f)
 	{
 		if (PlayerStateMachine->GetActiveStateName() != "Idle")
 			PlayerStateMachine->PopState();
