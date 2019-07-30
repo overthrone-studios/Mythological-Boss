@@ -81,7 +81,7 @@ void UOverthroneGameInstance::SetLockOnRotation(const FRotator& LockOnRotation) 
 void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
 {
 	if (LockOn)
-		LockOn->SetActorHiddenInGame(bIsVisible);
+		LockOn->SetActorHiddenInGame(!bIsVisible);
 	else
 		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }

@@ -336,6 +336,8 @@ void AMordath::OnEnterDeathState()
 	AnimInstance->bIsDead = true;
 
 	BossAIController->StopBT();
+
+	GameInstance->OnBossDeath.Broadcast();
 }
 
 void AMordath::UpdateDeathState()

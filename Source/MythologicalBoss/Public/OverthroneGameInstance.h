@@ -5,6 +5,8 @@
 #include "Engine/GameInstance.h"
 #include "OverthroneGameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeathSignature);
+
 /**
  * High-level manager object for Overthrone game
  */
@@ -15,6 +17,8 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 	
 public:
 	UOverthroneGameInstance();
+
+	FOnBossDeathSignature OnBossDeath;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		bool IsGamePaused();

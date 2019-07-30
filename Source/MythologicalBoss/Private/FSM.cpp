@@ -69,6 +69,9 @@ void UFSM::AddState(const int32 ID, const FName& StateName)
 
 void UFSM::PopState()
 {
+	if (GetStateCountInStack() == 1)
+		return;
+
 	PopState(GetActiveStateID());
 }
 

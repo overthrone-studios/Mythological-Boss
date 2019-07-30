@@ -175,6 +175,7 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerHealth = Health;
 	GameInstance->PlayerStartingStamina = StartingStamina;
 	GameInstance->PlayerStamina = Stamina;
+	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
@@ -296,16 +297,23 @@ void AYlva::LookUpAtRate(const float Rate)
 
 void AYlva::ToggleLockOn()
 {
+	// Don't lock on if boss is dead
+	if (GameInstance->BossHealth <= 0.0f)
+		return;
+
 	bShouldLockOnTarget = !bShouldLockOnTarget;
 	PlayerController->SetIgnoreLookInput(bShouldLockOnTarget);
-	GameInstance->ToggleLockOnVisibility(!bShouldLockOnTarget);
+	GameInstance->ToggleLockOnVisibility(bShouldLockOnTarget);
 }
 
 void AYlva::EnableLockOn()
 {
+	// Don't lock on if boss is dead
+	if (GameInstance->BossHealth <= 0.0f)
+		return;
+
 	bShouldLockOnTarget = true;
 	PlayerController->SetIgnoreLookInput(true);
-	bUseControllerRotationYaw = true;
 	GameInstance->ToggleLockOnVisibility(true);
 }
 
@@ -313,7 +321,6 @@ void AYlva::DisableLockOn()
 {
 	bShouldLockOnTarget = false;
 	PlayerController->SetIgnoreLookInput(false);
-	bUseControllerRotationYaw = false;
 	GameInstance->ToggleLockOnVisibility(false);
 }
 
@@ -853,21 +860,39 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 	if (Health > 0.0f)
 	{
-		if (PlayerStateMachine->GetActiveStateName() != "Idle")
+		if (PlayerStateMachine->GetActiveStateName() != "Idle" &&
+			PlayerStateMachine->GetActiveStateName() != "Block")
+		{
 			PlayerStateMachine->PopState();
+		}
 
-		PlayerStateMachine->PushState("Damaged");
+		if (PlayerStateMachine->GetActiveStateName() == "Block")
+		{
+			PlayerStateMachine->PushState("Shield Hit");
 
-		Health -= DamageAmount;
+			Health -= DamageAmount * DamageBuffer;
+		}
+		else
+		{
+			PlayerStateMachine->PushState("Damaged");
+			
+			Health -= DamageAmount;
+		}
+
 		GameInstance->PlayerHealth = Health;
 	}
-	else if (Health <= 0.0f)
+
+	if (Health <= 0.0f)
 	{
-		if (PlayerStateMachine->GetActiveStateName() != "Idle")
-			PlayerStateMachine->PopState();
+		PlayerStateMachine->PopState();
 
 		PlayerStateMachine->PushState("Death");
 	}
 
 	return DamageAmount;
+}
+
+void AYlva::OnBossDeath()
+{
+	DisableLockOn();
 }

@@ -219,6 +219,9 @@ protected:
 
 	// Events
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	UFUNCTION()
+		void OnBossDeath();
 	
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
@@ -310,6 +313,10 @@ protected:
 	// The stamina value to subtract while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float ShieldHitStamina = 10.0f;
+
+	// This value will be used to buffer the damage received when the boss hits the player when blocking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float DamageBuffer = 0.5f;
 
 	// Cached world pointer
 	UWorld* World{};
