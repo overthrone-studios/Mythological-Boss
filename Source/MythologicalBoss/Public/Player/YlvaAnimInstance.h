@@ -30,6 +30,9 @@ public:
 		bool bIsJumping;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bIsHit;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptLightAttack;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
@@ -50,8 +53,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsBlocking;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Misc")
-		bool bCanTaunt;
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bIsDead;
 
 	int32 GenericsMachineIndex;
 

@@ -56,6 +56,7 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(8, "Light Attack 2");
 	PlayerStateMachine->AddState(9, "Heavy Attack 1");
 	PlayerStateMachine->AddState(10, "Heavy Attack 2");
+	PlayerStateMachine->AddState(20, "Damaged");
 
 	// Bind state events to our functions
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
@@ -78,6 +79,10 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(4)->OnUpdateState.AddDynamic(this, &AYlva::UpdateBlockingState);
 	PlayerStateMachine->GetState(4)->OnExitState.AddDynamic(this, &AYlva::OnExitBlockingState);
 
+	PlayerStateMachine->GetState(5)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDeathState);
+	PlayerStateMachine->GetState(5)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDeathState);
+	PlayerStateMachine->GetState(5)->OnExitState.AddDynamic(this, &AYlva::OnExitDeathState);
+
 	PlayerStateMachine->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterFallingState);
 	PlayerStateMachine->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateFallingState);
 	PlayerStateMachine->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitFallingState);
@@ -93,6 +98,10 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttack2State);
 	PlayerStateMachine->GetState(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttack2State);
 	PlayerStateMachine->GetState(10)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttack2State);
+
+	PlayerStateMachine->GetState(20)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDamagedState);
+	PlayerStateMachine->GetState(20)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDamagedState);
+	PlayerStateMachine->GetState(20)->OnExitState.AddDynamic(this, &AYlva::OnExitDamagedState);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -114,6 +123,7 @@ AYlva::AYlva()
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(30.0f, 90.0f);
+	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 
 	// Set our turn rates for input
 	TurnRate = 45.0f;
@@ -778,14 +788,74 @@ void AYlva::OnExitHeavyAttack2State()
 }
 #pragma endregion 
 
+#pragma region Damaged
+void AYlva::OnEnterDamagedState()
+{
+	AnimInstance->bIsHit = true;
+}
+
+void AYlva::UpdateDamagedState()
+{
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+}
+
+void AYlva::OnExitDamagedState()
+{
+	AnimInstance->bIsHit = false;
+}
+#pragma endregion 
+
+#pragma region Death
+void AYlva::OnEnterDeathState()
+{
+	AnimInstance->bIsDead = true;
+}
+
+void AYlva::UpdateDeathState()
+{
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+	{
+		PlayerStateMachine->PopState();
+
+		UGameplayStatics::OpenLevel(this, FName("Arena_Dev"));
+	}
+}
+
+void AYlva::OnExitDeathState()
+{
+	AnimInstance->bIsDead = false;
+}
+#pragma endregion 
+
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
 
 	if (Health > 0)
 	{
+		if (PlayerStateMachine->GetActiveStateName() != "Idle")
+			PlayerStateMachine->PopState();
+
+		PlayerStateMachine->PushState("Damaged");
+
 		Health -= DamageAmount;
 		GameInstance->PlayerHealth = Health;
+	}
+	else
+	{
+		if (PlayerStateMachine->GetActiveStateName() != "Idle")
+			PlayerStateMachine->PopState();
+
+		PlayerStateMachine->PushState("Death");
 	}
 
 	return DamageAmount;

@@ -314,7 +314,7 @@ void AMordath::UpdateDamagedState()
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	if (TimeRemaining <= StunDuration)
+	if (TimeRemaining <= 0.1f)
 		BossStateMachine->PopState();
 }
 

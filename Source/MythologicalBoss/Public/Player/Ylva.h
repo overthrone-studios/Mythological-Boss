@@ -17,14 +17,21 @@ public:
 	AYlva();
 
 	// Returns CameraBoom component
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	// Returns FollowCamera component
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
-	FORCEINLINE float GetLightAttackDamage() const { return LightAttackDamage; }
-	FORCEINLINE float GetHeavyAttackDamage() const { return HeavyAttackDamage; }
-	FORCEINLINE float GetAttackRange() const { return AttackDistance; }
-	FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
+	// Returns FollowCamera component
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE float GetLightAttackDamage() const { return LightAttackDamage; }
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE float GetHeavyAttackDamage() const { return HeavyAttackDamage; }
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE float GetAttackRange() const { return AttackDistance; }
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -112,12 +119,12 @@ protected:
 
 	// Player states
 	#pragma region Idle
-		UFUNCTION()
-			void OnEnterIdleState();
-		UFUNCTION()
-			void UpdateIdleState();
-		UFUNCTION()
-			void OnExitIdleState();
+	UFUNCTION()
+		void OnEnterIdleState();
+	UFUNCTION()
+		void UpdateIdleState();
+	UFUNCTION()
+		void OnExitIdleState();
 	#pragma endregion 
 
 	#pragma region Walk
@@ -190,6 +197,24 @@ protected:
 		void UpdateFallingState();
 	UFUNCTION()
 		void OnExitFallingState();
+	#pragma endregion 
+
+	#pragma region Damaged
+	UFUNCTION()
+		void OnEnterDamagedState();
+	UFUNCTION()
+		void UpdateDamagedState();
+	UFUNCTION()
+		void OnExitDamagedState();
+	#pragma endregion 
+
+	#pragma region Death
+	UFUNCTION()
+		void OnEnterDeathState();
+	UFUNCTION()
+		void UpdateDeathState();
+	UFUNCTION()
+		void OnExitDeathState();
 	#pragma endregion 
 
 	// Events

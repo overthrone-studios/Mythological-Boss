@@ -18,6 +18,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		class UFSM* GetFSM() const { return BossStateMachine; }
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FORCEINLINE float GetLightAttackDamage() const { return LightAttackDamage; }
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FORCEINLINE float GetHeavyAttackDamage() const { return HeavyAttackDamage; }
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FORCEINLINE float GetAttackRange() const { return AttackDistance; }
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
