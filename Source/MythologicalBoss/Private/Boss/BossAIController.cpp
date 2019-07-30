@@ -22,6 +22,8 @@ ABossAIController::ABossAIController()
 
 void ABossAIController::Possess(APawn* InPawn)
 {
+	Super::Possess(InPawn);
+
 	GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
 
 	// Initialize all blackboard keys and start
@@ -31,7 +33,7 @@ void ABossAIController::Possess(APawn* InPawn)
 		BlackBoardComponent->InitializeBlackboard(*Mordath->GetBT()->BlackboardAsset);
 
 		// Set blackboard key values
-		BlackBoardComponent->SetValue<UBlackboardKeyType_Vector>(FName("PlayerLocation"), GameInstance->PlayerLocation);
+		//BlackBoardComponent->SetValue<UBlackboardKeyType_Vector>(FName("PlayerLocation"), GameInstance->PlayerLocation);
 
 		BehaviourTreeComponent->StartTree(*Mordath->GetBT());
 	}

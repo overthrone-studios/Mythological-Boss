@@ -146,6 +146,8 @@ void AMordath::Tick(const float DeltaTime)
 
 void AMordath::PossessedBy(AController* NewController)
 {
+	Super::PossessedBy(NewController);
+
 	BossAIController = Cast<ABossAIController>(NewController);
 
 	Super::PossessedBy(NewController);
