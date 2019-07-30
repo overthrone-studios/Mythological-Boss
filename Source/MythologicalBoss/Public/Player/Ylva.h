@@ -216,6 +216,15 @@ protected:
 	UFUNCTION()
 		void OnExitDeathState();
 	#pragma endregion 
+	
+	#pragma region Shield Hit
+	UFUNCTION()
+		void OnEnterShieldHitState();
+	UFUNCTION()
+		void UpdateShieldHitState();
+	UFUNCTION()
+		void OnExitShieldHitState();
+	#pragma endregion 
 
 	// Events
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -322,7 +331,7 @@ protected:
 	UWorld* World{};
 
 	// Cached player controller pointer
-	APlayerController* PlayerController;
+	APlayerController* PlayerController{};
 
 	// Cached game instance pointer
 	class UOverthroneGameInstance* GameInstance{};

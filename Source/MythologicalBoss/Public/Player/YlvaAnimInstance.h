@@ -31,6 +31,9 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsHit;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bIsShieldHit;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptLightAttack;

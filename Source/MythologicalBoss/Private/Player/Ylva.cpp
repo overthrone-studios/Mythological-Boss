@@ -57,6 +57,7 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(9, "Heavy Attack 1");
 	PlayerStateMachine->AddState(10, "Heavy Attack 2");
 	PlayerStateMachine->AddState(20, "Damaged");
+	PlayerStateMachine->AddState(21, "Shield Hit");
 
 	// Bind state events to our functions
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
@@ -102,6 +103,10 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(20)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDamagedState);
 	PlayerStateMachine->GetState(20)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDamagedState);
 	PlayerStateMachine->GetState(20)->OnExitState.AddDynamic(this, &AYlva::OnExitDamagedState);
+
+	PlayerStateMachine->GetState(21)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShieldHitState);
+	PlayerStateMachine->GetState(21)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShieldHitState);
+	PlayerStateMachine->GetState(21)->OnExitState.AddDynamic(this, &AYlva::OnExitShieldHitState);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -812,7 +817,7 @@ void AYlva::OnEnterDamagedState()
 
 void AYlva::UpdateDamagedState()
 {
-	// If attack animation has finished, go back to previous state
+	// If hit animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
@@ -836,7 +841,7 @@ void AYlva::OnEnterDeathState()
 
 void AYlva::UpdateDeathState()
 {
-	// If attack animation has finished, go back to previous state
+	// If death animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
@@ -851,6 +856,28 @@ void AYlva::UpdateDeathState()
 void AYlva::OnExitDeathState()
 {
 	AnimInstance->bIsDead = false;
+}
+#pragma endregion 
+
+#pragma region Shield Hit
+void AYlva::OnEnterShieldHitState()
+{
+	AnimInstance->bIsShieldHit = true;
+}
+
+void AYlva::UpdateShieldHitState()
+{
+	// If shield impact animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		PlayerStateMachine->PopState();
+}
+
+void AYlva::OnExitShieldHitState()
+{
+	AnimInstance->bIsShieldHit = false;
 }
 #pragma endregion 
 
