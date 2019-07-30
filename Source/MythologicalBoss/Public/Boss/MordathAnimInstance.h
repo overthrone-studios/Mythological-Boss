@@ -2,17 +2,18 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "YlvaAnimInstance.generated.h"
+#include "MordathAnimInstance.generated.h"
 
 /**
- * The animation instance the player will use
+ * The animation instance the boss character will use
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UAnimInstance
+class MYTHOLOGICALBOSS_API UMordathAnimInstance final : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
@@ -22,13 +23,10 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		bool bIsRunning;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsFalling;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsJumping;
-	
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bIsHit;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptLightAttack;
 
@@ -47,25 +45,19 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptThirdHeavyAttack;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsBlocking;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Misc")
-		bool bCanTaunt;
-
 	int32 GenericsMachineIndex;
 
 	int32 IdleLoopCount = 0;
-
+	
 protected:
 	void NativeInitializeAnimation() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva Anim Instance")
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath Anim Instance")
 		APawn* OwningPawn{};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva Anim Instance")
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath Anim Instance")
 		UPawnMovementComponent* PawnMovementComponent{};
 
-	class AYlva* Ylva{};
+	class AMordath* Mordath{};
 };

@@ -81,12 +81,21 @@ protected:
 		void OnExitLightAttack3State();
 	#pragma endregion 
 
+	#pragma region Damaged
+	UFUNCTION()
+		void OnEnterDamagedState();
+	UFUNCTION()
+		void UpdateDamagedState();
+	UFUNCTION()
+		void OnExitDamagedState();
+	#pragma endregion 
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
 	class UBehaviorTree* BossBT;
 
-	class ABossAIController* BossAIController;
+	class ABossAIController* BossAIController{};
 
 	// The player's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
@@ -107,6 +116,10 @@ protected:
 	// The maximum movement speed while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float RunSpeed = 600.0f;
+
+	// The amount of time in seconds this boss should be stunned for
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		float StunDuration = 0.3f;
 
 	// The attack damage we deal when light attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
@@ -132,6 +145,9 @@ protected:
 
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
+
+	// Cached boss's anim instance, to control and trigger animations
+	class UMordathAnimInstance* AnimInstance{};
 
 	// Cached Overthrone HUD reference, used to access menus
 	class AOverthroneHUD* OverthroneHUD{};

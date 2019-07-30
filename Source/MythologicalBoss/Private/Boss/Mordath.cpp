@@ -4,6 +4,7 @@
 #include "Public/OverthroneHUD.h"
 #include "Public/OverthroneGameInstance.h"
 #include "BossAIController.h"
+#include "Boss/MordathAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
@@ -60,6 +61,7 @@ AMordath::AMordath()
 	BossStateMachine->AddState(9, "Special Attack 1");
 	BossStateMachine->AddState(10, "Special Attack 2");
 	BossStateMachine->AddState(11, "Special Attack 3");
+	BossStateMachine->AddState(12, "Damaged");
 
 	// Bind state events to our functions
 	BossStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -85,6 +87,10 @@ AMordath::AMordath()
 	BossStateMachine->GetState(5)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack3State);
 	BossStateMachine->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack3State);
 	BossStateMachine->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack3State);
+
+	BossStateMachine->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
+	BossStateMachine->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
+	BossStateMachine->GetState(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
 
 	// Assign the behaviour tree
 	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
@@ -125,6 +131,9 @@ void AMordath::BeginPlay()
 
 	PlayerHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
 
+	// Cache our anim instance
+	AnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
+
 	// Cache our game instance
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->BossStartingHealth = StartingHealth;
@@ -157,7 +166,8 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 {
 	if (!GetMesh()->IsPlaying())
 	{
-		GetMesh()->PlayAnimation(HitAnimation, false);
+		BossStateMachine->PopState();
+		BossStateMachine->PushState("Damaged");
 
 		if (Health > 0.0f)
 		{
@@ -195,7 +205,7 @@ void AMordath::OnExitIdleState()
 
 void AMordath::OnEnterWalkState()
 {
-	//AnimInstance->bIsWalking = true;
+	AnimInstance->bIsWalking = true;
 }
 
 void AMordath::UpdateWalkState()
@@ -206,13 +216,13 @@ void AMordath::UpdateWalkState()
 
 void AMordath::OnExitWalkState()
 {
-	//AnimInstance->bIsWalking = false;
+	AnimInstance->bIsWalking = false;
 }
 
 void AMordath::OnEnterRunState()
 {
 	MovementComponent->MaxWalkSpeed = RunSpeed;
-	//AnimInstance->bIsRunning = true;
+	AnimInstance->bIsRunning = true;
 }
 
 void AMordath::UpdateRunState()
@@ -224,14 +234,14 @@ void AMordath::UpdateRunState()
 void AMordath::OnExitRunState()
 {
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
-	//AnimInstance->bIsRunning = false;
+	AnimInstance->bIsRunning = false;
 }
 
 void AMordath::OnEnterLightAttack1State()
 {
 	ULog::LogDebugMessage(INFO, FString("Entered Light Attack 1 state"), true);
 
-	//AnimInstance->bAcceptLightAttack = true;
+	AnimInstance->bAcceptLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack1State()
@@ -250,12 +260,12 @@ void AMordath::OnExitLightAttack1State()
 {
 	ULog::LogDebugMessage(INFO, FString("Exited Light Attack 1 state"), true);
 
-	//AnimInstance->bAcceptLightAttack = false;
+	AnimInstance->bAcceptLightAttack = false;
 }
 
 void AMordath::OnEnterLightAttack2State()
 {
-	//AnimInstance->bAcceptSecondLightAttack = true;
+	AnimInstance->bAcceptSecondLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack2State()
@@ -270,12 +280,12 @@ void AMordath::UpdateLightAttack2State()
 
 void AMordath::OnExitLightAttack2State()
 {
-	//AnimInstance->bAcceptSecondLightAttack = false;
+	AnimInstance->bAcceptSecondLightAttack = false;
 }
 
 void AMordath::OnEnterLightAttack3State()
 {
-	//AnimInstance->bAcceptThirdLightAttack = true;
+	AnimInstance->bAcceptThirdLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack3State()
@@ -290,6 +300,26 @@ void AMordath::UpdateLightAttack3State()
 
 void AMordath::OnExitLightAttack3State()
 {
-	//AnimInstance->bAcceptThirdLightAttack = false;
+	AnimInstance->bAcceptThirdLightAttack = false;
+}
+
+void AMordath::OnEnterDamagedState()
+{
+	AnimInstance->bIsHit = true;
+}
+
+void AMordath::UpdateDamagedState()
+{
+	// If damaged animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= StunDuration)
+		BossStateMachine->PopState();
+}
+
+void AMordath::OnExitDamagedState()
+{
+	AnimInstance->bIsHit = false;
 }
 

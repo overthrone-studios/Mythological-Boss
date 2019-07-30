@@ -1,10 +1,9 @@
 // Copyright Overthrone Studios 2019
 
-#include "Player/YlvaAnimInstance.h"
-#include "Player/Ylva.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "MordathAnimInstance.h"
+#include "Mordath.h"
 
-void UYlvaAnimInstance::NativeInitializeAnimation()
+void UMordathAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
@@ -17,23 +16,22 @@ void UYlvaAnimInstance::NativeInitializeAnimation()
 		PawnMovementComponent = OwningPawn->GetMovementComponent();
 
 		// If it's our character cache it for later use
-		if (OwningPawn->IsA(AYlva::StaticClass()))
-			Ylva = Cast<AYlva>(OwningPawn);
+		if (OwningPawn->IsA(AMordath::StaticClass()))
+			Mordath = Cast<AMordath>(OwningPawn);
 	}
 
 	GenericsMachineIndex = GetStateMachineIndex("Generics");
 }
 
-void UYlvaAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
+void UMordathAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 {
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	
 	if (!OwningPawn || !PawnMovementComponent)
 		return;
 
-	// Set whether falling or not
-	bIsFalling = PawnMovementComponent->IsFalling();
-
 	// Update movement speed for use in the Idle/Run blendspace
-	MovementSpeed = Ylva->GetVelocity().Size();
+	MovementSpeed = Mordath->GetVelocity().Size();
 }
