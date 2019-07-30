@@ -247,15 +247,11 @@ void AMordath::OnExitRunState()
 
 void AMordath::OnEnterLightAttack1State()
 {
-	ULog::LogDebugMessage(INFO, FString("Entered Light Attack 1 state"), true);
-
 	AnimInstance->bAcceptLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack1State()
 {
-	ULog::LogDebugMessage(INFO, FString("Light Attack 1 : ") + FString::SanitizeFloat(BossStateMachine->GetActiveStateUptime()), true);
-
 	// If attack animation has finished, go back to previous state
 	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -266,8 +262,6 @@ void AMordath::UpdateLightAttack1State()
 
 void AMordath::OnExitLightAttack1State()
 {
-	ULog::LogDebugMessage(INFO, FString("Exited Light Attack 1 state"), true);
-
 	AnimInstance->bAcceptLightAttack = false;
 }
 

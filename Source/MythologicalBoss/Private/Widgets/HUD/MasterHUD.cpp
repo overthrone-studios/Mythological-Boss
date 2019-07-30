@@ -5,6 +5,7 @@
 #include "WidgetSwitcher.h"
 #include "Log.h"
 #include "Image.h"
+#include "TextBlock.h"
 
 static FLinearColor White = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
 static FLinearColor Green = FLinearColor(0.187166f, 1.0f, 0.198517f, 1.0f);
@@ -18,6 +19,9 @@ void UMasterHUD::Init()
 	BossDebugBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DebugBox_2")));
 	MainBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("MainHUDBox")));
 	NoHUDBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("NoHUDBox")));
+
+	HUDOptions = Cast<UPanelWidget>(WidgetTree->FindWidget(FName("HUDoptions")));
+	Title = Cast<UTextBlock>(WidgetTree->FindWidget(FName("Title")));
 
 	// Get the widget switcher
 	WidgetSwitcher = Cast<UWidgetSwitcher>(WidgetTree->FindWidget(FName("HUDSwitcher")));
@@ -58,8 +62,12 @@ void UMasterHUD::HighlightBox(const int32 Index)
 		{
 			const auto Background = Cast<UImage>(MainBox->WidgetTree->FindWidget("BGImage"));
 			Background->SetColorAndOpacity(Green);
+
+			HUDOptions->SetVisibility(ESlateVisibility::Hidden);
+			Title->SetVisibility(ESlateVisibility::Hidden);
+
+			return;
 		}
-		break;
 		
 		case 3:
 		{
@@ -74,6 +82,9 @@ void UMasterHUD::HighlightBox(const int32 Index)
 		default:
 		break;
 	}
+
+	HUDOptions->SetVisibility(ESlateVisibility::Visible);
+	Title->SetVisibility(ESlateVisibility::Visible);
 
 	SetVisibility(ESlateVisibility::Visible);
 }

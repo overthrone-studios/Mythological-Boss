@@ -40,4 +40,7 @@ protected:
 	UUserWidget* BossDebugBox;
 	UUserWidget* MainBox;
 	UUserWidget* NoHUDBox;
+
+	UPanelWidget* HUDOptions;
+	class UTextBlock* Title;
 };
