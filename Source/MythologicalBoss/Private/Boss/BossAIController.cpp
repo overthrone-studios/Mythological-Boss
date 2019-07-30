@@ -33,7 +33,7 @@ void ABossAIController::Possess(APawn* InPawn)
 		BlackBoardComponent->InitializeBlackboard(*Mordath->GetBT()->BlackboardAsset);
 
 		// Set blackboard key values
-		//BlackBoardComponent->SetValue<UBlackboardKeyType_Vector>(FName("PlayerLocation"), GameInstance->PlayerLocation);
+		BlackBoardComponent->SetValue<UBlackboardKeyType_Object>(FName("SelfActor"), Mordath);
 
 		BehaviourTreeComponent->StartTree(*Mordath->GetBT());
 	}
