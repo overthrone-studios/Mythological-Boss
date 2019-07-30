@@ -15,6 +15,9 @@ public:
 
 	class UBehaviorTree* GetBT() const { return BossBT; }
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		class UFSM* GetFSM() const { return BossStateMachine; }
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;

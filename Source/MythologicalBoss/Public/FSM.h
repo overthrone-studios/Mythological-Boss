@@ -42,19 +42,30 @@ class MYTHOLOGICALBOSS_API UFSM : public UActorComponent
 public:	
 	UFSM();
 
-	void InitState(int32 StateID);
-	void InitState(const FName& StateName);
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void InitState(int32 StateID);
+		void InitState(const FName& StateName);
 
-	void AddState(int32 ID, const FName& StateName);
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void AddState(int32 ID, const FName& StateName);
 
 	void PopState();
-	void PushState(int32 StateID);
-	void PushState(const FName& StateName);
-	void PopState(int32 StateID);
-	void PopState(const FName& StateName);
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void PushState(int32 StateID);
+		void PushState(const FName& StateName);
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void PopState(int32 StateID);
+		void PopState(const FName& StateName);
 
 	FORCEINLINE TArray<FState> GetAllStates() const { return States; }
-	FORCEINLINE int32 GetStatesCount() const { return States.Num(); }
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		FORCEINLINE int32 GetStateCount() const { return States.Num(); }
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		FORCEINLINE int32 GetStateCountInStack() const { return Stack.Num(); }
 
 	FState* GetState(int32 StateID);
 	FState* GetState(const FName& StateName);
@@ -62,9 +73,17 @@ public:
 	FState* GetStateInStack(const FName& StateName);
 
 	FState* GetActiveState() const;
-	int32 GetActiveStateID() const;
-	FName GetActiveStateName() const;
-	float GetActiveStateUptime() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		int32 GetActiveStateID() const;
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		FName GetActiveStateName() const;
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		float GetActiveStateUptime() const;
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		bool DoesStateExistInStack(int32 StateID);
+		bool DoesStateExistInStack(const FName& StateName);
 
 protected:
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -73,5 +92,5 @@ protected:
 
 	TArray<FState> States;
 
-	bool bHasFSMInitialized;
+	bool bHasFSMInitialized{};
 };

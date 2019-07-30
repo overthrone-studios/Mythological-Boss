@@ -74,6 +74,9 @@ void UFSM::PopState()
 
 void UFSM::PushState(const int32 StateID)
 {
+	if (DoesStateExistInStack(StateID))
+		return;
+
 	for (FState& State : States)
 	{
 		if (State.ID == StateID)
@@ -92,6 +95,9 @@ void UFSM::PushState(const int32 StateID)
 
 void UFSM::PushState(const FName& StateName)
 {
+	if (DoesStateExistInStack(StateName))
+		return;
+
 	for (FState& State : States)
 	{
 		if (State.Name == StateName)
@@ -222,4 +228,24 @@ FName UFSM::GetActiveStateName() const
 float UFSM::GetActiveStateUptime() const
 {
 	return Stack[0]->Uptime;
+}
+
+bool UFSM::DoesStateExistInStack(const int32 StateID)
+{
+	for (FState* State : Stack)
+	{
+		return State->ID == StateID;
+	}
+
+	return false;
+}
+
+bool UFSM::DoesStateExistInStack(const FName& StateName)
+{
+	for (FState* State : Stack)
+	{
+		return State->Name == StateName;
+	}
+
+	return false;
 }

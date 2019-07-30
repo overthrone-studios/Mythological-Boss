@@ -178,6 +178,9 @@ void AMordath::SendInfo()
 void AMordath::OnEnterIdleState()
 {
 	//FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+		BossStateMachine->PushState("Walk");
 }
 
 void AMordath::UpdateIdleState()
@@ -192,61 +195,101 @@ void AMordath::OnExitIdleState()
 
 void AMordath::OnEnterWalkState()
 {
+	//AnimInstance->bIsWalking = true;
 }
 
 void AMordath::UpdateWalkState()
 {
+	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+		BossStateMachine->PopState("Walk");
 }
 
 void AMordath::OnExitWalkState()
 {
+	//AnimInstance->bIsWalking = false;
 }
 
 void AMordath::OnEnterRunState()
 {
+	MovementComponent->MaxWalkSpeed = RunSpeed;
+	//AnimInstance->bIsRunning = true;
 }
 
 void AMordath::UpdateRunState()
 {
+	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed)
+		BossStateMachine->PopState();
 }
 
 void AMordath::OnExitRunState()
 {
+	MovementComponent->MaxWalkSpeed = WalkSpeed;
+	//AnimInstance->bIsRunning = false;
 }
 
 void AMordath::OnEnterLightAttack1State()
 {
+	ULog::LogDebugMessage(INFO, FString("Entered Light Attack 1 state"), true);
+
+	//AnimInstance->bAcceptLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack1State()
 {
+	ULog::LogDebugMessage(INFO, FString("Light Attack 1 : ") + FString::SanitizeFloat(BossStateMachine->GetActiveStateUptime()), true);
+
+	// If attack animation has finished, go back to previous state
+	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	//if (TimeRemaining <= 0.1f)
+	//	BossStateMachine->PopState();
 }
 
 void AMordath::OnExitLightAttack1State()
 {
+	ULog::LogDebugMessage(INFO, FString("Exited Light Attack 1 state"), true);
+
+	//AnimInstance->bAcceptLightAttack = false;
 }
 
 void AMordath::OnEnterLightAttack2State()
 {
+	//AnimInstance->bAcceptSecondLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack2State()
 {
+	// If attack animation has finished, go back to previous state
+	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	//if (TimeRemaining <= 0.1f)
+	//	BossStateMachine->PopState();
 }
 
 void AMordath::OnExitLightAttack2State()
 {
+	//AnimInstance->bAcceptSecondLightAttack = false;
 }
 
 void AMordath::OnEnterLightAttack3State()
 {
+	//AnimInstance->bAcceptThirdLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack3State()
 {
+	// If attack animation has finished, go back to previous state
+	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	//if (TimeRemaining <= 0.1f)
+	//	BossStateMachine->PopState();
 }
 
 void AMordath::OnExitLightAttack3State()
 {
+	//AnimInstance->bAcceptThirdLightAttack = false;
 }
 
