@@ -849,7 +849,7 @@ void AYlva::UpdateDeathState()
 	{
 		PlayerStateMachine->PopState();
 
-		UGameplayStatics::OpenLevel(this, FName("Arena_Dev"));
+		UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
 	}
 }
 
