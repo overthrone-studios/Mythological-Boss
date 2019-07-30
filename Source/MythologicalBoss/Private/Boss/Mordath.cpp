@@ -342,7 +342,7 @@ void AMordath::OnEnterDeathState()
 
 void AMordath::UpdateDeathState()
 {
-	// If attack animation has finished, go back to previous state
+	// If death animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
