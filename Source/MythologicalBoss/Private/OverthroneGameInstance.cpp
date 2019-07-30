@@ -5,6 +5,7 @@
 #include "LockOn.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
+#include "Log.h"
 
 UOverthroneGameInstance::UOverthroneGameInstance()
 {
@@ -63,15 +64,24 @@ void UOverthroneGameInstance::InitInstance()
 
 void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) const
 {
-	LockOn->SetActorLocation(LockOnLocation);
+	if (LockOn)
+		LockOn->SetActorLocation(LockOnLocation);
+	else
+		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }
 
 void UOverthroneGameInstance::SetLockOnRotation(const FRotator& LockOnRotation) const
 {
-	LockOn->SetActorRotation(LockOnRotation);
+	if (LockOn)
+		LockOn->SetActorRotation(LockOnRotation);
+	else
+		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }
 
 void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
 {
-	LockOn->SetActorHiddenInGame(bIsVisible);
+	if (LockOn)
+		LockOn->SetActorHiddenInGame(bIsVisible);
+	else
+		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }
