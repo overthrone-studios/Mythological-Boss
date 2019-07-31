@@ -19,6 +19,8 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "FSM.h"
 #include "Log.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
 
 AMordath::AMordath()
 {
@@ -134,6 +136,8 @@ void AMordath::BeginPlay()
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	OverthroneHUD->Init();
 
+	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+
 	PlayerHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
 
 	// Cache our anim instance
@@ -155,6 +159,7 @@ void AMordath::BeginPlay()
 void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 
@@ -187,6 +192,18 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	return DamageAmount;
 }
 
+FRotator AMordath::FacePlayer()
+{
+	const FVector Target = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), PlayerCharacter->GetActorLocation());
+	const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target.Rotation(), World->DeltaTimeSeconds, 20.0f);
+
+	const FRotator NewRotation = FRotator(GetControlRotation().Pitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
+
+	SetActorRotation(NewRotation);
+
+	return Target.Rotation();
+}
+
 void AMordath::SendInfo()
 {
 	GameInstance->BossHealth = Health;
@@ -195,20 +212,20 @@ void AMordath::SendInfo()
 
 void AMordath::OnEnterIdleState()
 {
-	//FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
-
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		BossStateMachine->PushState("Walk");
 }
 
 void AMordath::UpdateIdleState()
 {
-	//FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	ULog::LogDebugMessage(INFO, "Idle state", true);
+
+	if (GetDistanceToPlayer() > 200.0f)
+		BossStateMachine->PushState("Walk");
 }
 
 void AMordath::OnExitIdleState()
 {
-	//FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
 }
 
 void AMordath::OnEnterWalkState()
@@ -218,8 +235,39 @@ void AMordath::OnEnterWalkState()
 
 void AMordath::UpdateWalkState()
 {
-	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		BossStateMachine->PopState("Walk");
+	ULog::LogDebugMessage(INFO, "Walk state", true);
+
+	// Check for destructible objects and destroy them
+	if (DestroyDestructibleObjects())
+	{
+		return;
+	}
+
+	switch (BossAIController->MoveToActor(PlayerCharacter, 200.0f))
+	{
+	case EPathFollowingRequestResult::RequestSuccessful:
+		if (GetDistanceToPlayer() <= 400.0f)
+		{
+			BossStateMachine->PushState(3);
+		}
+		else if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+		{
+			BossStateMachine->PopState();
+		}
+		break;
+
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+	{
+		const FRotator TargetRotation = FacePlayer();
+
+		if (GetActorRotation().Equals(TargetRotation, 50.0f))
+			BossStateMachine->PushState(3);
+	}
+	break;
+
+	default:
+		break;
+	}
 }
 
 void AMordath::OnExitWalkState()
@@ -253,11 +301,11 @@ void AMordath::OnEnterLightAttack1State()
 void AMordath::UpdateLightAttack1State()
 {
 	// If attack animation has finished, go back to previous state
-	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	//if (TimeRemaining <= 0.1f)
-	//	BossStateMachine->PopState();
+	if (TimeRemaining <= 0.2f)
+		BossStateMachine->PopState();
 }
 
 void AMordath::OnExitLightAttack1State()
@@ -272,12 +320,7 @@ void AMordath::OnEnterLightAttack2State()
 
 void AMordath::UpdateLightAttack2State()
 {
-	// If attack animation has finished, go back to previous state
-	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	//if (TimeRemaining <= 0.1f)
-	//	BossStateMachine->PopState();
 }
 
 void AMordath::OnExitLightAttack2State()
@@ -353,3 +396,28 @@ void AMordath::OnExitDeathState()
 	AnimInstance->bIsDead = false;
 }
 
+float AMordath::GetDistanceToPlayer() const
+{
+	return FVector::Dist(GetActorLocation(), UGameplayStatics::GetPlayerCharacter(this, 0)->GetActorLocation());
+}
+
+bool AMordath::DestroyDestructibleObjects()
+{
+	FHitResult HitResult;
+	FCollisionObjectQueryParams CollisionObjectQueryParams;
+	CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Destructible);
+
+	const FVector Start = GetActorLocation() - FVector(0.0f, 0.0f, 100);
+	FVector End = GetActorLocation() + GetActorForwardVector() * 300.0f;
+	End.Z = Start.Z;
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 3.0f);
+
+	if (GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, CollisionObjectQueryParams))
+	{
+		BossStateMachine->PushState(3);
+		return true;
+	}
+
+	return false;
+}

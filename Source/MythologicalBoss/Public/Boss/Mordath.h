@@ -34,7 +34,9 @@ protected:
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	FRotator FacePlayer();
 	void SendInfo();
+	bool DestroyDestructibleObjects();
 
 	#pragma region Idle
 	UFUNCTION()
@@ -108,6 +110,9 @@ protected:
 		void OnExitDeathState();
 	#pragma endregion 
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		float GetDistanceToPlayer() const;
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
@@ -178,4 +183,7 @@ protected:
 	UAnimationAsset* HitAnimation{};
 
 	FTimerHandle UpdateInfoTimerHandle;
+
+private:
+	ACharacter* PlayerCharacter;
 };
