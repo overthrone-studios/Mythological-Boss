@@ -407,7 +407,7 @@ bool AMordath::DestroyDestructibleObjects()
 	FCollisionObjectQueryParams CollisionObjectQueryParams;
 	CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Destructible);
 
-	const FVector Start = GetActorLocation() - FVector(0.0f, 0.0f, 100);
+	const FVector Start = GetActorLocation() - FVector(0.0f, 0.0f, 150);
 	FVector End = GetActorLocation() + GetActorForwardVector() * 300.0f;
 	End.Z = Start.Z;
 

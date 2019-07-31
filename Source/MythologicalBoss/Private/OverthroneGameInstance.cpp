@@ -66,22 +66,16 @@ void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) c
 {
 	if (LockOn)
 		LockOn->SetActorLocation(LockOnLocation);
-	else
-		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }
 
 void UOverthroneGameInstance::SetLockOnRotation(const FRotator& LockOnRotation) const
 {
 	if (LockOn)
 		LockOn->SetActorRotation(LockOnRotation);
-	else
-		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }
 
 void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
 {
 	if (LockOn)
 		LockOn->SetActorHiddenInGame(!bIsVisible);
-	else
-		ULog::LogDebugMessage(WARNING, FString("LockOn actor does not exist in the world"), true);
 }
