@@ -54,8 +54,7 @@ AMordath::AMordath()
 	// Create a FSM
 	BossStateMachine = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
 	BossStateMachine->AddState(0, "Idle");
-	BossStateMachine->AddState(1, "Walk");
-	BossStateMachine->AddState(2, "Run");
+	BossStateMachine->AddState(1, "Follow");
 	BossStateMachine->AddState(3, "Light Attack 1");
 	BossStateMachine->AddState(4, "Light Attack 2");
 	BossStateMachine->AddState(5, "Light Attack 3");
@@ -73,13 +72,9 @@ AMordath::AMordath()
 	BossStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateIdleState);
 	BossStateMachine->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitIdleState);
 
-	BossStateMachine->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterWalkState);
-	BossStateMachine->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateWalkState);
-	BossStateMachine->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitWalkState);
-
-	BossStateMachine->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRunState);
-	BossStateMachine->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRunState);
-	BossStateMachine->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitRunState);
+	BossStateMachine->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFollowState);
+	BossStateMachine->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFollowState);
+	BossStateMachine->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitFollowState);
 
 	BossStateMachine->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack1State);
 	BossStateMachine->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack1State);
@@ -186,7 +181,8 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		Health -= DamageAmount;
 		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
 	}
-	else if (Health <= 0.0f)
+
+	if (Health <= 0.0f)
 	{
 		BossStateMachine->PushState("Death");
 	}
@@ -215,7 +211,7 @@ void AMordath::SendInfo()
 void AMordath::OnEnterIdleState()
 {
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		BossStateMachine->PushState("Walk");
+		BossStateMachine->PushState("Follow");
 }
 
 void AMordath::UpdateIdleState()
@@ -223,19 +219,19 @@ void AMordath::UpdateIdleState()
 	ULog::LogDebugMessage(INFO, "Idle state", true);
 
 	if (GetDistanceToPlayer() > 200.0f)
-		BossStateMachine->PushState("Walk");
+		BossStateMachine->PushState("Follow");
 }
 
 void AMordath::OnExitIdleState()
 {
 }
 
-void AMordath::OnEnterWalkState()
+void AMordath::OnEnterFollowState()
 {
 	AnimInstance->bIsWalking = true;
 }
 
-void AMordath::UpdateWalkState()
+void AMordath::UpdateFollowState()
 {
 	// Check for destructible objects and destroy them
 	if (ShouldDestroyDestructibleObjects())
@@ -272,27 +268,9 @@ void AMordath::UpdateWalkState()
 	}
 }
 
-void AMordath::OnExitWalkState()
+void AMordath::OnExitFollowState()
 {
 	AnimInstance->bIsWalking = false;
-}
-
-void AMordath::OnEnterRunState()
-{
-	MovementComponent->MaxWalkSpeed = RunSpeed;
-	AnimInstance->bIsRunning = true;
-}
-
-void AMordath::UpdateRunState()
-{
-	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed)
-		BossStateMachine->PopState();
-}
-
-void AMordath::OnExitRunState()
-{
-	MovementComponent->MaxWalkSpeed = WalkSpeed;
-	AnimInstance->bIsRunning = false;
 }
 
 void AMordath::OnEnterLightAttack1State()
@@ -337,12 +315,7 @@ void AMordath::OnEnterLightAttack3State()
 
 void AMordath::UpdateLightAttack3State()
 {
-	// If attack animation has finished, go back to previous state
-	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	//if (TimeRemaining <= 0.1f)
-	//	BossStateMachine->PopState();
 }
 
 void AMordath::OnExitLightAttack3State()

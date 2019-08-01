@@ -216,7 +216,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	// Crash if we don't have a valid Input component
 	check(PlayerInputComponent);
-	
+
 	// Set up game-play key bindings
 	PlayerInputComponent->BindAxis("MoveForward", this, &AYlva::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AYlva::MoveRight);
@@ -279,7 +279,7 @@ void AYlva::MoveRight(const float Value)
 		// Find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// Get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -329,15 +329,10 @@ void AYlva::DisableLockOn()
 	GameInstance->ToggleLockOnVisibility(false);
 }
 
-void AYlva::Landed(const FHitResult& Hit)
-{
-	Super::Landed(Hit);
-
-}
-
 void AYlva::Block()
-{	
+{
 	if (PlayerStateMachine->GetActiveStateID() != 7 /*Fall*/ &&
+		PlayerStateMachine->GetActiveStateID() != 5 /*Death*/ &&
 		PlayerStateMachine->GetActiveStateID() != 3 /* Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /* Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /* Heavy Attack 1*/ &&
@@ -461,7 +456,7 @@ void AYlva::Run()
 void AYlva::StopRunning()
 {
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
-	
+
 	PlayerStateMachine->PopState("Run");
 }
 
@@ -636,7 +631,7 @@ void AYlva::OnEnterBlockingState()
 void AYlva::UpdateBlockingState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-		
+
 	if (GetVelocity().Z < 0.0f)
 	{
 		PlayerStateMachine->PopState("Block");
@@ -902,7 +897,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		else
 		{
 			PlayerStateMachine->PushState("Damaged");
-			
+
 			Health -= DamageAmount;
 		}
 

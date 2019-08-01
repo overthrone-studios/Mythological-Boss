@@ -47,22 +47,13 @@ protected:
 		void OnExitIdleState();
 	#pragma endregion 
 
-	#pragma region Walk
+	#pragma region Follow
 	UFUNCTION()
-		void OnEnterWalkState();
+		void OnEnterFollowState();
 	UFUNCTION()
-		void UpdateWalkState();
+		void UpdateFollowState();
 	UFUNCTION()
-		void OnExitWalkState();
-	#pragma endregion 
-
-	#pragma region Run
-	UFUNCTION()
-		void OnEnterRunState();
-	UFUNCTION()
-		void UpdateRunState();
-	UFUNCTION()
-		void OnExitRunState();
+		void OnExitFollowState();
 	#pragma endregion 
 
 	#pragma region Light Attack 1

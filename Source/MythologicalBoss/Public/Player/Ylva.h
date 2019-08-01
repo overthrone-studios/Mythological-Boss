@@ -45,8 +45,6 @@ protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 
-	void Landed(const FHitResult& Hit) override;
-
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -56,14 +54,14 @@ protected:
 	// Called for side to side/strafing input
 	void MoveRight(float Value);
 
-	/** 
-	 * Called via input to turn at a given rate. 
+	/**
+	 * Called via input to turn at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void TurnAtRate(float Rate);
 
 	/**
-	 * Called via input to turn look up/down at a given rate. 
+	 * Called via input to turn look up/down at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
@@ -216,7 +214,7 @@ protected:
 	UFUNCTION()
 		void OnExitDeathState();
 	#pragma endregion 
-	
+
 	#pragma region Shield Hit
 	UFUNCTION()
 		void OnEnterShieldHitState();
@@ -231,7 +229,7 @@ protected:
 
 	UFUNCTION()
 		void OnBossDeath();
-	
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
@@ -268,11 +266,11 @@ protected:
 		float StaminaRegenerationRate = 10.0f;
 
 	// The maximum movement speed while walking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float WalkSpeed = 300.0f;
 
 	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float RunSpeed = 600.0f;
 
 	// The maximum movement speed while running
@@ -288,19 +286,19 @@ protected:
 		float LockOnPitch = 350.0f;
 
 	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float LightAttackDamage = 50.0f;
 
 	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float HeavyAttackDamage = 100.0f;
 
 	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float AttackDistance = 100.0f;
 
 	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin=10.0f, ClampMax=1000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
 		float AttackRadius = 10.0f;
 
 	// The stamina value to subtract when light attacking
