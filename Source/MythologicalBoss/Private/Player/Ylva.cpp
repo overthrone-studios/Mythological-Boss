@@ -880,7 +880,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 {
 	ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
 
-	if (Health > 0.0f)
+	if (Health > 0.0f && !AnimInstance->bIsHit)
 	{
 		if (PlayerStateMachine->GetActiveStateName() != "Idle" &&
 			PlayerStateMachine->GetActiveStateName() != "Block")

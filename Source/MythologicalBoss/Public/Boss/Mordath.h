@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "Combat/ComboData.h"
 #include "Mordath.generated.h"
 
 UCLASS()
@@ -37,6 +38,8 @@ protected:
 	FRotator FacePlayer();
 	void SendInfo();
 	bool ShouldDestroyDestructibleObjects();
+
+	void ChooseCombo();
 
 	#pragma region Idle
 	UFUNCTION()
@@ -130,6 +133,9 @@ protected:
 	// The maximum movement speed while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float RunSpeed = 600.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		TArray<UComboData*> Combos;
 
 	// The amount of time in seconds this boss should be stunned for
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
