@@ -17,6 +17,8 @@
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "ApexDestruction/Public/DestructibleComponent.h"
+#include "ApexDestruction/Public/DestructibleActor.h"
 #include "FSM.h"
 #include "Log.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -235,11 +237,11 @@ void AMordath::OnEnterWalkState()
 
 void AMordath::UpdateWalkState()
 {
-	ULog::LogDebugMessage(INFO, "Walk state", true);
-
 	// Check for destructible objects and destroy them
-	if (DestroyDestructibleObjects())
+	if (ShouldDestroyDestructibleObjects())
 	{
+		BossAIController->StopMovement();
+		BossStateMachine->PushState(3);
 		return;
 	}
 
@@ -401,23 +403,17 @@ float AMordath::GetDistanceToPlayer() const
 	return FVector::Dist(GetActorLocation(), UGameplayStatics::GetPlayerCharacter(this, 0)->GetActorLocation());
 }
 
-bool AMordath::DestroyDestructibleObjects()
+bool AMordath::ShouldDestroyDestructibleObjects()
 {
 	FHitResult HitResult;
 	FCollisionObjectQueryParams CollisionObjectQueryParams;
 	CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Destructible);
 
-	const FVector Start = GetActorLocation() - FVector(0.0f, 0.0f, 150);
-	FVector End = GetActorLocation() + GetActorForwardVector() * 300.0f;
+	const FVector Start = GetActorLocation() - FVector(0.0f, 0.0f, 100);
+	FVector End = GetActorLocation() + GetActorForwardVector() * BoxDetectionDistance;
 	End.Z = Start.Z;
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 3.0f);
 
-	if (GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, CollisionObjectQueryParams))
-	{
-		BossStateMachine->PushState(3);
-		return true;
-	}
-
-	return false;
+	return GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, CollisionObjectQueryParams);
 }
