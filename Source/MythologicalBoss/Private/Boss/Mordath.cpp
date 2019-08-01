@@ -171,7 +171,7 @@ void AMordath::PossessedBy(AController* NewController)
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Health > 0.0f)
+	if (Health > 0.0f && !AnimInstance->bIsHit)
 	{
 		if (BossStateMachine->GetActiveStateName() != "Idle")
 			BossStateMachine->PopState();
@@ -246,6 +246,8 @@ void AMordath::UpdateFollowState()
 	case EPathFollowingRequestResult::RequestSuccessful:
 		if (GetDistanceToPlayer() <= 400.0f)
 		{
+			ChooseCombo();
+
 			BossStateMachine->PushState(3);
 		}
 		else if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
@@ -389,4 +391,9 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 3.0f);
 
 	return GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, CollisionObjectQueryParams);
+}
+
+void AMordath::ChooseCombo()
+{
+
 }
