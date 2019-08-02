@@ -185,6 +185,10 @@ protected:
 
 	FTimerHandle UpdateInfoTimerHandle;
 
+	UComboData* ChosenCombo;
+
+	EAttackType_Combo CurrentAttack;
+
 private:
 	ACharacter* PlayerCharacter;
 };

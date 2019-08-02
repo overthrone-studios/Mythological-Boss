@@ -93,7 +93,7 @@ void UFSM::PushState(const int32 StateID)
 		}
 	}
 
-	ULog::LogDebugMessage(WARNING, FString("PushState: State does not exist"), true);
+	ULog::LogDebugMessage(WARNING, FString("PushState: State " + FString::FromInt(StateID) + " does not exist"), true);
 }
 
 void UFSM::PushState(const FName& StateName)
@@ -114,7 +114,7 @@ void UFSM::PushState(const FName& StateName)
 		}
 	}
 
-	ULog::LogDebugMessage(WARNING, FString("PushState: State does not exist"), true);
+	ULog::LogDebugMessage(WARNING, FString("PushState: State " + StateName.ToString() + " does not exist"), true);
 }
 
 void UFSM::PopState(const int32 StateID)

@@ -18,6 +18,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ConstructorHelpers.h"
+#include "TimerManager.h"
 #include "FSM.h"
 #include "Log.h"
 
@@ -461,6 +462,9 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
+	if (PlayerStateMachine->GetActiveStateName() == "Death")
+		return;
+
 	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
 	{
 		// Do the dash
@@ -510,6 +514,17 @@ void AYlva::RegenerateStamina(const float Rate)
 		Stamina += Rate * World->DeltaTimeSeconds;
 		GameInstance->PlayerStamina = Stamina;
 	}
+}
+
+void AYlva::Respawn()
+{
+	GetWorldTimerManager().ClearTimer(DeathStateExpiryTimer);
+
+	ULog::LogDebugMessage(INFO, "Respawned", true);
+
+	PlayerStateMachine->PopState();
+
+	UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
 }
 
 #pragma region Idle
@@ -831,20 +846,13 @@ void AYlva::OnEnterDeathState()
 	AnimInstance->bIsDead = true;
 
 	MovementComponent->DisableMovement();
+
+	GetWorldTimerManager().SetTimer(DeathStateExpiryTimer, this, &AYlva::Respawn, 1.8f);
 }
 
 void AYlva::UpdateDeathState()
 {
-	// If death animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	if (TimeRemaining <= 0.1f)
-	{
-		PlayerStateMachine->PopState();
-
-		UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
-	}
 }
 
 void AYlva::OnExitDeathState()
@@ -903,7 +911,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		GameInstance->PlayerHealth = Health;
 	}
 
-	if (Health <= 0.0f)
+	if (Health <= 0.0f && PlayerStateMachine->GetActiveStateName() != "Death")
 	{
 		PlayerStateMachine->PopState();
 

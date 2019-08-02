@@ -150,6 +150,8 @@ void AMordath::BeginPlay()
 	BossStateMachine->InitState(0);
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
+
+	ChooseCombo();
 }
 
 void AMordath::Tick(const float DeltaTime)
@@ -243,13 +245,27 @@ void AMordath::UpdateFollowState()
 	switch (BossAIController->MoveToActor(PlayerCharacter, 200.0f))
 	{
 	case EPathFollowingRequestResult::RequestSuccessful:
+
+		// If we are in range
 		if (GetDistanceToPlayer() <= 400.0f)
 		{
-			ChooseCombo();
+			switch (CurrentAttack)
+			{
+			case LightAttack_1:
+				BossStateMachine->PushState("Light Attack 1");
+				break;
 
-			BossStateMachine->PushState(3);
+			case LightAttack_2:
+				BossStateMachine->PushState("Light Attack 2");
+				break;
+
+			case LightAttack_3:
+				BossStateMachine->PushState("Light Attack 3");
+				break;
+			}
 		}
-		else if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+
+		if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		{
 			BossStateMachine->PopState();
 		}
@@ -277,16 +293,46 @@ void AMordath::OnExitFollowState()
 void AMordath::OnEnterLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = true;
+	CurrentAttack = LightAttack_1;
 }
 
 void AMordath::UpdateLightAttack1State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	if (TimeRemaining <= 0.2f)
+	if (TimeRemaining <= 0.4f)
+	{
 		BossStateMachine->PopState();
+
+		// If we are out of range
+		if (GetDistanceToPlayer() > 400.0f)
+		{
+			CurrentAttack = LightAttack_2; 
+			return;
+		}
+
+		switch (ChosenCombo->SecondAttack)
+		{
+		case LightAttack_1:
+			BossStateMachine->PushState("Light Attack 1");
+			break;
+
+		case LightAttack_2:
+			BossStateMachine->PushState("Light Attack 2");
+			break;
+
+		case LightAttack_3:
+			BossStateMachine->PushState("Light Attack 3");
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 void AMordath::OnExitLightAttack1State()
@@ -297,11 +343,46 @@ void AMordath::OnExitLightAttack1State()
 void AMordath::OnEnterLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = true;
+	CurrentAttack = LightAttack_2;
 }
 
 void AMordath::UpdateLightAttack2State()
 {
+	FacePlayer();
 
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.7f)
+	{
+		BossStateMachine->PopState();
+
+		// If we are out of range
+		if (GetDistanceToPlayer() > 400.0f)
+		{
+			CurrentAttack = LightAttack_3;
+			return;
+		}
+
+		switch (ChosenCombo->ThirdAttack)
+		{
+		case LightAttack_1:
+			BossStateMachine->PushState("Light Attack 1");
+			break;
+
+		case LightAttack_2:
+			BossStateMachine->PushState("Light Attack 2");
+			break;
+
+		case LightAttack_3:
+			BossStateMachine->PushState("Light Attack 3");
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 void AMordath::OnExitLightAttack2State()
@@ -312,11 +393,23 @@ void AMordath::OnExitLightAttack2State()
 void AMordath::OnEnterLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = true;
+	CurrentAttack = LightAttack_3;
 }
 
 void AMordath::UpdateLightAttack3State()
 {
+	FacePlayer();
 
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.2f)
+	{
+		BossStateMachine->PopState();
+
+		ChooseCombo();
+	}
 }
 
 void AMordath::OnExitLightAttack3State()
@@ -394,5 +487,20 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 
 void AMordath::ChooseCombo()
 {
+	const int32 Index = FMath::RandRange(0, Combos.Num()-1);
 
+	if (Combos.Num() > 0)
+	{
+		// If the combo data asset is valid at 'Index'
+		if (Combos[Index])
+		{
+			ChosenCombo = Combos[Index];
+			
+			CurrentAttack = ChosenCombo->FirstAttack;
+
+			return;
+		}
+		
+		ChooseCombo();
+	}
 }

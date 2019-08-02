@@ -113,7 +113,11 @@ protected:
 	// Called via input to pause the game
 	void Pause();
 
+	// Called every frame
 	void RegenerateStamina(float Rate);
+
+	// Called when the player is killed (Health <= 0)
+	void Respawn();
 
 	// Player states
 	#pragma region Idle
@@ -347,4 +351,5 @@ protected:
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
 	FTimerHandle StaminaRegenerationTrigger;
+	FTimerHandle DeathStateExpiryTimer;
 };
