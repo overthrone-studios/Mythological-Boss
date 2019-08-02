@@ -461,7 +461,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
+	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
 	{
 		// Do the dash
 		FVector VelocityNormalized = GetVelocity();
