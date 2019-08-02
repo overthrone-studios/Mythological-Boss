@@ -172,7 +172,6 @@ void AYlva::BeginPlay()
 
 	// Cache the player HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-	OverthroneHUD->Init();
 
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->InitInstance();
@@ -462,7 +461,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
+	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
 	{
 		// Do the dash
 		FVector VelocityNormalized = GetVelocity();

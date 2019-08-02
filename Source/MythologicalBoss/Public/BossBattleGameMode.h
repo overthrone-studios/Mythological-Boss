@@ -15,5 +15,7 @@ class MYTHOLOGICALBOSS_API ABossBattleGameMode final : public AGameModeBase
 	
 public:
 	ABossBattleGameMode();
-	
+
+protected:
+	void BeginPlay() override;
 };

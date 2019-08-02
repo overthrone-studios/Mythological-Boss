@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
 #include "Log.h"
+#include "OverthroneHUD.h"
 
 UOverthroneGameInstance::UOverthroneGameInstance()
 {
@@ -79,3 +80,4 @@ void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) cons
 	if (LockOn)
 		LockOn->SetActorHiddenInGame(!bIsVisible);
 }
+

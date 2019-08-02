@@ -131,7 +131,6 @@ void AMordath::BeginPlay()
 
 	// Cache the Overthrone HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-	OverthroneHUD->Init();
 
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 

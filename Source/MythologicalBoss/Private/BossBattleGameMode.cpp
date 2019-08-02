@@ -3,17 +3,24 @@
 #include "Public/BossBattleGameMode.h"
 #include "Public/OverthroneHUD.h"
 #include "Player/Ylva.h"
+#include "Kismet/GameplayStatics.h"
 
 ABossBattleGameMode::ABossBattleGameMode()
 {
-	// Set default pawn class to our blueprinted character
-	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Characters/Player/ThirdPersonCharacter"));
+	DefaultPawnClass = AYlva::StaticClass();
 
-	//if (PlayerPawnBPClass.Class)
-	//{
-		DefaultPawnClass = AYlva::StaticClass();
-	//}
-
-	// Set default HUD class to our PlayerHUD
+	// Set default HUD class to our HUD
 	HUDClass = AOverthroneHUD::StaticClass();
+}
+
+void ABossBattleGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	const auto PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+	const auto OverthroneHUD = Cast<AOverthroneHUD>(PlayerController->GetHUD());
+
+	if (OverthroneHUD)
+		OverthroneHUD->Init();
 }
