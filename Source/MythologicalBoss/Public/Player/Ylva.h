@@ -290,11 +290,11 @@ protected:
 		float LockOnPitch = 350.0f;
 
 	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
 		float LightAttackDamage = 50.0f;
 
 	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
 		float HeavyAttackDamage = 100.0f;
 
 	// The attack range when attacking light or heavy
@@ -302,7 +302,7 @@ protected:
 		float AttackDistance = 100.0f;
 
 	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float AttackRadius = 10.0f;
 
 	// The stamina value to subtract when light attacking
