@@ -119,6 +119,18 @@ protected:
 	// Called when the player is killed (Health <= 0)
 	void Respawn();
 
+	// Set a new stamina value
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void SetStamina(float NewStaminaAmount); 
+
+	// Update stamina value
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void UpdateStamina(float AmountToSubtract);
+
+	// Resets stamina back to default
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ResetStamina(); 
+
 	// Player states
 	#pragma region Idle
 	UFUNCTION()
@@ -234,6 +246,15 @@ protected:
 	UFUNCTION()
 		void OnBossDeath();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void EnableGodMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DisableGodMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ToggleGodMode();
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
@@ -248,6 +269,10 @@ protected:
 	// The player's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		class UFSM* PlayerStateMachine;
+
+	// Toggle God mode?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
+		uint8 bGodMode : 1;
 
 	// The player's starting health
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))

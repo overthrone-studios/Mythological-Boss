@@ -253,6 +253,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AYlva::ShowBossFSMVisualizer);
 	PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AYlva::ShowMainHUD);
 	PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AYlva::ShowNoHUD);
+
+	PlayerInputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AYlva::ToggleGodMode);
 #endif
 }
 
@@ -444,6 +446,7 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
+	// If we are moving and grounded
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > RunStamina * World->DeltaTimeSeconds)
 	{
 		MovementComponent->MaxWalkSpeed = RunSpeed;
@@ -465,15 +468,18 @@ void AYlva::Dash()
 	if (PlayerStateMachine->GetActiveStateName() == "Death")
 		return;
 
-	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && Stamina > DashStamina)
+	// If we are moving and grounded
+	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround())
 	{
 		// Do the dash
 		FVector VelocityNormalized = GetVelocity();
 		VelocityNormalized.Normalize();
 		VelocityNormalized.Z = 0;
 
-		Stamina -= DashStamina;
-		GameInstance->PlayerStamina = Stamina;
+		if (!bGodMode && Stamina > DashStamina)
+		{
+			UpdateStamina(DashStamina);
+		}
 
 		LaunchCharacter(VelocityNormalized * DashForce, true, true);
 	}
@@ -509,6 +515,9 @@ void AYlva::Pause()
 
 void AYlva::RegenerateStamina(const float Rate)
 {
+	if (bGodMode)
+		return;
+
 	if (Stamina < StartingStamina)
 	{
 		Stamina += Rate * World->DeltaTimeSeconds;
@@ -590,8 +599,8 @@ void AYlva::UpdateRunState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
-	Stamina -= RunStamina * World->DeltaTimeSeconds;
-	GameInstance->PlayerStamina = Stamina;
+	if (!bGodMode)
+		UpdateStamina(RunStamina * World->DeltaTimeSeconds);
 
 	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed || Stamina <= RunStamina * World->DeltaTimeSeconds)
 		PlayerStateMachine->PopState();
@@ -671,13 +680,12 @@ void AYlva::OnEnterLightAttackState()
 
 	if (Stamina > 0)
 	{
-		Stamina -= LightAttackStamina;
-		GameInstance->PlayerStamina = Stamina;
+		if (!bGodMode)
+			UpdateStamina(LightAttackStamina);
 	}
 	else
 	{
-		Stamina = 0;
-		GameInstance->PlayerStamina = Stamina;
+		SetStamina(0);
 	}
 }
 
@@ -710,13 +718,12 @@ void AYlva::OnEnterLightAttack2State()
 
 	if (Stamina > 0)
 	{
-		Stamina -= LightAttackStamina;
-		GameInstance->PlayerStamina = Stamina;
+		if (!bGodMode)
+			UpdateStamina(LightAttackStamina);
 	}
 	else
 	{
-		Stamina = 0;
-		GameInstance->PlayerStamina = Stamina;
+		SetStamina(0);
 	}
 }
 
@@ -749,13 +756,12 @@ void AYlva::OnEnterHeavyAttackState()
 
 	if (Stamina > 0)
 	{
-		Stamina -= HeavyAttackStamina;
-		GameInstance->PlayerStamina = Stamina;
+		if (!bGodMode)
+			UpdateStamina(HeavyAttackStamina);
 	}
 	else
 	{
-		Stamina = 0;
-		GameInstance->PlayerStamina = Stamina;
+		SetStamina(0);
 	}
 }
 
@@ -788,13 +794,12 @@ void AYlva::OnEnterHeavyAttack2State()
 
 	if (Stamina > 0)
 	{
-		Stamina -= HeavyAttackStamina;
-		GameInstance->PlayerStamina = Stamina;
+		if (!bGodMode)
+			UpdateStamina(HeavyAttackStamina);
 	}
 	else
 	{
-		Stamina = 0;
-		GameInstance->PlayerStamina = Stamina;
+		SetStamina(0);
 	}
 }
 
@@ -885,6 +890,9 @@ void AYlva::OnExitShieldHitState()
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (bGodMode)
+		return DamageAmount;
+
 	ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
 
 	if (Health > 0.0f && !AnimInstance->bIsHit)
@@ -924,4 +932,51 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 void AYlva::OnBossDeath()
 {
 	DisableLockOn();
+}
+
+void AYlva::UpdateStamina(const float AmountToSubtract)
+{
+	Stamina -= AmountToSubtract;
+	GameInstance->PlayerStamina = Stamina;
+}
+
+void AYlva::ResetStamina()
+{
+	Stamina = StartingStamina;
+	GameInstance->PlayerStartingStamina = StartingStamina;
+	GameInstance->PlayerStamina = Stamina;
+}
+
+void AYlva::SetStamina(const float NewStaminaAmount)
+{
+	Stamina = NewStaminaAmount;
+	GameInstance->PlayerStamina = Stamina;
+}
+
+void AYlva::EnableGodMode()
+{
+	bGodMode = true;
+
+	ULog::DebugMessage(INFO, FString("God mode: On"), true);
+}
+
+void AYlva::DisableGodMode()
+{
+	bGodMode = false;
+
+	ULog::DebugMessage(INFO, FString("God mode: Off"), true);
+}
+
+void AYlva::ToggleGodMode()
+{
+	bGodMode = !bGodMode;
+
+	FString Status;
+
+	if (bGodMode)
+		Status = "On";
+	else
+		Status = "Off";
+
+	ULog::DebugMessage(INFO, FString("God mode: ") + Status, true);
 }
