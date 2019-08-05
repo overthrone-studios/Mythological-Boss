@@ -267,7 +267,7 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
 			BackButton->SetIsEnabled(false);
 
-			ULog::LogDebugMessage(INFO, Control->GetName() + FString(" is in conflict with ") + ControlToCheck->GetName(), true);
+			ULog::DebugMessage(INFO, Control->GetName() + FString(" is in conflict with ") + ControlToCheck->GetName(), true);
 
 			//RebindInputMapping(ControlToCheck, Control->GetCurrentPrimaryInput(), InputToCheck);
 			//Control->SetCurrentPrimaryInput(InputToCheck);

@@ -27,7 +27,7 @@ void AOverthroneHUD::Init()
 	}
 	else
 	{
-		ULog::LogDebugMessage(ERROR, "Failed to create the MasterHUD widget!", true);
+		ULog::DebugMessage(ERROR, "Failed to create the MasterHUD widget!", true);
 	}
 }
 

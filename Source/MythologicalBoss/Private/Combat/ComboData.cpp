@@ -8,7 +8,7 @@ void UComboData::Init()
 	AttackIndex = 0;
 	CurrentAttack = Attacks[0];
 
-	ULog::LogDebugMessage(INFO, "Current Attack: " + FString::FromInt(AttackIndex), true);
+	ULog::DebugMessage(INFO, "Current Attack: " + FString::FromInt(AttackIndex), true);
 }
 
 void UComboData::NextAttack()
@@ -21,7 +21,7 @@ void UComboData::NextAttack()
 	if (AttackIndex < Attacks.Num())
 	{
 		CurrentAttack = Attacks[AttackIndex];
-		ULog::LogDebugMessage(INFO, "Current Attack: " + FString::FromInt(AttackIndex), true);
+		ULog::DebugMessage(INFO, "Current Attack: " + FString::FromInt(AttackIndex), true);
 	}
 }
 

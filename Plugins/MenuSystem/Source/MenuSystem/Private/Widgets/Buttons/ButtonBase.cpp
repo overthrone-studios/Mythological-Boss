@@ -72,7 +72,7 @@ bool UButtonBase::IsMenuHUDNull() const
 {
 	if (!MenuHUD)
 	{
-		ULog::LogDebugMessage(ERROR, FString(GetName() + " | MenuHUD is null"), true);
+		ULog::DebugMessage(ERROR, FString(GetName() + " | MenuHUD is null"), true);
 		return true;
 	}
 
@@ -83,7 +83,7 @@ bool UButtonBase::IsMenuNull() const
 {
 	if (!Menu)
 	{
-		ULog::LogDebugMessage(ERROR, FString(GetName() + " | Menu is null"), true);
+		ULog::DebugMessage(ERROR, FString(GetName() + " | Menu is null"), true);
 		return true;
 	}
 
@@ -94,7 +94,7 @@ bool UButtonBase::IsTextWidgetNull() const
 {
 	if (!TextWidget)
 	{
-		ULog::LogDebugMessage(ERROR, FString(GetName() + " | TextWidget is null"), true);
+		ULog::DebugMessage(ERROR, FString(GetName() + " | TextWidget is null"), true);
 		return true;
 	}
 

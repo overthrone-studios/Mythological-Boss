@@ -54,7 +54,7 @@ void AMenuHUD::ShowMenu(const TSubclassOf<class UMenuBase> MenuClass)
 	}
 	else
 	{
-		ULog::LogDebugMessage(ERROR, FString("Cannot show menu because it does not exist within the master menu"), true);
+		ULog::DebugMessage(ERROR, FString("Cannot show menu because it does not exist within the master menu"), true);
 	}
 }
 
@@ -70,7 +70,7 @@ void AMenuHUD::SlideMainMenu()
 	if (Menu)
 		Cast<UMainMenu>(Menu)->SlideOut();
 	else
-		ULog::LogDebugMessage(ERROR, FString("Cannot slide menu because it does not exist within the master menu"), true);
+		ULog::DebugMessage(ERROR, FString("Cannot slide menu because it does not exist within the master menu"), true);
 }
 
 void AMenuHUD::BeginPlay()
@@ -106,7 +106,7 @@ void AMenuHUD::AddWidgetsToScreen()
 void AMenuHUD::LogWidgetFailures()
 {
 	if (!MasterMenu)
-		ULog::LogDebugMessage(ERROR, FString("Failed to create master menu widget"), true);
+		ULog::DebugMessage(ERROR, FString("Failed to create master menu widget"), true);
 }
 
 bool AMenuHUD::AllWidgetsValid()

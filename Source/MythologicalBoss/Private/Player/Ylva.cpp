@@ -42,7 +42,7 @@ AYlva::AYlva()
 		if (AnimBP.Succeeded())
 			GetMesh()->AnimClass = AnimBP.Class;
 		else
-			ULog::LogDebugMessage(ERROR, FString("AnimBP did not succeed."));
+			ULog::DebugMessage(ERROR, FString("AnimBP did not succeed."));
 	}
 
 	// Create a FSM
@@ -520,7 +520,7 @@ void AYlva::Respawn()
 {
 	GetWorldTimerManager().ClearTimer(DeathStateExpiryTimer);
 
-	ULog::LogDebugMessage(INFO, "Respawned", true);
+	ULog::DebugMessage(INFO, "Respawned", true);
 
 	PlayerStateMachine->PopState();
 
@@ -885,7 +885,7 @@ void AYlva::OnExitShieldHitState()
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
+	ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
 
 	if (Health > 0.0f && !AnimInstance->bIsHit)
 	{

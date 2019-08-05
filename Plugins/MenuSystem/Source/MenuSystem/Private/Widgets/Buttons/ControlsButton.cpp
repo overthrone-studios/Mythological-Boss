@@ -42,7 +42,7 @@ void UControlsButton::OnButtonReleased()
 		break;
 
 	default:
-		ULog::LogDebugMessage(WARNING, FString(GetName() + " | Button not implemented!"), true);
+		ULog::DebugMessage(WARNING, FString(GetName() + " | Button not implemented!"), true);
 		break;
 	}
 }

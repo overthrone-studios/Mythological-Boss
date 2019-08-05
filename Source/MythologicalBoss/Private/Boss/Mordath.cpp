@@ -29,9 +29,6 @@ AMordath::AMordath()
 	// Get our anim blueprint class
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Boss/Animations/AnimBP_Boss.AnimBP_Boss_C'"));
 
-	// Get the hit animation to use when being hit
-	HitAnimation = Cast<UAnimationAsset>(StaticLoadObject(UAnimationAsset::StaticClass(), nullptr, TEXT("AnimSequence'/Game/Characters/Boss/Animations/Boss_Damaged.Boss_Damaged'")));
-
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Boss/SKM_Boss.SKM_Boss'")));
 
@@ -46,7 +43,7 @@ AMordath::AMordath()
 		if (AnimBP.Succeeded())
 			GetMesh()->AnimClass = AnimBP.Class;
 		else
-			ULog::LogDebugMessage(ERROR, FString("AnimBP did not succeed."));
+			ULog::DebugMessage(ERROR, FString("AnimBP did not succeed."));
 	}
 
 	// Create a FSM
@@ -178,7 +175,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		BossStateMachine->PushState("Damaged");
 
 		Health -= DamageAmount;
-		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
+		ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
 	}
 
 	if (Health <= 0.0f)
@@ -215,7 +212,7 @@ void AMordath::OnEnterIdleState()
 
 void AMordath::UpdateIdleState()
 {
-	ULog::LogDebugMessage(INFO, "Idle state", true);
+	ULog::DebugMessage(INFO, "Idle state", true);
 
 	if (GetDistanceToPlayer() > 200.0f)
 		BossStateMachine->PushState("Follow");
@@ -228,6 +225,14 @@ void AMordath::OnExitIdleState()
 void AMordath::OnEnterFollowState()
 {
 	AnimInstance->bIsWalking = true;
+
+	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	{
+		if (bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+	}
 }
 
 void AMordath::UpdateFollowState()
@@ -245,25 +250,9 @@ void AMordath::UpdateFollowState()
 	case EPathFollowingRequestResult::RequestSuccessful:
 
 		// If we are in range
-		if (GetDistanceToPlayer() <= 400.0f)
+		if (GetDistanceToPlayer() <= 400.0f && bCanAttack)
 		{
-			switch (ChosenCombo->CurrentAttack)
-			{
-			case LightAttack_1:
-				BossStateMachine->PushState("Light Attack 1");
-			break;
-
-			case LightAttack_2:
-				BossStateMachine->PushState("Light Attack 2");
-			break;
-
-			case LightAttack_3:
-				BossStateMachine->PushState("Light Attack 3");
-			break;
-
-			default:
-			break;
-			}
+			ChooseAttack();
 		}
 
 		if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
@@ -272,6 +261,11 @@ void AMordath::UpdateFollowState()
 		}
 
 		break;
+
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+		if (bCanAttack)
+			ChooseAttack();
+	break;
 
 	default:
 		break;
@@ -307,9 +301,6 @@ void AMordath::UpdateLightAttack1State()
 void AMordath::OnExitLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = false;
-
-	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
 }
 
 void AMordath::OnEnterLightAttack2State()
@@ -336,9 +327,6 @@ void AMordath::UpdateLightAttack2State()
 void AMordath::OnExitLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = false;
-	
-	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
 }
 
 void AMordath::OnEnterLightAttack3State()
@@ -365,9 +353,6 @@ void AMordath::UpdateLightAttack3State()
 void AMordath::OnExitLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = false;
-
-	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
 }
 
 void AMordath::OnEnterDamagedState()
@@ -448,12 +433,54 @@ void AMordath::ChooseCombo()
 		if (Combos[Index])
 		{
 			ChosenCombo = Combos[Index];
-			ULog::LogDebugMessage(INFO, "Combo " + FString::FromInt(Index) + " chosen", true);
+			ULog::DebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
 			ChosenCombo->Init();
 		}
 		else
 		{
-			ULog::LogDebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
+			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
 		}
+
+		bCanAttack = true;
+	}
+}
+
+void AMordath::ChooseComboWithDelay()
+{
+	bCanAttack = false;
+
+	if (RandomDeviation == 0.0f)
+	{
+		GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, ComboDelayTime);
+		return;
+	}
+
+	const float Min = ComboDelayTime - RandomDeviation;
+	const float Max = ComboDelayTime + RandomDeviation;
+	const float NewDelayTime = FMath::FRandRange(Min, Max);
+				
+	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
+
+	ULog::DebugMessage(INFO, "New Delay time: " + FString::SanitizeFloat(NewDelayTime), true);
+}
+
+void AMordath::ChooseAttack()
+{
+	switch (ChosenCombo->CurrentAttack)
+	{
+		case LightAttack_1:
+			BossStateMachine->PushState("Light Attack 1");
+			break;
+
+		case LightAttack_2:
+			BossStateMachine->PushState("Light Attack 2");
+			break;
+
+		case LightAttack_3:
+			BossStateMachine->PushState("Light Attack 3");
+			break;
+
+		default:
+			break;
 	}
 }

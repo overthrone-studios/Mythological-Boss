@@ -53,6 +53,7 @@ protected:
 	#pragma region Follow
 	UFUNCTION()
 		void OnEnterFollowState();
+	void ChooseAttack();
 	UFUNCTION()
 		void UpdateFollowState();
 	UFUNCTION()
@@ -64,6 +65,7 @@ protected:
 		void OnEnterLightAttack1State();
 	UFUNCTION()
 		void UpdateLightAttack1State();
+	void ChooseComboWithDelay();
 	UFUNCTION()
 		void OnExitLightAttack1State();
 	#pragma endregion 
@@ -138,11 +140,11 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat")
 		uint8 bDelayBetweenCombo : 1;
 
-	// The time in seconds to delay before starting a new combo
+	// The time in seconds to delay before choosing a new combo
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float Delay = 0.1f;
+		float ComboDelayTime = 1.0f;
 
-	// Give or take a few seconds when delaying
+	// Adds a random range to ComboDelayTime
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
 		float RandomDeviation = 0.1f;
 
@@ -174,6 +176,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
 
+	uint8 bCanAttack : 1;
+
+
 	// Cached world pointer
 	UWorld* World{};
 
@@ -194,14 +199,11 @@ protected:
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
-	UAnimationAsset* HitAnimation{};
-
-	FTimerHandle UpdateInfoTimerHandle;
-
 	UComboData* ChosenCombo;
 
-	//uint32 CurrentAttack = 0;
-
 private:
+	FTimerHandle UpdateInfoTimerHandle;
+	FTimerHandle ComboDelayTimerHandle;
+
 	ACharacter* PlayerCharacter;
 };

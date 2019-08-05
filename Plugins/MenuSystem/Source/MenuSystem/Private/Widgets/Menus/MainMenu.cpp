@@ -25,7 +25,7 @@ void UMainMenu::SlideOut()
 {
 	if (!Slide)
 	{
-		ULog::LogDebugMessage(WARNING, FString("Slide animation has not been assigned"), true);
+		ULog::DebugMessage(WARNING, FString("Slide animation has not been assigned"), true);
 		return;
 	}
 

@@ -142,12 +142,12 @@ bool UVideoMenu::AnyUnsavedChanges()
 		// Add settings that have been changed
 		if (Setting->HasChanged())
 		{
-			ULog::LogDebugMessage(INFO, Setting->GetName() + FString(" has changed"), true);
+			ULog::DebugMessage(INFO, Setting->GetName() + FString(" has changed"), true);
 			ChangedSettings.Add(Setting);
 		}
 	}
 	
-	ULog::LogDebugMessage(INFO, FString::FromInt(ChangedSettings.Num()) + FString(" changes found"), true);
+	ULog::DebugMessage(INFO, FString::FromInt(ChangedSettings.Num()) + FString(" changes found"), true);
 
 	// Return true if at least 1 setting has been changed, otherwise return false
 	return ChangedSettings.Num() > 0;
