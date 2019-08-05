@@ -39,6 +39,7 @@ protected:
 	void SendInfo();
 	bool ShouldDestroyDestructibleObjects();
 
+	void ChooseComboWithDelay();
 	void ChooseCombo();
 
 	#pragma region Idle
@@ -65,7 +66,6 @@ protected:
 		void OnEnterLightAttack1State();
 	UFUNCTION()
 		void UpdateLightAttack1State();
-	void ChooseComboWithDelay();
 	UFUNCTION()
 		void OnExitLightAttack1State();
 	#pragma endregion 
@@ -86,6 +86,33 @@ protected:
 		void UpdateLightAttack3State();
 	UFUNCTION()
 		void OnExitLightAttack3State();
+	#pragma endregion 
+
+	#pragma region Heavy Attack 1
+	UFUNCTION()
+		void OnEnterHeavyAttack1State();
+	UFUNCTION()
+		void UpdateHeavyAttack1State();
+	UFUNCTION()
+		void OnExitHeavyAttack1State();
+	#pragma endregion 
+
+	#pragma region Heavy Attack 2
+	UFUNCTION()
+		void OnEnterHeavyAttack2State();
+	UFUNCTION()
+		void UpdateHeavyAttack2State();
+	UFUNCTION()
+		void OnExitHeavyAttack2State();
+	#pragma endregion 
+
+	#pragma region Heavy Attack 3
+	UFUNCTION()
+		void OnEnterHeavyAttack3State();
+	UFUNCTION()
+		void UpdateHeavyAttack3State();
+	UFUNCTION()
+		void OnExitHeavyAttack3State();
 	#pragma endregion 
 
 	#pragma region Damaged
@@ -178,7 +205,6 @@ protected:
 
 	uint8 bCanAttack : 1;
 
-
 	// Cached world pointer
 	UWorld* World{};
 
@@ -200,6 +226,8 @@ protected:
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
 	UComboData* ChosenCombo;
+
+	TArray<UComboData*> CachedCombos;
 
 private:
 	FTimerHandle UpdateInfoTimerHandle;

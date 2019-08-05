@@ -83,6 +83,18 @@ AMordath::AMordath()
 	BossStateMachine->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack3State);
 	BossStateMachine->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack3State);
 
+	BossStateMachine->GetState(6)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack1State);
+	BossStateMachine->GetState(6)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack1State);
+	BossStateMachine->GetState(6)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack1State);
+
+	BossStateMachine->GetState(7)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack2State);
+	BossStateMachine->GetState(7)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack2State);
+	BossStateMachine->GetState(7)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack2State);
+
+	BossStateMachine->GetState(8)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack3State);
+	BossStateMachine->GetState(8)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack3State);
+	BossStateMachine->GetState(8)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack3State);
+
 	BossStateMachine->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	BossStateMachine->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
 	BossStateMachine->GetState(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
@@ -123,6 +135,8 @@ void AMordath::BeginPlay()
 	MovementComponent = GetCharacterMovement();
 
 	Health = StartingHealth;
+
+	CachedCombos = Combos;
 
 	// Cache the Overthrone HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
@@ -360,6 +374,90 @@ void AMordath::OnExitLightAttack3State()
 	AnimInstance->bAcceptThirdLightAttack = false;
 }
 
+void AMordath::OnEnterHeavyAttack1State()
+{
+	AnimInstance->bAcceptHeavyAttack = true;
+}
+
+void AMordath::UpdateHeavyAttack1State()
+{
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	// Face the player up until a certain point in the animation
+	if (TimeRemaining > 1.5f)
+		FacePlayer();
+
+	if (TimeRemaining <= 0.2f)
+	{
+		ChosenCombo->NextAttack();
+
+		BossStateMachine->PopState();
+	}
+}
+
+void AMordath::OnExitHeavyAttack1State()
+{
+	AnimInstance->bAcceptHeavyAttack = false;
+}
+
+void AMordath::OnEnterHeavyAttack2State()
+{
+	AnimInstance->bAcceptSecondHeavyAttack = true;
+}
+
+void AMordath::UpdateHeavyAttack2State()
+{
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	// Face the player up until a certain point in the animation
+	if (TimeRemaining > 1.0f)
+		FacePlayer();
+
+	if (TimeRemaining <= 0.5f)
+	{
+		ChosenCombo->NextAttack();
+
+		BossStateMachine->PopState();
+	}
+}
+
+void AMordath::OnExitHeavyAttack2State()
+{
+	AnimInstance->bAcceptSecondHeavyAttack = false;
+}
+
+void AMordath::OnEnterHeavyAttack3State()
+{
+	AnimInstance->bAcceptThirdHeavyAttack = true;
+}
+
+void AMordath::UpdateHeavyAttack3State()
+{
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	// Face the player up until a certain point in the animation
+	if (TimeRemaining > 1.5f)
+		FacePlayer();
+
+	if (TimeRemaining <= 0.3f)
+	{
+		ChosenCombo->NextAttack();
+
+		BossStateMachine->PopState();
+	}
+}
+
+void AMordath::OnExitHeavyAttack3State()
+{
+	AnimInstance->bAcceptThirdHeavyAttack = false;
+}
+
 void AMordath::OnEnterDamagedState()
 {
 	AnimInstance->bIsHit = true;
@@ -430,16 +528,18 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 
 void AMordath::ChooseCombo()
 {
-	const int32 Index = FMath::RandRange(0, Combos.Num()-1);
+	const int32 Index = FMath::RandRange(0, CachedCombos.Num()-1);
 
-	if (Combos.Num() > 0)
+	if (CachedCombos.Num() > 0)
 	{
 		// If the combo data asset is valid at 'Index'
-		if (Combos[Index])
+		if (CachedCombos[Index])
 		{
-			ChosenCombo = Combos[Index];
+			ChosenCombo = CachedCombos[Index];
 			ULog::DebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
 			ChosenCombo->Init();
+
+			CachedCombos.Remove(ChosenCombo);
 		}
 		else
 		{
@@ -447,6 +547,11 @@ void AMordath::ChooseCombo()
 		}
 
 		bCanAttack = true;
+	}
+	else
+	{
+		CachedCombos = Combos;
+		ChooseCombo();
 	}
 }
 
@@ -475,17 +580,29 @@ void AMordath::ChooseAttack()
 	{
 		case LightAttack_1:
 			BossStateMachine->PushState("Light Attack 1");
-			break;
+		break;
 
 		case LightAttack_2:
 			BossStateMachine->PushState("Light Attack 2");
-			break;
+		break;
 
 		case LightAttack_3:
 			BossStateMachine->PushState("Light Attack 3");
-			break;
+		break;
+
+		case HeavyAttack_1:
+			BossStateMachine->PushState("Heavy Attack 1");
+		break;
+
+		case HeavyAttack_2:
+			BossStateMachine->PushState("Heavy Attack 2");
+		break;
+
+		case HeavyAttack_3:
+			BossStateMachine->PushState("Heavy Attack 3");
+		break;
 
 		default:
-			break;
+		break;
 	}
 }
