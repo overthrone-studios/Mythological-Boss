@@ -175,6 +175,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
 		float RandomDeviation = 0.1f;
 
+	// Should the boss choose a random combo from the Combos list?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat")
+		uint8 bChooseRandomCombo : 1;
+
 	// A list of combos the boss character will choose from
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
 		TArray<UComboData*> Combos;
@@ -203,6 +207,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
 
+	int8 ComboIndex = 0;
 	uint8 bCanAttack : 1;
 
 	// Cached world pointer

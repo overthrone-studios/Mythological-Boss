@@ -533,14 +533,15 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 
 void AMordath::ChooseCombo()
 {
-	const int32 Index = FMath::RandRange(0, CachedCombos.Num()-1);
+	if (bChooseRandomCombo)
+		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
 
 	if (CachedCombos.Num() > 0)
 	{
 		// If the combo data asset is valid at 'Index'
-		if (CachedCombos[Index])
+		if (CachedCombos[ComboIndex])
 		{
-			ChosenCombo = CachedCombos[Index];
+			ChosenCombo = CachedCombos[ComboIndex];
 			ULog::DebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
 			ChosenCombo->Init();
 
@@ -548,7 +549,7 @@ void AMordath::ChooseCombo()
 		}
 		else
 		{
-			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
+			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
 		}
 
 		bCanAttack = true;
@@ -556,6 +557,8 @@ void AMordath::ChooseCombo()
 	}
 	else
 	{
+		ComboIndex = 0;
+
 		CachedCombos = Combos;
 		ChooseCombo();
 	}
