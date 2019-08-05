@@ -225,6 +225,14 @@ void AMordath::OnExitIdleState()
 void AMordath::OnEnterFollowState()
 {
 	AnimInstance->bIsWalking = true;
+
+	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	{
+		if (bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+	}
 }
 
 void AMordath::UpdateFollowState()
@@ -293,14 +301,6 @@ void AMordath::UpdateLightAttack1State()
 void AMordath::OnExitLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = false;
-
-	if (ChosenCombo->IsAtLastAttack())
-	{
-		if (bDelayBetweenCombo)
-			ChooseComboWithDelay();
-		else
-			ChooseCombo();
-	}
 }
 
 void AMordath::OnEnterLightAttack2State()
@@ -327,14 +327,6 @@ void AMordath::UpdateLightAttack2State()
 void AMordath::OnExitLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = false;
-
-	if (ChosenCombo->IsAtLastAttack())
-	{
-		if (bDelayBetweenCombo)
-			ChooseComboWithDelay();
-		else
-			ChooseCombo();
-	}
 }
 
 void AMordath::OnEnterLightAttack3State()
@@ -361,14 +353,6 @@ void AMordath::UpdateLightAttack3State()
 void AMordath::OnExitLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = false;
-
-	if (ChosenCombo->IsAtLastAttack())
-	{
-		if (bDelayBetweenCombo)
-			ChooseComboWithDelay();
-		else
-			ChooseCombo();
-	}
 }
 
 void AMordath::OnEnterDamagedState()
@@ -476,7 +460,8 @@ void AMordath::ChooseComboWithDelay()
 	const float NewDelayTime = FMath::FRandRange(Min, Max);
 				
 	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
-			ULog::LogDebugMessage(INFO, "New Delay: " + FString::SanitizeFloat(NewDelayTime), true);
+
+	ULog::LogDebugMessage(INFO, "New Delay time: " + FString::SanitizeFloat(NewDelayTime), true);
 }
 
 void AMordath::ChooseAttack()
