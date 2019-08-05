@@ -29,9 +29,6 @@ AMordath::AMordath()
 	// Get our anim blueprint class
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Boss/Animations/AnimBP_Boss.AnimBP_Boss_C'"));
 
-	// Get the hit animation to use when being hit
-	HitAnimation = Cast<UAnimationAsset>(StaticLoadObject(UAnimationAsset::StaticClass(), nullptr, TEXT("AnimSequence'/Game/Characters/Boss/Animations/Boss_Damaged.Boss_Damaged'")));
-
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Boss/SKM_Boss.SKM_Boss'")));
 
@@ -245,25 +242,9 @@ void AMordath::UpdateFollowState()
 	case EPathFollowingRequestResult::RequestSuccessful:
 
 		// If we are in range
-		if (GetDistanceToPlayer() <= 400.0f)
+		if (GetDistanceToPlayer() <= 400.0f && bCanAttack)
 		{
-			switch (ChosenCombo->CurrentAttack)
-			{
-			case LightAttack_1:
-				BossStateMachine->PushState("Light Attack 1");
-			break;
-
-			case LightAttack_2:
-				BossStateMachine->PushState("Light Attack 2");
-			break;
-
-			case LightAttack_3:
-				BossStateMachine->PushState("Light Attack 3");
-			break;
-
-			default:
-			break;
-			}
+			ChooseAttack();
 		}
 
 		if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
@@ -272,6 +253,11 @@ void AMordath::UpdateFollowState()
 		}
 
 		break;
+
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+		if (bCanAttack)
+			ChooseAttack();
+	break;
 
 	default:
 		break;
@@ -309,7 +295,12 @@ void AMordath::OnExitLightAttack1State()
 	AnimInstance->bAcceptLightAttack = false;
 
 	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
+	{
+		if (bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+	}
 }
 
 void AMordath::OnEnterLightAttack2State()
@@ -336,9 +327,14 @@ void AMordath::UpdateLightAttack2State()
 void AMordath::OnExitLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = false;
-	
+
 	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
+	{
+		if (bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+	}
 }
 
 void AMordath::OnEnterLightAttack3State()
@@ -367,7 +363,12 @@ void AMordath::OnExitLightAttack3State()
 	AnimInstance->bAcceptThirdLightAttack = false;
 
 	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
+	{
+		if (bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+	}
 }
 
 void AMordath::OnEnterDamagedState()
@@ -448,12 +449,53 @@ void AMordath::ChooseCombo()
 		if (Combos[Index])
 		{
 			ChosenCombo = Combos[Index];
-			ULog::LogDebugMessage(INFO, "Combo " + FString::FromInt(Index) + " chosen", true);
+			ULog::LogDebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
 			ChosenCombo->Init();
 		}
 		else
 		{
 			ULog::LogDebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
 		}
+
+		bCanAttack = true;
+	}
+}
+
+void AMordath::ChooseComboWithDelay()
+{
+	bCanAttack = false;
+
+	if (RandomDeviation == 0.0f)
+	{
+		GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, ComboDelayTime);
+		return;
+	}
+
+	const float Min = ComboDelayTime - RandomDeviation;
+	const float Max = ComboDelayTime + RandomDeviation;
+	const float NewDelayTime = FMath::FRandRange(Min, Max);
+				
+	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
+			ULog::LogDebugMessage(INFO, "New Delay: " + FString::SanitizeFloat(NewDelayTime), true);
+}
+
+void AMordath::ChooseAttack()
+{
+	switch (ChosenCombo->CurrentAttack)
+	{
+		case LightAttack_1:
+			BossStateMachine->PushState("Light Attack 1");
+			break;
+
+		case LightAttack_2:
+			BossStateMachine->PushState("Light Attack 2");
+			break;
+
+		case LightAttack_3:
+			BossStateMachine->PushState("Light Attack 3");
+			break;
+
+		default:
+			break;
 	}
 }
