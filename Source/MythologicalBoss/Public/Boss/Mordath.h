@@ -134,12 +134,25 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
 		float RunSpeed = 600.0f;
 
+	// Should the boss wait before initiating the next combo?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat")
+		uint8 bDelayBetweenCombo : 1;
+
+	// The time in seconds to delay before starting a new combo
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
+		float Delay = 0.1f;
+
+	// Give or take a few seconds when delaying
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
+		float RandomDeviation = 0.1f;
+
+	// A list of combos the boss character will choose from
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
 		TArray<UComboData*> Combos;
 
 	// The amount of time in seconds this boss should be stunned for
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		float StunDuration = 0.3f;
+	//UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+	//	float StunDuration = 0.3f;
 
 	// The attack damage we deal when light attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
@@ -187,7 +200,7 @@ protected:
 
 	UComboData* ChosenCombo;
 
-	EAttackType_Combo CurrentAttack;
+	//uint32 CurrentAttack = 0;
 
 private:
 	ACharacter* PlayerCharacter;

@@ -17,7 +17,7 @@ enum EAttackType_Combo
 	HeavyAttack_3,
 	SpecialAttack_1,
 	SpecialAttack_2,
-	SpecialAttack_3,
+	SpecialAttack_3
 };
 
 /**
@@ -29,10 +29,23 @@ class MYTHOLOGICALBOSS_API UComboData final : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditInstanceOnly, Category = "Attacks")
-		TEnumAsByte<EAttackType_Combo> FirstAttack;
-	UPROPERTY(EditInstanceOnly, Category = "Attacks")
-		TEnumAsByte<EAttackType_Combo> SecondAttack;
-	UPROPERTY(EditInstanceOnly, Category = "Attacks")
-		TEnumAsByte<EAttackType_Combo> ThirdAttack;
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		void Init();
+
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		void NextAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		bool IsAtLastAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		int32 GetCurrentAttack() const { return AttackIndex; }
+
+	UPROPERTY(EditInstanceOnly, Category = "Combos")
+		TArray<TEnumAsByte<EAttackType_Combo>> Attacks;
+
+	TEnumAsByte<EAttackType_Combo> CurrentAttack = LightAttack_1;
+
+private:
+	int32 AttackIndex = 0;
 };

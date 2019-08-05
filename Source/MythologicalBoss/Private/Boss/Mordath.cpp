@@ -17,8 +17,6 @@
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "ApexDestruction/Public/DestructibleComponent.h"
-#include "ApexDestruction/Public/DestructibleActor.h"
 #include "FSM.h"
 #include "Log.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -249,19 +247,22 @@ void AMordath::UpdateFollowState()
 		// If we are in range
 		if (GetDistanceToPlayer() <= 400.0f)
 		{
-			switch (CurrentAttack)
+			switch (ChosenCombo->CurrentAttack)
 			{
 			case LightAttack_1:
 				BossStateMachine->PushState("Light Attack 1");
-				break;
+			break;
 
 			case LightAttack_2:
 				BossStateMachine->PushState("Light Attack 2");
-				break;
+			break;
 
 			case LightAttack_3:
 				BossStateMachine->PushState("Light Attack 3");
-				break;
+			break;
+
+			default:
+			break;
 			}
 		}
 
@@ -269,16 +270,8 @@ void AMordath::UpdateFollowState()
 		{
 			BossStateMachine->PopState();
 		}
+
 		break;
-
-	case EPathFollowingRequestResult::AlreadyAtGoal:
-	{
-		const FRotator TargetRotation = FacePlayer();
-
-		if (GetActorRotation().Equals(TargetRotation, 50.0f))
-			BossStateMachine->PushState(3);
-	}
-	break;
 
 	default:
 		break;
@@ -293,7 +286,6 @@ void AMordath::OnExitFollowState()
 void AMordath::OnEnterLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = true;
-	CurrentAttack = LightAttack_1;
 }
 
 void AMordath::UpdateLightAttack1State()
@@ -306,44 +298,23 @@ void AMordath::UpdateLightAttack1State()
 
 	if (TimeRemaining <= 0.4f)
 	{
+		ChosenCombo->NextAttack();
+
 		BossStateMachine->PopState();
-
-		// If we are out of range
-		if (GetDistanceToPlayer() > 400.0f)
-		{
-			CurrentAttack = LightAttack_2; 
-			return;
-		}
-
-		switch (ChosenCombo->SecondAttack)
-		{
-		case LightAttack_1:
-			BossStateMachine->PushState("Light Attack 1");
-			break;
-
-		case LightAttack_2:
-			BossStateMachine->PushState("Light Attack 2");
-			break;
-
-		case LightAttack_3:
-			BossStateMachine->PushState("Light Attack 3");
-			break;
-
-		default:
-			break;
-		}
 	}
 }
 
 void AMordath::OnExitLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = false;
+
+	if (ChosenCombo->IsAtLastAttack())
+		ChooseCombo();
 }
 
 void AMordath::OnEnterLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = true;
-	CurrentAttack = LightAttack_2;
 }
 
 void AMordath::UpdateLightAttack2State()
@@ -356,44 +327,23 @@ void AMordath::UpdateLightAttack2State()
 
 	if (TimeRemaining <= 0.7f)
 	{
+		ChosenCombo->NextAttack();
+
 		BossStateMachine->PopState();
-
-		// If we are out of range
-		if (GetDistanceToPlayer() > 400.0f)
-		{
-			CurrentAttack = LightAttack_3;
-			return;
-		}
-
-		switch (ChosenCombo->ThirdAttack)
-		{
-		case LightAttack_1:
-			BossStateMachine->PushState("Light Attack 1");
-			break;
-
-		case LightAttack_2:
-			BossStateMachine->PushState("Light Attack 2");
-			break;
-
-		case LightAttack_3:
-			BossStateMachine->PushState("Light Attack 3");
-			break;
-
-		default:
-			break;
-		}
 	}
 }
 
 void AMordath::OnExitLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = false;
+	
+	if (ChosenCombo->IsAtLastAttack())
+		ChooseCombo();
 }
 
 void AMordath::OnEnterLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = true;
-	CurrentAttack = LightAttack_3;
 }
 
 void AMordath::UpdateLightAttack3State()
@@ -406,15 +356,18 @@ void AMordath::UpdateLightAttack3State()
 
 	if (TimeRemaining <= 0.2f)
 	{
-		BossStateMachine->PopState();
+		ChosenCombo->NextAttack();
 
-		ChooseCombo();
+		BossStateMachine->PopState();
 	}
 }
 
 void AMordath::OnExitLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = false;
+
+	if (ChosenCombo->IsAtLastAttack())
+		ChooseCombo();
 }
 
 void AMordath::OnEnterDamagedState()
@@ -495,12 +448,12 @@ void AMordath::ChooseCombo()
 		if (Combos[Index])
 		{
 			ChosenCombo = Combos[Index];
-			
-			CurrentAttack = ChosenCombo->FirstAttack;
-
-			return;
+			ULog::LogDebugMessage(INFO, "Combo " + FString::FromInt(Index) + " chosen", true);
+			ChosenCombo->Init();
 		}
-		
-		ChooseCombo();
+		else
+		{
+			ULog::LogDebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
+		}
 	}
 }
