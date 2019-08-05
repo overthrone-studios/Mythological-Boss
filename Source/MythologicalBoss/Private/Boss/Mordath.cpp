@@ -476,6 +476,8 @@ void AMordath::UpdateDamagedState()
 void AMordath::OnExitDamagedState()
 {
 	AnimInstance->bIsHit = false;
+
+	ChosenCombo->NextAttack();
 }
 
 void AMordath::OnEnterDeathState()
@@ -547,6 +549,7 @@ void AMordath::ChooseCombo()
 		}
 
 		bCanAttack = true;
+		MovementComponent->MaxWalkSpeed = WalkSpeed;
 	}
 	else
 	{
@@ -572,6 +575,8 @@ void AMordath::ChooseComboWithDelay()
 	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
 
 	ULog::DebugMessage(INFO, "New Delay time: " + FString::SanitizeFloat(NewDelayTime), true);
+
+	MovementComponent->MaxWalkSpeed = WalkSpeed/2;
 }
 
 void AMordath::ChooseAttack()

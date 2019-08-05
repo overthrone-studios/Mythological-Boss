@@ -157,11 +157,11 @@ protected:
 
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float WalkSpeed = 300.0f;
+		float WalkSpeed = 600.0f;
 
 	// The maximum movement speed while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float RunSpeed = 600.0f;
+		float RunSpeed = 1000.0f;
 
 	// Should the boss wait before initiating the next combo?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat")
