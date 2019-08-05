@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "Debug.h"
 
-void ULog::LogObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
+void ULog::ObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 {
 	if (bLogInViewport)
 	{
@@ -22,7 +22,7 @@ void ULog::LogObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 	}
 }
 
-void ULog::LogDebugMessage(const ELogType LogLevel, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::DebugMessage(const ELogType LogLevel, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
 	switch (LogLevel)
 	{
@@ -59,4 +59,26 @@ void ULog::LogDebugMessage(const ELogType LogLevel, const FString& LogMessage, c
 	}
 }
 
+void ULog::LogHello(const bool bLogInViewport)
+{
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Hello"));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Hello"))
+}
 
+void ULog::LogYes(const bool bLogInViewport)
+{
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Yes"));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Yes"))
+}
+
+void ULog::LogNo(const bool bLogInViewport)
+{
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("No"));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("No"))
+}

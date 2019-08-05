@@ -24,9 +24,18 @@ class DEBUG_API ULog final : public UBlueprintFunctionLibrary
 	
 public:
 	// Log whether the object is valid or not
-	static void LogObjectValidity(UObject* ObjectRef, bool bLogInViewport = false);
+	static void ObjectValidity(UObject* ObjectRef, bool bLogInViewport = false);
 
 	// Log a debug message to the console or viewport
-	static void LogDebugMessage(ELogType LogLevel, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
-	
+	static void DebugMessage(ELogType LogLevel, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
+
+	// Log a hello message to the console or viewport
+	static void LogHello(bool bLogInViewport = false);
+
+	// Log a yes message to the console or viewport
+	static void LogYes(bool bLogInViewport = false);
+
+	// Log a no message to the console or viewport
+	static void LogNo(bool bLogInViewport = false);
+
 };
