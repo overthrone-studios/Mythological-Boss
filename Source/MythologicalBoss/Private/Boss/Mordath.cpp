@@ -43,7 +43,7 @@ AMordath::AMordath()
 		if (AnimBP.Succeeded())
 			GetMesh()->AnimClass = AnimBP.Class;
 		else
-			ULog::LogDebugMessage(ERROR, FString("AnimBP did not succeed."));
+			ULog::DebugMessage(ERROR, FString("AnimBP did not succeed."));
 	}
 
 	// Create a FSM
@@ -175,7 +175,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		BossStateMachine->PushState("Damaged");
 
 		Health -= DamageAmount;
-		ULog::LogDebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
+		ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
 	}
 
 	if (Health <= 0.0f)
@@ -212,7 +212,7 @@ void AMordath::OnEnterIdleState()
 
 void AMordath::UpdateIdleState()
 {
-	ULog::LogDebugMessage(INFO, "Idle state", true);
+	ULog::DebugMessage(INFO, "Idle state", true);
 
 	if (GetDistanceToPlayer() > 200.0f)
 		BossStateMachine->PushState("Follow");
@@ -433,12 +433,12 @@ void AMordath::ChooseCombo()
 		if (Combos[Index])
 		{
 			ChosenCombo = Combos[Index];
-			ULog::LogDebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
+			ULog::DebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
 			ChosenCombo->Init();
 		}
 		else
 		{
-			ULog::LogDebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
+			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(Index) + FString(" is not valid"), true);
 		}
 
 		bCanAttack = true;
@@ -461,7 +461,7 @@ void AMordath::ChooseComboWithDelay()
 				
 	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
 
-	ULog::LogDebugMessage(INFO, "New Delay time: " + FString::SanitizeFloat(NewDelayTime), true);
+	ULog::DebugMessage(INFO, "New Delay time: " + FString::SanitizeFloat(NewDelayTime), true);
 }
 
 void AMordath::ChooseAttack()

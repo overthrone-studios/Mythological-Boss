@@ -153,7 +153,7 @@ bool UMenuBase::AreAllSettingsDefault()
 		// Add settings that have been changed and can be reset
 		if (!Setting->IsDefault() && Setting->IsAffectedByReset())
 		{
-			ULog::LogDebugMessage(INFO, Setting->GetName() + " is not default", true);
+			ULog::DebugMessage(INFO, Setting->GetName() + " is not default", true);
 			Changes++;
 		}
 	}

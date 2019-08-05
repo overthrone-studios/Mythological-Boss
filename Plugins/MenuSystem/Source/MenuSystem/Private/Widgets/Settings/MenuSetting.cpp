@@ -35,7 +35,7 @@ void UMenuSetting::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointe
 
 	if (!Menu)
 	{
-		ULog::LogDebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in this menu's Init function"), true);
+		ULog::DebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in this menu's Init function"), true);
 		return;
 	}
 
@@ -48,7 +48,7 @@ void UMenuSetting::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 
 	if (!Menu)
 	{
-		ULog::LogDebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in the menu's Init function"), true);
+		ULog::DebugMessage(ERROR, FString("Menu is null. Menu reference has not been set in the menu's Init function"), true);
 		return;
 	}
 

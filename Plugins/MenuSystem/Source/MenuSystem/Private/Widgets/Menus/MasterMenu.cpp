@@ -19,7 +19,7 @@ void UMasterMenu::Init()
 	for (auto Menu : Menus)
 	{
 		Menu->Init();
-		ULog::LogDebugMessage(INFO, FString(Menu->GetName() + " initialized"), true);
+		ULog::DebugMessage(INFO, FString(Menu->GetName() + " initialized"), true);
 	}
 }
 
@@ -70,7 +70,7 @@ TArray<UMenuBase*> UMasterMenu::GetAllChildMenus() const
 		if (Menu->IsA(UMenuBase::StaticClass()))
 			FoundMenus.Add(Cast<UMenuBase>(Menu));
 		else
-			ULog::LogDebugMessage(WARNING, FString(Menu->GetName() + " is not a UMenuBase. Remove " + Menu->GetName() + " from " + GetName()), true);
+			ULog::DebugMessage(WARNING, FString(Menu->GetName() + " is not a UMenuBase. Remove " + Menu->GetName() + " from " + GetName()), true);
 	}
 
 	return FoundMenus;
