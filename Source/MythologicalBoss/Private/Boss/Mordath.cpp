@@ -133,6 +133,7 @@ void AMordath::BeginPlay()
 
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
+	MovementComponent->MaxWalkSpeed = WalkSpeed;
 
 	Health = StartingHealth;
 
@@ -510,7 +511,9 @@ void AMordath::OnExitDeathState()
 
 float AMordath::GetDistanceToPlayer() const
 {
-	return FVector::Dist(GetActorLocation(), UGameplayStatics::GetPlayerCharacter(this, 0)->GetActorLocation());
+	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
+	ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+	return Distance;
 }
 
 bool AMordath::ShouldDestroyDestructibleObjects()

@@ -129,7 +129,11 @@ protected:
 
 	// Resets stamina back to default
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ResetStamina(); 
+		void ResetStamina();
+
+	// Resets health back to default
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ResetHealth(); 
 
 	// Player states
 	#pragma region Idle

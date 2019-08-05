@@ -947,6 +947,12 @@ void AYlva::ResetStamina()
 	GameInstance->PlayerStamina = Stamina;
 }
 
+void AYlva::ResetHealth()
+{
+	Health = StartingHealth;
+	GameInstance->PlayerHealth = Health;
+}
+
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
 	Stamina = NewStaminaAmount;
@@ -956,6 +962,8 @@ void AYlva::SetStamina(const float NewStaminaAmount)
 void AYlva::EnableGodMode()
 {
 	bGodMode = true;
+	ResetHealth();
+	ResetStamina();
 
 	ULog::DebugMessage(INFO, FString("God mode: On"), true);
 }
@@ -974,7 +982,12 @@ void AYlva::ToggleGodMode()
 	FString Status;
 
 	if (bGodMode)
+	{
 		Status = "On";
+
+		ResetHealth();
+		ResetStamina();
+	}
 	else
 		Status = "Off";
 
