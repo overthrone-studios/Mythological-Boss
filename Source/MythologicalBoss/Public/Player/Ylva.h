@@ -67,57 +67,75 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	// Called via input to toggle lock on mechanic
-	void ToggleLockOn();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ToggleLockOn();
 
 	// Utility function to enable lock on
-	void EnableLockOn();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void EnableLockOn();
 	// Utility function to disable lock on
-	void DisableLockOn();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DisableLockOn();
 
 	// Called via input to enter the block state
-	void Block();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Block();
 
 	// Called via input to exit the block state
-	void StopBlocking();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void StopBlocking();
 
 	// Called via input to enter the light attacking state
-	void LightAttack();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void LightAttack();
 
 	// Called via input to enter the heavy attacking state
-	void HeavyAttack();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void HeavyAttack();
 
 	// Called via input released to stop using controller rotation yaw
-	void DisableControllerRotationYaw();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DisableControllerRotationYaw();
 
 	// Called via input to enter the running state
-	void Run();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Run();
 
 	// Called via input to exit the running state
-	void StopRunning();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void StopRunning();
 
 	// Called via input to start dashing
-	void Dash();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Dash();
 
 	// Called via input to show the FSM Visualizer widget
-	void ShowFSMVisualizer();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ShowFSMVisualizer();
 
 	// Called via input to show the Boss FSM Visualizer widget
-	void ShowBossFSMVisualizer();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ShowBossFSMVisualizer();
 
 	// Called via input to show the FSM Visualizer widget
-	void ShowMainHUD();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ShowMainHUD();
 
 	// Called via input to show the FSM Visualizer widget
-	void ShowNoHUD();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ShowNoHUD();
 
 	// Called via input to pause the game
-	void Pause();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Pause();
 
 	// Called every frame
-	void RegenerateStamina(float Rate);
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void RegenerateStamina(float Rate);
 
 	// Called when the player is killed (Health <= 0)
-	void Respawn();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Respawn();
 
 	// Set a new stamina value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -133,7 +151,14 @@ protected:
 
 	// Resets health back to default
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ResetHealth(); 
+		void ResetHealth();
+
+	// Resets global time dilation to 1
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ResetGlobalTimeDilation();
+
+	void StartParryEvent(); 
+	void FinishParryEvent(); 
 
 	// Player states
 	#pragma region Idle
@@ -244,6 +269,15 @@ protected:
 		void OnExitShieldHitState();
 	#pragma endregion 
 
+	#pragma region Parry
+	UFUNCTION()
+		void OnEnterParryState();
+	UFUNCTION()
+		void UpdateParryState();
+	UFUNCTION()
+		void OnExitParryState();
+	#pragma endregion 
+
 	// Events
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -350,13 +384,25 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float RunStamina = 2.0f;
 
-	// The stamina value to subtract while running
+	// The stamina value to subtract when being hit while blocking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float ShieldHitStamina = 10.0f;
 
-	// This value will be used to buffer the damage received when the boss hits the player when blocking
+	// This value will be used to buffer the damage received when the boss hits the player while blocking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float DamageBuffer = 0.5f;
+
+	// The parry window time frame
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float ParryWindowTime = 0.3f;
+
+	// This value will be used when a parry is successful (slowing down time)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float TimeDilationOnSuccessfulParry = 0.4f;
+
+	// How long (in seconds) should we stay in the parry event?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float TimeUntilParryEventIsCompleted = 0.5f;
 
 	// Cached world pointer
 	UWorld* World{};
@@ -379,6 +425,6 @@ protected:
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
-	FTimerHandle StaminaRegenerationTrigger;
 	FTimerHandle DeathStateExpiryTimer;
+	FTimerHandle ParryEventExpiryTimer;
 };

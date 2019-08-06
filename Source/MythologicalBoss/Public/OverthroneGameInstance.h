@@ -43,19 +43,19 @@ public:
 	void SetLockOnRotation(const FRotator& LockOnRotation) const;
 	void ToggleLockOnVisibility(bool bIsVisible) const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
 		FVector PlayerLocation{};
 
-	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Game Instance | Boss Info")
+	UPROPERTY(BlueprintReadWrite, Category = "Ylva")
 		float PlayerStartingHealth{};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
 		float PlayerHealth{};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
 		float PlayerStartingStamina{};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
 		float PlayerStamina{};
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
@@ -66,6 +66,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
 		float BossStartingHealth{};
+
+	// The parry window time frame
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
+		uint8 bParrySucceeded : 1;
 
 	class ALockOn* LockOn;
 

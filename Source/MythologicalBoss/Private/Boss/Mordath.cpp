@@ -168,7 +168,8 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	if (GameInstance->bParrySucceeded)
+		BossStateMachine->PushState("Damaged");
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -190,7 +191,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		BossStateMachine->PushState("Damaged");
 
 		Health -= DamageAmount;
-		ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
+		//ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
 	}
 
 	if (Health <= 0.0f)

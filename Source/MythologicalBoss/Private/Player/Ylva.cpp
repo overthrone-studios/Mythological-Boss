@@ -59,6 +59,7 @@ AYlva::AYlva()
 	PlayerStateMachine->AddState(10, "Heavy Attack 2");
 	PlayerStateMachine->AddState(20, "Damaged");
 	PlayerStateMachine->AddState(21, "Shield Hit");
+	PlayerStateMachine->AddState(22, "Parry");
 
 	// Bind state events to our functions
 	PlayerStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
@@ -108,6 +109,10 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(21)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShieldHitState);
 	PlayerStateMachine->GetState(21)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShieldHitState);
 	PlayerStateMachine->GetState(21)->OnExitState.AddDynamic(this, &AYlva::OnExitShieldHitState);
+
+	PlayerStateMachine->GetState(22)->OnEnterState.AddDynamic(this, &AYlva::OnEnterParryState);
+	PlayerStateMachine->GetState(22)->OnUpdateState.AddDynamic(this, &AYlva::UpdateParryState);
+	PlayerStateMachine->GetState(22)->OnExitState.AddDynamic(this, &AYlva::OnExitParryState);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -356,6 +361,9 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() == 20 /*Damaged*/)
 		return;
 
+	if (PlayerStateMachine->GetActiveStateID() == 22 /*Parry*/)
+		PlayerStateMachine->PopState();
+
 	if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
@@ -399,6 +407,9 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() == 5 /*Death*/ ||
 		PlayerStateMachine->GetActiveStateID() == 20 /*Damaged*/)
 		return;
+
+	if (PlayerStateMachine->GetActiveStateID() == 22 /*Parry*/)
+		PlayerStateMachine->PopState();
 
 	if (
 		PlayerStateMachine->GetActiveStateID() != 3 /*Light Attack 1*/ &&
@@ -884,12 +895,42 @@ void AYlva::OnExitShieldHitState()
 }
 #pragma endregion 
 
+#pragma region Parry
+void AYlva::OnEnterParryState()
+{
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsShieldHit = true;
+
+	StartParryEvent();
+}
+
+void AYlva::UpdateParryState()
+{
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
+}
+
+void AYlva::OnExitParryState()
+{
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
+	AnimInstance->bIsShieldHit = false;
+
+	GameInstance->bParrySucceeded = false;
+
+	ResetGlobalTimeDilation();
+
+	GetWorldTimerManager().ClearTimer(ParryEventExpiryTimer);
+}
+#pragma endregion 
+
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (bGodMode)
 		return DamageAmount;
 
-	ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
+	//ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
 
 	if (Health > 0.0f && !AnimInstance->bIsHit)
 	{
@@ -899,11 +940,20 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			PlayerStateMachine->PopState();
 		}
 
-		if (PlayerStateMachine->GetActiveStateName() == "Block")
+		// Did we successfully parry?
+		if (PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateUptime() < ParryWindowTime)
 		{
+			ULog::LogYes(true);
+			PlayerStateMachine->PushState("Parry");
+		}
+		else if (PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateName() != "Parry")
+		{
+			ULog::LogNo(true);
+			PlayerStateMachine->PopState();
 			PlayerStateMachine->PushState("Shield Hit");
 
-			Health -= DamageAmount * DamageBuffer;
+			Health -= DamageAmount;
+			UpdateStamina(ShieldHitStamina);
 		}
 		else
 		{
@@ -917,6 +967,8 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 	if (Health <= 0.0f && PlayerStateMachine->GetActiveStateName() != "Death")
 	{
+		Health = 0.0f;
+
 		PlayerStateMachine->PopState();
 
 		PlayerStateMachine->PushState("Death");
@@ -947,6 +999,25 @@ void AYlva::ResetHealth()
 {
 	Health = StartingHealth;
 	GameInstance->PlayerHealth = Health;
+}
+
+void AYlva::ResetGlobalTimeDilation()
+{
+	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
+}
+
+void AYlva::StartParryEvent()
+{
+	GameInstance->bParrySucceeded = true;
+
+	UGameplayStatics::SetGlobalTimeDilation(this, TimeDilationOnSuccessfulParry);
+
+	GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, TimeUntilParryEventIsCompleted);
+}
+
+void AYlva::FinishParryEvent()
+{
+	PlayerStateMachine->PopState();
 }
 
 void AYlva::SetStamina(const float NewStaminaAmount)
