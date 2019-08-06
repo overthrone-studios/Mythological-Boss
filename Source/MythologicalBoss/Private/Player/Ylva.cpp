@@ -939,14 +939,14 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		}
 
 		// Did we successfully parry?
-		if (PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateUptime() < ParryWindowTime)
+		const bool bParrySucceeded = PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateUptime() < ParryWindowTime;
+		if (bParrySucceeded)
 		{
-			ULog::LogYes(true);
 			PlayerStateMachine->PushState("Parry");
 		}
+		// Not succeeded and still blocking?
 		else if (PlayerStateMachine->GetActiveStateName() == "Block")
 		{
-			ULog::LogNo(true);
 			PlayerStateMachine->PopState();
 			PlayerStateMachine->PushState("Shield Hit");
 
@@ -967,7 +967,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	{
 		Health = 0.0f;
 
-		PlayerStateMachine->PopState();
+		PlayerStateMachine->RemoveAllStatesFromStack();
 
 		PlayerStateMachine->PushState("Death");
 	}
