@@ -75,6 +75,12 @@ void UFSM::PopState()
 	PopState(GetActiveStateID());
 }
 
+void UFSM::RemoveAllStatesFromStack()
+{
+	for (int32 i = 1; i < Stack.Num(); i++)
+		Stack.RemoveAt(i);
+}
+
 void UFSM::PushState(const int32 StateID)
 {
 	if (DoesStateExistInStack(StateID))

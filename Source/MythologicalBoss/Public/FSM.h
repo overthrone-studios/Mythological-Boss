@@ -52,6 +52,9 @@ public:
 	void PopState();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void RemoveAllStatesFromStack();
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void PushState(int32 StateID);
 		void PushState(const FName& StateName);
 
