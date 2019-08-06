@@ -137,9 +137,17 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void Respawn();
 
+	// Set a new health value
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void SetHealth(float NewHealthAmount);
+
 	// Set a new stamina value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void SetStamina(float NewStaminaAmount); 
+		void SetStamina(float NewStaminaAmount);
+
+	// Update health value
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void UpdateHealth(float AmountToSubtract);
 
 	// Update stamina value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")

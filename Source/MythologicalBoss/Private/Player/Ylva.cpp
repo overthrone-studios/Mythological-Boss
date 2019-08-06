@@ -950,25 +950,23 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			PlayerStateMachine->PopState();
 			PlayerStateMachine->PushState("Shield Hit");
 
-			Health -= DamageAmount;
+			UpdateHealth(DamageAmount * DamageBuffer);
 			UpdateStamina(ShieldHitStamina);
 		}
+		// Not blocking
 		else
 		{
 			PlayerStateMachine->PushState("Damaged");
 
-			Health -= DamageAmount;
+			UpdateHealth(DamageAmount);
 		}
-
-		GameInstance->PlayerHealth = Health;
 	}
 
 	if (Health <= 0.0f && PlayerStateMachine->GetActiveStateName() != "Death")
 	{
-		Health = 0.0f;
+		SetHealth(0.0f);
 
 		PlayerStateMachine->RemoveAllStatesFromStack();
-
 		PlayerStateMachine->PushState("Death");
 	}
 
@@ -980,16 +978,34 @@ void AYlva::OnBossDeath()
 	DisableLockOn();
 }
 
+void AYlva::SetStamina(const float NewStaminaAmount)
+{
+	Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, StartingStamina);
+	GameInstance->PlayerStamina = Stamina;
+}
+
+void AYlva::SetHealth(const float NewHealthAmount)
+{
+	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
+	GameInstance->PlayerHealth = Health;
+}
+
 void AYlva::UpdateStamina(const float AmountToSubtract)
 {
-	Stamina -= AmountToSubtract;
+	Stamina = FMath::Clamp(Stamina - AmountToSubtract, 0.0f, StartingStamina);
+	//Stamina -= AmountToSubtract;
 	GameInstance->PlayerStamina = Stamina;
+}
+
+void AYlva::UpdateHealth(const float AmountToSubtract)
+{
+	Health = FMath::Clamp(Health - AmountToSubtract, 0.0f, StartingHealth);
+	GameInstance->PlayerHealth = Health;
 }
 
 void AYlva::ResetStamina()
 {
 	Stamina = StartingStamina;
-	GameInstance->PlayerStartingStamina = StartingStamina;
 	GameInstance->PlayerStamina = Stamina;
 }
 
@@ -1016,12 +1032,6 @@ void AYlva::StartParryEvent()
 void AYlva::FinishParryEvent()
 {
 	PlayerStateMachine->PopState();
-}
-
-void AYlva::SetStamina(const float NewStaminaAmount)
-{
-	Stamina = NewStaminaAmount;
-	GameInstance->PlayerStamina = Stamina;
 }
 
 void AYlva::EnableGodMode()
