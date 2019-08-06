@@ -27,8 +27,6 @@ void UMordathAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	Super::NativeUpdateAnimation(DeltaSeconds);
-	
 	if (!OwningPawn || !PawnMovementComponent)
 		return;
 

@@ -73,6 +73,9 @@ public:
 
 	class ALockOn* LockOn;
 
+	class AYlva* Player;
+	class AMordath* Boss;
+
 private:
 	class UUserWidget* PauseMenu{};
 	TSubclassOf<class UUserWidget> PauseMenuWidgetClass;

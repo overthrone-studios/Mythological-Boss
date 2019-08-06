@@ -18,4 +18,8 @@ public:
 
 protected:
 	void BeginPlay() override;
+
+private:
+	void InitHUD();
+	void InitGameInstance();
 };

@@ -152,6 +152,7 @@ void AMordath::BeginPlay()
 	// Cache our game instance
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->BossStartingHealth = StartingHealth;
+	GameInstance->Boss = this;
 	SendInfo();
 
 	// Cache the FSM Visualizer HUD
@@ -222,15 +223,14 @@ void AMordath::SendInfo()
 
 void AMordath::OnEnterIdleState()
 {
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		BossStateMachine->PushState("Follow");
+
 }
 
 void AMordath::UpdateIdleState()
 {
 	ULog::DebugMessage(INFO, "Idle state", true);
 
-	if (GetDistanceToPlayer() > 200.0f)
+	if (GetDistanceToPlayer() > AcceptanceRadius)
 		BossStateMachine->PushState("Follow");
 }
 
@@ -240,8 +240,6 @@ void AMordath::OnExitIdleState()
 
 void AMordath::OnEnterFollowState()
 {
-	AnimInstance->bIsWalking = true;
-
 	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
 		if (bDelayBetweenCombo)
@@ -283,13 +281,12 @@ void AMordath::UpdateFollowState()
 	break;
 
 	default:
-		break;
+	break;
 	}
 }
 
 void AMordath::OnExitFollowState()
 {
-	AnimInstance->bIsWalking = false;
 }
 
 void AMordath::OnEnterLightAttack1State()

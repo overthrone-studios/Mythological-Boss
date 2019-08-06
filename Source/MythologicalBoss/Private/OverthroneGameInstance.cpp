@@ -5,8 +5,6 @@
 #include "LockOn.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
-#include "Log.h"
-#include "OverthroneHUD.h"
 
 UOverthroneGameInstance::UOverthroneGameInstance()
 {

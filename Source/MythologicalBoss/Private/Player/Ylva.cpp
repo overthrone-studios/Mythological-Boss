@@ -180,12 +180,12 @@ void AYlva::BeginPlay()
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
-	GameInstance->InitInstance();
 	GameInstance->PlayerStartingHealth = StartingHealth;
 	GameInstance->PlayerHealth = Health;
 	GameInstance->PlayerStartingStamina = StartingStamina;
 	GameInstance->PlayerStamina = Stamina;
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
+	GameInstance->Player = this;
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
@@ -535,8 +535,6 @@ void AYlva::RegenerateStamina(const float Rate)
 void AYlva::Respawn()
 {
 	GetWorldTimerManager().ClearTimer(DeathStateExpiryTimer);
-
-	ULog::DebugMessage(INFO, "Respawned", true);
 
 	PlayerStateMachine->PopState();
 

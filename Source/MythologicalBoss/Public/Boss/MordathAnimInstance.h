@@ -18,12 +18,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsWalking;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsRunning;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsHit;
 
@@ -48,9 +42,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptThirdHeavyAttack;
 
+	// Used to get a reference to the anim state machine, and to query time remaining
 	int32 GenericsMachineIndex;
-
-	int32 IdleLoopCount = 0;
 	
 protected:
 	void NativeInitializeAnimation() override;

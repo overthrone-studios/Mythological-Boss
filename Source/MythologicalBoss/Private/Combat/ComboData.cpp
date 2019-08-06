@@ -1,14 +1,11 @@
 // Copyright Overthrone Studios 2019
 
 #include "Combat/ComboData.h"
-#include "Log.h"
 
 void UComboData::Init()
 {
 	AttackIndex = 0;
 	CurrentAttack = Attacks[0];
-
-	ULog::DebugMessage(INFO, "Current Attack: " + FString::FromInt(AttackIndex), true);
 }
 
 void UComboData::NextAttack()
@@ -21,7 +18,6 @@ void UComboData::NextAttack()
 	if (AttackIndex < Attacks.Num())
 	{
 		CurrentAttack = Attacks[AttackIndex];
-		ULog::DebugMessage(INFO, "Current Attack: " + FString::FromInt(AttackIndex), true);
 	}
 }
 
