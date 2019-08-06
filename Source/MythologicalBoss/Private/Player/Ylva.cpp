@@ -538,6 +538,8 @@ void AYlva::Respawn()
 
 	PlayerStateMachine->PopState();
 
+	GameInstance->bIsPlayerDead = false;
+
 	UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
 }
 
