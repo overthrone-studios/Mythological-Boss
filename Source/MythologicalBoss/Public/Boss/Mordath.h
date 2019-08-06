@@ -155,6 +155,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
 		float Health = 1000.0f;
 
+	// The radius in which the boss character will accept that it has arrived to the player's location
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
+		float AcceptanceRadius = 200.0f;
+
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
 		float WalkSpeed = 600.0f;

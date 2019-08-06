@@ -261,7 +261,7 @@ void AMordath::UpdateFollowState()
 		return;
 	}
 
-	switch (BossAIController->MoveToActor(PlayerCharacter, 200.0f))
+	switch (BossAIController->MoveToActor(PlayerCharacter, AcceptanceRadius))
 	{
 	case EPathFollowingRequestResult::RequestSuccessful:
 
@@ -471,7 +471,7 @@ void AMordath::UpdateDamagedState()
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	if (TimeRemaining <= 0.1f)
+	if (TimeRemaining <= 0.2f)
 		BossStateMachine->PopState();
 }
 
