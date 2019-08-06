@@ -5,6 +5,7 @@
 #include "Engine/GameInstance.h"
 #include "OverthroneGameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeathSignature);
 
 /**
@@ -18,6 +19,7 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 public:
 	UOverthroneGameInstance();
 
+	FOnBossDeathSignature OnPlayerDeath;
 	FOnBossDeathSignature OnBossDeath;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
@@ -70,6 +72,9 @@ public:
 	// The parry window time frame
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
 		uint8 bParrySucceeded : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
+		uint8 bIsPlayerDead : 1;
 
 	class ALockOn* LockOn;
 

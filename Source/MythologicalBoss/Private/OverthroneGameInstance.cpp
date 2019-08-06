@@ -54,6 +54,8 @@ void UOverthroneGameInstance::SetInputModeGame() const
 
 void UOverthroneGameInstance::InitInstance()
 {
+	bIsPlayerDead = false;
+
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 
 	PauseMenu = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidgetClass, FName("Pause Menu"));

@@ -152,6 +152,7 @@ void AMordath::BeginPlay()
 	// Cache our game instance
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->BossStartingHealth = StartingHealth;
+	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
 	SendInfo();
 
@@ -228,6 +229,9 @@ void AMordath::OnEnterIdleState()
 
 void AMordath::UpdateIdleState()
 {
+	if (GameInstance->bIsPlayerDead)
+		return;
+
 	ULog::DebugMessage(INFO, "Idle state", true);
 
 	if (GetDistanceToPlayer() > AcceptanceRadius)
@@ -512,6 +516,15 @@ float AMordath::GetDistanceToPlayer() const
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
 	//ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
 	return Distance;
+}
+
+void AMordath::OnPlayerDeath()
+{
+	ULog::LogYes(true);
+
+	MovementComponent->DisableMovement();
+
+	BossStateMachine->RemoveAllStatesFromStack();
 }
 
 bool AMordath::ShouldDestroyDestructibleObjects()

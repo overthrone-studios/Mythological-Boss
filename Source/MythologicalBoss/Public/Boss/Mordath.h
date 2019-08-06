@@ -136,6 +136,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 
+	// Called when the player's health is less than or equal to 0
+	UFUNCTION()
+		void OnPlayerDeath();
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
