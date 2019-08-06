@@ -930,8 +930,6 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	if (bGodMode)
 		return DamageAmount;
 
-	//ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damage applied"), true);
-
 	if (Health > 0.0f && !AnimInstance->bIsHit)
 	{
 		if (PlayerStateMachine->GetActiveStateName() != "Idle" &&
@@ -946,7 +944,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			ULog::LogYes(true);
 			PlayerStateMachine->PushState("Parry");
 		}
-		else if (PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateName() != "Parry")
+		else if (PlayerStateMachine->GetActiveStateName() == "Block")
 		{
 			ULog::LogNo(true);
 			PlayerStateMachine->PopState();
