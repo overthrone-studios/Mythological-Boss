@@ -965,7 +965,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		}
 	}
 
-	if (Health <= 0.0f && PlayerStateMachine->GetActiveStateName() != "Death")
+	if (Health <= 0.0f && !AnimInstance->bIsHit && PlayerStateMachine->GetActiveStateName() != "Death")
 	{
 		SetHealth(0.0f);
 

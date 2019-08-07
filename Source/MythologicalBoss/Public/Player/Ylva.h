@@ -289,6 +289,7 @@ protected:
 	// Events
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	// Called when the boss's health is less than or equal to zero
 	UFUNCTION()
 		void OnBossDeath();
 
