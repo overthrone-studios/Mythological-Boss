@@ -157,11 +157,15 @@ AYlva::AYlva()
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	bCanBeDamaged = true;
 }
 
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bCanBeDamaged = true;
 
 	Health = StartingHealth;
 	Stamina = StartingStamina;
@@ -971,6 +975,8 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	if (Health <= 0.0f && PlayerStateMachine->GetActiveStateName() != "Death")
 	{
 		SetHealth(0.0f);
+
+		bCanBeDamaged = false;
 
 		PlayerStateMachine->RemoveAllStatesFromStack();
 		PlayerStateMachine->PushState("Death");

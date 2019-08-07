@@ -136,6 +136,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void EnableInvincibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void DisableInvincibility();
+
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		void OnPlayerDeath();
@@ -215,8 +221,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
 
-	int8 ComboIndex = 0;
-	uint8 bCanAttack : 1;
+	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float InvincibilityTimeAfterDamage = 1.5f;
+
+	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
+
+	uint8 bCanAttack : 1; // Used to prevent attacking when player is dead
 
 	// Cached world pointer
 	UWorld* World{};
@@ -245,6 +256,7 @@ protected:
 private:
 	FTimerHandle UpdateInfoTimerHandle;
 	FTimerHandle ComboDelayTimerHandle;
+	FTimerHandle InvinciblityTimerHandle;
 
 	ACharacter* PlayerCharacter;
 };

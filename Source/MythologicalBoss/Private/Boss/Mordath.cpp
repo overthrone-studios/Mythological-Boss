@@ -124,11 +124,15 @@ AMordath::AMordath()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = ABossAIController::StaticClass();
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	bCanBeDamaged = true;
 }
 
 void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bCanBeDamaged = true;
 
 	// Cache the world object
 	World = GetWorld();
@@ -188,15 +192,17 @@ void AMordath::PossessedBy(AController* NewController)
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Health > 0.0f && !AnimInstance->bIsHit)
+	if (Health > 0.0f && !AnimInstance->bIsHit && !GetWorldTimerManager().IsTimerActive(InvinciblityTimerHandle))
 	{
+		EnableInvincibility();
+
+		GetWorldTimerManager().SetTimer(InvinciblityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
+
 		if (BossStateMachine->GetActiveStateName() != "Idle")
 			BossStateMachine->PopState();
 
 		BossStateMachine->PushState("Damaged");
-
 		Health -= DamageAmount;
-		//ULog::DebugMessage(INFO, FString::SanitizeFloat(DamageAmount) + FString(" damaged received"), true);
 	}
 
 	if (Health <= 0.0f)
@@ -205,6 +211,16 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	return DamageAmount;
+}
+
+void AMordath::EnableInvincibility()
+{
+	bCanBeDamaged = false;
+}
+
+void AMordath::DisableInvincibility()
+{
+	bCanBeDamaged = true;
 }
 
 FRotator AMordath::FacePlayer()
@@ -249,6 +265,8 @@ void AMordath::OnExitIdleState()
 
 void AMordath::OnEnterFollowState()
 {
+	MovementComponent->SetMovementMode(MOVE_Walking);
+
 	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
 		if (bDelayBetweenCombo)
@@ -601,6 +619,8 @@ void AMordath::ChooseComboWithDelay()
 
 void AMordath::ChooseAttack()
 {
+	MovementComponent->SetMovementMode(MOVE_None);
+
 	switch (ChosenCombo->CurrentAttack)
 	{
 		case LightAttack_1:
