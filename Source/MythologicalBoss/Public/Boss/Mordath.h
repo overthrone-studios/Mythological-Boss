@@ -233,7 +233,7 @@ protected:
 		float BoxDetectionDistance = 130.0f;
 
 	// Maximum hits that can be taken before becoming invicible
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0, ClampMax = 100))
 		uint8 MaxHitsBeforeInvincibility = 3;
 
 	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
