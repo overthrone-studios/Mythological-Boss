@@ -192,7 +192,7 @@ void AMordath::PossessedBy(AController* NewController)
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Health > 0.0f && !AnimInstance->bIsHit && !GetWorldTimerManager().IsTimerActive(InvinciblityTimerHandle))
+	if (Health > 0.0f && !GetWorldTimerManager().IsTimerActive(InvinciblityTimerHandle))
 	{
 		EnableInvincibility();
 
