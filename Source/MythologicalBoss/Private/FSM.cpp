@@ -3,11 +3,26 @@
 #include "FSM.h"
 #include "Log.h"
 #include "Player/Ylva.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UFSM::UFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
 
+void UFSM::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!bHasFSMInitialized)
+	{
+		ULog::DebugMessage(ERROR, FString(GetOwner()->GetName() + "'s FSM has not been initialized! Initialize its FSM component in the owner's BeginPlay function."));
+		UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Background);
+		return;
+	}
+
+	if (bDebug)
+		ULog::DebugMessage(SUCCESS, FString("FSM Initialized"));
 }
 
 void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -18,53 +33,72 @@ void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActo
 	Stack[0]->Uptime += DeltaTime;
 }
 
+void UFSM::Start()
+{
+	if (bDebug)
+		ULog::DebugMessage(SUCCESS, FString("FSM has started"));
+
+	Stack[0]->OnEnterState.Broadcast();
+}
+
 void UFSM::InitState(const int32 StateID)
 {
 	// Back out if we have already been initialized
 	if (bHasFSMInitialized)
+	{
+		if (bDebug)
+			ULog::DebugMessage(WARNING, FString("InitState: FSM has already been initialized. This should be called once!"), true);
+
 		return;
+	}
 
 	for (FState& State : States)
 	{
 		if (State.ID == StateID)
 		{
 			Stack.Add(&State);
-			Stack[0]->OnEnterState.Broadcast();
 
 			bHasFSMInitialized = true;
 			return;
 		}
 	}
 
-	ULog::DebugMessage(WARNING, FString("InitState: State does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("InitState: State does not exist"), true);
 }
 
 void UFSM::InitState(const FName& StateName)
 {
 	// Back out if we have already been initialized
 	if (bHasFSMInitialized)
+	{
+		if (bDebug)
+			ULog::DebugMessage(WARNING, FString("InitState: FSM has already been initialized. This should be called once!"), true);
+
 		return;
+	}
 
 	for (FState& State : States)
 	{
 		if (State.Name == StateName)
 		{
 			Stack.Add(&State);
-			Stack[0]->OnEnterState.Broadcast();
 
 			bHasFSMInitialized = true;
 			return;
 		}
 	}
 
-	ULog::DebugMessage(WARNING, FString("InitState: State does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("InitState: State does not exist"), true);
 }
 
 void UFSM::AddState(const int32 ID, const FName& StateName)
 {
-	const FState NewState(ID, StateName);
+	States.Add({ID, StateName});
 
-	States.Add(NewState);
+	if (bDebug)
+		ULog::DebugMessage(INFO, FString("State " + StateName.ToString() + " added"), true);
 }
 
 void UFSM::PopState()
@@ -79,12 +113,20 @@ void UFSM::RemoveAllStatesFromStack()
 {
 	for (int32 i = 1; i < Stack.Num(); i++)
 		Stack.RemoveAt(i);
+
+	if (bDebug)
+		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for one"), true);
 }
 
 void UFSM::PushState(const int32 StateID)
 {
 	if (DoesStateExistInStack(StateID))
+	{
+		if (bDebug)
+			ULog::DebugMessage(INFO, FString("PushState: State ") + FString::FromInt(StateID) + FString(" already exists in the stack."), true);
+		
 		return;
+	}
 
 	for (FState& State : States)
 	{
@@ -99,13 +141,19 @@ void UFSM::PushState(const int32 StateID)
 		}
 	}
 
-	ULog::DebugMessage(WARNING, FString("PushState: State " + FString::FromInt(StateID) + " does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("PushState: State " + FString::FromInt(StateID) + " does not exist"), true);
 }
 
 void UFSM::PushState(const FName& StateName)
 {
 	if (DoesStateExistInStack(StateName))
+	{
+		if (bDebug)
+			ULog::DebugMessage(INFO, FString("PushState: State ") + StateName.ToString() + FString(" already exists in the stack."), true);
+		
 		return;
+	}
 
 	for (FState& State : States)
 	{
@@ -120,21 +168,24 @@ void UFSM::PushState(const FName& StateName)
 		}
 	}
 
-	ULog::DebugMessage(WARNING, FString("PushState: State " + StateName.ToString() + " does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("PushState: State " + StateName.ToString() + " does not exist"), true);
 }
 
 void UFSM::PopState(const int32 StateID)
 {
+	if (Stack.Num() == 1)
+	{
+		if (bDebug)
+			ULog::DebugMessage(WARNING, FString("PopState: Cannot pop state ") + FString::FromInt(StateID) + FString(" from the stack. At least one state should be in the stack!"), true);
+
+		return;
+	}
+
 	for (FState* State : Stack)
 	{
 		if (State->ID == StateID)
 		{
-			if (Stack.Num() == 1)
-			{
-				ULog::DebugMessage(WARNING, FString("PopState: Cannot pop state ") + FString::FromInt(StateID) + FString(" from the stack. At least one state should be in the stack!"), true);
-				return;
-			}
-
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack.Remove(State);
@@ -144,21 +195,24 @@ void UFSM::PopState(const int32 StateID)
 		}
 	}
 
-	ULog::DebugMessage(WARNING, FString("PopState: State ID ") + FString::FromInt(StateID) + FString(" does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("PopState: State ID ") + FString::FromInt(StateID) + FString(" does not exist"), true);
 }
 
 void UFSM::PopState(const FName& StateName)
 {
+	if (Stack.Num() == 1)
+	{
+		if (bDebug)
+			ULog::DebugMessage(WARNING, FString("PopState: Cannot pop ") + StateName.ToString() + FString(" state from the stack. At least one state should be in the stack!"), true);
+
+		return;
+	}
+
 	for (FState* State : Stack)
 	{
 		if (State->Name == StateName)
 		{
-			if (Stack.Num() == 1)
-			{
-				ULog::DebugMessage(WARNING, FString("PopState: Cannot pop ") + StateName.ToString() + FString(" state from the stack. At least one state should be in the stack!"), true);
-				return;
-			}
-
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack.Remove(State);
@@ -168,7 +222,8 @@ void UFSM::PopState(const FName& StateName)
 		}
 	}
 
-	ULog::DebugMessage(WARNING, FString("PopState: State ") + StateName.ToString() + FString(" does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("PopState: State ") + StateName.ToString() + FString(" does not exist"), true);
 }
 
 FState* UFSM::GetState(const int32 StateID)
@@ -179,7 +234,9 @@ FState* UFSM::GetState(const int32 StateID)
 			return &State;
 	}
 
-	ULog::DebugMessage(WARNING, FString("GetState: State does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("GetState: State ") + FString::FromInt(StateID) + FString(" does not exist"), true);
+
 	return nullptr;
 }
 
@@ -191,7 +248,9 @@ FState* UFSM::GetState(const FName& StateName)
 			return &State;
 	}
 
-	ULog::DebugMessage(WARNING, FString("GetState: State does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("GetState: State ") + StateName.ToString() + FString(" does not exist"), true);
+
 	return nullptr;
 }
 
@@ -203,7 +262,9 @@ FState* UFSM::GetStateInStack(const int32 StateID)
 			return State;	
 	}
 
-	ULog::DebugMessage(WARNING, FString("GetStateInStack: State ID ") + FString::FromInt(StateID) + FString(" does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("GetStateInStack: State ID ") + FString::FromInt(StateID) + FString(" does not exist"), true);
+
 	return nullptr;
 }
 
@@ -215,7 +276,9 @@ FState* UFSM::GetStateInStack(const FName& StateName)
 			return State;	
 	}
 
-	ULog::DebugMessage(WARNING, FString("GetStateInStack: State ") + StateName.ToString() + FString(" does not exist"), true);
+	if (bDebug)
+		ULog::DebugMessage(WARNING, FString("GetStateInStack: State ") + StateName.ToString() + FString(" does not exist"), true);
+
 	return nullptr;
 }
 
@@ -257,4 +320,9 @@ bool UFSM::DoesStateExistInStack(const FName& StateName)
 	}
 
 	return false;
+}
+
+bool UFSM::IsStackEmpty() const
+{
+	return Stack.Num() == 0;
 }

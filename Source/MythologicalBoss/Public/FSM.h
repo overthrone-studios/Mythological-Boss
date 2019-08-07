@@ -43,6 +43,9 @@ public:
 	UFSM();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void Start();
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void InitState(int32 StateID);
 		void InitState(const FName& StateName);
 
@@ -88,7 +91,15 @@ public:
 		bool DoesStateExistInStack(int32 StateID);
 		bool DoesStateExistInStack(const FName& StateName);
 
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		bool IsStackEmpty() const;
+
+	// Enable debug mode?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FSM")
+		uint8 bDebug : 1;
+
 protected:
+	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	TArray<FState*> Stack;
