@@ -22,6 +22,9 @@ public:
 		bool bIsHit;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		bool bIsStunned;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsDead;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")

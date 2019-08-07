@@ -61,6 +61,8 @@ AMordath::AMordath()
 	BossStateMachine->AddState(11, "Special Attack 3");
 	BossStateMachine->AddState(12, "Damaged");
 	BossStateMachine->AddState(13, "Death");
+	BossStateMachine->AddState(14, "Stunned");
+
 
 	// Bind state events to our functions
 	BossStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -102,6 +104,10 @@ AMordath::AMordath()
 	BossStateMachine->GetState(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDeathState);
 	BossStateMachine->GetState(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
 	BossStateMachine->GetState(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
+
+	BossStateMachine->GetState(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
+	BossStateMachine->GetState(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
+	BossStateMachine->GetState(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
 
 	BossStateMachine->InitState(0);
 
@@ -177,8 +183,8 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GameInstance->bParrySucceeded)
-		BossStateMachine->PushState("Damaged");
+	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
+		BossStateMachine->PushState("Stunned");
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -192,21 +198,37 @@ void AMordath::PossessedBy(AController* NewController)
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Health > 0.0f && !GetWorldTimerManager().IsTimerActive(InvinciblityTimerHandle))
+	if (!AnimInstance->bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
+		HitCounter++;
+
+		// Go to damaged state if we are not stunned
+		if (BossStateMachine->GetActiveStateName() != "Stunned")
+		{
+			BossStateMachine->PopState();
+			BossStateMachine->PushState("Damaged");
+		}
+
+		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
+	}
+
+	if (HitCounter >= MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	{
+		HitCounter = 0;
+
 		EnableInvincibility();
 
-		GetWorldTimerManager().SetTimer(InvinciblityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
+		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
 
-		if (BossStateMachine->GetActiveStateName() != "Idle")
-			BossStateMachine->PopState();
-
+		BossStateMachine->PopState();
 		BossStateMachine->PushState("Damaged");
-		Health -= DamageAmount;
+
+		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
 
 	if (Health <= 0.0f)
 	{
+		bCanBeDamaged = false;
 		BossStateMachine->PushState("Death");
 	}
 
@@ -495,7 +517,7 @@ void AMordath::UpdateDamagedState()
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
-	if (TimeRemaining <= 0.2f)
+	if (TimeRemaining <= 0.4f)
 		BossStateMachine->PopState();
 }
 
@@ -532,6 +554,28 @@ void AMordath::UpdateDeathState()
 void AMordath::OnExitDeathState()
 {
 	AnimInstance->bIsDead = false;
+}
+
+void AMordath::OnEnterStunnedState()
+{
+	AnimInstance->bIsStunned = true;
+
+	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, StunDuration);
+}
+
+void AMordath::UpdateStunnedState()
+{
+	// If stun animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.1f)
+		AnimInstance->bIsStunned = false;
+}
+
+void AMordath::OnExitStunnedState()
+{
+	AnimInstance->bIsStunned = false;
 }
 
 float AMordath::GetDistanceToPlayer() const
@@ -594,6 +638,11 @@ void AMordath::ChooseCombo()
 		CachedCombos = Combos;
 		ChooseCombo();
 	}
+}
+
+void AMordath::FinishStun()
+{
+	BossStateMachine->PopState();
 }
 
 void AMordath::ChooseComboWithDelay()

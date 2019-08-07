@@ -42,6 +42,8 @@ protected:
 	void ChooseComboWithDelay();
 	void ChooseCombo();
 
+	void FinishStun();
+
 	#pragma region Idle
 	UFUNCTION()
 		void OnEnterIdleState();
@@ -133,6 +135,15 @@ protected:
 		void OnExitDeathState();
 	#pragma endregion 
 
+	#pragma region Stunned
+	UFUNCTION()
+		void OnEnterStunnedState();
+	UFUNCTION()
+		void UpdateStunnedState();
+	UFUNCTION()
+		void OnExitStunnedState();
+	#pragma endregion 
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 
@@ -198,8 +209,8 @@ protected:
 		TArray<UComboData*> Combos;
 
 	// The amount of time in seconds this boss should be stunned for
-	//UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-	//	float StunDuration = 0.3f;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		float StunDuration = 0.8f;
 
 	// The attack damage we deal when light attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
@@ -221,6 +232,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
 
+	// Maximum hits that can be taken before becoming invicible
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		uint8 MaxHitsBeforeInvincibility = 3;
+
 	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
@@ -228,6 +243,7 @@ protected:
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	uint8 bCanAttack : 1; // Used to prevent attacking when player is dead
+	uint8 HitCounter = 0;
 
 	// Cached world pointer
 	UWorld* World{};
@@ -256,7 +272,8 @@ protected:
 private:
 	FTimerHandle UpdateInfoTimerHandle;
 	FTimerHandle ComboDelayTimerHandle;
-	FTimerHandle InvinciblityTimerHandle;
+	FTimerHandle InvincibilityTimerHandle;
+	FTimerHandle StunExpiryTimerHandle;
 
 	ACharacter* PlayerCharacter;
 };
