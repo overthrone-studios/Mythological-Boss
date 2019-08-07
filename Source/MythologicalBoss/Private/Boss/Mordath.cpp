@@ -103,6 +103,8 @@ AMordath::AMordath()
 	BossStateMachine->GetState(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
 	BossStateMachine->GetState(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
 
+	BossStateMachine->InitState(0);
+
 	// Assign the behaviour tree
 	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
 
@@ -159,7 +161,8 @@ void AMordath::BeginPlay()
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
-	BossStateMachine->InitState(0);
+	// Begin the state machine
+	BossStateMachine->Start();
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
@@ -234,6 +237,8 @@ void AMordath::UpdateIdleState()
 
 	ULog::DebugMessage(INFO, "Idle state", true);
 
+	FacePlayer();
+
 	if (GetDistanceToPlayer() > AcceptanceRadius)
 		BossStateMachine->PushState("Follow");
 }
@@ -272,7 +277,7 @@ void AMordath::UpdateFollowState()
 		{
 			ChooseAttack();
 		}
-
+		
 		if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		{
 			BossStateMachine->PopState();
@@ -520,8 +525,6 @@ float AMordath::GetDistanceToPlayer() const
 
 void AMordath::OnPlayerDeath()
 {
-	ULog::LogYes(true);
-
 	MovementComponent->DisableMovement();
 
 	BossStateMachine->RemoveAllStatesFromStack();

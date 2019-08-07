@@ -114,6 +114,8 @@ AYlva::AYlva()
 	PlayerStateMachine->GetState(22)->OnUpdateState.AddDynamic(this, &AYlva::UpdateParryState);
 	PlayerStateMachine->GetState(22)->OnExitState.AddDynamic(this, &AYlva::OnExitParryState);
 
+	PlayerStateMachine->InitState(0);
+
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -190,7 +192,8 @@ void AYlva::BeginPlay()
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
 
-	PlayerStateMachine->InitState(0);
+	// Begin the state machine
+	PlayerStateMachine->Start();
 }
 
 void AYlva::Tick(const float DeltaTime)
@@ -467,7 +470,7 @@ void AYlva::StopRunning()
 {
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
 
-	PlayerStateMachine->PopState("Run");
+	PlayerStateMachine->PopState();
 }
 
 void AYlva::Dash()
@@ -965,7 +968,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		}
 	}
 
-	if (Health <= 0.0f && !AnimInstance->bIsHit && PlayerStateMachine->GetActiveStateName() != "Death")
+	if (Health <= 0.0f && PlayerStateMachine->GetActiveStateName() != "Death")
 	{
 		SetHealth(0.0f);
 
