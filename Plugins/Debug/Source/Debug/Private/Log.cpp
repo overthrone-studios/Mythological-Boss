@@ -75,10 +75,30 @@ void ULog::LogYes(const bool bLogInViewport)
 		UE_LOG(LogTemp, Warning, TEXT("Yes"))
 }
 
+void ULog::LogYes(const FString& Prefix, const bool bLogInViewport)
+{
+	const FString LogMessage = Prefix + ": Yes";
+
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, LogMessage);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
+}
+
 void ULog::LogNo(const bool bLogInViewport)
 {
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("No"));
 	else
 		UE_LOG(LogTemp, Warning, TEXT("No"))
+}
+
+void ULog::LogNo(const FString& Prefix, const bool bLogInViewport)
+{
+	const FString LogMessage = Prefix + ": No";
+
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, LogMessage);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
 }
