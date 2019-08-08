@@ -596,7 +596,7 @@ void AMordath::OnPlayerDeath()
 {
 	MovementComponent->DisableMovement();
 
-	BossStateMachine->RemoveAllStatesFromStack();
+	BossStateMachine->RemoveAllStatesFromStackExceptActive();
 
 	BossStateMachine->PushState("Laugh");
 }

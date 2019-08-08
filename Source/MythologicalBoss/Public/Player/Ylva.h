@@ -337,6 +337,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		float Stamina = 100.0f;
 
+	// The intensity of the camera shake
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float RespawnDelay = 1.8f;
+
 	// The rate of stamina regeneration
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float StaminaRegenerationRate = 10.0f;
