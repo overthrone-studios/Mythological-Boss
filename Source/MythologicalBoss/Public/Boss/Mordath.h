@@ -166,6 +166,8 @@ protected:
 	UFUNCTION()
 		void OnPlayerDeath();
 
+	void DestroySelf();
+
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
 
@@ -186,8 +188,12 @@ protected:
 		float Health = 1000.0f;
 
 	// The radius in which the boss character will accept that it has arrived to the player's location
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
 		float AcceptanceRadius = 200.0f;
+
+	// How long (in seconds) should the boss stay dead before being destroyed?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float DeathTime = 2.0f;
 
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
@@ -283,6 +289,7 @@ private:
 	FTimerHandle ComboDelayTimerHandle;
 	FTimerHandle InvincibilityTimerHandle;
 	FTimerHandle StunExpiryTimerHandle;
+	FTimerHandle DeathExpiryTimerHandle;
 
 	ACharacter* PlayerCharacter;
 };

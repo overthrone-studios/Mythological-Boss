@@ -118,6 +118,15 @@ void UFSM::RemoveAllStatesFromStack()
 		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for one"), true);
 }
 
+void UFSM::RemoveAllStatesFromStackExceptActive()
+{
+	for (int32 i = 1; i < Stack.Num(); i++)
+	{
+		if (Stack[i]->ID != GetActiveStateID())
+			Stack.RemoveAt(i);
+	}
+}
+
 void UFSM::PushState(const int32 StateID)
 {
 	if (DoesStateExistInStack(StateID))

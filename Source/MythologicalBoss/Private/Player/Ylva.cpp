@@ -868,7 +868,7 @@ void AYlva::OnEnterDeathState()
 	GameInstance->bIsPlayerDead = true;
 	GameInstance->OnPlayerDeath.Broadcast();
 
-	GetWorldTimerManager().SetTimer(DeathStateExpiryTimer, this, &AYlva::Respawn, 1.8f);
+	GetWorldTimerManager().SetTimer(DeathStateExpiryTimer, this, &AYlva::Respawn, RespawnDelay);
 }
 
 void AYlva::UpdateDeathState()
