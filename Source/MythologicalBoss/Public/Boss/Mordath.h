@@ -144,6 +144,15 @@ protected:
 		void OnExitStunnedState();
 	#pragma endregion 
 
+	#pragma region Laugh
+	UFUNCTION()
+		void OnEnterLaughState();
+	UFUNCTION()
+		void UpdateLaughState();
+	UFUNCTION()
+		void OnExitLaughState();
+	#pragma endregion 
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 

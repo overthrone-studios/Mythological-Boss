@@ -45,6 +45,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bAcceptThirdHeavyAttack;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Misc")
+		bool bCanLaugh;
+
 	// Used to get a reference to the anim state machine, and to query time remaining
 	int32 GenericsMachineIndex;
 	
