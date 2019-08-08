@@ -337,7 +337,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		float Stamina = 100.0f;
 
-	// The intensity of the camera shake
+	// How long (in seconds) after the player's death, should we wait to respawn?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float RespawnDelay = 1.8f;
 

@@ -528,20 +528,12 @@ void AMordath::OnEnterDeathState()
 	BossAIController->StopBT();
 
 	GameInstance->OnBossDeath.Broadcast();
+
+	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
 }
 
 void AMordath::UpdateDeathState()
 {
-	// If death animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
-	{
-		BossStateMachine->PopState();
-
-		Destroy();
-	}
 }
 
 void AMordath::OnExitDeathState()
@@ -599,6 +591,13 @@ void AMordath::OnPlayerDeath()
 	BossStateMachine->RemoveAllStatesFromStackExceptActive();
 
 	BossStateMachine->PushState("Laugh");
+}
+
+void AMordath::DestroySelf()
+{
+	MovementComponent->DisableMovement();
+
+	Destroy();
 }
 
 bool AMordath::ShouldDestroyDestructibleObjects()
