@@ -413,6 +413,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float TimeUntilParryEventIsCompleted = 0.5f;
 
+	// A camera shake that plays when the player has taken damage
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat")
+		TSubclassOf<class UCameraShake> Damaged;
+
+	// The intensity of the camera shake
+	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
+		float ShakeIntensity = 1.0f;
+
 	// Cached world pointer
 	UWorld* World{};
 

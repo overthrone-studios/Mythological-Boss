@@ -493,9 +493,8 @@ void AYlva::Dash()
 		if (!bGodMode && Stamina > DashStamina)
 		{
 			UpdateStamina(DashStamina);
+			LaunchCharacter(VelocityNormalized * DashForce, true, true);
 		}
-
-		LaunchCharacter(VelocityNormalized * DashForce, true, true);
 	}
 }
 
@@ -529,7 +528,7 @@ void AYlva::Pause()
 
 void AYlva::RegenerateStamina(const float Rate)
 {
-	if (bGodMode)
+	if (bGodMode || PlayerStateMachine->GetActiveStateID() == 5 /*Death*/)
 		return;
 
 	if (Stamina < StartingStamina)
@@ -962,6 +961,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 			UpdateHealth(DamageAmount * DamageBuffer);
 			UpdateStamina(ShieldHitStamina);
+			PlayerController->ClientPlayCameraShake(Damaged, ShakeIntensity);
 		}
 		// Not blocking
 		else
@@ -969,6 +969,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			PlayerStateMachine->PushState("Damaged");
 
 			UpdateHealth(DamageAmount);
+			PlayerController->ClientPlayCameraShake(Damaged, ShakeIntensity);
 		}
 	}
 
