@@ -345,13 +345,11 @@ void AMordath::OnEnterLightAttack1State()
 
 void AMordath::UpdateLightAttack1State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	// Face the player up until a certain point in the animation
-	if (TimeRemaining >= 1.2f)
-		FacePlayer();
 
 	if (TimeRemaining <= 0.4f)
 	{
@@ -373,13 +371,11 @@ void AMordath::OnEnterLightAttack2State()
 
 void AMordath::UpdateLightAttack2State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	// Face the player up until a certain point in the animation
-	if (TimeRemaining >= 1.2f)
-		FacePlayer();
 
 	if (TimeRemaining <= 0.7f)
 	{
@@ -401,13 +397,11 @@ void AMordath::OnEnterLightAttack3State()
 
 void AMordath::UpdateLightAttack3State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	// Face the player up until a certain point in the animation
-	if (TimeRemaining >= 0.7f)
-		FacePlayer();
 
 	if (TimeRemaining <= 0.2f)
 	{
@@ -429,13 +423,11 @@ void AMordath::OnEnterHeavyAttack1State()
 
 void AMordath::UpdateHeavyAttack1State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	// Face the player up until a certain point in the animation
-	if (TimeRemaining > 1.5f)
-		FacePlayer();
 
 	if (TimeRemaining <= 0.2f)
 	{
@@ -457,13 +449,11 @@ void AMordath::OnEnterHeavyAttack2State()
 
 void AMordath::UpdateHeavyAttack2State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	// Face the player up until a certain point in the animation
-	if (TimeRemaining > 1.0f)
-		FacePlayer();
 
 	if (TimeRemaining <= 0.5f)
 	{
@@ -485,13 +475,11 @@ void AMordath::OnEnterHeavyAttack3State()
 
 void AMordath::UpdateHeavyAttack3State()
 {
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	// Face the player up until a certain point in the animation
-	if (TimeRemaining > 1.5f)
-		FacePlayer();
 
 	if (TimeRemaining <= 0.3f)
 	{
