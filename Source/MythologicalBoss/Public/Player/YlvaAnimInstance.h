@@ -14,6 +14,9 @@ class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UAnimInstance
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "Anim Instance")
+		void LeaveAllStates();
+
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
 

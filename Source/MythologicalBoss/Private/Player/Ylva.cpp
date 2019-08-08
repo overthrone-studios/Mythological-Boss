@@ -220,6 +220,8 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	RegenerateStamina(StaminaRegenerationRate);
+
+	ULog::DebugMessage(INFO, PlayerStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -317,7 +319,7 @@ void AYlva::LookUpAtRate(const float Rate)
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossHealth <= 0.0f)
+	if (GameInstance->BossHealth <= 0.0f || PlayerStateMachine->GetActiveStateName() == "Death")
 		return;
 
 	bShouldLockOnTarget = !bShouldLockOnTarget;
@@ -328,7 +330,7 @@ void AYlva::ToggleLockOn()
 void AYlva::EnableLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossHealth <= 0.0f)
+	if (GameInstance->BossHealth <= 0.0f || PlayerStateMachine->GetActiveStateName() == "Death")
 		return;
 
 	bShouldLockOnTarget = true;
@@ -460,6 +462,9 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
+	if (PlayerStateMachine->GetActiveStateName() == "Death")
+		return;
+
 	// If we are moving and grounded
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > RunStamina * World->DeltaTimeSeconds)
 	{
@@ -472,6 +477,9 @@ void AYlva::Run()
 
 void AYlva::StopRunning()
 {
+	if (PlayerStateMachine->GetActiveStateName() == "Death")
+		return;
+
 	MovementComponent->MaxWalkSpeed = WalkSpeed;
 
 	PlayerStateMachine->PopState();
@@ -936,7 +944,7 @@ void AYlva::OnExitParryState()
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (bGodMode)
+	if (bGodMode || PlayerStateMachine->GetActiveStateName() == "Death")
 		return DamageAmount;
 
 	if (Health > 0.0f && !AnimInstance->bIsHit)
@@ -979,6 +987,8 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 		bCanBeDamaged = false;
 
+		AnimInstance->LeaveAllStates();
+
 		PlayerStateMachine->RemoveAllStatesFromStack();
 		PlayerStateMachine->PushState("Death");
 	}
@@ -1006,7 +1016,6 @@ void AYlva::SetHealth(const float NewHealthAmount)
 void AYlva::UpdateStamina(const float AmountToSubtract)
 {
 	Stamina = FMath::Clamp(Stamina - AmountToSubtract, 0.0f, StartingStamina);
-	//Stamina -= AmountToSubtract;
 	GameInstance->PlayerStamina = Stamina;
 }
 
