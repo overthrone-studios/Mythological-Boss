@@ -154,14 +154,17 @@ void AMordath::BeginPlay()
 
 	Health = StartingHealth;
 
+	// Cache the Combos array to use for randomization
 	CachedCombos = Combos;
 
 	// Cache the Overthrone HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 
+	// Cache player character for knowing where it is
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 
-	PlayerHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
+	// Cache the main HUD
+	MainHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
 
 	// Cache our anim instance
 	AnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
@@ -197,8 +200,6 @@ void AMordath::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	BossAIController = Cast<ABossAIController>(NewController);
-
-	Super::PossessedBy(NewController);
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -240,16 +241,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	return DamageAmount;
 }
 
-void AMordath::EnableInvincibility()
-{
-	bCanBeDamaged = false;
-}
-
-void AMordath::DisableInvincibility()
-{
-	bCanBeDamaged = true;
-}
-
 FRotator AMordath::FacePlayer()
 {
 	const FVector Target = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), PlayerCharacter->GetActorLocation());
@@ -268,6 +259,7 @@ void AMordath::SendInfo()
 	GameInstance->BossLocation = GetActorLocation();
 }
 
+#pragma region Idle
 void AMordath::OnEnterIdleState()
 {
 
@@ -289,7 +281,9 @@ void AMordath::UpdateIdleState()
 void AMordath::OnExitIdleState()
 {
 }
+#pragma endregion
 
+#pragma region Follow
 void AMordath::OnEnterFollowState()
 {
 	MovementComponent->SetMovementMode(MOVE_Walking);
@@ -342,7 +336,9 @@ void AMordath::UpdateFollowState()
 void AMordath::OnExitFollowState()
 {
 }
+#pragma endregion 
 
+#pragma region Light Attack 1
 void AMordath::OnEnterLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = true;
@@ -368,7 +364,9 @@ void AMordath::OnExitLightAttack1State()
 {
 	AnimInstance->bAcceptLightAttack = false;
 }
+#pragma endregion
 
+#pragma region Light Attack 2
 void AMordath::OnEnterLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = true;
@@ -394,7 +392,9 @@ void AMordath::OnExitLightAttack2State()
 {
 	AnimInstance->bAcceptSecondLightAttack = false;
 }
+#pragma endregion
 
+#pragma region Light Attack 3
 void AMordath::OnEnterLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = true;
@@ -420,7 +420,9 @@ void AMordath::OnExitLightAttack3State()
 {
 	AnimInstance->bAcceptThirdLightAttack = false;
 }
+#pragma endregion 
 
+#pragma region Heavy Attack 1
 void AMordath::OnEnterHeavyAttack1State()
 {
 	AnimInstance->bAcceptHeavyAttack = true;
@@ -446,7 +448,9 @@ void AMordath::OnExitHeavyAttack1State()
 {
 	AnimInstance->bAcceptHeavyAttack = false;
 }
+#pragma endregion
 
+#pragma region Heavy Attack 2
 void AMordath::OnEnterHeavyAttack2State()
 {
 	AnimInstance->bAcceptSecondHeavyAttack = true;
@@ -472,7 +476,9 @@ void AMordath::OnExitHeavyAttack2State()
 {
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 }
+#pragma endregion
 
+#pragma region Heavy Attack 3
 void AMordath::OnEnterHeavyAttack3State()
 {
 	AnimInstance->bAcceptThirdHeavyAttack = true;
@@ -498,7 +504,9 @@ void AMordath::OnExitHeavyAttack3State()
 {
 	AnimInstance->bAcceptThirdHeavyAttack = false;
 }
+#pragma endregion
 
+#pragma region Damaged
 void AMordath::OnEnterDamagedState()
 {
 	AnimInstance->bIsHit = true;
@@ -520,7 +528,9 @@ void AMordath::OnExitDamagedState()
 
 	ChosenCombo->NextAttack();
 }
+#pragma endregion
 
+#pragma region Death
 void AMordath::OnEnterDeathState()
 {
 	AnimInstance->bIsDead = true;
@@ -540,7 +550,9 @@ void AMordath::OnExitDeathState()
 {
 	AnimInstance->bIsDead = false;
 }
+#pragma endregion
 
+#pragma region Stunned
 void AMordath::OnEnterStunnedState()
 {
 	AnimInstance->bIsStunned = true;
@@ -562,7 +574,9 @@ void AMordath::OnExitStunnedState()
 {
 	AnimInstance->bIsStunned = false;
 }
+#pragma endregion
 
+#pragma region Laugh
 void AMordath::OnEnterLaughState()
 {
 	AnimInstance->bCanLaugh = true;
@@ -576,13 +590,7 @@ void AMordath::OnExitLaughState()
 {
 	AnimInstance->bCanLaugh = false;
 }
-
-float AMordath::GetDistanceToPlayer() const
-{
-	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	//ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
-	return Distance;
-}
+#pragma endregion
 
 void AMordath::OnPlayerDeath()
 {
@@ -598,6 +606,11 @@ void AMordath::DestroySelf()
 	MovementComponent->DisableMovement();
 
 	Destroy();
+}
+
+void AMordath::FinishStun()
+{
+	BossStateMachine->PopState();
 }
 
 bool AMordath::ShouldDestroyDestructibleObjects()
@@ -646,11 +659,6 @@ void AMordath::ChooseCombo()
 		CachedCombos = Combos;
 		ChooseCombo();
 	}
-}
-
-void AMordath::FinishStun()
-{
-	BossStateMachine->PopState();
 }
 
 void AMordath::ChooseComboWithDelay()
@@ -707,4 +715,21 @@ void AMordath::ChooseAttack()
 		default:
 		break;
 	}
+}
+
+void AMordath::EnableInvincibility()
+{
+	bCanBeDamaged = false;
+}
+
+void AMordath::DisableInvincibility()
+{
+	bCanBeDamaged = true;
+}
+
+float AMordath::GetDistanceToPlayer() const
+{
+	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
+	//ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+	return Distance;
 }

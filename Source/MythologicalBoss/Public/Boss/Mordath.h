@@ -275,7 +275,7 @@ protected:
 	// Cached Overthrone HUD reference, used to access menus
 	class AOverthroneHUD* OverthroneHUD{};
 
-	class UMainPlayerHUD* PlayerHUD{};
+	class UMainPlayerHUD* MainHUD{};
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
