@@ -62,6 +62,7 @@ AMordath::AMordath()
 	BossStateMachine->AddState(12, "Damaged");
 	BossStateMachine->AddState(13, "Death");
 	BossStateMachine->AddState(14, "Stunned");
+	BossStateMachine->AddState(15, "Laugh");
 
 
 	// Bind state events to our functions
@@ -108,6 +109,10 @@ AMordath::AMordath()
 	BossStateMachine->GetState(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
 	BossStateMachine->GetState(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
 	BossStateMachine->GetState(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
+
+	BossStateMachine->GetState(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLaughState);
+	BossStateMachine->GetState(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
+	BossStateMachine->GetState(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
 
 	BossStateMachine->InitState(0);
 
@@ -566,6 +571,20 @@ void AMordath::OnExitStunnedState()
 	AnimInstance->bIsStunned = false;
 }
 
+void AMordath::OnEnterLaughState()
+{
+	AnimInstance->bCanLaugh = true;
+}
+
+void AMordath::UpdateLaughState()
+{
+}
+
+void AMordath::OnExitLaughState()
+{
+	AnimInstance->bCanLaugh = false;
+}
+
 float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
@@ -578,6 +597,8 @@ void AMordath::OnPlayerDeath()
 	MovementComponent->DisableMovement();
 
 	BossStateMachine->RemoveAllStatesFromStack();
+
+	BossStateMachine->PushState("Laugh");
 }
 
 bool AMordath::ShouldDestroyDestructibleObjects()
