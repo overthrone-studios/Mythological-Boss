@@ -200,6 +200,8 @@ void AMordath::Tick(const float DeltaTime)
 
 	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
 		BossStateMachine->PushState("Stunned");
+
+	ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -619,15 +621,11 @@ void AMordath::InitJumpAttackTimeline()
 		JumpAttackTimelineComponent->SetPropertySetObject(this);
 		JumpAttackTimelineComponent->SetLooping(false);
 		JumpAttackTimelineComponent->SetPlaybackPosition(0.0f, false, false);
-		JumpAttackTimelineComponent->SetPlayRate(2.0f);
+		JumpAttackTimelineComponent->SetPlayRate(JumpAttack_Bezier.PlaybackSpeed);
 		JumpAttackTimelineComponent->AddInterpFloat(JumpAttackCurve, TimelineCallback);
-		JumpAttackTimelineComponent->SetTimelineLength(2.0f);
+		JumpAttackTimelineComponent->SetTimelineLength(JumpAttackCurve->FloatCurve.Keys[JumpAttackCurve->FloatCurve.Keys.Num() - 1].Time);
 		JumpAttackTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
 		JumpAttackTimelineComponent->RegisterComponent();
-
-		JumpAttackCurve->ResetCurve();
-		JumpAttackCurve->FloatCurve.AddKey(0.0f, 0.0f);
-		JumpAttackCurve->FloatCurve.AddKey(2.0f, 1.0f);
 	}
 	else
 	{
@@ -758,11 +756,17 @@ void AMordath::BeginJumpAttack()
 {
 	// Create a bezier curve
 	FVector Point = GetActorLocation() + GetActorForwardVector() * (GetDistanceToPlayer() / 2.0f);
-	Point.Z = 1000.0f;
+	Point.Z = JumpAttack_Bezier.CurveHeight;
 
 	JumpAttack_Bezier.A = GetActorLocation();
 	JumpAttack_Bezier.B = Point;
-	JumpAttack_Bezier.C = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetActorForwardVector() * 300.0f + FVector(0.0f, 0.0f, 50.0f);
+	JumpAttack_Bezier.C = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -JumpAttack_Bezier.EndPointOffsetDistance + FVector(0.0f, 0.0f, 50.0f);
+
+	DrawDebugLine(GetWorld(), JumpAttack_Bezier.A, JumpAttack_Bezier.B, FColor::Green, true, 10, 0, 5.0f);
+	DrawDebugLine(GetWorld(), JumpAttack_Bezier.B, JumpAttack_Bezier.C, FColor::Green, true, 10, 0, 5.0f);
+
+	ULog::DebugMessage(INFO, PlayerCharacter->GetActorLocation().ToString(), true);
+	ULog::DebugMessage(INFO, JumpAttack_Bezier.C.ToString(), true);
 
 	BossAIController->StopMovement();
 	JumpAttackTimelineComponent->PlayFromStart();
@@ -786,7 +790,7 @@ void AMordath::DoJumpAttack()
 float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+	//ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
 	return Distance;
 }
 

@@ -11,6 +11,16 @@ struct FJumpAttack_Bezier
 {
 	GENERATED_BODY()
 
+	// How fast do we do this attack (1.0 = Normal, 2.0+ = Fast)
+	UPROPERTY(EditInstanceOnly)
+		float PlaybackSpeed = 2.0f;
+
+	UPROPERTY(EditInstanceOnly)
+		float CurveHeight = 1000.0f;
+
+	UPROPERTY(EditInstanceOnly)
+		float EndPointOffsetDistance = 100.0f;
+
 	// Points on bezier
 	FVector A, B, C;
 };
@@ -271,13 +281,17 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
 
-	// Maximum hits that can be taken before becoming invicible
+	// Maximum hits that can be taken before becoming invincible
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0, ClampMax = 100))
 		uint8 MaxHitsBeforeInvincibility = 3;
 
 	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
+
+	// Properties of the jump attack curve
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+		FJumpAttack_Bezier JumpAttack_Bezier;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
@@ -310,8 +324,6 @@ protected:
 
 private:
 	void InitJumpAttackTimeline();
-
-	FJumpAttack_Bezier JumpAttack_Bezier;
 
 	FTimerHandle UpdateInfoTimerHandle;
 	FTimerHandle ComboDelayTimerHandle;
