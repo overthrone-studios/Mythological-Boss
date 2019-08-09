@@ -144,6 +144,31 @@ AMordath::AMordath()
 	bCanBeDamaged = true;
 }
 
+void AMordath::InitJumpAttackTimeline()
+{
+	// Timeline Initialization
+	FOnTimelineFloat TimelineCallback;
+	TimelineCallback.BindUFunction(this, "DoJumpAttack");
+
+	if (JumpAttackCurve)
+	{
+		JumpAttackTimelineComponent = NewObject<UTimelineComponent>(this, FName("Jump Attack Timeline"));
+		JumpAttackTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		JumpAttackTimelineComponent->SetPropertySetObject(this);
+		JumpAttackTimelineComponent->SetLooping(false);
+		JumpAttackTimelineComponent->SetPlaybackPosition(0.0f, false, false);
+		JumpAttackTimelineComponent->SetPlayRate(JumpAttack_Bezier.PlaybackSpeed);
+		JumpAttackTimelineComponent->AddInterpFloat(JumpAttackCurve, TimelineCallback);
+		JumpAttackTimelineComponent->SetTimelineLength(JumpAttackCurve->FloatCurve.Keys[JumpAttackCurve->FloatCurve.Keys.Num() - 1].Time);
+		JumpAttackTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
+		JumpAttackTimelineComponent->RegisterComponent();
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, "Failed to initialize the jump attack timeline. Jump attack curve is missing!", true);
+	}
+}
+
 void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
@@ -606,31 +631,6 @@ void AMordath::DestroySelf()
 	MovementComponent->DisableMovement();
 
 	Destroy();
-}
-
-void AMordath::InitJumpAttackTimeline()
-{
-	// Timeline Initialization
-	FOnTimelineFloat TimelineCallback;
-	TimelineCallback.BindUFunction(this, "DoJumpAttack");
-
-	if (JumpAttackCurve)
-	{
-		JumpAttackTimelineComponent = NewObject<UTimelineComponent>(this, FName("Jump Attack Timeline"));
-		JumpAttackTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-		JumpAttackTimelineComponent->SetPropertySetObject(this);
-		JumpAttackTimelineComponent->SetLooping(false);
-		JumpAttackTimelineComponent->SetPlaybackPosition(0.0f, false, false);
-		JumpAttackTimelineComponent->SetPlayRate(JumpAttack_Bezier.PlaybackSpeed);
-		JumpAttackTimelineComponent->AddInterpFloat(JumpAttackCurve, TimelineCallback);
-		JumpAttackTimelineComponent->SetTimelineLength(JumpAttackCurve->FloatCurve.Keys[JumpAttackCurve->FloatCurve.Keys.Num() - 1].Time);
-		JumpAttackTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
-		JumpAttackTimelineComponent->RegisterComponent();
-	}
-	else
-	{
-		ULog::DebugMessage(ERROR, "Failed to initialize the jump attack timeline. Jump attack curve is missing!", true);
-	}
 }
 
 void AMordath::FinishStun()
