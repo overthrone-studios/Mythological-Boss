@@ -226,7 +226,7 @@ void AMordath::Tick(const float DeltaTime)
 	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
 		BossStateMachine->PushState("Stunned");
 
-	//ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
+	ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -345,14 +345,17 @@ void AMordath::UpdateFollowState()
 	SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
 
 	// If we are in close range
-	if (GetDistanceToPlayer() <= AcceptanceRadius && bCanAttack)
+	if (GetDistanceToPlayer() <= AcceptanceRadius)
 	{
 		ChooseAttack();
 	}
-	else if (GetDistanceToPlayer() > AcceptanceRadius * 2 && GetDistanceToPlayer() < AcceptanceRadius * 3 && bCanAttack)
+	else if (GetDistanceToPlayer() > AcceptanceRadius * 2 && GetDistanceToPlayer() < AcceptanceRadius * 3)
 	{
 		// Do jump attack
-		BossStateMachine->PushState("Heavy Attack 2");
+		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
+		{
+			BossStateMachine->PushState("Heavy Attack 2");
+		}
 	}
 }
 
@@ -500,6 +503,8 @@ void AMordath::UpdateHeavyAttack2State()
 void AMordath::OnExitHeavyAttack2State()
 {
 	AnimInstance->bAcceptSecondHeavyAttack = false;
+
+	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::AllowJumpAttack, JumpAttackCooldown);
 }
 #pragma endregion
 
@@ -633,6 +638,10 @@ void AMordath::DestroySelf()
 	Destroy();
 }
 
+void AMordath::AllowJumpAttack()
+{
+}
+
 void AMordath::FinishStun()
 {
 	BossStateMachine->PopState();
@@ -674,7 +683,6 @@ void AMordath::ChooseCombo()
 			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
 		}
 
-		bCanAttack = true;
 		MovementComponent->MaxWalkSpeed = WalkSpeed;
 	}
 	else
@@ -688,8 +696,6 @@ void AMordath::ChooseCombo()
 
 void AMordath::ChooseComboWithDelay()
 {
-	bCanAttack = false;
-
 	if (RandomDeviation == 0.0f)
 	{
 		GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, ComboDelayTime);

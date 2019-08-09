@@ -196,6 +196,8 @@ protected:
 
 	void DestroySelf();
 
+	void AllowJumpAttack();
+
 	UPROPERTY()
 		class UTimelineComponent* JumpAttackTimelineComponent;
 
@@ -293,9 +295,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
 		FJumpAttack_Bezier JumpAttack_Bezier;
 
+	// The amount of time (in seconds) that the boss can be allowed to jump attack again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float JumpAttackCooldown = 2.0f;
+
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
-	uint8 bCanAttack : 1; // Used to prevent attacking when player is dead
 	uint8 HitCounter = 0;
 
 	// Cached world pointer
@@ -330,6 +335,7 @@ private:
 	FTimerHandle InvincibilityTimerHandle;
 	FTimerHandle StunExpiryTimerHandle;
 	FTimerHandle DeathExpiryTimerHandle;
+	FTimerHandle JumpAttackCooldownTimerHandle;
 
 	ACharacter* PlayerCharacter;
 };
