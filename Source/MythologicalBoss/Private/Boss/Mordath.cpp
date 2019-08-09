@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "Components/TimelineComponent.h"
 
 AMordath::AMordath()
 {
@@ -130,11 +131,15 @@ AMordath::AMordath()
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// Configure character settings
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = ABossAIController::StaticClass();
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	// Timeline
+	JumpAttackTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Jump Attack Timeline"));
 
 	bCanBeDamaged = true;
 }
@@ -142,6 +147,8 @@ AMordath::AMordath()
 void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitJumpAttackTimeline();
 
 	bCanBeDamaged = true;
 
@@ -307,29 +314,18 @@ void AMordath::UpdateFollowState()
 		return;
 	}
 
-	switch (BossAIController->MoveToActor(PlayerCharacter, AcceptanceRadius))
+	AddMovementInput(GetDirectionToPlayer());
+	SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
+
+	// If we are in close range
+	if (GetDistanceToPlayer() <= AcceptanceRadius && bCanAttack)
 	{
-	case EPathFollowingRequestResult::RequestSuccessful:
-
-		// If we are in range
-		if (GetDistanceToPlayer() <= 400.0f && bCanAttack)
-		{
-			ChooseAttack();
-		}
-		
-		if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		{
-			BossStateMachine->PopState();
-		}
-	break;
-
-	case EPathFollowingRequestResult::AlreadyAtGoal:
-		if (bCanAttack)
-			ChooseAttack();
-	break;
-
-	default:
-	break;
+		ChooseAttack();
+	}
+	else if (GetDistanceToPlayer() > AcceptanceRadius * 2 && GetDistanceToPlayer() < AcceptanceRadius * 3 && bCanAttack)
+	{
+		// Do jump attack
+		BossStateMachine->PushState("Heavy Attack 2");
 	}
 }
 
@@ -454,11 +450,13 @@ void AMordath::OnExitHeavyAttack1State()
 void AMordath::OnEnterHeavyAttack2State()
 {
 	AnimInstance->bAcceptSecondHeavyAttack = true;
+
+	BeginJumpAttack();
 }
 
 void AMordath::UpdateHeavyAttack2State()
 {
-	FacePlayer();
+	//FacePlayer();
 
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
@@ -608,6 +606,35 @@ void AMordath::DestroySelf()
 	Destroy();
 }
 
+void AMordath::InitJumpAttackTimeline()
+{
+	// Timeline Initialization
+	FOnTimelineFloat TimelineCallback;
+	TimelineCallback.BindUFunction(this, "DoJumpAttack");
+
+	if (JumpAttackCurve)
+	{
+		JumpAttackTimelineComponent = NewObject<UTimelineComponent>(this, FName("Jump Attack Timeline"));
+		JumpAttackTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		JumpAttackTimelineComponent->SetPropertySetObject(this);
+		JumpAttackTimelineComponent->SetLooping(false);
+		JumpAttackTimelineComponent->SetPlaybackPosition(0.0f, false, false);
+		JumpAttackTimelineComponent->SetPlayRate(2.0f);
+		JumpAttackTimelineComponent->AddInterpFloat(JumpAttackCurve, TimelineCallback);
+		JumpAttackTimelineComponent->SetTimelineLength(2.0f);
+		JumpAttackTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
+		JumpAttackTimelineComponent->RegisterComponent();
+
+		JumpAttackCurve->ResetCurve();
+		JumpAttackCurve->FloatCurve.AddKey(0.0f, 0.0f);
+		JumpAttackCurve->FloatCurve.AddKey(2.0f, 1.0f);
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, "Failed to initialize the jump attack timeline. Jump attack curve is missing!", true);
+	}
+}
+
 void AMordath::FinishStun()
 {
 	BossStateMachine->PopState();
@@ -727,9 +754,46 @@ void AMordath::DisableInvincibility()
 	bCanBeDamaged = true;
 }
 
+void AMordath::BeginJumpAttack()
+{
+	// Create a bezier curve
+	FVector Point = GetActorLocation() + GetActorForwardVector() * (GetDistanceToPlayer() / 2.0f);
+	Point.Z = 1000.0f;
+
+	JumpAttack_Bezier.A = GetActorLocation();
+	JumpAttack_Bezier.B = Point;
+	JumpAttack_Bezier.C = PlayerCharacter->GetActorLocation() + PlayerCharacter->GetActorForwardVector() * 300.0f + FVector(0.0f, 0.0f, 50.0f);
+
+	BossAIController->StopMovement();
+	JumpAttackTimelineComponent->PlayFromStart();
+}
+
+void AMordath::DoJumpAttack()
+{
+	const float Time = JumpAttackCurve->GetFloatValue(JumpAttackTimelineComponent->GetPlaybackPosition());
+	
+	// Create points on the curve
+	const FVector D = FMath::Lerp(JumpAttack_Bezier.A, JumpAttack_Bezier.B, Time);
+	const FVector E = FMath::Lerp(JumpAttack_Bezier.B, JumpAttack_Bezier.C, Time);
+	
+	const FVector PointOnCurve = FMath::Lerp(D, E, Time);
+	
+	SetActorLocation(PointOnCurve);
+	
+	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 10.0f);
+}
+
 float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	//ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+	ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
 	return Distance;
+}
+
+FVector AMordath::GetDirectionToPlayer() const
+{
+	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
+	Direction.Normalize();
+	//ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
+	return Direction;
 }

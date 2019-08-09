@@ -6,6 +6,15 @@
 #include "Combat/ComboData.h"
 #include "Mordath.generated.h"
 
+USTRUCT()
+struct FJumpAttack_Bezier
+{
+	GENERATED_BODY()
+
+	// Points on bezier
+	FVector A, B, C;
+};
+
 UCLASS()
 class MYTHOLOGICALBOSS_API AMordath final : public ACharacter
 {
@@ -157,16 +166,31 @@ protected:
 		float GetDistanceToPlayer() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FVector GetDirectionToPlayer() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void EnableInvincibility();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void DisableInvincibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void BeginJumpAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void DoJumpAttack();
 
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		void OnPlayerDeath();
 
 	void DestroySelf();
+
+	UPROPERTY()
+		class UTimelineComponent* JumpAttackTimelineComponent;
+
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+		UCurveFloat* JumpAttackCurve;
 
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
@@ -285,6 +309,10 @@ protected:
 	TArray<UComboData*> CachedCombos;
 
 private:
+	void InitJumpAttackTimeline();
+
+	FJumpAttack_Bezier JumpAttack_Bezier;
+
 	FTimerHandle UpdateInfoTimerHandle;
 	FTimerHandle ComboDelayTimerHandle;
 	FTimerHandle InvincibilityTimerHandle;
