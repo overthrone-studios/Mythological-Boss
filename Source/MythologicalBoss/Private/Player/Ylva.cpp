@@ -220,8 +220,6 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	RegenerateStamina(StaminaRegenerationRate);
-
-	ULog::DebugMessage(INFO, PlayerStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
