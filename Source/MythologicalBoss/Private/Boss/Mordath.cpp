@@ -226,7 +226,7 @@ void AMordath::Tick(const float DeltaTime)
 	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
 		BossStateMachine->PushState("Stunned");
 
-	ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
+	//ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AMordath::PossessedBy(AController* NewController)
