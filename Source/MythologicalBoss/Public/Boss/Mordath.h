@@ -7,7 +7,7 @@
 #include "Mordath.generated.h"
 
 USTRUCT()
-struct FJumpAttack_Bezier
+struct FBezier
 {
 	GENERATED_BODY()
 
@@ -172,6 +172,15 @@ protected:
 		void OnExitLaughState();
 	#pragma endregion 
 
+	#pragma region DashToJump
+	UFUNCTION()
+		void OnEnterDashToJumpState();
+	UFUNCTION()
+		void UpdateDashToJumpState();
+	UFUNCTION()
+		void OnExitDashToJumpState();
+	#pragma endregion 
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 
@@ -188,6 +197,12 @@ protected:
 		void BeginJumpAttack();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void BeginJumpAttackWithDash();
+	
+	UFUNCTION()
+		void DoDash();
+	
+	UFUNCTION()
 		void DoJumpAttack();
 
 	// Called when the player's health is less than or equal to 0
@@ -196,13 +211,19 @@ protected:
 
 	void DestroySelf();
 
-	void AllowJumpAttack();
+	void FinishCooldown();
 
 	UPROPERTY()
 		class UTimelineComponent* JumpAttackTimelineComponent;
 
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
 		UCurveFloat* JumpAttackCurve;
+
+	UPROPERTY()
+		class UTimelineComponent* DashTimelineComponent;
+
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+		UCurveFloat* DashCurve;
 
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
@@ -226,6 +247,14 @@ protected:
 	// The radius in which the boss character will accept that it has arrived to the player's location
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
 		float AcceptanceRadius = 200.0f;
+
+	// The radius of the mid range area
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
+		float MidRangeRadius = 400.0f;
+
+	// The radius of the far range area
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
+		float FarRangeRadius = 800.0f;
 
 	// How long (in seconds) should the boss stay dead before being destroyed?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
@@ -293,11 +322,23 @@ protected:
 
 	// Properties of the jump attack curve
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
-		FJumpAttack_Bezier JumpAttack_Bezier;
+		FBezier JumpAttack_Bezier;
+
+	// Properties of the dash curve
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+		FBezier Dash_Bezier;
 
 	// The amount of time (in seconds) that the boss can be allowed to jump attack again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float JumpAttackCooldown = 2.0f;
+
+	// The amount of time (in seconds) that the boss can be allowed to dash again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float DashCooldown = 5.0f;
+
+	// The distance of how far we can dash in a given direction
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float DashDistance = 500.0f;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
@@ -329,6 +370,7 @@ protected:
 
 private:
 	void InitJumpAttackTimeline();
+	void InitDashTimeline();
 
 	FTimerHandle UpdateInfoTimerHandle;
 	FTimerHandle ComboDelayTimerHandle;
@@ -336,6 +378,7 @@ private:
 	FTimerHandle StunExpiryTimerHandle;
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle JumpAttackCooldownTimerHandle;
+	FTimerHandle DashCooldownTimerHandle;
 
 	ACharacter* PlayerCharacter;
 };

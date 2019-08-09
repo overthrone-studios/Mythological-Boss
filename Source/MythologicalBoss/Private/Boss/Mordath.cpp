@@ -64,6 +64,7 @@ AMordath::AMordath()
 	BossStateMachine->AddState(13, "Death");
 	BossStateMachine->AddState(14, "Stunned");
 	BossStateMachine->AddState(15, "Laugh");
+	BossStateMachine->AddState(16, "DashToJump");
 
 
 	// Bind state events to our functions
@@ -115,6 +116,10 @@ AMordath::AMordath()
 	BossStateMachine->GetState(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
 	BossStateMachine->GetState(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
 
+	BossStateMachine->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashToJumpState);
+	BossStateMachine->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashToJumpState);
+	BossStateMachine->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashToJumpState);
+
 	BossStateMachine->InitState(0);
 
 	// Assign the behaviour tree
@@ -140,8 +145,12 @@ AMordath::AMordath()
 
 	// Timeline
 	JumpAttackTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Jump Attack Timeline"));
+	DashTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Dash Timeline"));
 
 	bCanBeDamaged = true;
+
+	// Default the curve height to match the actor's Z value
+	Dash_Bezier.CurveHeight = 0.0f;
 }
 
 void AMordath::InitJumpAttackTimeline()
@@ -169,11 +178,40 @@ void AMordath::InitJumpAttackTimeline()
 	}
 }
 
+void AMordath::InitDashTimeline()
+{
+	// Timeline Initialization
+	FOnTimelineFloat TimelineCallback;
+	FOnTimelineEvent TimelineFinishedCallback;
+	TimelineCallback.BindUFunction(this, "DoDash");
+	TimelineFinishedCallback.BindUFunction(this, "BeginJumpAttack");
+
+	if (DashCurve)
+	{
+		DashTimelineComponent = NewObject<UTimelineComponent>(this, FName("Dash Timeline"));
+		DashTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		DashTimelineComponent->SetPropertySetObject(this);
+		DashTimelineComponent->SetLooping(false);
+		DashTimelineComponent->SetPlaybackPosition(0.0f, false, false);
+		DashTimelineComponent->SetPlayRate(Dash_Bezier.PlaybackSpeed);
+		DashTimelineComponent->AddInterpFloat(DashCurve, TimelineCallback);
+		DashTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
+		DashTimelineComponent->SetTimelineLength(DashCurve->FloatCurve.Keys[DashCurve->FloatCurve.Keys.Num() - 1].Time);
+		DashTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
+		DashTimelineComponent->RegisterComponent();
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, "Failed to initialize the dash timeline. Dash curve is missing!", true);
+	}
+}
+
 void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
 
 	InitJumpAttackTimeline();
+	InitDashTimeline();
 
 	bCanBeDamaged = true;
 
@@ -345,16 +383,32 @@ void AMordath::UpdateFollowState()
 	SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
 
 	// If we are in close range
-	if (GetDistanceToPlayer() <= AcceptanceRadius)
+	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
+	const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius && GetDistanceToPlayer() < AcceptanceRadius + MidRangeRadius;
+	const bool bFarRange = GetDistanceToPlayer() > AcceptanceRadius + MidRangeRadius && GetDistanceToPlayer() < AcceptanceRadius + FarRangeRadius;
+	if (bCloseRange)
 	{
+		ULog::DebugMessage(INFO, "Close range", true);
 		ChooseAttack();
 	}
-	else if (GetDistanceToPlayer() > AcceptanceRadius * 2 && GetDistanceToPlayer() < AcceptanceRadius * 3)
+	else if (bMidRange)
 	{
+		ULog::DebugMessage(INFO, "Mid range", true);
+
+		// Do dash (to left or right)
+		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
+		{
+			BeginJumpAttackWithDash();
+		}
+	}
+	else if (bFarRange)
+	{
+		ULog::DebugMessage(INFO, "Far range", true);
+
 		// Do jump attack
 		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
 		{
-			BossStateMachine->PushState("Heavy Attack 2");
+			BeginJumpAttack();
 		}
 	}
 }
@@ -480,14 +534,10 @@ void AMordath::OnExitHeavyAttack1State()
 void AMordath::OnEnterHeavyAttack2State()
 {
 	AnimInstance->bAcceptSecondHeavyAttack = true;
-
-	BeginJumpAttack();
 }
 
 void AMordath::UpdateHeavyAttack2State()
 {
-	//FacePlayer();
-
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -504,7 +554,7 @@ void AMordath::OnExitHeavyAttack2State()
 {
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
-	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::AllowJumpAttack, JumpAttackCooldown);
+	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, JumpAttackCooldown);
 }
 #pragma endregion
 
@@ -622,6 +672,22 @@ void AMordath::OnExitLaughState()
 }
 #pragma endregion
 
+#pragma region Dash to Jump
+void AMordath::OnEnterDashToJumpState()
+{
+}
+
+void AMordath::UpdateDashToJumpState()
+{
+	FacePlayer();
+}
+
+void AMordath::OnExitDashToJumpState()
+{
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, DashCooldown);
+}
+#pragma endregion
+
 void AMordath::OnPlayerDeath()
 {
 	MovementComponent->DisableMovement();
@@ -638,8 +704,9 @@ void AMordath::DestroySelf()
 	Destroy();
 }
 
-void AMordath::AllowJumpAttack()
+void AMordath::FinishCooldown()
 {
+	ULog::DebugMessage(SUCCESS, "Cooldown finished", true);
 }
 
 void AMordath::FinishStun()
@@ -760,8 +827,11 @@ void AMordath::DisableInvincibility()
 
 void AMordath::BeginJumpAttack()
 {
+	BossStateMachine->PopState("DashToJump");
+	BossStateMachine->PushState("Heavy Attack 2");
+
 	// Create a bezier curve
-	FVector Point = GetActorLocation() + GetActorForwardVector() * (GetDistanceToPlayer() / 2.0f);
+	FVector Point = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -(GetDistanceToPlayer() / 2.0f);
 	Point.Z = JumpAttack_Bezier.CurveHeight;
 
 	JumpAttack_Bezier.A = GetActorLocation();
@@ -770,9 +840,6 @@ void AMordath::BeginJumpAttack()
 
 	DrawDebugLine(GetWorld(), JumpAttack_Bezier.A, JumpAttack_Bezier.B, FColor::Green, true, 10, 0, 5.0f);
 	DrawDebugLine(GetWorld(), JumpAttack_Bezier.B, JumpAttack_Bezier.C, FColor::Green, true, 10, 0, 5.0f);
-
-	ULog::DebugMessage(INFO, PlayerCharacter->GetActorLocation().ToString(), true);
-	ULog::DebugMessage(INFO, JumpAttack_Bezier.C.ToString(), true);
 
 	BossAIController->StopMovement();
 	JumpAttackTimelineComponent->PlayFromStart();
@@ -790,6 +857,40 @@ void AMordath::DoJumpAttack()
 	
 	SetActorLocation(PointOnCurve);
 	
+	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 10.0f);
+}
+
+void AMordath::BeginJumpAttackWithDash()
+{
+	BossStateMachine->PushState("DashToJump");
+
+	// Create a bezier curve
+	FVector Point = GetActorLocation() + GetActorRightVector() * (DashDistance / 2);
+	Point.Z = Dash_Bezier.CurveHeight;
+
+	Dash_Bezier.A = GetActorLocation();
+	Dash_Bezier.B = Point;
+	Dash_Bezier.C = GetActorLocation() + GetActorRightVector() * DashDistance;
+
+	DrawDebugLine(GetWorld(), Dash_Bezier.A, Dash_Bezier.B, FColor::Green, true, 10, 0, 5.0f);
+	DrawDebugLine(GetWorld(), Dash_Bezier.B, Dash_Bezier.C, FColor::Green, true, 10, 0, 5.0f);
+
+	BossAIController->StopMovement();
+	DashTimelineComponent->PlayFromStart();
+}
+
+void AMordath::DoDash()
+{
+	const float Time = DashCurve->GetFloatValue(DashTimelineComponent->GetPlaybackPosition());
+
+	// Create points on the curve
+	const FVector D = FMath::Lerp(Dash_Bezier.A, Dash_Bezier.B, Time);
+	const FVector E = FMath::Lerp(Dash_Bezier.B, Dash_Bezier.C, Time);
+
+	const FVector PointOnCurve = FMath::Lerp(D, E, Time);
+
+	SetActorLocation(PointOnCurve);
+
 	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 10.0f);
 }
 
