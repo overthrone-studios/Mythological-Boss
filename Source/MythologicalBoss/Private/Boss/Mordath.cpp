@@ -359,8 +359,6 @@ void AMordath::UpdateIdleState()
 	if (GameInstance->bIsPlayerDead)
 		return;
 
-	ULog::DebugMessage(INFO, "Idle state", true);
-
 	FacePlayer();
 
 	if (GetDistanceToPlayer() > AcceptanceRadius)
@@ -702,7 +700,7 @@ void AMordath::OnExitDashToJumpState()
 
 void AMordath::OnPlayerDeath()
 {
-	MovementComponent->DisableMovement();
+	BossAIController->StopMovement();
 
 	BossStateMachine->RemoveAllStatesFromStackExceptActive();
 
@@ -794,6 +792,7 @@ void AMordath::ChooseComboWithDelay()
 
 void AMordath::ChooseAttack()
 {
+	// Disable movement when we are going to attack
 	MovementComponent->SetMovementMode(MOVE_None);
 
 	switch (ChosenCombo->CurrentAttack)
@@ -815,7 +814,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case HeavyAttack_2:
-			BossStateMachine->PushState("Heavy Attack 2");
+			BeginJumpAttack();
 		break;
 
 		case HeavyAttack_3:
@@ -839,6 +838,9 @@ void AMordath::DisableInvincibility()
 
 void AMordath::BeginJumpAttack()
 {
+	if (JumpAttackTimelineComponent->IsPlaying())
+		return;
+	
 	BossStateMachine->PopState("DashToJump");
 	BossStateMachine->PushState("Heavy Attack 2");
 
@@ -878,6 +880,9 @@ void AMordath::DoJumpAttack()
 
 void AMordath::BeginJumpAttackWithDash()
 {
+	if (DashTimelineComponent->IsPlaying())
+		return;
+
 	BossStateMachine->PushState("DashToJump");
 
 	// Create the main points of the bezier curve
