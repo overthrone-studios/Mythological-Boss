@@ -14,14 +14,19 @@ void UMasterHUD::Init()
 {
 	Super::Init();
 
-	// Get the boxes in this HUD
-	DebugBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DebugBox")));
-	BossDebugBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DebugBox_2")));
-	MainBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("MainHUDBox")));
-	NoHUDBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("NoHUDBox")));
-
 	HUDOptions = Cast<UPanelWidget>(WidgetTree->FindWidget(FName("HUDoptions")));
 	Title = Cast<UTextBlock>(WidgetTree->FindWidget(FName("Title")));
+
+	// Get the boxes
+	Boxes.Reserve(HUDOptions->GetChildrenCount());
+	for (int32 i = 0; i < HUDOptions->GetChildrenCount(); i++)
+	{
+		const auto Widget = Cast<UUserWidget>(HUDOptions->GetChildAt(i));
+		if (Widget)
+			Boxes.Add(Widget);
+		else
+			ULog::DebugMessage(ERROR, HUDOptions->GetChildAt(i)->GetName() + " is not a user widget", true);
+	}
 
 	// Get the widget switcher
 	WidgetSwitcher = Cast<UWidgetSwitcher>(WidgetTree->FindWidget(FName("HUDSwitcher")));
@@ -42,88 +47,46 @@ void UMasterHUD::Init()
 
 void UMasterHUD::HighlightBox(const int32 Index)
 {
-	switch (Index)
+	if (Index > Boxes.Num() - 1)
 	{
-		case 0:
-		{
-			const auto Background = Cast<UImage>(DebugBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(Green);
-		}
-		break;
-
-		case 1:
-		{
-			const auto Background = Cast<UImage>(BossDebugBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(Green);
-		}
-		break;
-		
-		case 2:
-		{
-			const auto Background = Cast<UImage>(MainBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(Green);
-
-			HUDOptions->SetVisibility(ESlateVisibility::Hidden);
-			Title->SetVisibility(ESlateVisibility::Hidden);
-
-			return;
-		}
-		
-		case 3:
-		{
-			const auto Background = Cast<UImage>(NoHUDBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(Green);
-
-			SetVisibility(ESlateVisibility::Hidden);
-
-			return;
-		}
-
-		default:
-		break;
+		ULog::DebugMessage(ERROR, "Index " + FString::FromInt(Index) + " is out of array bounds!", true);
+		return;
 	}
 
-	HUDOptions->SetVisibility(ESlateVisibility::Visible);
-	Title->SetVisibility(ESlateVisibility::Visible);
-
-	SetVisibility(ESlateVisibility::Visible);
+	const auto Background = Cast<UImage>(Boxes[Index]->WidgetTree->FindWidget("BGImage"));
+	Background->SetColorAndOpacity(Green);
 }
 
 void UMasterHUD::UnhighlightBox(const int32 Index)
 {
-	switch (Index)
+	if (Index > Boxes.Num() - 1)
 	{
-		case 0:
-		{
-			const auto Background = Cast<UImage>(DebugBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(White);
-		}
-		break;
-
-		case 1:
-		{
-			const auto Background = Cast<UImage>(BossDebugBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(White);
-		}
-		break;
-		
-		case 2:
-		{
-			const auto Background = Cast<UImage>(MainBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(White);
-		}
-		break;
-		
-		case 3:
-		{
-			const auto Background = Cast<UImage>(NoHUDBox->WidgetTree->FindWidget("BGImage"));
-			Background->SetColorAndOpacity(White);
-		}
-		break;
-
-		default:
-		break;
+		ULog::DebugMessage(ERROR, "Index " + FString::FromInt(Index) + " is out of array bounds!", true);
+		return;
 	}
+
+	const auto Background = Cast<UImage>(Boxes[Index]->WidgetTree->FindWidget("BGImage"));
+	Background->SetColorAndOpacity(White);
+}
+
+void UMasterHUD::ShowTitle()
+{
+	Title->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMasterHUD::HideTitle()
+{
+	Title->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UMasterHUD::ShowBoxes()
+{
+	HUDOptions->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMasterHUD::HideBoxes()
+{
+	HUDOptions->SetVisibility(ESlateVisibility::Hidden);
 }
 
 UHUDBase* UMasterHUD::GetHUD(const TSubclassOf<UHUDBase> HUDClass) const
@@ -170,6 +133,10 @@ void UMasterHUD::SwitchToHUD(UHUDBase* HUD)
 	WidgetSwitcher->SetActiveWidget(HUD);
 
 	HighlightBox(GetActiveHUDIndex());
+
+	ShowTitle();
+	ShowBoxes();
+	SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMasterHUD::SwitchToHUDIndex(const int32 Index)
@@ -179,6 +146,10 @@ void UMasterHUD::SwitchToHUDIndex(const int32 Index)
 	WidgetSwitcher->SetActiveWidgetIndex(Index);
 
 	HighlightBox(Index);
+
+	ShowTitle();
+	ShowBoxes();
+	SetVisibility(ESlateVisibility::Visible);
 }
 
 TArray<UHUDBase*> UMasterHUD::GetAllChildHUDs() const

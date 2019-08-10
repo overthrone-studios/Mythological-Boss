@@ -261,7 +261,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 #if !UE_BUILD_SHIPPING
 	// Debugging
-	PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AYlva::ShowFSMVisualizer);
+	PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AYlva::ShowPlayerFSMVisualizer);
 	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AYlva::ShowBossFSMVisualizer);
 	PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AYlva::ShowMainHUD);
 	PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AYlva::ShowNoHUD);
@@ -504,7 +504,7 @@ void AYlva::Dash()
 	}
 }
 
-void AYlva::ShowFSMVisualizer()
+void AYlva::ShowPlayerFSMVisualizer()
 {
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(0);
 }
@@ -517,11 +517,13 @@ void AYlva::ShowBossFSMVisualizer()
 void AYlva::ShowMainHUD()
 {
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
+	OverthroneHUD->GetMasterHUD()->HideTitle();
+	OverthroneHUD->GetMasterHUD()->HideBoxes();
 }
 
 void AYlva::ShowNoHUD()
 {
-	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(3);
+	OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void AYlva::Pause()
@@ -1067,34 +1069,32 @@ void AYlva::EnableGodMode()
 {
 	bGodMode = true;
 
+	OverthroneHUD->GetMasterHUD()->HighlightBox(4);
+
 	ResetHealth();
 	ResetStamina();
-
-	ULog::DebugMessage(INFO, FString("God mode: On"), true);
 }
 
 void AYlva::DisableGodMode()
 {
 	bGodMode = false;
 
-	ULog::DebugMessage(INFO, FString("God mode: Off"), true);
+	OverthroneHUD->GetMasterHUD()->UnhighlightBox(4);
 }
 
 void AYlva::ToggleGodMode()
 {
 	bGodMode = !bGodMode;
 
-	FString Status;
-
 	if (bGodMode)
 	{
-		Status = "On";
+		OverthroneHUD->GetMasterHUD()->HighlightBox(4);
 
 		ResetHealth();
 		ResetStamina();
 	}
 	else
-		Status = "Off";
-
-	ULog::DebugMessage(INFO, FString("God mode: ") + Status, true);
+	{
+		OverthroneHUD->GetMasterHUD()->UnhighlightBox(4);
+	}
 }

@@ -29,6 +29,11 @@ public:
 	void HighlightBox(int32 Index);
 	void UnhighlightBox(int32 Index);
 
+	void ShowTitle();
+	void HideTitle();
+	void ShowBoxes();
+	void HideBoxes();
+
 protected:
 	TArray<UHUDBase*> GetAllChildHUDs() const;
 
@@ -36,10 +41,7 @@ protected:
 
 	TArray<UHUDBase*> HUDs;
 
-	UUserWidget* DebugBox;
-	UUserWidget* BossDebugBox;
-	UUserWidget* MainBox;
-	UUserWidget* NoHUDBox;
+	TArray<UUserWidget*> Boxes;
 
 	UPanelWidget* HUDOptions;
 	class UTextBlock* Title;

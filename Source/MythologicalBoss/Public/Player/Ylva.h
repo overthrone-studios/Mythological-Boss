@@ -111,7 +111,7 @@ protected:
 
 	// Called via input to show the FSM Visualizer widget
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ShowFSMVisualizer();
+		void ShowPlayerFSMVisualizer();
 
 	// Called via input to show the Boss FSM Visualizer widget
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
