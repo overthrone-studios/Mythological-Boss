@@ -794,7 +794,7 @@ void AMordath::ChooseCombo()
 		if (CachedCombos[ComboIndex])
 		{
 			ChosenCombo = CachedCombos[ComboIndex];
-			ULog::DebugMessage(INFO, "Combo " + ChosenCombo->GetName() + " chosen", true);
+			ULog::DebugMessage(SUCCESS, "Combo " + ChosenCombo->GetName() + " chosen", true);
 			ChosenCombo->Init();
 
 			CachedCombos.Remove(ChosenCombo);
