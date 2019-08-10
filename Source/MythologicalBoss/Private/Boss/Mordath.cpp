@@ -830,7 +830,7 @@ void AMordath::BeginJumpAttack()
 	BossStateMachine->PopState("DashToJump");
 	BossStateMachine->PushState("Heavy Attack 2");
 
-	// Create a bezier curve
+	// Create the main points of the bezier curve
 	FVector Point = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -(GetDistanceToPlayer() / 2.0f);
 	Point.Z = JumpAttack_Bezier.CurveHeight;
 
@@ -838,8 +838,8 @@ void AMordath::BeginJumpAttack()
 	JumpAttack_Bezier.B = Point;
 	JumpAttack_Bezier.C = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -JumpAttack_Bezier.EndPointOffsetDistance + FVector(0.0f, 0.0f, 50.0f);
 
-	DrawDebugLine(GetWorld(), JumpAttack_Bezier.A, JumpAttack_Bezier.B, FColor::Green, true, 10, 0, 5.0f);
-	DrawDebugLine(GetWorld(), JumpAttack_Bezier.B, JumpAttack_Bezier.C, FColor::Green, true, 10, 0, 5.0f);
+	DrawDebugLine(GetWorld(), JumpAttack_Bezier.A, JumpAttack_Bezier.B, FColor::Green, true, 5.0f, 0, 5.0f);
+	DrawDebugLine(GetWorld(), JumpAttack_Bezier.B, JumpAttack_Bezier.C, FColor::Green, true, 5.0f, 0, 5.0f);
 
 	BossAIController->StopMovement();
 	JumpAttackTimelineComponent->PlayFromStart();
@@ -857,23 +857,23 @@ void AMordath::DoJumpAttack()
 	
 	SetActorLocation(PointOnCurve);
 	
-	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 10.0f);
+	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 5.0f);
 }
 
 void AMordath::BeginJumpAttackWithDash()
 {
 	BossStateMachine->PushState("DashToJump");
 
-	// Create a bezier curve
-	FVector Point = GetActorLocation() + GetActorRightVector() * (DashDistance / 2);
+	// Create the main points of the bezier curve
+	FVector Point = GetActorLocation() + GetActorRightVector() * (DashDistance / 2.0f);
 	Point.Z = Dash_Bezier.CurveHeight;
 
 	Dash_Bezier.A = GetActorLocation();
 	Dash_Bezier.B = Point;
-	Dash_Bezier.C = GetActorLocation() + GetActorRightVector() * DashDistance;
+	Dash_Bezier.C = Point + GetActorForwardVector() * (DashDistance / 2.0f);
 
-	DrawDebugLine(GetWorld(), Dash_Bezier.A, Dash_Bezier.B, FColor::Green, true, 10, 0, 5.0f);
-	DrawDebugLine(GetWorld(), Dash_Bezier.B, Dash_Bezier.C, FColor::Green, true, 10, 0, 5.0f);
+	DrawDebugLine(GetWorld(), Dash_Bezier.A, Dash_Bezier.B, FColor::Green, true, 5.0f, 0, 5.0f);
+	DrawDebugLine(GetWorld(), Dash_Bezier.B, Dash_Bezier.C, FColor::Green, true, 5.0f, 0, 5.0f);
 
 	BossAIController->StopMovement();
 	DashTimelineComponent->PlayFromStart();
@@ -891,7 +891,7 @@ void AMordath::DoDash()
 
 	SetActorLocation(PointOnCurve);
 
-	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 10.0f);
+	DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 5.0f);
 }
 
 float AMordath::GetDistanceToPlayer() const
