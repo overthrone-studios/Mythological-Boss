@@ -162,7 +162,9 @@ void AMordath::InitJumpAttackTimeline()
 {
 	// Timeline Initialization
 	FOnTimelineFloat TimelineCallback;
+	FOnTimelineEvent TimelineFinishedCallback;
 	TimelineCallback.BindUFunction(this, "DoJumpAttack");
+	TimelineFinishedCallback.BindUFunction(this, "FinishJumpAttack");
 
 	if (JumpAttack_Bezier.Curve)
 	{
@@ -173,6 +175,7 @@ void AMordath::InitJumpAttackTimeline()
 		JumpAttackTimelineComponent->SetPlaybackPosition(0.0f, false, false);
 		JumpAttackTimelineComponent->SetPlayRate(JumpAttack_Bezier.PlaybackSpeed);
 		JumpAttackTimelineComponent->AddInterpFloat(JumpAttack_Bezier.Curve, TimelineCallback);
+		JumpAttackTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
 		JumpAttackTimelineComponent->SetTimelineLength(JumpAttack_Bezier.Curve->FloatCurve.Keys[JumpAttack_Bezier.Curve->FloatCurve.Keys.Num() - 1].Time);
 		JumpAttackTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
 		JumpAttackTimelineComponent->RegisterComponent();
@@ -237,6 +240,9 @@ void AMordath::BeginPlay()
 
 	// Cache player character for knowing where it is
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+
+	// Cache the player controller for playing camera shakes
+	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 
 	// Cache the main HUD
 	MainHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
@@ -304,6 +310,8 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 			BossStateMachine->PushState("Damaged");
 		}
 
+		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
+
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
 
@@ -317,6 +325,8 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 
 		BossStateMachine->PopState();
 		BossStateMachine->PushState("Damaged");
+
+		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
 
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
@@ -583,17 +593,6 @@ void AMordath::OnEnterHeavyAttack2State()
 void AMordath::UpdateHeavyAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
-
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.5f)
-	{
-		ChosenCombo->NextAttack();
-
-		BossStateMachine->PopState();
-	}
 }
 
 void AMordath::OnExitHeavyAttack2State()
@@ -951,11 +950,18 @@ void AMordath::DoJumpAttack()
 		DrawDebugPoint(GetWorld(), PointOnCurve, 10.0f, FColor::White, true, 5.0f);
 }
 
+void AMordath::FinishJumpAttack()
+{
+	ChosenCombo->NextAttack();
+	BossStateMachine->PopState();
+}
+
 void AMordath::BeginJumpAttackWithDash()
 {
 	if (DashTimelineComponent->IsPlaying())
 		return;
 
+	BossStateMachine->PopState();
 	BossStateMachine->PushState("Dash to Jump");
 
 	// Create the main points of the bezier curve

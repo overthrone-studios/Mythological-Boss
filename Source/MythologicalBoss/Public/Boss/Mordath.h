@@ -68,6 +68,13 @@ struct FCombatSettings
 	// The distance of how far we can dash in a given direction
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float DashDistance = 500.0f;
+
+	// A camera shake that plays when we get damaged
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		TSubclassOf<class UCameraShake> DamagedShake;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float DamagedShakeIntensity = 1.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -279,6 +286,9 @@ protected:
 	UFUNCTION()
 		void DoJumpAttack();
 
+	UFUNCTION()
+		void FinishJumpAttack();
+
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		void OnPlayerDeath();
@@ -404,4 +414,5 @@ private:
 	FTimerHandle DashCooldownTimerHandle;
 
 	ACharacter* PlayerCharacter;
+	APlayerController* PlayerController;
 };
