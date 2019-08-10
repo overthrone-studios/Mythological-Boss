@@ -264,7 +264,19 @@ void AMordath::Tick(const float DeltaTime)
 	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
 		BossStateMachine->PushState("Stunned");
 
-	ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
+	// If we are in close range
+	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius + MidRangeRadius/2.0f;
+	const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius && GetDistanceToPlayer() < AcceptanceRadius + MidRangeRadius;
+	const bool bFarRange = GetDistanceToPlayer() > AcceptanceRadius + MidRangeRadius && GetDistanceToPlayer() < AcceptanceRadius + FarRangeRadius;
+
+	if (bCloseRange)
+		ULog::DebugMessage(INFO, "Close range", true);
+	else if (bMidRange)
+		ULog::DebugMessage(INFO, "Mid range", true);
+	else if (bFarRange)
+		ULog::DebugMessage(INFO, "Far range", true);
+
+	//ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -383,18 +395,15 @@ void AMordath::UpdateFollowState()
 	SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
 
 	// If we are in close range
-	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
+	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius + MidRangeRadius/2.0f;
 	const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius && GetDistanceToPlayer() < AcceptanceRadius + MidRangeRadius;
 	const bool bFarRange = GetDistanceToPlayer() > AcceptanceRadius + MidRangeRadius && GetDistanceToPlayer() < AcceptanceRadius + FarRangeRadius;
 	if (bCloseRange)
 	{
-		ULog::DebugMessage(INFO, "Close range", true);
 		ChooseAttack();
 	}
 	else if (bMidRange)
 	{
-		ULog::DebugMessage(INFO, "Mid range", true);
-
 		// Do dash (to left or right)
 		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
 		{
@@ -403,8 +412,6 @@ void AMordath::UpdateFollowState()
 	}
 	else if (bFarRange)
 	{
-		ULog::DebugMessage(INFO, "Far range", true);
-
 		// Do jump attack
 		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
 		{
