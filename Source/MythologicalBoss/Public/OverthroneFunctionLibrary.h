@@ -7,7 +7,7 @@
 #include "OverthroneFunctionLibrary.generated.h"
 
 /**
- * 
+ * A list of useful utitly and helpful public funtions exposed to blueprints
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API UOverthroneFunctionLibrary final : public UBlueprintFunctionLibrary
