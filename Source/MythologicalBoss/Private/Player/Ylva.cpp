@@ -845,11 +845,15 @@ void AYlva::OnExitHeavyAttack2State()
 #pragma region Damaged
 void AYlva::OnEnterDamagedState()
 {
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsHit = true;
 }
 
 void AYlva::UpdateDamagedState()
 {
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
+
 	// If hit animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -860,6 +864,8 @@ void AYlva::UpdateDamagedState()
 
 void AYlva::OnExitDamagedState()
 {
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsHit = false;
 }
 #pragma endregion 
@@ -867,6 +873,8 @@ void AYlva::OnExitDamagedState()
 #pragma region Death
 void AYlva::OnEnterDeathState()
 {
+	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsDead = true;
 
 	MovementComponent->DisableMovement();
@@ -879,11 +887,13 @@ void AYlva::OnEnterDeathState()
 
 void AYlva::UpdateDeathState()
 {
-
+	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 }
 
 void AYlva::OnExitDeathState()
 {
+	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion 
@@ -923,7 +933,6 @@ void AYlva::OnEnterParryState()
 void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
-
 }
 
 void AYlva::OnExitParryState()
