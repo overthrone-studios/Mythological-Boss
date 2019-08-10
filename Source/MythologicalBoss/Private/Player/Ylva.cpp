@@ -499,8 +499,9 @@ void AYlva::Dash()
 		if (!bGodMode && Stamina > DashStamina)
 		{
 			UpdateStamina(DashStamina);
-			LaunchCharacter(VelocityNormalized * DashForce, true, true);
 		}
+
+		LaunchCharacter(VelocityNormalized * DashForce, true, true);
 	}
 }
 
