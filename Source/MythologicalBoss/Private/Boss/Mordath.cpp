@@ -64,7 +64,7 @@ AMordath::AMordath()
 	BossStateMachine->AddState(13, "Death");
 	BossStateMachine->AddState(14, "Stunned");
 	BossStateMachine->AddState(15, "Laugh");
-	BossStateMachine->AddState(16, "DashToJump");
+	BossStateMachine->AddState(16, "Dash to Jump");
 
 
 	// Bind state events to our functions
@@ -351,11 +351,13 @@ void AMordath::SendInfo()
 #pragma region Idle
 void AMordath::OnEnterIdleState()
 {
-
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
 }
 
 void AMordath::UpdateIdleState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	if (GameInstance->bIsPlayerDead)
 		return;
 
@@ -367,12 +369,15 @@ void AMordath::UpdateIdleState()
 
 void AMordath::OnExitIdleState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
 }
 #pragma endregion
 
 #pragma region Follow
 void AMordath::OnEnterFollowState()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
@@ -386,6 +391,8 @@ void AMordath::OnEnterFollowState()
 
 void AMordath::UpdateFollowState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	// Check for destructible objects and destroy them
 	if (ShouldDestroyDestructibleObjects())
 	{
@@ -425,17 +432,22 @@ void AMordath::UpdateFollowState()
 
 void AMordath::OnExitFollowState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
 }
 #pragma endregion 
 
 #pragma region Light Attack 1
 void AMordath::OnEnterLightAttack1State()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack1State()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
@@ -452,6 +464,8 @@ void AMordath::UpdateLightAttack1State()
 
 void AMordath::OnExitLightAttack1State()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptLightAttack = false;
 }
 #pragma endregion
@@ -459,11 +473,15 @@ void AMordath::OnExitLightAttack1State()
 #pragma region Light Attack 2
 void AMordath::OnEnterLightAttack2State()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptSecondLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack2State()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
@@ -480,6 +498,8 @@ void AMordath::UpdateLightAttack2State()
 
 void AMordath::OnExitLightAttack2State()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptSecondLightAttack = false;
 }
 #pragma endregion
@@ -487,11 +507,15 @@ void AMordath::OnExitLightAttack2State()
 #pragma region Light Attack 3
 void AMordath::OnEnterLightAttack3State()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptThirdLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack3State()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
@@ -508,6 +532,8 @@ void AMordath::UpdateLightAttack3State()
 
 void AMordath::OnExitLightAttack3State()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptThirdLightAttack = false;
 }
 #pragma endregion 
@@ -515,11 +541,15 @@ void AMordath::OnExitLightAttack3State()
 #pragma region Heavy Attack 1
 void AMordath::OnEnterHeavyAttack1State()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptHeavyAttack = true;
 }
 
 void AMordath::UpdateHeavyAttack1State()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
@@ -536,6 +566,8 @@ void AMordath::UpdateHeavyAttack1State()
 
 void AMordath::OnExitHeavyAttack1State()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptHeavyAttack = false;
 }
 #pragma endregion
@@ -543,11 +575,15 @@ void AMordath::OnExitHeavyAttack1State()
 #pragma region Heavy Attack 2
 void AMordath::OnEnterHeavyAttack2State()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptSecondHeavyAttack = true;
 }
 
 void AMordath::UpdateHeavyAttack2State()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	// If attack animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -562,6 +598,8 @@ void AMordath::UpdateHeavyAttack2State()
 
 void AMordath::OnExitHeavyAttack2State()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
 	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, CombatSettings.JumpAttackCooldown);
@@ -571,11 +609,15 @@ void AMordath::OnExitHeavyAttack2State()
 #pragma region Heavy Attack 3
 void AMordath::OnEnterHeavyAttack3State()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptThirdHeavyAttack = true;
 }
 
 void AMordath::UpdateHeavyAttack3State()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
@@ -592,6 +634,8 @@ void AMordath::UpdateHeavyAttack3State()
 
 void AMordath::OnExitHeavyAttack3State()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bAcceptThirdHeavyAttack = false;
 }
 #pragma endregion
@@ -599,11 +643,15 @@ void AMordath::OnExitHeavyAttack3State()
 #pragma region Damaged
 void AMordath::OnEnterDamagedState()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsHit = true;
 }
 
 void AMordath::UpdateDamagedState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	// If damaged animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -614,6 +662,8 @@ void AMordath::UpdateDamagedState()
 
 void AMordath::OnExitDamagedState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsHit = false;
 
 	ChosenCombo->NextAttack();
@@ -623,6 +673,8 @@ void AMordath::OnExitDamagedState()
 #pragma region Death
 void AMordath::OnEnterDeathState()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsDead = true;
 
 	BossAIController->StopBT();
@@ -634,10 +686,14 @@ void AMordath::OnEnterDeathState()
 
 void AMordath::UpdateDeathState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 }
 
 void AMordath::OnExitDeathState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion
@@ -645,6 +701,8 @@ void AMordath::OnExitDeathState()
 #pragma region Stunned
 void AMordath::OnEnterStunnedState()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsStunned = true;
 
 	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, CombatSettings.StunDuration);
@@ -652,6 +710,8 @@ void AMordath::OnEnterStunnedState()
 
 void AMordath::UpdateStunnedState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	// If stun animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -662,6 +722,8 @@ void AMordath::UpdateStunnedState()
 
 void AMordath::OnExitStunnedState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bIsStunned = false;
 }
 #pragma endregion
@@ -669,15 +731,21 @@ void AMordath::OnExitStunnedState()
 #pragma region Laugh
 void AMordath::OnEnterLaughState()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bCanLaugh = true;
 }
 
 void AMordath::UpdateLaughState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 }
 
 void AMordath::OnExitLaughState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	AnimInstance->bCanLaugh = false;
 }
 #pragma endregion
@@ -685,15 +753,20 @@ void AMordath::OnExitLaughState()
 #pragma region Dash to Jump
 void AMordath::OnEnterDashToJumpState()
 {
+	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
 }
 
 void AMordath::UpdateDashToJumpState()
 {
+	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+
 	FacePlayer();
 }
 
 void AMordath::OnExitDashToJumpState()
 {
+	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+
 	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, CombatSettings.DashCooldown);
 }
 #pragma endregion
@@ -841,7 +914,7 @@ void AMordath::BeginJumpAttack()
 	if (JumpAttackTimelineComponent->IsPlaying())
 		return;
 	
-	BossStateMachine->PopState("DashToJump");
+	BossStateMachine->PopState("Dash to Jump");
 	BossStateMachine->PushState("Heavy Attack 2");
 
 	// Create the main points of the bezier curve
@@ -883,7 +956,7 @@ void AMordath::BeginJumpAttackWithDash()
 	if (DashTimelineComponent->IsPlaying())
 		return;
 
-	BossStateMachine->PushState("DashToJump");
+	BossStateMachine->PushState("Dash to Jump");
 
 	// Create the main points of the bezier curve
 	FVector Point = GetActorLocation() + GetActorRightVector() * (CombatSettings.DashDistance / 2.0f);
