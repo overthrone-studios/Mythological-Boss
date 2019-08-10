@@ -29,6 +29,9 @@ void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (bDebug)
+		ULog::DebugMessage(INFO, GetActiveStateName().ToString(), true);
+
 	Stack[0]->OnUpdateState.Broadcast();
 	Stack[0]->Uptime += DeltaTime;
 }

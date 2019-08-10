@@ -6,20 +6,94 @@
 #include "Combat/ComboData.h"
 #include "Mordath.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
+struct FComboSettings
+{
+	GENERATED_BODY()
+
+	// Should the boss wait before initiating the next combo?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bDelayBetweenCombo : 1;
+
+	// The time in seconds to delay before choosing a new combo
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
+		float ComboDelayTime = 1.0f;
+
+	// Adds a random range to ComboDelayTime
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
+		float RandomDeviation = 0.1f;
+
+	// Should the boss choose a random combo from the Combos list?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bChooseRandomCombo : 1;
+
+	// A list of combos the boss character will choose from
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		TArray<UComboData*> Combos;
+};
+
+USTRUCT(BlueprintType)
+struct FCombatSettings
+{
+	GENERATED_BODY()
+
+	// The amount of time in seconds this boss should be stunned for
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		float StunDuration = 0.8f;
+
+	// The attack damage we deal when light attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float LightAttackDamage = 50.0f;
+
+	// The attack damage we deal when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float HeavyAttackDamage = 100.0f;
+
+	// The attack range when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
+		float AttackDistance = 100.0f;
+
+	// The radius of the sphere raycast when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
+		float AttackRadius = 10.0f;
+
+	// The amount of time (in seconds) that the boss can be allowed to jump attack again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float JumpAttackCooldown = 2.0f;
+
+	// The amount of time (in seconds) that the boss can be allowed to dash attack again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float DashCooldown = 5.0f;
+	
+	// The distance of how far we can dash in a given direction
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float DashDistance = 500.0f;
+};
+
+USTRUCT(BlueprintType)
 struct FBezier
 {
 	GENERATED_BODY()
 
+	// The curve asset to use when in this state
+	UPROPERTY(EditInstanceOnly)
+		UCurveFloat* Curve;
+
+	// Show debug information
+	UPROPERTY(EditInstanceOnly)
+		uint8 bDebug : 1;
+
 	// How fast do we do this attack (1.0 = Normal, 2.0+ = Fast)
-	UPROPERTY(EditInstanceOnly)
-		float PlaybackSpeed = 2.0f;
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float PlaybackSpeed = 1.0f;
 
+	// The height of the 2nd point of the bezier curve
 	UPROPERTY(EditInstanceOnly)
-		float CurveHeight = 1000.0f;
+		float CurveHeight = 0.0f;
 
-	UPROPERTY(EditInstanceOnly)
-		float EndPointOffsetDistance = 100.0f;
+	// The amount of units to offset the end point by
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float EndPointOffsetDistance = 0.0f;
 
 	// Points on bezier
 	FVector A, B, C;
@@ -39,13 +113,13 @@ public:
 		class UFSM* GetFSM() const { return BossStateMachine; }
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetLightAttackDamage() const { return LightAttackDamage; }
+		FORCEINLINE float GetLightAttackDamage() const { return CombatSettings.LightAttackDamage; }
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetHeavyAttackDamage() const { return HeavyAttackDamage; }
+		FORCEINLINE float GetHeavyAttackDamage() const { return CombatSettings.HeavyAttackDamage; }
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRange() const { return AttackDistance; }
+		FORCEINLINE float GetAttackRange() const { return CombatSettings.AttackDistance; }
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
+		FORCEINLINE float GetAttackRadius() const { return CombatSettings.AttackRadius; }
 
 protected:
 	void BeginPlay() override;
@@ -215,15 +289,8 @@ protected:
 
 	UPROPERTY()
 		class UTimelineComponent* JumpAttackTimelineComponent;
-
-	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
-		UCurveFloat* JumpAttackCurve;
-
 	UPROPERTY()
 		class UTimelineComponent* DashTimelineComponent;
-
-	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
-		UCurveFloat* DashCurve;
 
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
@@ -260,6 +327,18 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float DeathTime = 2.0f;
 
+	// The distance to ray cast from the boss's location (for destructible actor detection)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
+		float BoxDetectionDistance = 130.0f;
+
+	// Maximum hits that can be taken before becoming invincible
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0, ClampMax = 100))
+		uint8 MaxHitsBeforeInvincibility = 3;
+
+	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float InvincibilityTimeAfterDamage = 1.5f;
+
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
 		float WalkSpeed = 600.0f;
@@ -268,77 +347,21 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
 		float RunSpeed = 1000.0f;
 
-	// Should the boss wait before initiating the next combo?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat")
-		uint8 bDelayBetweenCombo : 1;
-
-	// The time in seconds to delay before choosing a new combo
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float ComboDelayTime = 1.0f;
-
-	// Adds a random range to ComboDelayTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float RandomDeviation = 0.1f;
-
-	// Should the boss choose a random combo from the Combos list?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat")
-		uint8 bChooseRandomCombo : 1;
-
-	// A list of combos the boss character will choose from
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		TArray<UComboData*> Combos;
-
-	// The amount of time in seconds this boss should be stunned for
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		float StunDuration = 0.8f;
-
-	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float LightAttackDamage = 50.0f;
-
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float HeavyAttackDamage = 100.0f;
-
-	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float AttackDistance = 100.0f;
-
-	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
-		float AttackRadius = 10.0f;
-
-	// The distance to ray cast from the boss's location (for destructible actor detection)
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
-		float BoxDetectionDistance = 130.0f;
-
-	// Maximum hits that can be taken before becoming invincible
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0, ClampMax = 100))
-		uint8 MaxHitsBeforeInvincibility = 3;
-
-	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float InvincibilityTimeAfterDamage = 1.5f;
+	// The combo settings
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
+		FComboSettings ComboSettings;
 
 	// Properties of the jump attack curve
-	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat", DisplayName = "Jump Attack Curve")
 		FBezier JumpAttack_Bezier;
 
 	// Properties of the dash curve
-	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat", DisplayName = "Dash Curve")
 		FBezier Dash_Bezier;
 
-	// The amount of time (in seconds) that the boss can be allowed to jump attack again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float JumpAttackCooldown = 2.0f;
-
-	// The amount of time (in seconds) that the boss can be allowed to dash again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float DashCooldown = 5.0f;
-
-	// The distance of how far we can dash in a given direction
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath Combat", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float DashDistance = 500.0f;
+	// Properties of the boss's combat settings
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
+		FCombatSettings CombatSettings;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
