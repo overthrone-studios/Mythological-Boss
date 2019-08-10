@@ -158,59 +158,31 @@ AMordath::AMordath()
 	Dash_Bezier.CurveHeight = 190.0f;
 }
 
-void AMordath::InitJumpAttackTimeline()
+void AMordath::InitTimelineComponent(UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
 {
 	// Timeline Initialization
 	FOnTimelineFloat TimelineCallback;
 	FOnTimelineEvent TimelineFinishedCallback;
-	TimelineCallback.BindUFunction(this, "DoJumpAttack");
-	TimelineFinishedCallback.BindUFunction(this, "FinishJumpAttack");
+	TimelineCallback.BindUFunction(this, TimelineCallbackFuncName);
+	TimelineFinishedCallback.BindUFunction(this, TimelineFinishedCallbackFuncName);
 
-	if (JumpAttack_Bezier.Curve)
+	if (InCurveFloat)
 	{
-		JumpAttackTimelineComponent = NewObject<UTimelineComponent>(this, FName("Jump Attack Timeline"));
-		JumpAttackTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-		JumpAttackTimelineComponent->SetPropertySetObject(this);
-		JumpAttackTimelineComponent->SetLooping(false);
-		JumpAttackTimelineComponent->SetPlaybackPosition(0.0f, false, false);
-		JumpAttackTimelineComponent->SetPlayRate(JumpAttack_Bezier.PlaybackSpeed);
-		JumpAttackTimelineComponent->AddInterpFloat(JumpAttack_Bezier.Curve, TimelineCallback);
-		JumpAttackTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
-		JumpAttackTimelineComponent->SetTimelineLength(JumpAttack_Bezier.Curve->FloatCurve.Keys[JumpAttack_Bezier.Curve->FloatCurve.Keys.Num() - 1].Time);
-		JumpAttackTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
-		JumpAttackTimelineComponent->RegisterComponent();
+		InTimelineComponent = NewObject<UTimelineComponent>(this, InTimelineComponent->GetFName());
+		InTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		InTimelineComponent->SetPropertySetObject(this);
+		InTimelineComponent->SetLooping(false);
+		InTimelineComponent->SetPlaybackPosition(0.0f, false, false);
+		InTimelineComponent->SetPlayRate(InPlaybackSpeed);
+		InTimelineComponent->AddInterpFloat(InCurveFloat, TimelineCallback);
+		InTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
+		InTimelineComponent->SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
+		InTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
+		InTimelineComponent->RegisterComponent();
 	}
 	else
 	{
-		ULog::DebugMessage(ERROR, "Failed to initialize the jump attack timeline. Jump attack curve is missing!", true);
-	}
-}
-
-void AMordath::InitDashTimeline()
-{
-	// Timeline Initialization
-	FOnTimelineFloat TimelineCallback;
-	FOnTimelineEvent TimelineFinishedCallback;
-	TimelineCallback.BindUFunction(this, "DoDash");
-	TimelineFinishedCallback.BindUFunction(this, "BeginJumpAttack");
-
-	if (Dash_Bezier.Curve)
-	{
-		DashTimelineComponent = NewObject<UTimelineComponent>(this, FName("Dash Timeline"));
-		DashTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-		DashTimelineComponent->SetPropertySetObject(this);
-		DashTimelineComponent->SetLooping(false);
-		DashTimelineComponent->SetPlaybackPosition(0.0f, false, false);
-		DashTimelineComponent->SetPlayRate(Dash_Bezier.PlaybackSpeed);
-		DashTimelineComponent->AddInterpFloat(Dash_Bezier.Curve, TimelineCallback);
-		DashTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
-		DashTimelineComponent->SetTimelineLength(Dash_Bezier.Curve->FloatCurve.Keys[Dash_Bezier.Curve->FloatCurve.Keys.Num() - 1].Time);
-		DashTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
-		DashTimelineComponent->RegisterComponent();
-	}
-	else
-	{
-		ULog::DebugMessage(ERROR, "Failed to initialize the dash timeline. Dash curve is missing!", true);
+		ULog::DebugMessage(ERROR, "Failed to initialize the " + InTimelineComponent->GetName() + ". A curve float asset is missing!", true);
 	}
 }
 
@@ -218,8 +190,8 @@ void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitJumpAttackTimeline();
-	InitDashTimeline();
+	InitTimelineComponent(JumpAttackTimelineComponent, JumpAttack_Bezier.Curve, JumpAttack_Bezier.PlaybackSpeed, "DoJumpAttack", "FinishJumpAttack");
+	InitTimelineComponent(DashTimelineComponent, Dash_Bezier.Curve, Dash_Bezier.PlaybackSpeed, "DoDash", "BeginJumpAttack");
 
 	bCanBeDamaged = true;
 

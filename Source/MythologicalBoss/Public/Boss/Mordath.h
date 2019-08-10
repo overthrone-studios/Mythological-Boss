@@ -402,6 +402,7 @@ protected:
 	TArray<UComboData*> CachedCombos;
 
 private:
+	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
 	void InitJumpAttackTimeline();
 	void InitDashTimeline();
 
