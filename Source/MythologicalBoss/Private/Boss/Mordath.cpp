@@ -120,7 +120,7 @@ AMordath::AMordath()
 	BossStateMachine->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashToJumpState);
 	BossStateMachine->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashToJumpState);
 
-	BossStateMachine->InitState(0);
+	BossStateMachine->InitState(1);
 
 	// Assign the behaviour tree
 	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
@@ -232,12 +232,12 @@ void AMordath::BeginPlay()
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
-	// Begin the state machine
-	BossStateMachine->Start();
+	ChooseCombo();
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
-	ChooseCombo();
+	// Begin the state machine
+	BossStateMachine->Start();
 }
 
 void AMordath::Tick(const float DeltaTime)
@@ -247,10 +247,10 @@ void AMordath::Tick(const float DeltaTime)
 	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
 		BossStateMachine->PushState("Stunned");
 
-	//// If we are in close range
-	//const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius + MidRangeRadius/2.0f;
-	//const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius && GetDistanceToPlayer() < AcceptanceRadius + MidRangeRadius;
-	//const bool bFarRange = GetDistanceToPlayer() > AcceptanceRadius + MidRangeRadius && GetDistanceToPlayer() < AcceptanceRadius + FarRangeRadius;
+	// Determine what range we are in
+	//const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
+	//const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius + 200.0f && GetDistanceToPlayer() < MidRangeRadius;
+	//const bool bFarRange = GetDistanceToPlayer() > MidRangeRadius;
 
 	//if (bCloseRange)
 	//	ULog::DebugMessage(INFO, "Close range", true);
@@ -258,8 +258,6 @@ void AMordath::Tick(const float DeltaTime)
 	//	ULog::DebugMessage(INFO, "Mid range", true);
 	//else if (bFarRange)
 	//	ULog::DebugMessage(INFO, "Far range", true);
-
-	//ULog::DebugMessage(INFO, BossStateMachine->GetActiveStateName().ToString(), true);
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -384,12 +382,13 @@ void AMordath::UpdateFollowState()
 	}
 
 	AddMovementInput(GetDirectionToPlayer());
-	SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
+	//SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
 
-	// If we are in close range
-	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius + MidRangeRadius/2.0f;
-	const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius && GetDistanceToPlayer() < AcceptanceRadius + MidRangeRadius;
-	const bool bFarRange = GetDistanceToPlayer() > AcceptanceRadius + MidRangeRadius && GetDistanceToPlayer() < AcceptanceRadius + FarRangeRadius;
+	// Determine what range we are in
+	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
+	const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius + 200.0f && GetDistanceToPlayer() < MidRangeRadius;
+	const bool bFarRange = GetDistanceToPlayer() > MidRangeRadius;
+
 	if (bCloseRange)
 	{
 		ChooseAttack();
@@ -788,7 +787,7 @@ void AMordath::ChooseCombo()
 {
 	if (ComboSettings.Combos.Num() == 0)
 	{
-		ULog::DebugMessage(ERROR, "There are no combo to choose from! Add a combo asset to the list.", true);
+		ULog::DebugMessage(ERROR, "There are no combos to choose from! Add a combo asset to the list.", true);
 		return;
 	}
 
