@@ -122,6 +122,26 @@ AMordath::AMordath()
 
 	FSM->InitState(1);
 
+	// Create a range FSM
+	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
+	RangeFSM->AddState(0, "Close");
+	RangeFSM->AddState(1, "Mid");
+	RangeFSM->AddState(2, "Far");
+
+	RangeFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseRange);
+	RangeFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseRange);
+	RangeFSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseRange);
+
+	RangeFSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterMidRange);
+	RangeFSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateMidRange);
+	RangeFSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitMidRange);
+
+	RangeFSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarRange);
+	RangeFSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarRange);
+	RangeFSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitFarRange);
+
+	RangeFSM->InitState(0);
+
 	// Assign the behaviour tree
 	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
 
@@ -236,8 +256,9 @@ void AMordath::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
-	// Begin the state machine
+	// Begin the state machines
 	FSM->Start();
+	RangeFSM->Start();
 }
 
 void AMordath::Tick(const float DeltaTime)
@@ -338,6 +359,7 @@ void AMordath::SendInfo()
 	GameInstance->BossLocation = GetActorLocation();
 }
 
+// Boss FSM
 #pragma region Idle
 void AMordath::OnEnterIdleState()
 {
@@ -394,16 +416,11 @@ void AMordath::UpdateFollowState()
 	AddMovementInput(GetDirectionToPlayer());
 	FacePlayer();
 
-	// Determine what range we are in
-	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
-	const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius + 200.0f && GetDistanceToPlayer() < MidRangeRadius;
-	const bool bFarRange = GetDistanceToPlayer() > MidRangeRadius;
-
-	if (bCloseRange)
+	if (RangeFSM->GetActiveStateID() == 0 /*Close*/)
 	{
 		ChooseAttack();
 	}
-	else if (bMidRange)
+	else if (RangeFSM->GetActiveStateID() == 1 /*Mid*/)
 	{
 		// Do dash (to left or right)
 		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
@@ -411,7 +428,7 @@ void AMordath::UpdateFollowState()
 			BeginJumpAttackWithDash();
 		}
 	}
-	else if (bFarRange)
+	else if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
 	{
 		// Do jump attack
 		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
@@ -756,6 +773,85 @@ void AMordath::OnExitDashToJumpState()
 	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, CombatSettings.DashCooldown);
 }
 #pragma endregion
+
+// Range FSM
+#pragma region Close Range
+void AMordath::OnEnterCloseRange()
+{
+	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	if (GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
+		RangeFSM->PushState("Mid");
+}
+
+void AMordath::UpdateCloseRange()
+{
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+
+	if (GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
+		RangeFSM->PushState("Mid");
+}
+
+void AMordath::OnExitCloseRange()
+{
+	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Mid Range
+void AMordath::OnEnterMidRange()
+{
+	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	if (GetDistanceToPlayer() <= AcceptanceRadius)
+	{
+		RangeFSM->PushState("Close");
+		return;
+	}
+
+	if (GetDistanceToPlayer() > MidRangeRadius)
+		RangeFSM->PushState("Far");
+}
+
+void AMordath::UpdateMidRange()
+{
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+
+	if (GetDistanceToPlayer() <= AcceptanceRadius)
+		RangeFSM->PushState("Close");
+
+	if (GetDistanceToPlayer() > MidRangeRadius)
+		RangeFSM->PushState("Far");
+}
+
+void AMordath::OnExitMidRange()
+{
+	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Far Range
+void AMordath::OnEnterFarRange()
+{
+	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	if (GetDistanceToPlayer() < MidRangeRadius)
+		RangeFSM->PushState("Mid");
+}
+
+void AMordath::UpdateFarRange()
+{
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+
+	if (GetDistanceToPlayer() < MidRangeRadius)
+		RangeFSM->PushState("Mid");
+}
+
+void AMordath::OnExitFarRange()
+{
+	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
 
 void AMordath::OnPlayerDeath()
 {

@@ -145,6 +145,7 @@ protected:
 
 	void Die();
 
+	// Boss states
 	#pragma region Idle
 	UFUNCTION()
 		void OnEnterIdleState();
@@ -263,6 +264,34 @@ protected:
 		void OnExitDashToJumpState();
 	#pragma endregion 
 
+	// Boss ranges
+	#pragma region Close
+	UFUNCTION()
+		void OnEnterCloseRange();
+	UFUNCTION()
+		void UpdateCloseRange();
+	UFUNCTION()
+		void OnExitCloseRange();
+	#pragma endregion 
+
+	#pragma region Mid
+	UFUNCTION()
+		void OnEnterMidRange();
+	UFUNCTION()
+		void UpdateMidRange();
+	UFUNCTION()
+		void OnExitMidRange();
+	#pragma endregion 
+
+	#pragma region Far
+	UFUNCTION()
+		void OnEnterFarRange();
+	UFUNCTION()
+		void UpdateFarRange();
+	UFUNCTION()
+		void OnExitFarRange();
+	#pragma endregion 
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 
@@ -310,9 +339,13 @@ protected:
 
 	class ABossAIController* BossAIController{};
 
-	// The player's Finite State Machine
+	// The boss's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* FSM;
+
+	// The boss's range Finite State Machine
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class UFSM* RangeFSM;
 
 	// The starting health of the boss
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
@@ -407,8 +440,6 @@ protected:
 
 private:
 	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
-	void InitJumpAttackTimeline();
-	void InitDashTimeline();
 
 	FTimerHandle UpdateInfoTimerHandle;
 	FTimerHandle ComboDelayTimerHandle;
