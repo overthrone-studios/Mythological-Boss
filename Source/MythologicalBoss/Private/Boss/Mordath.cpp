@@ -340,28 +340,28 @@ void AMordath::UpdateFollowState()
 	// Decide which attack to choose
 	switch (RangeFSM->GetActiveStateID())
 	{
-		case 0 /*Close*/:
+	case 0 /*Close*/:
 		ChooseAttack();
-		break;
+	break;
 
-		case 1 /*Mid*/:
+	case 1 /*Mid*/:
 		// Do dash (to left or right)
 		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
 		{
 			BeginJumpAttackWithDash();
 		}
-		break;
+	break;
 
-		case 2 /*Far*/:
+	case 2 /*Far*/:
 		// Do jump attack
 		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
 		{
 			BeginJumpAttack();
 		}
-		break;
+	break;
 
-		default:
-		break;
+	default:
+	break;
 	}
 }
 
@@ -838,7 +838,10 @@ void AMordath::ChooseCombo()
 		if (CachedCombos[ComboIndex])
 		{
 			ChosenCombo = CachedCombos[ComboIndex];
-			ULog::DebugMessage(SUCCESS, "Combo " + ChosenCombo->GetName() + " chosen", true);
+
+			if (Debug.bLogChosenCombo)
+				ULog::DebugMessage(SUCCESS, "Combo " + ChosenCombo->GetName() + " chosen", true);
+
 			ChosenCombo->Init();
 
 			CachedCombos.Remove(ChosenCombo);
@@ -873,7 +876,8 @@ void AMordath::ChooseComboWithDelay()
 				
 	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
 
-	ULog::DebugMessage(INFO, "New Delay time: " + FString::SanitizeFloat(NewDelayTime), true);
+	if (Debug.bLogComboDelayTime)
+		ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
 
 	MovementComponent->MaxWalkSpeed = WalkSpeed/2;
 }
@@ -1088,7 +1092,10 @@ void AMordath::DoDash()
 float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	//ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+
+	if (Debug.bLogDistance)
+		ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+
 	return Distance;
 }
 
@@ -1096,7 +1103,10 @@ FVector AMordath::GetDirectionToPlayer() const
 {
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
-	//ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
+
+	if (Debug.bLogDirection)
+		ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
+
 	return Direction;
 }
 

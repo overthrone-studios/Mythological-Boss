@@ -7,6 +7,28 @@
 #include "Mordath.generated.h"
 
 USTRUCT(BlueprintType)
+struct FDebug_Mordath
+{
+	GENERATED_BODY()
+
+	// Log the distance between this and the player to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogDistance : 1;
+
+	// Log the direction from this to the player to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogDirection : 1;
+
+	// Log the new chosen combo to the viewport or console
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogChosenCombo : 1;
+
+	// Log the delay time (in seconds) when a new combo is chosen to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogComboDelayTime : 1;
+};
+
+USTRUCT(BlueprintType)
 struct FComboSettings
 {
 	GENERATED_BODY()
@@ -378,6 +400,9 @@ protected:
 	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		FDebug_Mordath Debug;
 
 	// The maximum movement speed while walking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
