@@ -405,6 +405,8 @@ void AYlva::LightAttack()
 		FSM->PushState("Light Attack 1");
 		bUseControllerRotationYaw = true;
 	}
+
+	MovementComponent->SetMovementMode(MOVE_None);
 }
 
 void AYlva::HeavyAttack()
@@ -451,6 +453,8 @@ void AYlva::HeavyAttack()
 		FSM->PushState("Heavy Attack 1");
 		bUseControllerRotationYaw = true;
 	}
+
+	MovementComponent->SetMovementMode(MOVE_None);
 }
 
 void AYlva::DisableControllerRotationYaw()
@@ -475,7 +479,11 @@ void AYlva::Run()
 
 void AYlva::StopRunning()
 {
-	if (FSM->GetActiveStateName() == "Death")
+	if (FSM->GetActiveStateName() == "Death" ||
+		FSM->GetActiveStateName() == "Light Attack 1" ||
+		FSM->GetActiveStateName() == "Light Attack 2" ||
+		FSM->GetActiveStateName() == "Heavy Attack 1" ||
+		FSM->GetActiveStateName() == "Heavy Attack 2")
 		return;
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -739,6 +747,8 @@ void AYlva::OnExitLightAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	MovementComponent->SetMovementMode(MOVE_Walking);
+
 	AnimInstance->bAcceptLightAttack = false;
 }
 #pragma endregion
@@ -776,6 +786,8 @@ void AYlva::UpdateLightAttack2State()
 void AYlva::OnExitLightAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	AnimInstance->bAcceptSecondLightAttack = false;
 }
@@ -815,6 +827,8 @@ void AYlva::OnExitHeavyAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	MovementComponent->SetMovementMode(MOVE_Walking);
+
 	AnimInstance->bAcceptHeavyAttack = false;
 }
 #pragma endregion
@@ -852,6 +866,8 @@ void AYlva::UpdateHeavyAttack2State()
 void AYlva::OnExitHeavyAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 }
