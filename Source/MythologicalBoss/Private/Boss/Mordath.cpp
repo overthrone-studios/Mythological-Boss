@@ -266,19 +266,10 @@ void AMordath::Tick(const float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (GameInstance->bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
+	{
+		FSM->PopState();
 		FSM->PushState("Stunned");
-
-	// Determine what range we are in
-	//const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
-	//const bool bMidRange = GetDistanceToPlayer() > AcceptanceRadius + 200.0f && GetDistanceToPlayer() < MidRangeRadius;
-	//const bool bFarRange = GetDistanceToPlayer() > MidRangeRadius;
-
-	//if (bCloseRange)
-	//	ULog::DebugMessage(INFO, "Close range", true);
-	//else if (bMidRange)
-	//	ULog::DebugMessage(INFO, "Mid range", true);
-	//else if (bFarRange)
-	//	ULog::DebugMessage(INFO, "Far range", true);
+	}
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -286,77 +277,6 @@ void AMordath::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	BossAIController = Cast<ABossAIController>(NewController);
-}
-
-float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	// We don't want to be damaged when we're already dead
-	if (FSM->GetActiveStateName() == "Death")
-		return DamageAmount;
-
-	// Apply damage once
-	if (!bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
-	{
-		HitCounter++;
-
-		// Go to damaged state if we are not stunned
-		if (FSM->GetActiveStateName() != "Stunned")
-		{
-			FSM->PopState();
-			FSM->PushState("Damaged");
-		}
-
-		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
-
-		// Update our health
-		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
-	}
-
-	// When we have reach the maximum amount of hits we can tolerate, enable invincibility
-	if (HitCounter >= MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
-	{
-		// Reset our hits
-		HitCounter = 0;
-
-		EnableInvincibility();
-
-		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
-
-		FSM->PopState();
-		FSM->PushState("Damaged");
-
-		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
-
-		// Update our health
-		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
-	}
-
-	if (Health <= 0.0f && FSM->GetActiveStateName() != "Death")
-	{
-		Die();
-	}
-
-	return DamageAmount;
-}
-
-FRotator AMordath::FacePlayer()
-{
-	const FVector Target = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target.Rotation(), World->DeltaTimeSeconds, 20.0f);
-
-	const FRotator NewRotation = FRotator(GetControlRotation().Pitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
-
-	SetActorRotation(NewRotation);
-
-	return Target.Rotation();
-}
-
-void AMordath::SendInfo()
-{
-	GameInstance->BossHealth = Health;
-	GameInstance->BossLocation = GetActorLocation();
 }
 
 // Boss FSM
@@ -413,28 +333,35 @@ void AMordath::UpdateFollowState()
 		return;
 	}
 
+	// Move towards the player
 	AddMovementInput(GetDirectionToPlayer());
 	FacePlayer();
 
-	if (RangeFSM->GetActiveStateID() == 0 /*Close*/)
+	// Decide which attack to choose
+	switch (RangeFSM->GetActiveStateID())
 	{
+		case 0 /*Close*/:
 		ChooseAttack();
-	}
-	else if (RangeFSM->GetActiveStateID() == 1 /*Mid*/)
-	{
+		break;
+
+		case 1 /*Mid*/:
 		// Do dash (to left or right)
 		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
 		{
 			BeginJumpAttackWithDash();
 		}
-	}
-	else if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
-	{
+		break;
+
+		case 2 /*Far*/:
 		// Do jump attack
 		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
 		{
 			BeginJumpAttack();
 		}
+		break;
+
+		default:
+		break;
 	}
 }
 
@@ -995,6 +922,77 @@ void AMordath::EnableInvincibility()
 void AMordath::DisableInvincibility()
 {
 	bCanBeDamaged = true;
+}
+
+float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// We don't want to be damaged when we're already dead
+	if (FSM->GetActiveStateName() == "Death")
+		return DamageAmount;
+
+	// Apply damage once
+	if (!bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	{
+		HitCounter++;
+
+		// Go to damaged state if we are not stunned
+		if (FSM->GetActiveStateName() != "Stunned")
+		{
+			FSM->PopState();
+			FSM->PushState("Damaged");
+		}
+
+		// Shake the camera
+		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
+
+		// Update our health
+		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
+	}
+
+	// When we have reach the maximum amount of hits we can tolerate, enable invincibility
+	if (HitCounter >= MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	{
+		// Reset our hits
+		HitCounter = 0;
+
+		EnableInvincibility();
+
+		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
+
+		FSM->PopState();
+		FSM->PushState("Damaged");
+
+		// Shake the camera
+		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
+
+		// Update our health
+		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
+	}
+
+	if (Health <= 0.0f && FSM->GetActiveStateName() != "Death")
+	{
+		Die();
+	}
+
+	return DamageAmount;
+}
+
+FRotator AMordath::FacePlayer()
+{
+	const FVector Target = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), PlayerCharacter->GetActorLocation());
+	const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target.Rotation(), World->DeltaTimeSeconds, 20.0f);
+
+	const FRotator NewRotation = FRotator(GetControlRotation().Pitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
+
+	SetActorRotation(NewRotation);
+
+	return Target.Rotation();
+}
+
+void AMordath::SendInfo()
+{
+	GameInstance->BossHealth = Health;
+	GameInstance->BossLocation = GetActorLocation();
 }
 
 void AMordath::BeginJumpAttack()

@@ -356,16 +356,12 @@ protected:
 		float Health = 1000.0f;
 
 	// The radius in which the boss character will accept that it has arrived to the player's location
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f), DisplayName = "Close Range Radius")
 		float AcceptanceRadius = 200.0f;
 
 	// The radius of the mid range area
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
 		float MidRangeRadius = 400.0f;
-
-	// The radius of the far range area
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
-		float FarRangeRadius = 800.0f;
 
 	// How long (in seconds) should the boss stay dead before being destroyed?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
