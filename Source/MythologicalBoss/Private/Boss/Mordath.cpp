@@ -392,6 +392,7 @@ void AMordath::UpdateFollowState()
 	}
 
 	AddMovementInput(GetDirectionToPlayer());
+	FacePlayer();
 
 	// Determine what range we are in
 	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
