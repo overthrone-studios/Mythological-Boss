@@ -117,7 +117,7 @@ public:
 	class UBehaviorTree* GetBT() const { return BossBT; }
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		class UFSM* GetFSM() const { return BossStateMachine; }
+		class UFSM* GetFSM() const { return FSM; }
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FORCEINLINE float GetLightAttackDamage() const { return CombatSettings.LightAttackDamage; }
@@ -132,7 +132,6 @@ protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 	void PossessedBy(AController* NewController) override;
-
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	FRotator FacePlayer();
@@ -143,6 +142,8 @@ protected:
 	void ChooseCombo();
 
 	void FinishStun();
+
+	void Die();
 
 	#pragma region Idle
 	UFUNCTION()
@@ -311,7 +312,7 @@ protected:
 
 	// The player's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
-		class UFSM* BossStateMachine;
+		class UFSM* FSM;
 
 	// The starting health of the boss
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
@@ -376,6 +377,9 @@ protected:
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	uint8 HitCounter = 0;
+
+	// True when we have been damaged
+	uint8 bIsHit : 1;
 
 	// Cached world pointer
 	UWorld* World{};

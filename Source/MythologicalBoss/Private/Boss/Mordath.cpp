@@ -48,79 +48,79 @@ AMordath::AMordath()
 	}
 
 	// Create a FSM
-	BossStateMachine = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
-	BossStateMachine->AddState(0, "Idle");
-	BossStateMachine->AddState(1, "Follow");
-	BossStateMachine->AddState(3, "Light Attack 1");
-	BossStateMachine->AddState(4, "Light Attack 2");
-	BossStateMachine->AddState(5, "Light Attack 3");
-	BossStateMachine->AddState(6, "Heavy Attack 1");
-	BossStateMachine->AddState(7, "Heavy Attack 2");
-	BossStateMachine->AddState(8, "Heavy Attack 3");
-	BossStateMachine->AddState(9, "Special Attack 1");
-	BossStateMachine->AddState(10, "Special Attack 2");
-	BossStateMachine->AddState(11, "Special Attack 3");
-	BossStateMachine->AddState(12, "Damaged");
-	BossStateMachine->AddState(13, "Death");
-	BossStateMachine->AddState(14, "Stunned");
-	BossStateMachine->AddState(15, "Laugh");
-	BossStateMachine->AddState(16, "Dash to Jump");
+	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
+	FSM->AddState(0, "Idle");
+	FSM->AddState(1, "Follow");
+	FSM->AddState(3, "Light Attack 1");
+	FSM->AddState(4, "Light Attack 2");
+	FSM->AddState(5, "Light Attack 3");
+	FSM->AddState(6, "Heavy Attack 1");
+	FSM->AddState(7, "Heavy Attack 2");
+	FSM->AddState(8, "Heavy Attack 3");
+	FSM->AddState(9, "Special Attack 1");
+	FSM->AddState(10, "Special Attack 2");
+	FSM->AddState(11, "Special Attack 3");
+	FSM->AddState(12, "Damaged");
+	FSM->AddState(13, "Death");
+	FSM->AddState(14, "Stunned");
+	FSM->AddState(15, "Laugh");
+	FSM->AddState(16, "Dash to Jump");
 
 
 	// Bind state events to our functions
-	BossStateMachine->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
-	BossStateMachine->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateIdleState);
-	BossStateMachine->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitIdleState);
+	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
+	FSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateIdleState);
+	FSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitIdleState);
 
-	BossStateMachine->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFollowState);
-	BossStateMachine->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFollowState);
-	BossStateMachine->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitFollowState);
+	FSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFollowState);
+	FSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFollowState);
+	FSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitFollowState);
 
-	BossStateMachine->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack1State);
-	BossStateMachine->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack1State);
-	BossStateMachine->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack1State);
+	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack1State);
+	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack1State);
+	FSM->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack1State);
 
-	BossStateMachine->GetState(4)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack2State);
-	BossStateMachine->GetState(4)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack2State);
-	BossStateMachine->GetState(4)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack2State);
+	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack2State);
+	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack2State);
+	FSM->GetState(4)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack2State);
 
-	BossStateMachine->GetState(5)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack3State);
-	BossStateMachine->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack3State);
-	BossStateMachine->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack3State);
+	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack3State);
+	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack3State);
+	FSM->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack3State);
 
-	BossStateMachine->GetState(6)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack1State);
-	BossStateMachine->GetState(6)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack1State);
-	BossStateMachine->GetState(6)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack1State);
+	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack1State);
+	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack1State);
+	FSM->GetState(6)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack1State);
 
-	BossStateMachine->GetState(7)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack2State);
-	BossStateMachine->GetState(7)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack2State);
-	BossStateMachine->GetState(7)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack2State);
+	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack2State);
+	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack2State);
+	FSM->GetState(7)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack2State);
 
-	BossStateMachine->GetState(8)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack3State);
-	BossStateMachine->GetState(8)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack3State);
-	BossStateMachine->GetState(8)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack3State);
+	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack3State);
+	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack3State);
+	FSM->GetState(8)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack3State);
 
-	BossStateMachine->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
-	BossStateMachine->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
-	BossStateMachine->GetState(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
+	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
+	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
+	FSM->GetState(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
 
-	BossStateMachine->GetState(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDeathState);
-	BossStateMachine->GetState(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
-	BossStateMachine->GetState(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
+	FSM->GetState(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDeathState);
+	FSM->GetState(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
+	FSM->GetState(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
 
-	BossStateMachine->GetState(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
-	BossStateMachine->GetState(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
-	BossStateMachine->GetState(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
+	FSM->GetState(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
+	FSM->GetState(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
+	FSM->GetState(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
 
-	BossStateMachine->GetState(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLaughState);
-	BossStateMachine->GetState(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
-	BossStateMachine->GetState(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
+	FSM->GetState(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLaughState);
+	FSM->GetState(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
+	FSM->GetState(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
 
-	BossStateMachine->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashToJumpState);
-	BossStateMachine->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashToJumpState);
-	BossStateMachine->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashToJumpState);
+	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashToJumpState);
+	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashToJumpState);
+	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashToJumpState);
 
-	BossStateMachine->InitState(1);
+	FSM->InitState(1);
 
 	// Assign the behaviour tree
 	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
@@ -237,15 +237,15 @@ void AMordath::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
 	// Begin the state machine
-	BossStateMachine->Start();
+	FSM->Start();
 }
 
 void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GameInstance->bParrySucceeded && BossStateMachine->GetActiveStateID() != 14 /*Stunned*/)
-		BossStateMachine->PushState("Stunned");
+	if (GameInstance->bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
+		FSM->PushState("Stunned");
 
 	// Determine what range we are in
 	//const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
@@ -269,42 +269,53 @@ void AMordath::PossessedBy(AController* NewController)
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (!AnimInstance->bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	// We don't want to be damaged when we're already dead
+	if (FSM->GetActiveStateName() == "Death")
+		return DamageAmount;
+
+	// Apply damage once
+	if (!bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
+		ULog::LogYes("Hit", true);
 		HitCounter++;
 
 		// Go to damaged state if we are not stunned
-		if (BossStateMachine->GetActiveStateName() != "Stunned")
+		if (FSM->GetActiveStateName() != "Stunned")
 		{
-			BossStateMachine->PopState();
-			BossStateMachine->PushState("Damaged");
+			FSM->PopState();
+			FSM->PushState("Damaged");
 		}
 
+		// Shake the camera
 		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
 
+		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
 
+	// When we have reach the maximum amount of hits we can tolerate, enable invincibility
 	if (HitCounter >= MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
+		// Reset our hits
 		HitCounter = 0;
 
 		EnableInvincibility();
 
 		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
 
-		BossStateMachine->PopState();
-		BossStateMachine->PushState("Damaged");
+		FSM->PopState();
+		FSM->PushState("Damaged");
 
+		// Shake the camera
 		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
 
+		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
 
-	if (Health <= 0.0f)
+	if (Health <= 0.0f && FSM->GetActiveStateName() != "Death")
 	{
-		bCanBeDamaged = false;
-		BossStateMachine->PushState("Death");
+		Die();
 	}
 
 	return DamageAmount;
@@ -331,12 +342,12 @@ void AMordath::SendInfo()
 #pragma region Idle
 void AMordath::OnEnterIdleState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
 void AMordath::UpdateIdleState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	if (GameInstance->bIsPlayerDead)
 		return;
@@ -344,19 +355,19 @@ void AMordath::UpdateIdleState()
 	FacePlayer();
 
 	if (GetDistanceToPlayer() > AcceptanceRadius && ChosenCombo)
-		BossStateMachine->PushState("Follow");
+		FSM->PushState("Follow");
 }
 
 void AMordath::OnExitIdleState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
 #pragma endregion
 
 #pragma region Follow
 void AMordath::OnEnterFollowState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
@@ -371,13 +382,13 @@ void AMordath::OnEnterFollowState()
 
 void AMordath::UpdateFollowState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// Check for destructible objects and destroy them
 	if (ShouldDestroyDestructibleObjects())
 	{
 		BossAIController->StopMovement();
-		BossStateMachine->PushState(3);
+		FSM->PushState(3);
 		return;
 	}
 
@@ -412,21 +423,21 @@ void AMordath::UpdateFollowState()
 
 void AMordath::OnExitFollowState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
 #pragma endregion 
 
 #pragma region Light Attack 1
 void AMordath::OnEnterLightAttack1State()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -438,13 +449,13 @@ void AMordath::UpdateLightAttack1State()
 	{
 		ChosenCombo->NextAttack();
 
-		BossStateMachine->PopState();
+		FSM->PopState();
 	}
 }
 
 void AMordath::OnExitLightAttack1State()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptLightAttack = false;
 }
@@ -453,14 +464,14 @@ void AMordath::OnExitLightAttack1State()
 #pragma region Light Attack 2
 void AMordath::OnEnterLightAttack2State()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack2State()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -472,13 +483,13 @@ void AMordath::UpdateLightAttack2State()
 	{
 		ChosenCombo->NextAttack();
 
-		BossStateMachine->PopState();
+		FSM->PopState();
 	}
 }
 
 void AMordath::OnExitLightAttack2State()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondLightAttack = false;
 }
@@ -487,14 +498,14 @@ void AMordath::OnExitLightAttack2State()
 #pragma region Light Attack 3
 void AMordath::OnEnterLightAttack3State()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptThirdLightAttack = true;
 }
 
 void AMordath::UpdateLightAttack3State()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -506,13 +517,13 @@ void AMordath::UpdateLightAttack3State()
 	{
 		ChosenCombo->NextAttack();
 
-		BossStateMachine->PopState();
+		FSM->PopState();
 	}
 }
 
 void AMordath::OnExitLightAttack3State()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptThirdLightAttack = false;
 }
@@ -521,14 +532,14 @@ void AMordath::OnExitLightAttack3State()
 #pragma region Heavy Attack 1
 void AMordath::OnEnterHeavyAttack1State()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptHeavyAttack = true;
 }
 
 void AMordath::UpdateHeavyAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -540,13 +551,13 @@ void AMordath::UpdateHeavyAttack1State()
 	{
 		ChosenCombo->NextAttack();
 
-		BossStateMachine->PopState();
+		FSM->PopState();
 	}
 }
 
 void AMordath::OnExitHeavyAttack1State()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptHeavyAttack = false;
 }
@@ -555,19 +566,19 @@ void AMordath::OnExitHeavyAttack1State()
 #pragma region Heavy Attack 2
 void AMordath::OnEnterHeavyAttack2State()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondHeavyAttack = true;
 }
 
 void AMordath::UpdateHeavyAttack2State()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
 void AMordath::OnExitHeavyAttack2State()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
@@ -578,14 +589,14 @@ void AMordath::OnExitHeavyAttack2State()
 #pragma region Heavy Attack 3
 void AMordath::OnEnterHeavyAttack3State()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptThirdHeavyAttack = true;
 }
 
 void AMordath::UpdateHeavyAttack3State()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -597,13 +608,13 @@ void AMordath::UpdateHeavyAttack3State()
 	{
 		ChosenCombo->NextAttack();
 
-		BossStateMachine->PopState();
+		FSM->PopState();
 	}
 }
 
 void AMordath::OnExitHeavyAttack3State()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptThirdHeavyAttack = false;
 }
@@ -612,27 +623,29 @@ void AMordath::OnExitHeavyAttack3State()
 #pragma region Damaged
 void AMordath::OnEnterDamagedState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	bIsHit = true;
 	AnimInstance->bIsHit = true;
 }
 
 void AMordath::UpdateDamagedState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If damaged animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
 	if (TimeRemaining <= 0.4f)
-		BossStateMachine->PopState();
+		FSM->PopState();
 }
 
 void AMordath::OnExitDamagedState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	bIsHit = false;
 	AnimInstance->bIsHit = false;
 
 	if (ChosenCombo)
@@ -643,7 +656,7 @@ void AMordath::OnExitDamagedState()
 #pragma region Death
 void AMordath::OnEnterDeathState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bIsDead = true;
 
@@ -656,13 +669,13 @@ void AMordath::OnEnterDeathState()
 
 void AMordath::UpdateDeathState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 }
 
 void AMordath::OnExitDeathState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bIsDead = false;
 }
@@ -671,7 +684,7 @@ void AMordath::OnExitDeathState()
 #pragma region Stunned
 void AMordath::OnEnterStunnedState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bIsStunned = true;
 
@@ -680,7 +693,7 @@ void AMordath::OnEnterStunnedState()
 
 void AMordath::UpdateStunnedState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If stun animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
@@ -692,7 +705,7 @@ void AMordath::UpdateStunnedState()
 
 void AMordath::OnExitStunnedState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	if (ChosenCombo)
 		ChosenCombo->NextAttack();
@@ -704,20 +717,20 @@ void AMordath::OnExitStunnedState()
 #pragma region Laugh
 void AMordath::OnEnterLaughState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bCanLaugh = true;
 }
 
 void AMordath::UpdateLaughState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 }
 
 void AMordath::OnExitLaughState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bCanLaugh = false;
 }
@@ -726,19 +739,19 @@ void AMordath::OnExitLaughState()
 #pragma region Dash to Jump
 void AMordath::OnEnterDashToJumpState()
 {
-	FSMVisualizer->HighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
 void AMordath::UpdateDashToJumpState()
 {
-	FSMVisualizer->UpdateStateUptime(BossStateMachine->GetActiveStateName().ToString(), BossStateMachine->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 }
 
 void AMordath::OnExitDashToJumpState()
 {
-	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, CombatSettings.DashCooldown);
 }
@@ -748,9 +761,9 @@ void AMordath::OnPlayerDeath()
 {
 	BossAIController->StopMovement();
 
-	BossStateMachine->RemoveAllStatesFromStackExceptActive();
+	FSM->RemoveAllStatesFromStackExceptActive();
 
-	BossStateMachine->PushState("Laugh");
+	FSM->PushState("Laugh");
 }
 
 void AMordath::DestroySelf()
@@ -767,7 +780,7 @@ void AMordath::FinishCooldown()
 
 void AMordath::FinishStun()
 {
-	BossStateMachine->PopState();
+	FSM->PopState();
 }
 
 bool AMordath::ShouldDestroyDestructibleObjects()
@@ -850,19 +863,19 @@ void AMordath::ChooseAttack()
 	switch (ChosenCombo->CurrentAttack)
 	{
 		case LightAttack_1:
-			BossStateMachine->PushState("Light Attack 1");
+			FSM->PushState("Light Attack 1");
 		break;
 
 		case LightAttack_2:
-			BossStateMachine->PushState("Light Attack 2");
+			FSM->PushState("Light Attack 2");
 		break;
 
 		case LightAttack_3:
-			BossStateMachine->PushState("Light Attack 3");
+			FSM->PushState("Light Attack 3");
 		break;
 
 		case HeavyAttack_1:
-			BossStateMachine->PushState("Heavy Attack 1");
+			FSM->PushState("Heavy Attack 1");
 		break;
 
 		case HeavyAttack_2:
@@ -870,7 +883,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case HeavyAttack_3:
-			BossStateMachine->PushState("Heavy Attack 3");
+			FSM->PushState("Heavy Attack 3");
 		break;
 
 		default:
@@ -893,8 +906,8 @@ void AMordath::BeginJumpAttack()
 	if (JumpAttackTimelineComponent->IsPlaying())
 		return;
 	
-	BossStateMachine->PopState("Dash to Jump");
-	BossStateMachine->PushState("Heavy Attack 2");
+	FSM->PopState("Dash to Jump");
+	FSM->PushState("Heavy Attack 2");
 
 	// Create the main points of the bezier curve
 	FVector Point = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -(GetDistanceToPlayer() / 2.0f);
@@ -933,7 +946,7 @@ void AMordath::DoJumpAttack()
 void AMordath::FinishJumpAttack()
 {
 	ChosenCombo->NextAttack();
-	BossStateMachine->PopState();
+	FSM->PopState();
 }
 
 void AMordath::BeginJumpAttackWithDash()
@@ -941,8 +954,8 @@ void AMordath::BeginJumpAttackWithDash()
 	if (DashTimelineComponent->IsPlaying())
 		return;
 
-	BossStateMachine->PopState();
-	BossStateMachine->PushState("Dash to Jump");
+	FSM->PopState();
+	FSM->PushState("Dash to Jump");
 
 	// Create the main points of the bezier curve
 	FVector Point = GetActorLocation() + GetActorRightVector() * (CombatSettings.DashDistance / 2.0f);
@@ -991,4 +1004,11 @@ FVector AMordath::GetDirectionToPlayer() const
 	Direction.Normalize();
 	//ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
 	return Direction;
+}
+
+void AMordath::Die()
+{
+	bCanBeDamaged = false;
+
+	FSM->PushState("Death");
 }
