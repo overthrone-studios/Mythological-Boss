@@ -294,6 +294,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void RegenerateStamina(float Rate);
 
+	// Kill self
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Die();
+
 	// Called when the player is killed (Health <= 0)
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void Respawn();
@@ -325,6 +329,10 @@ protected:
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
+
+	// Did we successfully parry?
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsParrySuccessful();
 
 	void StartParryEvent();
 	void FinishParryEvent();
@@ -476,7 +484,7 @@ protected:
 
 	// The player's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
-		class UFSM* PlayerStateMachine;
+		class UFSM* FSM;
 
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
@@ -521,6 +529,9 @@ protected:
 	// Ylva's camera shake settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
 		FCameraShakes_Ylva CameraShakes;
+
+	// True when we have been damaged
+	uint8 bIsHit : 1;
 
 	// Cached world pointer
 	UWorld* World{};

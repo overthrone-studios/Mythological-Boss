@@ -694,6 +694,9 @@ void AMordath::OnExitStunnedState()
 {
 	FSMVisualizer->UnhighlightState(BossStateMachine->GetActiveStateName().ToString());
 
+	if (ChosenCombo)
+		ChosenCombo->NextAttack();
+
 	AnimInstance->bIsStunned = false;
 }
 #pragma endregion
