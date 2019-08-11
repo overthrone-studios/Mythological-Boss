@@ -345,7 +345,7 @@ void AMordath::UpdateIdleState()
 
 	FacePlayer();
 
-	if (GetDistanceToPlayer() > AcceptanceRadius)
+	if (GetDistanceToPlayer() > AcceptanceRadius && ChosenCombo)
 		BossStateMachine->PushState("Follow");
 }
 
@@ -637,7 +637,8 @@ void AMordath::OnExitDamagedState()
 
 	AnimInstance->bIsHit = false;
 
-	ChosenCombo->NextAttack();
+	if (ChosenCombo)
+		ChosenCombo->NextAttack();
 }
 #pragma endregion
 
@@ -785,6 +786,12 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 
 void AMordath::ChooseCombo()
 {
+	if (ComboSettings.Combos.Num() == 0)
+	{
+		ULog::DebugMessage(ERROR, "There are no combo to choose from! Add a combo asset to the list.", true);
+		return;
+	}
+
 	if (ComboSettings.bChooseRandomCombo)
 		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
 
