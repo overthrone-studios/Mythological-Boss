@@ -152,7 +152,7 @@ AYlva::AYlva()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -206,12 +206,12 @@ void AYlva::Tick(const float DeltaTime)
 
 	GameInstance->PlayerLocation = GetActorLocation();
 
-	if (bShouldLockOnTarget)
+	if (LockOnSettings.bShouldLockOnTarget)
 	{
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossLocation);
 		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
 
-		const FRotator NewRotation = FRotator(LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
+		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 
@@ -320,9 +320,9 @@ void AYlva::ToggleLockOn()
 	if (GameInstance->BossHealth <= 0.0f || PlayerStateMachine->GetActiveStateName() == "Death")
 		return;
 
-	bShouldLockOnTarget = !bShouldLockOnTarget;
-	PlayerController->SetIgnoreLookInput(bShouldLockOnTarget);
-	GameInstance->ToggleLockOnVisibility(bShouldLockOnTarget);
+	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
+	PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
+	GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
 }
 
 void AYlva::EnableLockOn()
@@ -331,14 +331,14 @@ void AYlva::EnableLockOn()
 	if (GameInstance->BossHealth <= 0.0f || PlayerStateMachine->GetActiveStateName() == "Death")
 		return;
 
-	bShouldLockOnTarget = true;
+	LockOnSettings.bShouldLockOnTarget = true;
 	PlayerController->SetIgnoreLookInput(true);
 	GameInstance->ToggleLockOnVisibility(true);
 }
 
 void AYlva::DisableLockOn()
 {
-	bShouldLockOnTarget = false;
+	LockOnSettings.bShouldLockOnTarget = false;
 	PlayerController->SetIgnoreLookInput(false);
 	GameInstance->ToggleLockOnVisibility(false);
 }
@@ -376,7 +376,7 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		Stamina > LightAttackStamina)
+		Stamina > Combat.StaminaSettings.LightAttackStamina)
 	{
 		PlayerStateMachine->PushState("Light Attack 1");
 		bUseControllerRotationYaw = true;
@@ -387,7 +387,7 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.4f &&
-		Stamina > LightAttackStamina)
+		Stamina > Combat.StaminaSettings.LightAttackStamina)
 	{
 		PlayerStateMachine->PopState("Light Attack 1");
 		PlayerStateMachine->PushState("Light Attack 2");
@@ -399,7 +399,7 @@ void AYlva::LightAttack()
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.6f &&
-		Stamina > LightAttackStamina)
+		Stamina > Combat.StaminaSettings.LightAttackStamina)
 	{
 		PlayerStateMachine->PopState("Light Attack 2");
 		PlayerStateMachine->PushState("Light Attack 1");
@@ -423,7 +423,7 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		Stamina > HeavyAttackStamina)
+		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
 	{
 		PlayerStateMachine->PushState("Heavy Attack 1");
 		bUseControllerRotationYaw = true;
@@ -433,7 +433,7 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.7f &&
-		Stamina > HeavyAttackStamina)
+		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
 	{
 		PlayerStateMachine->PopState("Heavy Attack 1");
 		PlayerStateMachine->PushState("Heavy Attack 2");
@@ -445,7 +445,7 @@ void AYlva::HeavyAttack()
 		PlayerStateMachine->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		PlayerStateMachine->GetActiveStateID() == 10 /*Heavy Attack 2*/ &&
 		PlayerStateMachine->GetActiveStateUptime() > 0.5f &&
-		Stamina > HeavyAttackStamina)
+		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
 	{
 		PlayerStateMachine->PopState("Heavy Attack 2");
 		PlayerStateMachine->PushState("Heavy Attack 1");
@@ -464,9 +464,9 @@ void AYlva::Run()
 		return;
 
 	// If we are moving and grounded
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > RunStamina * World->DeltaTimeSeconds)
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds)
 	{
-		MovementComponent->MaxWalkSpeed = RunSpeed;
+		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 
 		PlayerStateMachine->PopState();
 		PlayerStateMachine->PushState("Run");
@@ -478,7 +478,7 @@ void AYlva::StopRunning()
 	if (PlayerStateMachine->GetActiveStateName() == "Death")
 		return;
 
-	MovementComponent->MaxWalkSpeed = WalkSpeed;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	PlayerStateMachine->PopState();
 }
@@ -496,12 +496,12 @@ void AYlva::Dash()
 		VelocityNormalized.Normalize();
 		VelocityNormalized.Z = 0;
 
-		if (!bGodMode && Stamina > DashStamina)
+		if (!bGodMode && Stamina > Combat.StaminaSettings.DashStamina)
 		{
-			UpdateStamina(DashStamina);
+			UpdateStamina(Combat.StaminaSettings.DashStamina);
 		}
 
-		LaunchCharacter(VelocityNormalized * DashForce, true, true);
+		LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
 	}
 }
 
@@ -613,7 +613,7 @@ void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = RunSpeed;
+	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 	AnimInstance->bIsRunning = true;
 }
 
@@ -622,9 +622,9 @@ void AYlva::UpdateRunState()
 	FSMVisualizer->UpdateStateUptime(PlayerStateMachine->GetActiveStateName().ToString(), PlayerStateMachine->GetActiveStateUptime());
 
 	if (!bGodMode)
-		UpdateStamina(RunStamina * World->DeltaTimeSeconds);
+		UpdateStamina(Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds);
 
-	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < RunSpeed || Stamina <= RunStamina * World->DeltaTimeSeconds)
+	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || Stamina <= Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds)
 		PlayerStateMachine->PopState();
 
 	if (GetVelocity().Z < 0.0f)
@@ -635,7 +635,7 @@ void AYlva::OnExitRunState()
 {
 	FSMVisualizer->UnhighlightState(PlayerStateMachine->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = WalkSpeed;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	AnimInstance->bIsRunning = false;
 }
 #pragma endregion
@@ -703,7 +703,7 @@ void AYlva::OnEnterLightAttackState()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(LightAttackStamina);
+			UpdateStamina(Combat.StaminaSettings.LightAttackStamina);
 	}
 	else
 	{
@@ -741,7 +741,7 @@ void AYlva::OnEnterLightAttack2State()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(LightAttackStamina);
+			UpdateStamina(Combat.StaminaSettings.LightAttackStamina);
 	}
 	else
 	{
@@ -779,7 +779,7 @@ void AYlva::OnEnterHeavyAttackState()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(HeavyAttackStamina);
+			UpdateStamina(Combat.StaminaSettings.HeavyAttackStamina);
 	}
 	else
 	{
@@ -817,7 +817,7 @@ void AYlva::OnEnterHeavyAttack2State()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(HeavyAttackStamina);
+			UpdateStamina(Combat.StaminaSettings.HeavyAttackStamina);
 	}
 	else
 	{
@@ -966,7 +966,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		}
 
 		// Did we successfully parry?
-		const bool bParrySucceeded = PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateUptime() < ParryWindowTime;
+		const bool bParrySucceeded = PlayerStateMachine->GetActiveStateName() == "Block" && PlayerStateMachine->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
 		if (bParrySucceeded)
 		{
 			PlayerStateMachine->PushState("Parry");
@@ -977,9 +977,9 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			PlayerStateMachine->PopState();
 			PlayerStateMachine->PushState("Shield Hit");
 
-			UpdateHealth(DamageAmount * DamageBuffer);
-			UpdateStamina(ShieldHitStamina);
-			PlayerController->ClientPlayCameraShake(Damaged, ShakeIntensity);
+			UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+			UpdateStamina(Combat.StaminaSettings.ShieldHitStamina);
+			PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 		}
 		// Not blocking
 		else
@@ -987,7 +987,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			PlayerStateMachine->PushState("Damaged");
 
 			UpdateHealth(DamageAmount);
-			PlayerController->ClientPlayCameraShake(Damaged, ShakeIntensity);
+			PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 		}
 	}
 
@@ -1056,9 +1056,9 @@ void AYlva::StartParryEvent()
 {
 	GameInstance->bParrySucceeded = true;
 
-	UGameplayStatics::SetGlobalTimeDilation(this, TimeDilationOnSuccessfulParry);
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
-	GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, TimeUntilParryEventIsCompleted);
+	GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, Combat.ParrySettings.TimeUntilParryEventIsCompleted);
 }
 
 void AYlva::FinishParryEvent()

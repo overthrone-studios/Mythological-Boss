@@ -5,8 +5,162 @@
 #include "GameFramework/Character.h"
 #include "Ylva.generated.h"
 
+USTRUCT(BlueprintType)
+struct FMovementSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The maximum movement speed while walking
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
+		float WalkSpeed = 500.0f;
+
+	// The maximum movement speed while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
+		float RunSpeed = 700.0f;
+
+	// The maximum movement speed while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
+		float DashForce = 2000.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FLockOnSettings
+{
+	GENERATED_BODY()
+
+	// Should the camera focus on the boss?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
+		bool bShouldLockOnTarget = false;
+
+	// The target pitch when locking on
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))
+		float LockOnPitch = 350.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FCameraShake_Ylva
+{
+	GENERATED_BODY()
+
+	// The camera shake to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		TSubclassOf<class UCameraShake> Shake;
+
+	// The intensity of the camera shake
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
+		float Intensity = 1.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FCameraShakes_Ylva
+{
+	GENERATED_BODY()
+
+	// The camera shake to play when we are damaged by the boss
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShake_Ylva Damaged;
+};
+
+USTRUCT(BlueprintType)
+struct FAttackSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The attack damage we deal when light attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float LightAttackDamage = 50.0f;
+
+	// The attack damage we deal when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float HeavyAttackDamage = 100.0f;
+
+	// The attack range when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float AttackDistance = 100.0f;
+
+	// The radius of the sphere raycast when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
+		float AttackRadius = 20.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FStaminaSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The stamina value to subtract when light attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float LightAttackStamina = 10.0f;
+
+	// The stamina value to subtract when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float HeavyAttackStamina = 30.0f;
+
+	// The stamina value to subtract when dashing
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float DashStamina = 40.0f;
+
+	// The stamina value to subtract while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float RunStamina = 2.0f;
+
+	// The stamina value to subtract when being hit while blocking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float ShieldHitStamina = 300.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FDefenseSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// This value will be used to buffer the damage received when the boss hits the player while blocking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float DamageBuffer = 0.5f;
+};
+
+USTRUCT(BlueprintType)
+struct FParrySettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The parry window time frame
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float ParryWindowTime = 0.1f;
+
+	// This value will be used when a parry is successful (slowing down time)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float TimeDilationOnSuccessfulParry = 0.4f;
+
+	// How long (in seconds) should we stay in the parry event?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float TimeUntilParryEventIsCompleted = 0.5f;
+};
+
+USTRUCT(BlueprintType)
+struct FCombatSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// Settings that affect Ylva's attack values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FAttackSettings_Ylva AttackSettings;
+
+	// Settings that affect Ylva's stamina value
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FStaminaSettings_Ylva StaminaSettings;
+
+	// Settings that affect blocking values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FDefenseSettings_Ylva BlockSettings;
+
+	// Settings that affect parry values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FParrySettings_Ylva ParrySettings;
+};
+
 /*
- * The player character
+ * The player character you control
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API AYlva final : public ACharacter
@@ -24,14 +178,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	// Returns the light attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		FORCEINLINE float GetLightAttackDamage() const { return LightAttackDamage; }
+		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
+
+	// Returns the heavy attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		FORCEINLINE float GetHeavyAttackDamage() const { return HeavyAttackDamage; }
+		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
+
+	// Returns the attack distance value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		FORCEINLINE float GetAttackRange() const { return AttackDistance; }
+		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
+
+	// Returns the attack radius value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		FORCEINLINE float GetAttackRadius() const { return AttackRadius; }
+		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -165,8 +326,18 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
 
-	void StartParryEvent(); 
-	void FinishParryEvent(); 
+	void StartParryEvent();
+	void FinishParryEvent();
+
+	// God mode functions
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void EnableGodMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DisableGodMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ToggleGodMode();
 
 	// Player states
 	#pragma region Idle
@@ -289,18 +460,8 @@ protected:
 	// Events
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	// Called when the boss's health is less than or equal to zero
 	UFUNCTION()
-		void OnBossDeath();
-
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void EnableGodMode();
-	
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DisableGodMode();
-
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ToggleGodMode();
+		void OnBossDeath(); // Called when the boss's health is less than or equal to zero
 
 	// The skeletal mesh representing the player
 	USkeletalMesh* SkeletalMesh;
@@ -321,21 +482,21 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
 		uint8 bGodMode : 1;
 
-	// The player's starting health
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
-		float StartingHealth = 100.0f;
-
 	// The player's current health
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		float Health = 100.0f;
 
-	// The player's starting stamina
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
-		float StartingStamina = 100.0f;
-
 	// The player's current stamina level
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		float Stamina = 100.0f;
+
+	// The player's starting health
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
+		float StartingHealth = 100.0f;
+
+	// The player's starting stamina
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
+		float StartingStamina = 100.0f;
 
 	// How long (in seconds) after the player's death, should we wait to respawn?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
@@ -345,85 +506,21 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float StaminaRegenerationRate = 10.0f;
 
-	// The maximum movement speed while walking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
-		float WalkSpeed = 300.0f;
+	// Ylva's movement settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+		FMovementSettings_Ylva MovementSettings;
 
-	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
-		float RunSpeed = 600.0f;
+	// Configure lock on settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+		FLockOnSettings LockOnSettings;
 
-	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Movement", meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
-		float DashForce = 2000.0f;
+	// Ylva's combat settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
+		FCombatSettings_Ylva Combat;
 
-	// Should the camera look towards the boss?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
-		bool bShouldLockOnTarget = false;
-
-	// The target pitch when locking on
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 270.0f, ClampMax = 360.0f))
-		float LockOnPitch = 350.0f;
-
-	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float LightAttackDamage = 50.0f;
-
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float HeavyAttackDamage = 100.0f;
-
-	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
-		float AttackDistance = 100.0f;
-
-	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
-		float AttackRadius = 10.0f;
-
-	// The stamina value to subtract when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float LightAttackStamina = 10.0f;
-
-	// The stamina value to subtract when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float HeavyAttackStamina = 30.0f;
-
-	// The stamina value to subtract when dashing
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float DashStamina = 40.0f;
-
-	// The stamina value to subtract while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float RunStamina = 2.0f;
-
-	// The stamina value to subtract when being hit while blocking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float ShieldHitStamina = 10.0f;
-
-	// This value will be used to buffer the damage received when the boss hits the player while blocking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
-		float DamageBuffer = 0.5f;
-
-	// The parry window time frame
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float ParryWindowTime = 0.3f;
-
-	// This value will be used when a parry is successful (slowing down time)
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
-		float TimeDilationOnSuccessfulParry = 0.4f;
-
-	// How long (in seconds) should we stay in the parry event?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float TimeUntilParryEventIsCompleted = 0.5f;
-
-	// A camera shake that plays when the player has taken damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Combat")
-		TSubclassOf<class UCameraShake> Damaged;
-
-	// The intensity of the camera shake
-	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat", meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
-		float ShakeIntensity = 1.0f;
+	// Ylva's camera shake settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
+		FCameraShakes_Ylva CameraShakes;
 
 	// Cached world pointer
 	UWorld* World{};
@@ -446,6 +543,7 @@ protected:
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
+private:
 	FTimerHandle DeathStateExpiryTimer;
 	FTimerHandle ParryEventExpiryTimer;
 };

@@ -33,7 +33,7 @@ struct FComboSettings
 };
 
 USTRUCT(BlueprintType)
-struct FCombatSettings
+struct FCombatSettings_Mordath
 {
 	GENERATED_BODY()
 
@@ -371,7 +371,7 @@ protected:
 
 	// Properties of the boss's combat settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
-		FCombatSettings CombatSettings;
+		FCombatSettings_Mordath CombatSettings;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 

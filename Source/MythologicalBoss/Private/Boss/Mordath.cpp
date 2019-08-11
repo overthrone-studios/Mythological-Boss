@@ -382,7 +382,6 @@ void AMordath::UpdateFollowState()
 	}
 
 	AddMovementInput(GetDirectionToPlayer());
-	//SetActorRotation(FRotator(GetControlRotation().Pitch, GetDirectionToPlayer().Rotation().Yaw, GetControlRotation().Roll));
 
 	// Determine what range we are in
 	const bool bCloseRange = GetDistanceToPlayer() <= AcceptanceRadius;
@@ -760,7 +759,7 @@ void AMordath::DestroySelf()
 
 void AMordath::FinishCooldown()
 {
-	ULog::DebugMessage(SUCCESS, "Cooldown finished", true);
+	//ULog::DebugMessage(SUCCESS, "Cooldown finished", true);
 }
 
 void AMordath::FinishStun()
