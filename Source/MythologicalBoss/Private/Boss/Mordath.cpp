@@ -276,7 +276,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	// Apply damage once
 	if (!bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
-		ULog::LogYes("Hit", true);
 		HitCounter++;
 
 		// Go to damaged state if we are not stunned
