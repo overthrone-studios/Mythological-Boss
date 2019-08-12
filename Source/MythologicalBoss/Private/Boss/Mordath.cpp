@@ -629,6 +629,9 @@ void AMordath::OnEnterStunnedState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	// Reset hit count
+	HitCounter = 0;
+
 	AnimInstance->bIsStunned = true;
 
 	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, CombatSettings.StunDuration);
@@ -683,6 +686,9 @@ void AMordath::OnExitLaughState()
 void AMordath::OnEnterDashState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	// Reset hit count
+	HitCounter = 0;
 }
 
 void AMordath::UpdateDashState()
