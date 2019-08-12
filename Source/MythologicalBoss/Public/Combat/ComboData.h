@@ -64,8 +64,6 @@ protected:
 	UAttackData* CurrentAttack;
 
 private:
-	void NextAttack_Internal();
-
 	int32 AttackIndex = 0;
 
 	FTimerHandle DelayTimerHandle;
