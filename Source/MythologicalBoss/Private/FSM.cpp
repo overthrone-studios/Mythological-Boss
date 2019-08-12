@@ -114,8 +114,8 @@ void UFSM::PopState()
 
 void UFSM::RemoveAllStatesFromStack()
 {
-	for (int32 i = 1; i < Stack.Num(); i++)
-		Stack.RemoveAt(i);
+	for (int32 i = 0; i < Stack.Num(); i++)
+		PopState();
 
 	if (bDebug)
 		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for one"), true);
@@ -123,11 +123,14 @@ void UFSM::RemoveAllStatesFromStack()
 
 void UFSM::RemoveAllStatesFromStackExceptActive()
 {
-	for (int32 i = 1; i < Stack.Num(); i++)
+	for (int32 i = 0; i < Stack.Num(); i++)
 	{
 		if (Stack[i]->ID != GetActiveStateID())
-			Stack.RemoveAt(i);
+			PopState();
 	}
+
+	if (bDebug)
+		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for the active state"), true);
 }
 
 void UFSM::PushState(const int32 StateID)
