@@ -1013,7 +1013,7 @@ void AMordath::BeginJumpAttack()
 
 	JumpAttack_Bezier.A = GetActorLocation();
 	JumpAttack_Bezier.B = Point;
-	JumpAttack_Bezier.C = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -JumpAttack_Bezier.EndPointOffsetDistance + FVector(0.0f, 0.0f, 50.0f);
+	JumpAttack_Bezier.C = PlayerCharacter->GetActorLocation() + GetDirectionToPlayer() * -JumpAttack_Bezier.EndPointOffsetDistance + FVector(0.0f, 0.0f, 90.0f);
 
 	if (JumpAttack_Bezier.bDebug)
 	{
@@ -1056,12 +1056,12 @@ void AMordath::BeginJumpAttackWithDash()
 	FSM->PushState("Dash to Jump");
 
 	// Create the main points of the bezier curve
-	FVector Point = GetActorLocation() + GetActorRightVector() * (CombatSettings.DashDistance / 2.0f);
+	FVector Point = GetActorLocation() + GetActorRightVector() * CombatSettings.DashDistance;
 	Point.Z = Dash_Bezier.CurveHeight;
 
 	Dash_Bezier.A = GetActorLocation();
 	Dash_Bezier.B = Point;
-	Dash_Bezier.C = Point + GetActorForwardVector() * (CombatSettings.DashDistance / 2.0f);
+	Dash_Bezier.C = Point + GetActorForwardVector() * CombatSettings.DashDistance;
 
 	if (Dash_Bezier.bDebug)
 	{
