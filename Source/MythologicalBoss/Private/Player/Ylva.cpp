@@ -380,6 +380,7 @@ void AYlva::LightAttack()
 	{
 		FSM->PushState("Light Attack 1");
 		bUseControllerRotationYaw = true;
+		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
 		FSM->GetActiveStateID() == 3 /*Light Attack 1*/ &&
@@ -392,6 +393,7 @@ void AYlva::LightAttack()
 		FSM->PopState("Light Attack 1");
 		FSM->PushState("Light Attack 2");
 		bUseControllerRotationYaw = true;
+		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
 		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
@@ -404,9 +406,8 @@ void AYlva::LightAttack()
 		FSM->PopState("Light Attack 2");
 		FSM->PushState("Light Attack 1");
 		bUseControllerRotationYaw = true;
+		MovementComponent->SetMovementMode(MOVE_None);
 	}
-
-	MovementComponent->SetMovementMode(MOVE_None);
 }
 
 void AYlva::HeavyAttack()
@@ -429,6 +430,7 @@ void AYlva::HeavyAttack()
 	{
 		FSM->PushState("Heavy Attack 1");
 		bUseControllerRotationYaw = true;
+		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
 		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
@@ -440,6 +442,7 @@ void AYlva::HeavyAttack()
 		FSM->PopState("Heavy Attack 1");
 		FSM->PushState("Heavy Attack 2");
 		bUseControllerRotationYaw = true;
+		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
 		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
@@ -452,9 +455,8 @@ void AYlva::HeavyAttack()
 		FSM->PopState("Heavy Attack 2");
 		FSM->PushState("Heavy Attack 1");
 		bUseControllerRotationYaw = true;
+		MovementComponent->SetMovementMode(MOVE_None);
 	}
-
-	MovementComponent->SetMovementMode(MOVE_None);
 }
 
 void AYlva::DisableControllerRotationYaw()
@@ -504,12 +506,16 @@ void AYlva::Dash()
 		VelocityNormalized.Normalize();
 		VelocityNormalized.Z = 0;
 
+		// Do we have enough stamina to dash?
 		if (!bGodMode && Stamina > Combat.StaminaSettings.DashStamina)
 		{
 			UpdateStamina(Combat.StaminaSettings.DashStamina);
+			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
 		}
-
-		LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
+		else if (bGodMode)
+		{
+			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
+		}
 	}
 }
 
