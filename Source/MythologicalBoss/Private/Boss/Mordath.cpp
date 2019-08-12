@@ -348,7 +348,7 @@ void AMordath::UpdateFollowState()
 	break;
 
 	case 1 /*Mid*/:
-		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 			ChooseAttack();
 	break;
 
@@ -515,17 +515,6 @@ void AMordath::OnEnterHeavyAttack2State()
 void AMordath::UpdateHeavyAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.2f)
-	{
-		ChosenCombo->NextAttack();
-
-		FSM->PopState();
-	}
 }
 
 void AMordath::OnExitHeavyAttack2State()
@@ -1109,8 +1098,8 @@ void AMordath::DoJumpAttack()
 
 void AMordath::FinishJumpAttack()
 {
-	/*ChosenCombo->NextAttack();
-	FSM->PopState();*/
+	ChosenCombo->NextAttack();
+	FSM->PopState();
 }
 
 void AMordath::BeginDash(const enum EDashType_Combo DashType)
