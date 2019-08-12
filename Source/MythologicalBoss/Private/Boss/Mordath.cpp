@@ -799,7 +799,7 @@ void AMordath::OnDashFinished()
 	// Resume movement
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
-	switch (ChosenCombo->GetCurrentAttackInfo().Attack)
+	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
 		case LightAttack_1:
 			FSM->PushState("Light Attack 1");
@@ -931,7 +931,7 @@ void AMordath::ChooseAttack()
 	// Disable movement when we are going to attack
 	MovementComponent->SetMovementMode(MOVE_None);
 
-	switch (ChosenCombo->GetCurrentAttackInfo().Attack)
+	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
 		case LightAttack_1:
 			FSM->PushState("Light Attack 1");
@@ -942,9 +942,9 @@ void AMordath::ChooseAttack()
 		break;
 
 		case LightAttack_3:
-		if (ChosenCombo->GetCurrentAttackInfo().bCanDashWithAttack)
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
 		{
-			BeginDash(ChosenCombo->GetCurrentAttackInfo().DashType);
+			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
 		}
 		else
 		{
@@ -1116,7 +1116,7 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 	{
 	case Dash_Forward:
 		Dash_Bezier.B = GetActorLocation() + GetActorForwardVector() * (FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation())/2.0f);
-		Dash_Bezier.C = PlayerCharacter->GetActorLocation() - GetDirectionToPlayer() * ChosenCombo->GetCurrentAttackInfo().OffsetDistance;
+		Dash_Bezier.C = PlayerCharacter->GetActorLocation() - GetDirectionToPlayer() * ChosenCombo->GetCurrentAttackInfo()->OffsetDistance;
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
