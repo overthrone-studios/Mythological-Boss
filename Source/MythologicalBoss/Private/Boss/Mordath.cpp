@@ -334,7 +334,7 @@ void AMordath::UpdateFollowState()
 	}
 
 	// Move towards the player
-	if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && GetDistanceToPlayer() > AcceptanceRadius - 200.0f)
 		AddMovementInput(GetDirectionToPlayer());
 
 	FacePlayer();
@@ -343,13 +343,12 @@ void AMordath::UpdateFollowState()
 	switch (RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && !GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
 			ChooseAttack();
 	break;
 
 	case 1 /*Mid*/:
-		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
-			ChooseAttack();
+
 	break;
 
 	case 2 /*Far*/:
@@ -388,7 +387,7 @@ void AMordath::UpdateLightAttack1State()
 
 	if (TimeRemaining <= 0.4f)
 	{
-		ChosenCombo->NextAttack();
+		NextAttack();
 
 		FSM->PopState();
 	}
@@ -422,7 +421,7 @@ void AMordath::UpdateLightAttack2State()
 
 	if (TimeRemaining <= 0.7f)
 	{
-		ChosenCombo->NextAttack();
+		NextAttack();
 
 		FSM->PopState();
 	}
@@ -456,7 +455,7 @@ void AMordath::UpdateLightAttack3State()
 
 	if (TimeRemaining <= 0.2f)
 	{
-		ChosenCombo->NextAttack();
+		NextAttack();
 
 		FSM->PopState();
 	}
@@ -490,7 +489,7 @@ void AMordath::UpdateHeavyAttack1State()
 
 	if (TimeRemaining <= 0.2f)
 	{
-		ChosenCombo->NextAttack();
+		NextAttack();
 
 		FSM->PopState();
 	}
@@ -547,7 +546,7 @@ void AMordath::UpdateHeavyAttack3State()
 
 	if (TimeRemaining <= 0.3f)
 	{
-		ChosenCombo->NextAttack();
+		NextAttack();
 
 		FSM->PopState();
 	}
@@ -590,7 +589,7 @@ void AMordath::OnExitDamagedState()
 	AnimInstance->bIsHit = false;
 
 	if (ChosenCombo)
-		ChosenCombo->NextAttack();
+		NextAttack();
 }
 #pragma endregion
 
@@ -647,7 +646,7 @@ void AMordath::OnExitStunnedState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	if (ChosenCombo)
-		ChosenCombo->NextAttack();
+		NextAttack();
 
 	AnimInstance->bIsStunned = false;
 }
@@ -941,7 +940,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case LightAttack_3:
-		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack && GetDistanceToPlayer() > AcceptanceRadius)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
 		else
 			FSM->PushState("Light Attack 3");
@@ -971,6 +970,32 @@ void AMordath::ChooseAttack()
 		default:
 		break;
 	}
+}
+
+void AMordath::NextAttack()
+{
+	if (ChosenCombo->IsDelayEnabled() && !GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
+	{
+		const float Min = FMath::Clamp(ChosenCombo->GetDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
+		const float Max = FMath::Clamp(ChosenCombo->GetDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
+		const float NewDelay = FMath::RandRange(Min, Max);
+
+		if (NewDelay > 0.0f)
+		{
+			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetDelayTimer(), this, &AMordath::NextAttack, NewDelay);
+			MovementComponent->MaxWalkSpeed = WalkSpeed/2.0f;
+		}
+		else
+		{
+			MovementComponent->MaxWalkSpeed = WalkSpeed;
+			ChosenCombo->NextAttack();
+		}
+
+		return;
+	}
+
+	MovementComponent->MaxWalkSpeed = WalkSpeed;
+	ChosenCombo->NextAttack();
 }
 
 void AMordath::EnableInvincibility()
@@ -1098,7 +1123,7 @@ void AMordath::DoJumpAttack()
 
 void AMordath::FinishJumpAttack()
 {
-	ChosenCombo->NextAttack();
+	NextAttack();
 	FSM->PopState();
 }
 

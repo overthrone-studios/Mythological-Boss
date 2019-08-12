@@ -166,6 +166,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void ChooseAttack();
 
+	void NextAttack();
+
 	void FinishStun();
 
 	void Die();

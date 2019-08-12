@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "AttackData.h"
+#include "TimerManager.h"
 #include "ComboData.generated.h"
-
 
 /**
  *	An asset containing a series of attacks
@@ -27,6 +27,18 @@ public:
 		bool IsAtLastAttack();
 
 	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		bool IsDelayEnabled();
+	
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		float GetDelayTime();
+
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		float GetDeviation();
+
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		FTimerHandle& GetDelayTimer();
+
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
 		int32 GetCurrentAttackIndex() const { return AttackIndex; }
 
 	UFUNCTION(BlueprintCallable, Category = "Combo Data")
@@ -41,6 +53,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenAttacks", ClampMin = 0.0f, ClampMax = 100.0f))
 		float Delay = 1.0f;
 
+	// Adds a random range to Delay
+	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenAttacks", ClampMin = 0.0f, ClampMax = 100.0f))
+		float RandomDeviation = 0.0f;
+
 	// The list of attacks to go through sequentially
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
 		TArray<UAttackData*> Attacks;
@@ -48,5 +64,9 @@ protected:
 	UAttackData* CurrentAttack;
 
 private:
+	void NextAttack_Internal();
+
 	int32 AttackIndex = 0;
+
+	FTimerHandle DelayTimerHandle;
 };
