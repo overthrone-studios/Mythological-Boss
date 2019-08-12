@@ -116,9 +116,9 @@ AMordath::AMordath()
 	FSM->GetState(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
 	FSM->GetState(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
 
-	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashToJumpState);
-	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashToJumpState);
-	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashToJumpState);
+	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
+	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
+	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashState);
 
 	FSM->InitState(1);
 
@@ -680,20 +680,20 @@ void AMordath::OnExitLaughState()
 }
 #pragma endregion
 
-#pragma region Dash to Jump
-void AMordath::OnEnterDashToJumpState()
+#pragma region Dash
+void AMordath::OnEnterDashState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
-void AMordath::UpdateDashToJumpState()
+void AMordath::UpdateDashState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 }
 
-void AMordath::OnExitDashToJumpState()
+void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
@@ -792,8 +792,6 @@ void AMordath::OnPlayerDeath()
 
 void AMordath::OnDashFinished()
 {
-	ULog::LogYes("Dash finished", true);
-
 	FSM->PopState();
 
 	// Resume movement
@@ -934,33 +932,44 @@ void AMordath::ChooseAttack()
 	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
 		case LightAttack_1:
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
+			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else
 			FSM->PushState("Light Attack 1");
 		break;
 
 		case LightAttack_2:
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
+			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else
 			FSM->PushState("Light Attack 2");
 		break;
 
 		case LightAttack_3:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
-		{
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
-		}
 		else
-		{
 			FSM->PushState("Light Attack 3");
-		}
 		break;
 
 		case HeavyAttack_1:
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
+			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else
 			FSM->PushState("Heavy Attack 1");
 		break;
 
 		case HeavyAttack_2:
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
+			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else
 			BeginJumpAttack();
 		break;
 
 		case HeavyAttack_3:
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
+			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else
 			FSM->PushState("Heavy Attack 3");
 		break;
 

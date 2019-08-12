@@ -281,11 +281,11 @@ protected:
 
 	#pragma region DashToJump
 	UFUNCTION()
-		void OnEnterDashToJumpState();
+		void OnEnterDashState();
 	UFUNCTION()
-		void UpdateDashToJumpState();
+		void UpdateDashState();
 	UFUNCTION()
-		void OnExitDashToJumpState();
+		void OnExitDashState();
 	#pragma endregion 
 
 	// Boss ranges
