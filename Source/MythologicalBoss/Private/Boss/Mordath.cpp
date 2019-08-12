@@ -704,7 +704,8 @@ void AMordath::OnExitDashState()
 void AMordath::OnEnterBeatenState()
 {
 	AnimInstance->bIsBeaten = true;
-	ULog::LogYes(true);
+
+	LaunchCharacter(-GetActorForwardVector() * 1000, true, true);
 }
 
 void AMordath::UpdateBeatenState()
