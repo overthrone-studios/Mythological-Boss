@@ -9,7 +9,7 @@
 
 
 /**
- *	An asset containing attack types
+ *	An asset containing a series of attacks
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API UComboData final : public UDataAsset
