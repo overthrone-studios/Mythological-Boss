@@ -815,8 +815,14 @@ void AMordath::OnDashFinished()
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	// Are we still waiting to initiate the next attack?
-	if (GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()) || GetDistanceToPlayer() > MidRangeRadius)
+	if (GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
 		return;
+
+	if (GetDistanceToPlayer() > AcceptanceRadius)
+	{
+		BeginJumpAttack();
+		return;
+	}
 
 	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
@@ -1051,9 +1057,12 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		return DamageAmount;
 
 	// Apply damage once
-	if (!bIsHit && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (!bIsHit && HitCounter < MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		HitCounter++;
+
+		if (Debug.bLogHits)
+			ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 
 		// Go to damaged state if we are not stunned
 		if (FSM->GetActiveStateName() != "Stunned")
@@ -1168,7 +1177,7 @@ void AMordath::FinishJumpAttack()
 void AMordath::BeginDash(const enum EDashType_Combo DashType)
 {
 	// Are we already dashing?
-	if (DashTimelineComponent->IsPlaying())
+	if (DashTimelineComponent->IsPlaying() || FSM->GetActiveStateName() == "Death")
 		return;
 
 	// Enter the dash state
@@ -1268,7 +1277,8 @@ void AMordath::Die()
 {
 	bCanBeDamaged = false;
 
-	FSM->RemoveAllStatesFromStack();
+	MovementComponent->SetMovementMode(MOVE_None);
 
+	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
 }

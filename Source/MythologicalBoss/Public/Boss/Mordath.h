@@ -26,6 +26,10 @@ struct FDebug_Mordath
 	// Log the delay time (in seconds) when a new combo is chosen to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogComboDelayTime : 1;
+
+	// Log the hit count to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogHits : 1;
 };
 
 USTRUCT(BlueprintType)
