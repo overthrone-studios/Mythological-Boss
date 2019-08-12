@@ -1109,29 +1109,49 @@ void AMordath::FinishJumpAttack()
 
 void AMordath::BeginDash(const enum EDashType_Combo DashType)
 {
+	// Are we already dashing?
 	if (DashTimelineComponent->IsPlaying())
 		return;
 
+	// Enter the dash state
 	FSM->PopState();
 	FSM->PushState("Dash");
 
-	// Create the main points of the bezier curve
-	FVector Point = GetActorLocation() + GetActorRightVector() * CombatSettings.DashDistance;
-	Point.Z = Dash_Bezier.CurveHeight;
-
 	Dash_Bezier.A = GetActorLocation();
 
+	// Handle each dash type and calculate the main bezier curve points
 	switch (DashType)
 	{
 	case Dash_Forward:
 		Dash_Bezier.B = GetActorLocation() + GetActorForwardVector() * (FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation())/2.0f);
-		Dash_Bezier.C = PlayerCharacter->GetActorLocation() - GetDirectionToPlayer() * ChosenCombo->GetCurrentAttackInfo()->OffsetDistance;
+		Dash_Bezier.C = GetActorLocation() + GetActorForwardVector() * FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation());
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
-	default:
-		Dash_Bezier.B = Point;
-		Dash_Bezier.C = Point + GetActorForwardVector() * CombatSettings.DashDistance;
+	case Dash_Backward:
+		Dash_Bezier.B = GetActorLocation() - GetActorForwardVector() * (FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation())/2.0f);
+		Dash_Bezier.C = GetActorLocation() - GetActorForwardVector() * FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation());
+		Dash_Bezier.C.Z = GetActorLocation().Z;
+	break;
+
+	case Dash_Left:
+	{
+		FVector MidPoint = GetActorLocation() + GetActorRightVector() * CombatSettings.DashDistance;
+		MidPoint.Z = Dash_Bezier.CurveHeight;
+
+		Dash_Bezier.B = MidPoint;
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * CombatSettings.DashDistance;
+	}
+	break;
+
+	case Dash_Right:
+	{
+		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * CombatSettings.DashDistance;
+		MidPoint.Z = Dash_Bezier.CurveHeight;
+		
+		Dash_Bezier.B = MidPoint;
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * CombatSettings.DashDistance;
+	}
 	break;
 	}
 
@@ -1141,6 +1161,7 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 		DrawDebugLine(GetWorld(), Dash_Bezier.B, Dash_Bezier.C, FColor::Green, true, 5.0f, 0, 5.0f);
 	}
 
+	// Stop moving and do the dash
 	BossAIController->StopMovement();
 	DashTimelineComponent->PlayFromStart();
 }
