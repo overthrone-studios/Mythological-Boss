@@ -334,7 +334,7 @@ void AMordath::UpdateFollowState()
 	}
 
 	// Move towards the player
-	if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && GetDistanceToPlayer() > AcceptanceRadius - 200.0f)
+	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f)
 		AddMovementInput(GetDirectionToPlayer());
 
 	FacePlayer();
@@ -940,7 +940,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case LightAttack_3:
-		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack && GetDistanceToPlayer() > AcceptanceRadius)
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack && GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
 		else
 			FSM->PushState("Light Attack 3");
