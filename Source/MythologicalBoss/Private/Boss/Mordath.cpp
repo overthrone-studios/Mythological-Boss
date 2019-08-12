@@ -334,32 +334,27 @@ void AMordath::UpdateFollowState()
 	}
 
 	// Move towards the player
-	AddMovementInput(GetDirectionToPlayer());
+	if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		AddMovementInput(GetDirectionToPlayer());
+
 	FacePlayer();
 
 	// Decide which attack to choose
 	switch (RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-		ChooseAttack();
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+			ChooseAttack();
 	break;
 
 	case 1 /*Mid*/:
-		// Do dash (to left or right)
-		//if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
-		//{
-		//	BeginJumpAttackWithDash();
-		//}
 		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
 			ChooseAttack();
 	break;
 
 	case 2 /*Far*/:
-		// Do jump attack
 		if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
-		{
 			BeginJumpAttack();
-		}
 	break;
 
 	default:
@@ -520,6 +515,17 @@ void AMordath::OnEnterHeavyAttack2State()
 void AMordath::UpdateHeavyAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.2f)
+	{
+		ChosenCombo->NextAttack();
+
+		FSM->PopState();
+	}
 }
 
 void AMordath::OnExitHeavyAttack2State()
@@ -1103,8 +1109,8 @@ void AMordath::DoJumpAttack()
 
 void AMordath::FinishJumpAttack()
 {
-	ChosenCombo->NextAttack();
-	FSM->PopState();
+	/*ChosenCombo->NextAttack();
+	FSM->PopState();*/
 }
 
 void AMordath::BeginDash(const enum EDashType_Combo DashType)
@@ -1119,18 +1125,20 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 
 	Dash_Bezier.A = GetActorLocation();
 
+	const float DistanceToPlayer = FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation());
+
 	// Handle each dash type and calculate the main bezier curve points
 	switch (DashType)
 	{
 	case Dash_Forward:
-		Dash_Bezier.B = GetActorLocation() + GetActorForwardVector() * (FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation())/2.0f);
-		Dash_Bezier.C = GetActorLocation() + GetActorForwardVector() * FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation());
+		Dash_Bezier.B = GetActorLocation() + GetActorForwardVector() * (DistanceToPlayer/2.0f);
+		Dash_Bezier.C = GetActorLocation() + GetActorForwardVector() * (DistanceToPlayer - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
 	case Dash_Backward:
-		Dash_Bezier.B = GetActorLocation() - GetActorForwardVector() * (FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation())/2.0f);
-		Dash_Bezier.C = GetActorLocation() - GetActorForwardVector() * FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation());
+		Dash_Bezier.B = GetActorLocation() - GetActorForwardVector() * (DistanceToPlayer/2.0f);
+		Dash_Bezier.C = GetActorLocation() - GetActorForwardVector() * (DistanceToPlayer + ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
@@ -1146,11 +1154,11 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 
 	case Dash_Right:
 	{
-		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * CombatSettings.DashDistance;
+		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * (CombatSettings.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 		MidPoint.Z = Dash_Bezier.CurveHeight;
 		
 		Dash_Bezier.B = MidPoint;
-		Dash_Bezier.C = MidPoint + GetActorForwardVector() * CombatSettings.DashDistance;
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * (CombatSettings.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 	}
 	break;
 	}
@@ -1163,6 +1171,7 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 
 	// Stop moving and do the dash
 	BossAIController->StopMovement();
+	DashTimelineComponent->SetPlayRate(ChosenCombo->GetCurrentAttackInfo()->Speed);
 	DashTimelineComponent->PlayFromStart();
 }
 
