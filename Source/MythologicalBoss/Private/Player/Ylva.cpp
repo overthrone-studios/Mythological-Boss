@@ -218,8 +218,6 @@ void AYlva::Tick(const float DeltaTime)
 		GameInstance->SetLockOnLocation(GameInstance->BossLocation);
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
-
-	RegenerateStamina(StaminaRegenerationRate);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -594,6 +592,8 @@ void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	RegenerateStamina(StaminaRegenerationRate);
+
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
 
@@ -618,6 +618,8 @@ void AYlva::OnEnterWalkState()
 void AYlva::UpdateWalkState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	RegenerateStamina(StaminaRegenerationRate);
 
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PopState("Walk");
@@ -702,6 +704,8 @@ void AYlva::OnEnterBlockingState()
 void AYlva::UpdateBlockingState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	RegenerateStamina(StaminaRegenerationRate);
 
 	if (GetVelocity().Z < 0.0f)
 	{
