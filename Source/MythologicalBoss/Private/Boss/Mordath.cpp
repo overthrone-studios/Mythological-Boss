@@ -1073,6 +1073,9 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		{
 			FSM->PopState();
 			FSM->PushState("Damaged");
+
+			PauseAnims();
+			GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, CombatSettings.HitStopTime);
 		}
 
 		// Shake the camera
@@ -1290,4 +1293,16 @@ void AMordath::Die()
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
+}
+
+void AMordath::PauseAnims()
+{
+	GetMesh()->bPauseAnims = true;
+	PlayerCharacter->GetMesh()->bPauseAnims = true;
+}
+
+void AMordath::UnPauseAnims()
+{
+	GetMesh()->bPauseAnims = false;
+	PlayerCharacter->GetMesh()->bPauseAnims = false;
 }

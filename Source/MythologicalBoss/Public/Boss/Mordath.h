@@ -83,6 +83,10 @@ struct FCombatSettings_Mordath
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float AttackRadius = 10.0f;
 
+	// The amount of time (in seconds) we stay paused when we hit something
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f))
+		float HitStopTime = 0.1f;
+
 	// The amount of time (in seconds) that the boss can be allowed to jump attack again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float JumpAttackCooldown = 2.0f;
@@ -161,20 +165,24 @@ protected:
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	FRotator FacePlayer();
+
 	void SendInfo();
 	bool ShouldDestroyDestructibleObjects();
 
 	void ChooseComboWithDelay();
 	void ChooseCombo();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void ChooseAttack();
-
 	void NextAttack();
 
 	void FinishStun();
+	void FinishCooldown();
 
 	void Die();
+	void DestroySelf();
+
+	void PauseAnims();
+	void UnPauseAnims();
+
 
 	// Boss states
 	#pragma region Idle
@@ -332,6 +340,9 @@ protected:
 	#pragma endregion 
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void ChooseAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		float GetDistanceToPlayer() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
@@ -367,10 +378,6 @@ protected:
 
 	UFUNCTION()
 		void OnDashFinished();
-
-	void DestroySelf();
-
-	void FinishCooldown();
 
 	UPROPERTY()
 		class UTimelineComponent* JumpAttackTimelineComponent;
@@ -492,6 +499,7 @@ private:
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle JumpAttackCooldownTimerHandle;
 	FTimerHandle DashCooldownTimerHandle;
+	FTimerHandle HitStopTimerHandle;
 
 	ACharacter* PlayerCharacter;
 	APlayerController* PlayerController;
