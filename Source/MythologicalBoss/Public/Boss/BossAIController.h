@@ -17,21 +17,11 @@ class MYTHOLOGICALBOSS_API ABossAIController final : public AAIController
 public:
 	ABossAIController();
 
-	void StopBT();
-
 	void Possess(APawn* InPawn) override;
 
-	void SetPlayerLocation(const FVector& Location);
-
 protected:
-	// Cache game instance
+	// Cached game instance
 	class UOverthroneGameInstance* GameInstance;
 
-	UPROPERTY(transient) // transient disables serialization
-		UBlackboardComponent* BlackBoardComponent;
-
-	UPROPERTY(transient) // transient disables serialization
-		class UBehaviorTreeComponent* BehaviourTreeComponent;
-
-	int32 PlayerLocationKeyID;
+	class AMordath* Mordath;
 };
