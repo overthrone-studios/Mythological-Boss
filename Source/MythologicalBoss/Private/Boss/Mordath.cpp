@@ -295,7 +295,7 @@ void AMordath::UpdateIdleState()
 
 	FacePlayer();
 
-	if (GetDistanceToPlayer() > AcceptanceRadius && ChosenCombo)
+	if (ChosenCombo)
 		FSM->PushState("Follow");
 }
 
@@ -604,8 +604,6 @@ void AMordath::OnEnterDeathState()
 
 	AnimInstance->bIsDead = true;
 
-	BossAIController->StopBT();
-
 	GameInstance->OnBossDeath.Broadcast();
 
 	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
@@ -783,8 +781,10 @@ void AMordath::OnExitFarRange()
 void AMordath::OnPlayerDeath()
 {
 	BossAIController->StopMovement();
+	JumpAttackTimelineComponent->Stop();
+	DashTimelineComponent->Stop();
 
-	FSM->RemoveAllStatesFromStackExceptActive();
+	FSM->RemoveAllStatesFromStack();
 
 	FSM->PushState("Laugh");
 }
@@ -953,7 +953,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
 
-	// When we have reach the maximum amount of hits we can tolerate, enable invincibility
+	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
 	if (HitCounter >= MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		// Reset our hits
