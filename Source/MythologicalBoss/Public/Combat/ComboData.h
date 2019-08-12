@@ -33,6 +33,15 @@ public:
 		UAttackData* GetCurrentAttackInfo() const { return CurrentAttack; }
 
 protected:
+	// Should we wait between attacks?
+	UPROPERTY(EditInstanceOnly, Category = "Combos")
+		uint8 bDelayBetweenAttacks : 1;
+
+	// The amount of time (in seconds) we should wait
+	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenAttacks", ClampMin = 0.0f, ClampMax = 100.0f))
+		float Delay = 1.0f;
+
+	// The list of attacks to go through sequentially
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
 		TArray<UAttackData*> Attacks;
 
