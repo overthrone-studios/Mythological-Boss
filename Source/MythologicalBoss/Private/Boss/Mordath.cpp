@@ -821,7 +821,7 @@ void AMordath::OnDashFinished()
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	// Are we still waiting to initiate the next attack?
-	if (GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
+	if (GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()) || FSM->GetActiveStateName() == "Death")
 		return;
 
 	if (GetDistanceToPlayer() > AcceptanceRadius)
@@ -863,8 +863,6 @@ void AMordath::OnDashFinished()
 
 void AMordath::DestroySelf()
 {
-	MovementComponent->DisableMovement();
-
 	Destroy();
 }
 
@@ -1283,7 +1281,12 @@ void AMordath::Die()
 {
 	bCanBeDamaged = false;
 
+	JumpAttackTimelineComponent->Stop();
+	DashTimelineComponent->Stop();
+
+	BossAIController->StopMovement();
 	MovementComponent->SetMovementMode(MOVE_None);
+	MovementComponent->DisableMovement();
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
