@@ -652,7 +652,9 @@ void AYlva::UpdateRunState()
 	if (!bGodMode)
 		UpdateStamina(Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds);
 
-	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || Stamina <= Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds)
+	if (GetVelocity().IsZero() || 
+		MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || 
+		Stamina <= Combat.StaminaSettings.RunStamina)
 		FSM->PopState();
 
 	if (GetVelocity().Z < 0.0f)
