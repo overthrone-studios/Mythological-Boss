@@ -65,6 +65,7 @@ AMordath::AMordath()
 	FSM->AddState(14, "Stunned");
 	FSM->AddState(15, "Laugh");
 	FSM->AddState(16, "Dash");
+	FSM->AddState(17, "Beaten");
 
 
 	// Bind state events to our functions
@@ -119,6 +120,10 @@ AMordath::AMordath()
 	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
 	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
 	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashState);
+
+	FSM->GetState(17)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBeatenState);
+	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBeatenState);
+	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitBeatenState);
 
 	FSM->InitState(1);
 
@@ -334,7 +339,7 @@ void AMordath::UpdateFollowState()
 	}
 
 	// Move towards the player
-	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f)
+	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f && !IsInvincible())
 		AddMovementInput(GetDirectionToPlayer());
 
 	FacePlayer();
@@ -695,6 +700,23 @@ void AMordath::OnExitDashState()
 }
 #pragma endregion
 
+#pragma region Beaten
+void AMordath::OnEnterBeatenState()
+{
+	AnimInstance->bIsBeaten = true;
+	ULog::LogYes(true);
+}
+
+void AMordath::UpdateBeatenState()
+{
+}
+
+void AMordath::OnExitBeatenState()
+{
+	AnimInstance->bIsBeaten = false;
+}
+#pragma endregion
+
 // Range FSM
 #pragma region Close Range
 void AMordath::OnEnterCloseRange()
@@ -790,6 +812,10 @@ void AMordath::OnDashFinished()
 
 	// Resume movement
 	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	// Are we still waiting to initiate the next attack?
+	if (GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()) || GetDistanceToPlayer() > MidRangeRadius)
+		return;
 
 	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
@@ -1005,7 +1031,16 @@ void AMordath::EnableInvincibility()
 
 void AMordath::DisableInvincibility()
 {
+	// Evade
+	const EDashType_Combo DashType = static_cast<EDashType_Combo>(FMath::RandRange(1, 3));
+	BeginDash(DashType);
+
 	bCanBeDamaged = true;
+}
+
+bool AMordath::IsInvincible()
+{
+	return !bCanBeDamaged;
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -1034,17 +1069,18 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
-	if (HitCounter >= MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (HitCounter == MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		// Reset our hits
 		HitCounter = 0;
 
+		// Become invincible and set a timer to disable invinciblity after 'X' seconds
 		EnableInvincibility();
-
 		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
 
+		// Cancel our current animation and enter the downed state
 		FSM->PopState();
-		FSM->PushState("Damaged");
+		FSM->PushState("Beaten");
 
 		// Shake the camera
 		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
@@ -1053,6 +1089,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
 
+	// Are we dead?
 	if (Health <= 0.0f && FSM->GetActiveStateName() != "Death")
 	{
 		Die();
@@ -1151,8 +1188,8 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 	break;
 
 	case Dash_Backward:
-		Dash_Bezier.B = GetActorLocation() - GetActorForwardVector() * (DistanceToPlayer/2.0f);
-		Dash_Bezier.C = GetActorLocation() - GetActorForwardVector() * (DistanceToPlayer + ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
+		Dash_Bezier.B = GetActorLocation() + -GetActorForwardVector() * (CombatSettings.DashDistance/2.0f);
+		Dash_Bezier.C = GetActorLocation() + -GetActorForwardVector() * CombatSettings.DashDistance;
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
@@ -1185,7 +1222,7 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 
 	// Stop moving and do the dash
 	BossAIController->StopMovement();
-	DashTimelineComponent->SetPlayRate(ChosenCombo->GetCurrentAttackInfo()->Speed);
+	DashTimelineComponent->SetPlayRate(IsInvincible() ? 1.0f : ChosenCombo->GetCurrentAttackInfo()->Speed);
 	DashTimelineComponent->PlayFromStart();
 }
 
@@ -1229,6 +1266,8 @@ FVector AMordath::GetDirectionToPlayer() const
 void AMordath::Die()
 {
 	bCanBeDamaged = false;
+
+	FSM->RemoveAllStatesFromStack();
 
 	FSM->PushState("Death");
 }

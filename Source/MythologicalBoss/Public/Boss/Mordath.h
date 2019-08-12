@@ -281,13 +281,22 @@ protected:
 		void OnExitLaughState();
 	#pragma endregion 
 
-	#pragma region DashToJump
+	#pragma region Dash
 	UFUNCTION()
 		void OnEnterDashState();
 	UFUNCTION()
 		void UpdateDashState();
 	UFUNCTION()
 		void OnExitDashState();
+	#pragma endregion 
+
+	#pragma region Beaten
+	UFUNCTION()
+		void OnEnterBeatenState();
+	UFUNCTION()
+		void UpdateBeatenState();
+	UFUNCTION()
+		void OnExitBeatenState();
 	#pragma endregion 
 
 	// Boss ranges
@@ -329,6 +338,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void DisableInvincibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		bool IsInvincible();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void BeginJumpAttack();
