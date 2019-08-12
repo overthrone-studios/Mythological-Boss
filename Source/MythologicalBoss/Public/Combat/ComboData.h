@@ -7,6 +7,15 @@
 #include "ComboData.generated.h"
 
 UENUM()
+enum EDashType_Combo
+{
+	Dash_Forward,
+	Dash_Backward,
+	Dash_Left,
+	Dash_Right,
+};
+
+UENUM()
 enum EAttackType_Combo
 {
 	LightAttack_1,
@@ -18,6 +27,24 @@ enum EAttackType_Combo
 	SpecialAttack_1,
 	SpecialAttack_2,
 	SpecialAttack_3
+};
+
+USTRUCT(BlueprintType)
+struct FAttackInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditInstanceOnly)
+		TEnumAsByte<EAttackType_Combo> Attack;
+
+	UPROPERTY(EditInstanceOnly)
+		uint8 bCanDashWithAttack : 1;
+
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bCanDashWithAttack"))
+		TEnumAsByte<EDashType_Combo> DashType;
+
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bCanDashWithAttack"))
+		float OffsetDistance = 0.0f;
 };
 
 /**
@@ -39,12 +66,16 @@ public:
 		bool IsAtLastAttack();
 
 	UFUNCTION(BlueprintCallable, Category = "Combo Data")
-		int32 GetCurrentAttack() const { return AttackIndex; }
+		int32 GetCurrentAttackIndex() const { return AttackIndex; }
 
+	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+		FAttackInfo GetCurrentAttackInfo() const { return CurrentAttack; }
+
+protected:
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
-		TArray<TEnumAsByte<EAttackType_Combo>> Attacks;
+		TArray<FAttackInfo> Attacks;
 
-	TEnumAsByte<EAttackType_Combo> CurrentAttack = LightAttack_1;
+	FAttackInfo CurrentAttack;
 
 private:
 	int32 AttackIndex = 0;

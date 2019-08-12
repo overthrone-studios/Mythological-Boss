@@ -64,7 +64,7 @@ AMordath::AMordath()
 	FSM->AddState(13, "Death");
 	FSM->AddState(14, "Stunned");
 	FSM->AddState(15, "Laugh");
-	FSM->AddState(16, "Dash to Jump");
+	FSM->AddState(16, "Dash");
 
 
 	// Bind state events to our functions
@@ -178,7 +178,7 @@ AMordath::AMordath()
 	Dash_Bezier.CurveHeight = 190.0f;
 }
 
-void AMordath::InitTimelineComponent(UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
+void AMordath::InitTimelineComponent(UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
 {
 	// Timeline Initialization
 	FOnTimelineFloat TimelineCallback;
@@ -211,7 +211,7 @@ void AMordath::BeginPlay()
 	Super::BeginPlay();
 
 	InitTimelineComponent(JumpAttackTimelineComponent, JumpAttack_Bezier.Curve, JumpAttack_Bezier.PlaybackSpeed, "DoJumpAttack", "FinishJumpAttack");
-	InitTimelineComponent(DashTimelineComponent, Dash_Bezier.Curve, Dash_Bezier.PlaybackSpeed, "DoDash", "BeginJumpAttack");
+	InitTimelineComponent(DashTimelineComponent, Dash_Bezier.Curve, Dash_Bezier.PlaybackSpeed, "DoDash", "OnDashFinished");
 
 	bCanBeDamaged = true;
 
@@ -346,10 +346,12 @@ void AMordath::UpdateFollowState()
 
 	case 1 /*Mid*/:
 		// Do dash (to left or right)
+		//if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
+		//{
+		//	BeginJumpAttackWithDash();
+		//}
 		if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
-		{
-			BeginJumpAttackWithDash();
-		}
+			ChooseAttack();
 	break;
 
 	case 2 /*Far*/:
@@ -785,8 +787,47 @@ void AMordath::OnPlayerDeath()
 	DashTimelineComponent->Stop();
 
 	FSM->RemoveAllStatesFromStack();
-
 	FSM->PushState("Laugh");
+}
+
+void AMordath::OnDashFinished()
+{
+	ULog::LogYes("Dash finished", true);
+
+	FSM->PopState();
+
+	// Resume movement
+	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	switch (ChosenCombo->GetCurrentAttackInfo().Attack)
+	{
+		case LightAttack_1:
+			FSM->PushState("Light Attack 1");
+		break;
+
+		case LightAttack_2:
+			FSM->PushState("Light Attack 2");
+		break;
+
+		case LightAttack_3:
+			FSM->PushState("Light Attack 3");
+		break;
+
+		case HeavyAttack_1:
+			FSM->PushState("Heavy Attack 1");
+		break;
+
+		case HeavyAttack_2:
+			BeginJumpAttack();
+		break;
+
+		case HeavyAttack_3:
+			FSM->PushState("Heavy Attack 3");
+		break;
+
+		default:
+		break;
+	}
 }
 
 void AMordath::DestroySelf()
@@ -884,10 +925,13 @@ void AMordath::ChooseComboWithDelay()
 
 void AMordath::ChooseAttack()
 {
+	if (FSM->GetActiveStateName() == "Dash")
+		FSM->PopState();
+
 	// Disable movement when we are going to attack
 	MovementComponent->SetMovementMode(MOVE_None);
 
-	switch (ChosenCombo->CurrentAttack)
+	switch (ChosenCombo->GetCurrentAttackInfo().Attack)
 	{
 		case LightAttack_1:
 			FSM->PushState("Light Attack 1");
@@ -898,7 +942,14 @@ void AMordath::ChooseAttack()
 		break;
 
 		case LightAttack_3:
+		if (ChosenCombo->GetCurrentAttackInfo().bCanDashWithAttack)
+		{
+			BeginDash(ChosenCombo->GetCurrentAttackInfo().DashType);
+		}
+		else
+		{
 			FSM->PushState("Light Attack 3");
+		}
 		break;
 
 		case HeavyAttack_1:
@@ -1004,7 +1055,7 @@ void AMordath::BeginJumpAttack()
 	if (JumpAttackTimelineComponent->IsPlaying())
 		return;
 	
-	FSM->PopState("Dash to Jump");
+	FSM->PopState("Dash");
 	FSM->PushState("Heavy Attack 2");
 
 	// Create the main points of the bezier curve
@@ -1047,21 +1098,33 @@ void AMordath::FinishJumpAttack()
 	FSM->PopState();
 }
 
-void AMordath::BeginJumpAttackWithDash()
+void AMordath::BeginDash(const enum EDashType_Combo DashType)
 {
 	if (DashTimelineComponent->IsPlaying())
 		return;
 
 	FSM->PopState();
-	FSM->PushState("Dash to Jump");
+	FSM->PushState("Dash");
 
 	// Create the main points of the bezier curve
 	FVector Point = GetActorLocation() + GetActorRightVector() * CombatSettings.DashDistance;
 	Point.Z = Dash_Bezier.CurveHeight;
 
 	Dash_Bezier.A = GetActorLocation();
-	Dash_Bezier.B = Point;
-	Dash_Bezier.C = Point + GetActorForwardVector() * CombatSettings.DashDistance;
+
+	switch (DashType)
+	{
+	case Dash_Forward:
+		Dash_Bezier.B = GetActorLocation() + GetActorForwardVector() * (FVector::Distance(GetActorLocation(), PlayerCharacter->GetActorLocation())/2.0f);
+		Dash_Bezier.C = PlayerCharacter->GetActorLocation() - GetDirectionToPlayer() * ChosenCombo->GetCurrentAttackInfo().OffsetDistance;
+		Dash_Bezier.C.Z = GetActorLocation().Z;
+	break;
+
+	default:
+		Dash_Bezier.B = Point;
+		Dash_Bezier.C = Point + GetActorForwardVector() * CombatSettings.DashDistance;
+	break;
+	}
 
 	if (Dash_Bezier.bDebug)
 	{

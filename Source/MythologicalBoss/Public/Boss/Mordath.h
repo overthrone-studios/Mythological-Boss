@@ -163,6 +163,9 @@ protected:
 	void ChooseComboWithDelay();
 	void ChooseCombo();
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void ChooseAttack();
+
 	void FinishStun();
 
 	void Die();
@@ -180,7 +183,6 @@ protected:
 	#pragma region Follow
 	UFUNCTION()
 		void OnEnterFollowState();
-	void ChooseAttack();
 	UFUNCTION()
 		void UpdateFollowState();
 	UFUNCTION()
@@ -330,7 +332,7 @@ protected:
 		void BeginJumpAttack();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void BeginJumpAttackWithDash();
+		void BeginDash(enum EDashType_Combo DashType);
 	
 	UFUNCTION()
 		void DoDash();
@@ -344,6 +346,9 @@ protected:
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		void OnPlayerDeath();
+
+	UFUNCTION()
+		void OnDashFinished();
 
 	void DestroySelf();
 
