@@ -20,18 +20,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsWalking;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsRunning;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsFalling;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		bool bIsJumping;
-	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		bool bIsHit;
 

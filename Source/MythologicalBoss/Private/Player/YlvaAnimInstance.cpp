@@ -31,9 +31,6 @@ void UYlvaAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	if (!OwningPawn || !PawnMovementComponent)
 		return;
 
-	// Set whether falling or not
-	bIsFalling = PawnMovementComponent->IsFalling();
-
 	// Update movement speed for use in the Idle/Run blendspace
 	MovementSpeed = Ylva->GetVelocity().Size();
 }
@@ -43,11 +40,7 @@ void UYlvaAnimInstance::LeaveAllStates()
 	bIsHit = false;
 	bIsBlocking = false;
 	bIsDead = false;
-	bIsFalling = false;
-	bIsJumping = false;
-	bIsRunning = false;
 	bIsShieldHit = false;
-	bIsWalking = false;
 	bAcceptLightAttack = false;
 	bAcceptSecondLightAttack = false;
 	bAcceptThirdLightAttack = false;

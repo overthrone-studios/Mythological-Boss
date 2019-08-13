@@ -601,8 +601,6 @@ void AYlva::OnExitIdleState()
 void AYlva::OnEnterWalkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bIsWalking = true;
 }
 
 void AYlva::UpdateWalkState()
@@ -621,8 +619,6 @@ void AYlva::UpdateWalkState()
 void AYlva::OnExitWalkState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bIsWalking = false;
 }
 #pragma endregion
 
@@ -632,7 +628,6 @@ void AYlva::OnEnterRunState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
-	AnimInstance->bIsRunning = true;
 }
 
 void AYlva::UpdateRunState()
@@ -656,7 +651,6 @@ void AYlva::OnExitRunState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-	AnimInstance->bIsRunning = false;
 }
 #pragma endregion
 
@@ -664,8 +658,6 @@ void AYlva::OnExitRunState()
 void AYlva::OnEnterFallingState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bIsFalling = true;
 }
 
 void AYlva::UpdateFallingState()
@@ -679,8 +671,6 @@ void AYlva::UpdateFallingState()
 void AYlva::OnExitFallingState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bIsFalling = false;
 }
 #pragma endregion
 
