@@ -1,7 +1,6 @@
 // Copyright Overthrone Studios 2019
 
 #include "Mordath.h"
-#include "Public/OverthroneHUD.h"
 #include "Public/OverthroneGameInstance.h"
 #include "BossAIController.h"
 #include "Boss/MordathAnimInstance.h"
@@ -12,8 +11,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
-#include "HUD/MasterHUD.h"
-#include "HUD/MainPlayerHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
 #include "FSM.h"
@@ -150,25 +147,21 @@ AMordath::AMordath()
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(185.0f, true);
 	GetCapsuleComponent()->SetCapsuleRadius(75.0f, true);
-	GetCapsuleComponent()->bReturnMaterialOnMove = true;
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Configure character settings
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = ABossAIController::StaticClass();
-	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	// Timeline components
 	JumpAttackTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Jump Attack Timeline"));
 	DashTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Dash Timeline"));
-
-	bCanBeDamaged = true;
 
 	// Configure bezier curves
 	Combat.AttackSettings.JumpAttack_Bezier.PlaybackSpeed = 2.0f;
@@ -214,44 +207,23 @@ void AMordath::BeginPlay()
 	InitTimelineComponent(JumpAttackTimelineComponent, JumpAttack_Bezier.Curve, JumpAttack_Bezier.PlaybackSpeed, "DoJumpAttack", "FinishJumpAttack");
 	InitTimelineComponent(DashTimelineComponent, Dash_Bezier.Curve, Dash_Bezier.PlaybackSpeed, "DoDash", "OnDashFinished");
 
-	bCanBeDamaged = true;
-
-	// Cache the world object
-	World = GetWorld();
-
-	// Cache the movement component
-	MovementComponent = GetCharacterMovement();
-	MovementComponent->MaxWalkSpeed = WalkSpeed;
-
-	Health = StartingHealth;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Cache the Combos array to use for randomization
 	CachedCombos = ComboSettings.Combos;
 
-	// Cache the Overthrone HUD
-	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-
 	// Cache player character for knowing where it is
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 
-	// Cache the player controller for playing camera shakes
-	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-	// Cache the main HUD
-	MainHUD = Cast<UMainPlayerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("MainHUD"));
-
 	// Cache our anim instance
-	AnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
+	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
 
-	// Cache our game instance
-	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+	// Initialize game instance variables
 	GameInstance->BossInfo.StartingHealth = StartingHealth;
+	GameInstance->BossInfo.Health = Health;
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
 	SendInfo();
-
-	// Cache the FSM Visualizer HUD
-	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	ChooseCombo();
 
@@ -634,7 +606,7 @@ void AMordath::OnEnterStunnedState()
 
 	BossAIController->StopMovement();
 
-	AnimInstance->bIsStunned = true;
+	MordathAnimInstance->bIsStunned = true;
 
 	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, Combat.StunSettings.Duration);
 }
@@ -653,7 +625,7 @@ void AMordath::OnExitStunnedState()
 		NextAttack();
 
 	GameInstance->PlayerInfo.bParrySucceeded = false;
-	AnimInstance->bIsStunned = false;
+	MordathAnimInstance->bIsStunned = false;
 }
 #pragma endregion
 
@@ -662,7 +634,7 @@ void AMordath::OnEnterLaughState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bCanLaugh = true;
+	MordathAnimInstance->bCanLaugh = true;
 }
 
 void AMordath::UpdateLaughState()
@@ -675,7 +647,7 @@ void AMordath::OnExitLaughState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bCanLaugh = false;
+	MordathAnimInstance->bCanLaugh = false;
 }
 #pragma endregion
 
@@ -706,7 +678,7 @@ void AMordath::OnExitDashState()
 #pragma region Beaten
 void AMordath::OnEnterBeatenState()
 {
-	AnimInstance->bIsBeaten = true;
+	MordathAnimInstance->bIsBeaten = true;
 
 	LaunchCharacter(-GetActorForwardVector() * 1000, true, true);
 }
@@ -717,7 +689,7 @@ void AMordath::UpdateBeatenState()
 
 void AMordath::OnExitBeatenState()
 {
-	AnimInstance->bIsBeaten = false;
+	MordathAnimInstance->bIsBeaten = false;
 }
 #pragma endregion
 
@@ -868,6 +840,12 @@ void AMordath::FinishCooldown()
 	//ULog::DebugMessage(SUCCESS, "Cooldown finished", true);
 }
 
+void AMordath::UpdateCharacterInfo()
+{
+	GameInstance->BossInfo.Health = Health;
+	GameInstance->BossInfo.Location = GetActorLocation();
+}
+
 void AMordath::FinishStun()
 {
 	FSM->PopState();
@@ -918,7 +896,7 @@ void AMordath::ChooseCombo()
 			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
 		}
 
-		MovementComponent->MaxWalkSpeed = WalkSpeed;
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	}
 	else
 	{
@@ -946,7 +924,7 @@ void AMordath::ChooseComboWithDelay()
 	if (Debug.bLogComboDelayTime)
 		ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
 
-	MovementComponent->MaxWalkSpeed = WalkSpeed/2;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed/2.0f;
 }
 
 void AMordath::ChooseAttack()
@@ -1017,18 +995,18 @@ void AMordath::NextAttack()
 		if (NewDelay > 0.0f)
 		{
 			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetDelayTimer(), this, &AMordath::NextAttack, NewDelay);
-			MovementComponent->MaxWalkSpeed = WalkSpeed/2.0f;
+			MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed/2.0f;
 		}
 		else
 		{
-			MovementComponent->MaxWalkSpeed = WalkSpeed;
+			MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 			ChosenCombo->NextAttack();
 		}
 
 		return;
 	}
 
-	MovementComponent->MaxWalkSpeed = WalkSpeed;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	ChosenCombo->NextAttack();
 }
 
@@ -1046,11 +1024,6 @@ void AMordath::DisableInvincibility()
 	bCanBeDamaged = true;
 }
 
-bool AMordath::IsInvincible()
-{
-	return !bCanBeDamaged;
-}
-
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead
@@ -1065,9 +1038,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	{
 		HitCounter++;
 
-		if (CameraShakes.Damaged.bScaleIntensityBasedOnHits)
-			CameraShakes.Damaged.Intensity = HitCounter - 1;
-
 		if (Debug.bLogHits)
 			ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 
@@ -1076,17 +1046,16 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 			// Cancel current animation and enter the damaged state
 			FSM->PopState();
 			FSM->PushState("Damaged");
-
-			// Apply hit stop
-			if (Combat.bEnableHitStop)
-			{
-				PauseAnims();
-				GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
-			}
 		}
 
-		// Update our health
-		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
+		// Apply hit stop
+		if (Combat.bEnableHitStop)
+		{
+			PauseAnims();
+			GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
+		}
+
+		DecreaseHealth(DamageAmount);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
@@ -1103,8 +1072,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PopState();
 		FSM->PushState("Beaten");
 
-		// Update our health
-		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
+		DecreaseHealth(DamageAmount);
 	}
 
 	// Are we dead?
@@ -1288,7 +1256,9 @@ FVector AMordath::GetDirectionToPlayer() const
 
 void AMordath::Die()
 {
-	bCanBeDamaged = false;
+	Super::Die();
+
+	MordathAnimInstance->LeaveAllStates();
 
 	JumpAttackTimelineComponent->Stop();
 	DashTimelineComponent->Stop();
@@ -1299,16 +1269,4 @@ void AMordath::Die()
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
-}
-
-void AMordath::PauseAnims()
-{
-	GetMesh()->bPauseAnims = true;
-	PlayerCharacter->GetMesh()->bPauseAnims = true;
-}
-
-void AMordath::UnPauseAnims()
-{
-	GetMesh()->bPauseAnims = false;
-	PlayerCharacter->GetMesh()->bPauseAnims = false;
 }

@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "OverthroneCharacter.h"
 #include "Combat/ComboData.h"
 #include "Mordath.generated.h"
 
 USTRUCT(BlueprintType)
-struct FDebug_Mordath
+struct FDebug_Mordath : public FCharacterDebug
 {
 	GENERATED_BODY()
 
@@ -62,35 +62,17 @@ struct FBezier
 };
 
 USTRUCT(BlueprintType)
-struct FCameraShake_Mordath
-{
-	GENERATED_BODY()
-		
-	// The camera shake to play
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		TSubclassOf<class UCameraShake> Shake;
-
-	// Scale the shake intensity based on the amount of hits we have recieved
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bScaleIntensityBasedOnHits : 1;
-
-	// The intensity of the camera shake
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 1000.0f, EditCondition = "!bScaleIntensityBasedOnHits"))
-		float Intensity = 1.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FCameraShakes_Mordath
 {
 	GENERATED_BODY()
 
 	// The camera shake to play when we are damaged
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShake_Mordath Damaged;
+		FCameraShakeData Damaged;
 
 	// The camera shake to play when we are damaged
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShake_Mordath Stun;
+		FCameraShakeData Stun;
 };
 
 USTRUCT(BlueprintType)
@@ -120,29 +102,13 @@ struct FComboSettings
 };
 
 USTRUCT(BlueprintType)
-struct FAttackSettings_Mordath
+struct FAttackSettings_Mordath : public FAttackSettings
 {
 	GENERATED_BODY()
-
-	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float LightAttackDamage = 50.0f;
-
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float HeavyAttackDamage = 100.0f;
 
 	// The attack damage we deal when heavy attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float SpecialAttackDamage = 250.0f;
-
-	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float AttackDistance = 250.0f;
-
-	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
-		float AttackRadius = 50.0f;
 
 	// Properties of the jump attack curve
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Jump Attack Curve")
@@ -182,17 +148,9 @@ struct FStunSettings_Mordath
 };
 
 USTRUCT(BlueprintType)
-struct FCombatSettings_Mordath
+struct FCombatSettings_Mordath : public FCombatSettings
 {
 	GENERATED_BODY()
-
-	// Should we stop animations when we are hit?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bEnableHitStop : 1;
-
-	// The amount of time (in seconds) we stay paused when we hit something
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
-		float HitStopTime = 0.1f;
 
 	// Settings that affect Mordath's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Attack")
@@ -216,7 +174,7 @@ struct FCombatSettings_Mordath
 };
 
 UCLASS()
-class MYTHOLOGICALBOSS_API AMordath final : public ACharacter
+class MYTHOLOGICALBOSS_API AMordath final : public AOverthroneCharacter
 {
 	GENERATED_BODY()
 
@@ -258,6 +216,8 @@ protected:
 	void FinishStun();
 	void FinishCooldown();
 
+	void UpdateCharacterInfo() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FRotator FacePlayer();
 
@@ -269,16 +229,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void NextAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void Die();
+	void Die() override;
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void DestroySelf();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void PauseAnims();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void UnPauseAnims();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void ChooseAttack();
@@ -294,9 +248,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void DisableInvincibility();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		bool IsInvincible();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void BeginJumpAttack();
@@ -481,10 +432,6 @@ protected:
 		void OnExitFarRange();
 	#pragma endregion 
 
-	// The boss's Finite State Machine
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
-		class UFSM* FSM;
-
 	// The boss's range Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* RangeFSM;
@@ -496,14 +443,6 @@ protected:
 	// Used for calculating the dash curve
 	UPROPERTY()
 		class UTimelineComponent* DashTimelineComponent;
-
-	// The starting health of the boss
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
-		float StartingHealth = 1000.0f;
-
-	// The current health of the boss
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
-		float Health = 1000.0f;
 
 	// The radius in which the boss character will accept that it has arrived to the player's location
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f), DisplayName = "Close Range Radius")
@@ -521,17 +460,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
 
-	// List of debugging options
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		FDebug_Mordath Debug;
-
-	// The maximum movement speed while walking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float WalkSpeed = 600.0f;
-
-	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Movement", meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float RunSpeed = 1000.0f;
+	// Mordath's movement settings
+	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")
+		FMovementSettings MovementSettings;
 
 	// The combo settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
@@ -545,39 +476,19 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakes_Mordath CameraShakes;
 
+	// List of debugging options
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		FDebug_Mordath Debug;
+
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	uint8 HitCounter = 0; // To keep track of how many hits we've taken
 
-	// True when we have been damaged
-	uint8 bIsHit : 1;
-
-	// Cached world pointer
-	UWorld* World{};
-
 	// Our custom AI controller
 	class ABossAIController* BossAIController{};
 	
-	// The skeletal mesh representing the player
-	USkeletalMesh* SkeletalMesh;
-
-	// Cached game instance pointer
-	class UOverthroneGameInstance* GameInstance{};
-
-	// Cached movement component
-	UCharacterMovementComponent* MovementComponent{};
-
 	// Cached anim instance, to control and trigger animations
-	class UMordathAnimInstance* AnimInstance{};
-
-	// Cached Overthrone HUD reference, used to access HUDs
-	class AOverthroneHUD* OverthroneHUD{};
-
-	// Cached main HUD
-	class UMainPlayerHUD* MainHUD{};
-
-	// To give data to the Visualizer HUD
-	class UFSMVisualizerHUD* FSMVisualizer{};
+	class UMordathAnimInstance* MordathAnimInstance{};
 
 	// The combo we are using
 	UComboData* ChosenCombo;
@@ -594,16 +505,13 @@ private:
 	FTimerHandle UpdateInfoTimerHandle;
 
 	FTimerHandle StunExpiryTimerHandle;
-	FTimerHandle DeathExpiryTimerHandle;
 
 	FTimerHandle JumpAttackCooldownTimerHandle;
 	FTimerHandle DashCooldownTimerHandle;
 
 	FTimerHandle ComboDelayTimerHandle;
 	FTimerHandle InvincibilityTimerHandle;
-	FTimerHandle HitStopTimerHandle;
 
 	// Access to player information
 	ACharacter* PlayerCharacter;
-	APlayerController* PlayerController;
 };
