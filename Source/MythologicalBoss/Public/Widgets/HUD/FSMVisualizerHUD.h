@@ -6,7 +6,7 @@
 #include "FSMVisualizerHUD.generated.h"
 
 /**
- * A widget that visualizes the player's state machines
+ * A widget that visualizes an actor's state machine
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API UFSMVisualizerHUD final : public UHUDBase
