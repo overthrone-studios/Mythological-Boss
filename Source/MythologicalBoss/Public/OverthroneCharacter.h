@@ -45,7 +45,6 @@ struct FCameraShakes
 	// The camera shake to play when we are damaged by the boss
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData Damaged;
-
 };
 
 USTRUCT(BlueprintType)
@@ -96,22 +95,6 @@ class MYTHOLOGICALBOSS_API AOverthroneCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AOverthroneCharacter();
-	
-	// Returns the light attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
-
-	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
-
-	// Returns the attack distance value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
-
-	// Returns the attack radius value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -137,7 +120,7 @@ protected:
 
 	// Kill self
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		void Die();
+		virtual void Die();
 
 	// Hit stop functions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
@@ -159,22 +142,6 @@ protected:
 	// The player's current health
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		float Health = 100.0f;
-
-	// The character's combat settings
-	UPROPERTY(EditInstanceOnly, Category = "Overthrone Character", DisplayName = "Movement")
-		FMovementSettings MovementSettings;
-
-	// The character's combat settings
-	UPROPERTY(EditInstanceOnly, Category = "Overthrone Character")
-		FCombatSettings Combat;
-
-	// The character's camera shake settings
-	UPROPERTY(EditInstanceOnly, Category = "Overthrone Character")
-		FCameraShakes CameraShakes;
-
-	// The character's camera shake settings
-	UPROPERTY(EditInstanceOnly, Category = "Overthrone Character")
-		FCharacterDebug Debug;
 
 	// The skeletal mesh representing the character
 	USkeletalMesh* SkeletalMesh;

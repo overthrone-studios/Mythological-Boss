@@ -7,6 +7,7 @@
 #include "HUD/MasterHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -14,6 +15,10 @@ AOverthroneCharacter::AOverthroneCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetCapsuleComponent()->bReturnMaterialOnMove = true;
+
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	bCanBeDamaged = true;
 }
 
 void AOverthroneCharacter::BeginPlay()
@@ -32,7 +37,6 @@ void AOverthroneCharacter::BeginPlay()
 
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Cache our anim instance todo
 	//AnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
@@ -58,28 +62,28 @@ void AOverthroneCharacter::UpdateCharacterInfo()
 void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 {
 	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
-	//GameInstance->PlayerInfo.Health = Health;
+
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::IncreaseHealth(const float Amount)
 {
 	Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
-	//GameInstance->PlayerInfo.Health = Health;
+
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::DecreaseHealth(const float Amount)
 {
 	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
-	//GameInstance->PlayerInfo.Health = Health;
+
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::ResetHealth()
 {
 	Health = StartingHealth;
-	//GameInstance->PlayerInfo.Health = Health;
+
 	UpdateCharacterInfo();
 }
 

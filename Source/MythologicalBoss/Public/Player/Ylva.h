@@ -2,17 +2,13 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "OverthroneCharacter.h"
 #include "Ylva.generated.h"
 
 USTRUCT(BlueprintType)
-struct FMovementSettings_Ylva
+struct FMovementSettings_Ylva : public FMovementSettings
 {
 	GENERATED_BODY()
-
-	// The maximum movement speed while walking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
-		float WalkSpeed = 500.0f;
 
 	// The maximum movement speed while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
@@ -38,53 +34,13 @@ struct FLockOnSettings
 };
 
 USTRUCT(BlueprintType)
-struct FCameraShake_Ylva
+struct FCameraShakes_Ylva : public FCameraShakes
 {
 	GENERATED_BODY()
-
-	// The camera shake to play
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		TSubclassOf<class UCameraShake> Shake;
-
-	// The intensity of the camera shake
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
-		float Intensity = 1.0f;
-};
-
-USTRUCT(BlueprintType)
-struct FCameraShakes_Ylva
-{
-	GENERATED_BODY()
-
-	// The camera shake to play when we are damaged by the boss
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShake_Ylva Damaged;
 
 	// The camera shake to play when we are blocking the boss's attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShake_Ylva ShieldHit;
-};
-
-USTRUCT(BlueprintType)
-struct FAttackSettings_Ylva
-{
-	GENERATED_BODY()
-
-	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float LightAttackDamage = 50.0f;
-
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float HeavyAttackDamage = 100.0f;
-
-	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float AttackDistance = 100.0f;
-
-	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
-		float AttackRadius = 20.0f;
+		FCameraShakeData ShieldHit;
 };
 
 USTRUCT(BlueprintType)
@@ -146,21 +102,9 @@ struct FParrySettings_Ylva
 };
 
 USTRUCT(BlueprintType)
-struct FCombatSettings_Ylva
+struct FCombatSettings_Ylva : public FCombatSettings
 {
 	GENERATED_BODY()
-
-	// Should we stop animations when we are hit?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bEnableHitStop : 1;
-
-	// The amount of time (in seconds) we stay paused when we hit something
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
-		float HitStopTime = 0.1f;
-
-	// Settings that affect Ylva's attack values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FAttackSettings_Ylva AttackSettings;
 
 	// Settings that affect Ylva's stamina value
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -179,7 +123,7 @@ struct FCombatSettings_Ylva
  * The player character you control
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API AYlva final : public ACharacter
+class MYTHOLOGICALBOSS_API AYlva final : public AOverthroneCharacter
 {
 	GENERATED_BODY()
 
@@ -195,19 +139,19 @@ public:
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	// Returns the light attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the attack distance value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
 
 	// Returns the attack radius value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
@@ -224,6 +168,8 @@ protected:
 
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void UpdateCharacterInfo() override;
 
 	// Called for forwards/backward input
 	void MoveForward(float Value);
@@ -242,6 +188,8 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	void Die() override;
 
 	// Called via input to toggle lock on mechanic
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -310,29 +258,13 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void RegenerateStamina(float Rate);
 
-	// Kill self
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Die();
-
 	// Called when the player is killed (Health <= 0)
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void Respawn();
 
-	// Set a new health value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void SetHealth(float NewHealthAmount);
-
 	// Set a new stamina value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void SetStamina(float NewStaminaAmount);
-
-	// Subtract health by an amount
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DecreaseHealth(float Amount);
-
-	// Add health by an amount
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void IncreaseHealth(float Amount);
 
 	// Subtract stamina value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -346,19 +278,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetStamina();
 
-	// Resets health back to default
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ResetHealth();
-
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
-
-	// Hit stop functions
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void PauseAnims();
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void UnPauseAnims();
 
 	// Did we successfully parry?
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -504,9 +426,6 @@ protected:
 	UFUNCTION()
 		void OnBossDeath(); // Called when the boss's health is less than or equal to zero
 
-	// The skeletal mesh representing the player
-	USkeletalMesh* SkeletalMesh;
-
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -515,25 +434,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
-	// The player's Finite State Machine
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
-		class UFSM* FSM;
-
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
 		uint8 bGodMode : 1;
 
-	// The player's current health
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
-		float Health = 100.0f;
-
 	// The player's current stamina level
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
 		float Stamina = 100.0f;
-
-	// The player's starting health
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
-		float StartingHealth = 100.0f;
 
 	// The player's starting stamina
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
@@ -563,34 +470,11 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
 		FCombatSettings_Ylva Combat;
 
-	// True when we have been damaged
-	uint8 bIsHit : 1;
-
-	// Cached world pointer
-	UWorld* World{};
-
-	// Cached player controller pointer
-	APlayerController* PlayerController{};
-
-	// Cached game instance pointer
-	class UOverthroneGameInstance* GameInstance{};
-
-	// Cached movement component
-	UCharacterMovementComponent* MovementComponent{};
-
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* AnimInstance{};
 
-	// Cached Overthrone HUD reference, used to access menus
-	class AOverthroneHUD* OverthroneHUD{};
-
-	// To give data to the Visualizer HUD
-	class UFSMVisualizerHUD* FSMVisualizer{};
-
 private:
-	FTimerHandle DeathStateExpiryTimer;
 	FTimerHandle ParryEventExpiryTimer;
-	FTimerHandle HitStopTimerHandle;
 
 	FTimerHandle StaminaRegenTimerHandle;
 

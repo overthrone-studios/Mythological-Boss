@@ -23,7 +23,7 @@
 #include "Log.h"
 #include "OverthroneFunctionLibrary.h"
 
-AYlva::AYlva()
+AYlva::AYlva() : AOverthroneCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -138,7 +138,6 @@ AYlva::AYlva()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(30.0f, 90.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
-	GetCapsuleComponent()->bReturnMaterialOnMove = true;
 
 	// Set our turn rates for input
 	TurnRate = 45.0f;
@@ -158,51 +157,28 @@ AYlva::AYlva()
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	bCanBeDamaged = true;
 }
 
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
-	bCanBeDamaged = true;
-
-	Health = StartingHealth;
 	Stamina = StartingStamina;
-
-	// Cache the world object
-	World = GetWorld();
 
 	// Cache the boss character
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 
-	// Cache the player controller
-	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-	// Cache the movement component
-	MovementComponent = GetCharacterMovement();
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Cache our anim instance
 	AnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
 
-	// Cache the player HUD
-	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-
-	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->PlayerInfo.StartingHealth = StartingHealth;
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
-
-	// Cache the FSM Visualizer HUD
-	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
-
-	// Begin the state machine
-	FSM->Start();
 }
 
 void AYlva::Tick(const float DeltaTime)
@@ -271,6 +247,13 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AYlva::ToggleGodMode);
 #endif
+}
+
+void AYlva::UpdateCharacterInfo()
+{
+	GameInstance->PlayerInfo.Health = Health;
+	GameInstance->PlayerInfo.Stamina = Stamina;
+	GameInstance->PlayerInfo.Location = GetActorLocation();
 }
 
 void AYlva::MoveForward(const float Value)
@@ -572,11 +555,7 @@ void AYlva::RegenerateStamina(const float Rate)
 
 void AYlva::Die()
 {
-	SetHealth(0.0f);
-
-	bCanBeDamaged = false;
-
-	AnimInstance->LeaveAllStates();
+	Super::Die();
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
@@ -584,7 +563,7 @@ void AYlva::Die()
 
 void AYlva::Respawn()
 {
-	GetWorldTimerManager().ClearTimer(DeathStateExpiryTimer);
+	GetWorldTimerManager().ClearTimer(DeathExpiryTimerHandle);
 
 	FSM->PopState();
 
@@ -944,7 +923,7 @@ void AYlva::OnEnterDeathState()
 	GameInstance->PlayerInfo.bIsDead = true;
 	GameInstance->OnPlayerDeath.Broadcast();
 
-	GetWorldTimerManager().SetTimer(DeathStateExpiryTimer, this, &AYlva::Respawn, RespawnDelay);
+	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
 }
 
 void AYlva::UpdateDeathState()
@@ -1093,66 +1072,34 @@ void AYlva::OnBossDeath()
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
 	Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, StartingStamina);
-	GameInstance->PlayerInfo.Stamina = Stamina;
-}
 
-void AYlva::SetHealth(const float NewHealthAmount)
-{
-	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
-	GameInstance->PlayerInfo.Health = Health;
+	UpdateCharacterInfo();
 }
 
 void AYlva::DecreaseStamina(const float Amount)
 {
 	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, StartingStamina);
-	GameInstance->PlayerInfo.Stamina = Stamina;
+
+	UpdateCharacterInfo();
 }
 
 void AYlva::IncreaseStamina(const float Amount)
 {
 	Stamina = FMath::Clamp(Stamina + Amount, 0.0f, StartingStamina);
-	GameInstance->PlayerInfo.Stamina = Stamina;
-}
 
-void AYlva::DecreaseHealth(const float Amount)
-{
-	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
-	GameInstance->PlayerInfo.Health = Health;
-}
-
-void AYlva::IncreaseHealth(const float Amount)
-{
-	Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
-	GameInstance->PlayerInfo.Health = Health;
+	UpdateCharacterInfo();
 }
 
 void AYlva::ResetStamina()
 {
 	Stamina = StartingStamina;
-	GameInstance->PlayerInfo.Stamina = Stamina;
-}
 
-void AYlva::ResetHealth()
-{
-	Health = StartingHealth;
-	GameInstance->PlayerInfo.Health = Health;
+	UpdateCharacterInfo();
 }
 
 void AYlva::ResetGlobalTimeDilation()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
-}
-
-void AYlva::PauseAnims()
-{
-	GetMesh()->bPauseAnims = true;
-	Boss->GetMesh()->bPauseAnims = true;
-}
-
-void AYlva::UnPauseAnims()
-{
-	GetMesh()->bPauseAnims = false;
-	Boss->GetMesh()->bPauseAnims = false;
 }
 
 void AYlva::StartParryEvent()
