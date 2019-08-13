@@ -111,6 +111,10 @@ struct FStaminaSettings_Ylva
 	// The stamina value to subtract when being hit while blocking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float ShieldHitStamina = 300.0f;
+
+	// The amount of time (in seconds) we should wait before regenerating stamina
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float StaminaRegenDelay = 1.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -277,7 +281,6 @@ protected:
 	// Called via input to exit the running state
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void StopRunning();
-
 	// Called via input to start dashing
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void Dash();
@@ -354,6 +357,9 @@ protected:
 
 	void StartParryEvent();
 	void FinishParryEvent();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DelayStaminaRegeneration();
 
 	// God mode functions
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -576,6 +582,8 @@ private:
 	FTimerHandle DeathStateExpiryTimer;
 	FTimerHandle ParryEventExpiryTimer;
 	FTimerHandle HitStopTimerHandle;
+
+	FTimerHandle StaminaRegenTimerHandle;
 
 	ACharacter* Boss;
 };

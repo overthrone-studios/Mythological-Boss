@@ -374,8 +374,9 @@ void AYlva::LightAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FSM->PopState();
 
-	if (
-		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+	DelayStaminaRegeneration();
+
+	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
@@ -424,8 +425,9 @@ void AYlva::HeavyAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FSM->PopState();
 
-	if (
-		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+	DelayStaminaRegeneration();
+
+	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
@@ -493,6 +495,10 @@ void AYlva::StopRunning()
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
+	// Delay stamina regeneration
+	if (FSM->GetActiveStateName() == "Run")
+		DelayStaminaRegeneration();
+
 	FSM->PopState();
 }
 
@@ -514,6 +520,8 @@ void AYlva::Dash()
 		{
 			UpdateStamina(Combat.StaminaSettings.DashStamina);
 			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
+
+			DelayStaminaRegeneration();
 		}
 		else if (bGodMode)
 		{
@@ -554,7 +562,7 @@ void AYlva::Pause()
 
 void AYlva::RegenerateStamina(const float Rate)
 {
-	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/)
+	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || GetWorldTimerManager().IsTimerActive(StaminaRegenTimerHandle))
 		return;
 
 	if (Stamina < StartingStamina)
@@ -905,6 +913,8 @@ void AYlva::UpdateDamagedState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	RegenerateStamina(StaminaRegenerationRate);
+
 	// If hit animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
 	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
@@ -957,6 +967,8 @@ void AYlva::OnEnterShieldHitState()
 {
 	AnimInstance->bIsShieldHit = true;
 	bIsHit = true;
+
+	DelayStaminaRegeneration();
 }
 
 void AYlva::UpdateShieldHitState()
@@ -989,6 +1001,8 @@ void AYlva::OnEnterParryState()
 void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	RegenerateStamina(StaminaRegenerationRate);
 }
 
 void AYlva::OnExitParryState()
@@ -1182,4 +1196,9 @@ void AYlva::ToggleGodMode()
 bool AYlva::IsParrySuccessful()
 {
 	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
+}
+
+void AYlva::DelayStaminaRegeneration()
+{
+	GetWorldTimerManager().SetTimer(StaminaRegenTimerHandle, Combat.StaminaSettings.StaminaRegenDelay, false);
 }
