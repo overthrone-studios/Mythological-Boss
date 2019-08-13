@@ -471,7 +471,7 @@ protected:
 		FCombatSettings_Ylva Combat;
 
 	// Cached player's anim instance, to control and trigger animations
-	class UYlvaAnimInstance* AnimInstance{};
+	class UYlvaAnimInstance* YlvaAnimInstance{};
 
 private:
 	FTimerHandle ParryEventExpiryTimer;

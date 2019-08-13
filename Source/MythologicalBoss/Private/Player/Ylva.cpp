@@ -171,7 +171,7 @@ void AYlva::BeginPlay()
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Cache our anim instance
-	AnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
+	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
 
 	GameInstance->PlayerInfo.StartingHealth = StartingHealth;
 	GameInstance->PlayerInfo.Health = Health;
@@ -557,6 +557,8 @@ void AYlva::Die()
 {
 	Super::Die();
 
+	YlvaAnimInstance->LeaveAllStates();
+
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
 }
@@ -679,7 +681,7 @@ void AYlva::OnEnterBlockingState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bIsBlocking = true;
+	YlvaAnimInstance->bIsBlocking = true;
 	bUseControllerRotationYaw = true;
 }
 
@@ -700,7 +702,7 @@ void AYlva::OnExitBlockingState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bIsBlocking = false;
+	YlvaAnimInstance->bIsBlocking = false;
 	bUseControllerRotationYaw = false;
 }
 #pragma endregion
@@ -932,7 +934,7 @@ void AYlva::OnExitDeathState()
 #pragma region Shield Hit
 void AYlva::OnEnterShieldHitState()
 {
-	AnimInstance->bIsShieldHit = true;
+	YlvaAnimInstance->bIsShieldHit = true;
 	bIsHit = true;
 
 	DelayStaminaRegeneration();
@@ -950,7 +952,7 @@ void AYlva::UpdateShieldHitState()
 
 void AYlva::OnExitShieldHitState()
 {
-	AnimInstance->bIsShieldHit = false;
+	YlvaAnimInstance->bIsShieldHit = false;
 	bIsHit = false;
 }
 #pragma endregion 
@@ -960,7 +962,7 @@ void AYlva::OnEnterParryState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bIsShieldHit = true;
+	YlvaAnimInstance->bIsShieldHit = true;
 
 	StartParryEvent();
 }
@@ -976,7 +978,7 @@ void AYlva::OnExitParryState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bIsShieldHit = false;
+	YlvaAnimInstance->bIsShieldHit = false;
 
 	GameInstance->PlayerInfo.bParrySucceeded = false;
 
