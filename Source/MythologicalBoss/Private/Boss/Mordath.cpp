@@ -270,6 +270,9 @@ void AMordath::Tick(const float DeltaTime)
 	{
 		FSM->PopState();
 		FSM->PushState("Stunned");
+
+		// Shake the camera
+		PlayerController->ClientPlayCameraShake(CameraShakes.Stun.Shake, CameraShakes.Stun.Intensity);
 	}
 }
 
@@ -1056,6 +1059,9 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	if (FSM->GetActiveStateName() == "Death")
 		return DamageAmount;
 
+	// Shake the camera
+	PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+
 	// Apply damage once
 	if (!bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
@@ -1081,9 +1087,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 			}
 		}
 
-		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
-
 		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
 	}
@@ -1101,9 +1104,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Cancel our current animation and enter the downed state
 		FSM->PopState();
 		FSM->PushState("Beaten");
-
-		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
 		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);

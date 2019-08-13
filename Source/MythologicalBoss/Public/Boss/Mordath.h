@@ -70,7 +70,7 @@ struct FCameraShake_Mordath
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		TSubclassOf<class UCameraShake> Shake;
 
-	// Scale the shake intensity based on the amount of hit we have recieved
+	// Scale the shake intensity based on the amount of hits we have recieved
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bScaleIntensityBasedOnHits : 1;
 
@@ -87,6 +87,10 @@ struct FCameraShakes_Mordath
 	// The camera shake to play when we are damaged
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShake_Mordath Damaged;
+
+	// The camera shake to play when we are damaged
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShake_Mordath Stun;
 };
 
 USTRUCT(BlueprintType)
