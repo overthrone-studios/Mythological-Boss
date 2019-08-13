@@ -1052,7 +1052,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
 				// Update values
-				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+				DecreaseHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 				DecreaseStamina(Combat.StaminaSettings.ShieldHitStamina);
 			break;
 
@@ -1070,7 +1070,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
-				UpdateHealth(DamageAmount);
+				DecreaseHealth(DamageAmount);
 			break;
 		}
 	}
@@ -1112,9 +1112,15 @@ void AYlva::IncreaseStamina(const float Amount)
 	GameInstance->PlayerStamina = Stamina;
 }
 
-void AYlva::UpdateHealth(const float AmountToSubtract)
+void AYlva::DecreaseHealth(const float Amount)
 {
-	Health = FMath::Clamp(Health - AmountToSubtract, 0.0f, StartingHealth);
+	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
+	GameInstance->PlayerHealth = Health;
+}
+
+void AYlva::IncreaseHealth(const float Amount)
+{
+	Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
 	GameInstance->PlayerHealth = Health;
 }
 
