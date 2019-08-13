@@ -197,6 +197,14 @@ struct FCombatSettings_Mordath
 	// Settings that affect Mordath's stun values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
 		FStunSettings_Mordath StunSettings;
+
+	// Maximum hits that can be taken before becoming invincible
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0, ClampMax = 100))
+		uint8 MaxHitsBeforeInvincibility = 3;
+
+	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float InvincibilityTimeAfterDamage = 1.5f;
 };
 
 UCLASS()
@@ -501,14 +509,6 @@ protected:
 	// The distance to ray cast from the boss's location (for destructible actor detection)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
-
-	// Maximum hits that can be taken before becoming invincible
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0, ClampMax = 100))
-		uint8 MaxHitsBeforeInvincibility = 3;
-
-	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float InvincibilityTimeAfterDamage = 1.5f;
 
 	// List of debugging options
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")

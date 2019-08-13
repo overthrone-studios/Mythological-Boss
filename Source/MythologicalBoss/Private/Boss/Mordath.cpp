@@ -1057,7 +1057,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		return DamageAmount;
 
 	// Apply damage once
-	if (!bIsHit && HitCounter < MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (!bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		HitCounter++;
 
@@ -1086,14 +1086,14 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
-	if (HitCounter == MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (HitCounter == Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		// Reset our hits
 		HitCounter = 0;
 
 		// Become invincible and set a timer to disable invinciblity after 'X' seconds
 		EnableInvincibility();
-		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, InvincibilityTimeAfterDamage);
+		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, Combat.InvincibilityTimeAfterDamage);
 
 		// Cancel our current animation and enter the downed state
 		FSM->PopState();
