@@ -19,4 +19,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Project Information")
 		static FString GetProjectVersion();
 	
+	UFUNCTION(BlueprintPure, Category = "Project Information")
+		static class ACharacter* GetBossCharacter(UWorld* InWorld);
 };
