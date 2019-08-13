@@ -2,67 +2,23 @@
 
 #pragma once
 
-#include "Animation/AnimInstance.h"
+#include "OverthroneAnimInstance.h"
 #include "YlvaAnimInstance.generated.h"
 
 /**
  * The animation instance the player will use
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UAnimInstance
+class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UOverthroneAnimInstance
 {
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, Category = "Anim Instance")
-		void LeaveAllStates();
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		float MovementSpeed = 0.0f;
+	void LeaveAllStates() override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsHit;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsShieldHit;
+		uint8 bIsShieldHit : 1;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptLightAttack;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptSecondLightAttack;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptThirdLightAttack;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptHeavyAttack;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptSecondHeavyAttack;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptThirdHeavyAttack;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsBlocking;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsDead;
-
-	int32 GenericsMachineIndex;
-
-	int32 IdleLoopCount = 0;
-
-protected:
-	void NativeInitializeAnimation() override;
-	void NativeUpdateAnimation(float DeltaSeconds) override;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva Anim Instance")
-		APawn* OwningPawn{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva Anim Instance")
-		UPawnMovementComponent* PawnMovementComponent{};
-
-	class AYlva* Ylva{};
+		uint8 bIsBlocking : 1;
 };
