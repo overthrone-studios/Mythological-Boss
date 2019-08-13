@@ -536,13 +536,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Ylva")
 		FLockOnSettings LockOnSettings;
 
+	// Ylva's camera shake settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+		FCameraShakes_Ylva CameraShakes;
+
 	// Ylva's combat settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
 		FCombatSettings_Ylva Combat;
-
-	// Ylva's camera shake settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
-		FCameraShakes_Ylva CameraShakes;
 
 	// True when we have been damaged
 	uint8 bIsHit : 1;
