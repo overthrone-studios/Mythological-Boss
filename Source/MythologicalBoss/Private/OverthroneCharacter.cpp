@@ -50,9 +50,6 @@ void AOverthroneCharacter::BeginPlay()
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
-
-	// Begin the state machine
-	FSM->Start();
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()
