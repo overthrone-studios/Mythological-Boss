@@ -158,7 +158,6 @@ AMordath::AMordath()
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// Configure character settings
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
