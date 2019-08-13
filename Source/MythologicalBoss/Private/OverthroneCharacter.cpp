@@ -2,6 +2,7 @@
 
 #include "OverthroneCharacter.h"
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneAnimInstance.h"
 #include "Public/OverthroneHUD.h"
 #include "Public/FSM.h"
 #include "HUD/MasterHUD.h"
@@ -38,8 +39,8 @@ void AOverthroneCharacter::BeginPlay()
 	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
 
-	// Cache our anim instance todo
-	//AnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
+	// Cache our anim instance
+	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
 
 	// Cache the player HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
@@ -93,7 +94,7 @@ void AOverthroneCharacter::Die()
 
 	bCanBeDamaged = false;
 
-	//AnimInstance->LeaveAllStates();
+	AnimInstance->LeaveAllStates();
 }
 
 void AOverthroneCharacter::PauseAnims()

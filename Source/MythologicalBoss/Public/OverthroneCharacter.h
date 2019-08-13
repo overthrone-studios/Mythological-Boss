@@ -164,8 +164,8 @@ protected:
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
-	// Cached player's anim instance, to control and trigger animations
-	//class UYlvaAnimInstance* AnimInstance{}; todo UOverthroneAnimInstance
+	// Cached character's anim instance, to control and trigger animations
+	class UOverthroneAnimInstance* AnimInstance{};
 
 	// Cached Overthrone HUD reference, used to access menus
 	class AOverthroneHUD* OverthroneHUD{};
