@@ -16,7 +16,6 @@
 #include "HUD/MainPlayerHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
-#include "BehaviorTree/BehaviorTree.h"
 #include "FSM.h"
 #include "Log.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -172,12 +171,12 @@ AMordath::AMordath()
 	bCanBeDamaged = true;
 
 	// Configure bezier curves
-	JumpAttack_Bezier.PlaybackSpeed = 2.0f;
-	JumpAttack_Bezier.CurveHeight = 1000.0f;
-	JumpAttack_Bezier.EndPointOffsetDistance = 100.0f;
+	Combat.AttackSettings.JumpAttack_Bezier.PlaybackSpeed = 2.0f;
+	Combat.AttackSettings.JumpAttack_Bezier.CurveHeight = 1000.0f;
+	Combat.AttackSettings.JumpAttack_Bezier.EndPointOffsetDistance = 100.0f;
 
-	Dash_Bezier.PlaybackSpeed = 2.0f;
-	Dash_Bezier.CurveHeight = 190.0f;
+	Combat.DashSettings.Dash_Bezier.PlaybackSpeed = 2.0f;
+	Combat.DashSettings.Dash_Bezier.CurveHeight = 190.0f;
 }
 
 void AMordath::InitTimelineComponent(UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
@@ -524,7 +523,7 @@ void AMordath::OnExitHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
-	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.JumpAttackCooldown);
+	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.AttackSettings.JumpAttackCooldown);
 }
 #pragma endregion
 
@@ -631,7 +630,7 @@ void AMordath::OnEnterStunnedState()
 
 	AnimInstance->bIsStunned = true;
 
-	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, Combat.StunDuration);
+	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, Combat.StunSettings.Duration);
 }
 
 void AMordath::UpdateStunnedState()
@@ -699,7 +698,7 @@ void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.DashCooldown);
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.DashSettings.DashCooldown);
 }
 #pragma endregion
 
@@ -1080,7 +1079,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		}
 
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(Combat.DamagedShake, Combat.DamagedShakeIntensity);
+		PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
 		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
@@ -1101,7 +1100,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PushState("Beaten");
 
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(Combat.DamagedShake, Combat.DamagedShakeIntensity);
+		PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
 		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
@@ -1206,28 +1205,28 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 	break;
 
 	case Dash_Backward:
-		Dash_Bezier.B = GetActorLocation() + -GetActorForwardVector() * (Combat.DashDistance/2.0f);
-		Dash_Bezier.C = GetActorLocation() + -GetActorForwardVector() * Combat.DashDistance;
+		Dash_Bezier.B = GetActorLocation() + -GetActorForwardVector() * (Combat.DashSettings.DashDistance/2.0f);
+		Dash_Bezier.C = GetActorLocation() + -GetActorForwardVector() * Combat.DashSettings.DashDistance;
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
 	case Dash_Left:
 	{
-		FVector MidPoint = GetActorLocation() + GetActorRightVector() * Combat.DashDistance;
+		FVector MidPoint = GetActorLocation() + GetActorRightVector() * Combat.DashSettings.DashDistance;
 		MidPoint.Z = Dash_Bezier.CurveHeight;
 
 		Dash_Bezier.B = MidPoint;
-		Dash_Bezier.C = MidPoint + GetActorForwardVector() * Combat.DashDistance;
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * Combat.DashSettings.DashDistance;
 	}
 	break;
 
 	case Dash_Right:
 	{
-		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * (Combat.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
+		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * (Combat.DashSettings.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 		MidPoint.Z = Dash_Bezier.CurveHeight;
 		
 		Dash_Bezier.B = MidPoint;
-		Dash_Bezier.C = MidPoint + GetActorForwardVector() * (Combat.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * (Combat.DashSettings.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 	}
 	break;
 	}

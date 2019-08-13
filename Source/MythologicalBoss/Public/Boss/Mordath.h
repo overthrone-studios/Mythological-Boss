@@ -33,85 +33,6 @@ struct FDebug_Mordath
 };
 
 USTRUCT(BlueprintType)
-struct FComboSettings
-{
-	GENERATED_BODY()
-
-	// Should the boss wait before initiating the next combo?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bDelayBetweenCombo : 1;
-
-	// The time in seconds to delay before choosing a new combo
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float ComboDelayTime = 1.0f;
-
-	// Adds a random range to ComboDelayTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float RandomDeviation = 0.1f;
-
-	// Should the boss choose a random combo from the Combos list?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bChooseRandomCombo : 1;
-
-	// A list of combos the boss character will choose from
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		TArray<UComboData*> Combos;
-};
-
-USTRUCT(BlueprintType)
-struct FCombatSettings_Mordath
-{
-	GENERATED_BODY()
-
-	// The amount of time in seconds this boss should be stunned for
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		float StunDuration = 0.8f;
-
-	// The attack damage we deal when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float LightAttackDamage = 50.0f;
-
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float HeavyAttackDamage = 100.0f;
-
-	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
-		float AttackDistance = 100.0f;
-
-	// The radius of the sphere raycast when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
-		float AttackRadius = 10.0f;
-
-	// Should we stop animations when we are hit?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bEnableHitStop : 1;
-
-	// The amount of time (in seconds) we stay paused when we hit something
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
-		float HitStopTime = 0.1f;
-
-	// The amount of time (in seconds) that the boss can be allowed to jump attack again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float JumpAttackCooldown = 2.0f;
-
-	// The amount of time (in seconds) that the boss can be allowed to dash attack again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float DashCooldown = 5.0f;
-	
-	// The distance of how far we can dash in a given direction
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float DashDistance = 500.0f;
-
-	// A camera shake that plays when we get damaged
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		TSubclassOf<class UCameraShake> DamagedShake;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float DamagedShakeIntensity = 1.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FBezier
 {
 	GENERATED_BODY()
@@ -140,6 +61,144 @@ struct FBezier
 	FVector A, B, C;
 };
 
+USTRUCT(BlueprintType)
+struct FCameraShake_Mordath
+{
+	GENERATED_BODY()
+		
+	// The camera shake to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		TSubclassOf<class UCameraShake> Shake;
+
+	// The intensity of the camera shake
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
+		float Intensity = 1.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FCameraShakes_Mordath
+{
+	GENERATED_BODY()
+
+	// The camera shake to play when we are damaged
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShake_Mordath Damaged;
+};
+
+USTRUCT(BlueprintType)
+struct FComboSettings
+{
+	GENERATED_BODY()
+
+	// Should the boss wait before initiating the next combo?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bDelayBetweenCombo : 1;
+
+	// The time in seconds to delay before choosing a new combo
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
+		float ComboDelayTime = 1.0f;
+
+	// Adds a random range to ComboDelayTime
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
+		float RandomDeviation = 0.1f;
+
+	// Should the boss choose a random combo from the Combos list?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bChooseRandomCombo : 1;
+
+	// A list of combos the boss character will choose from
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		TArray<UComboData*> Combos;
+};
+
+USTRUCT(BlueprintType)
+struct FAttackSettings_Mordath
+{
+	GENERATED_BODY()
+
+	// The attack damage we deal when light attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float LightAttackDamage = 50.0f;
+
+	// The attack damage we deal when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float HeavyAttackDamage = 100.0f;
+
+	// The attack damage we deal when heavy attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float SpecialAttackDamage = 250.0f;
+
+	// The attack range when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 10000.0f))
+		float AttackDistance = 250.0f;
+
+	// The radius of the sphere raycast when attacking light or heavy
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
+		float AttackRadius = 50.0f;
+
+	// Properties of the jump attack curve
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Jump Attack Curve")
+		FBezier JumpAttack_Bezier;
+
+	// The amount of time (in seconds) that the boss can be allowed to jump attack again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float JumpAttackCooldown = 2.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FDashSettings_Mordath
+{
+	GENERATED_BODY()
+
+	// Properties of the dash curve
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Dash Curve")
+		FBezier Dash_Bezier;
+
+	// The amount of time (in seconds) that the boss can be allowed to dash attack again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+		float DashCooldown = 5.0f;
+	
+	// The distance of how far we can dash in a given direction
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float DashDistance = 1000.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FStunSettings_Mordath
+{
+	GENERATED_BODY()
+
+	// The amount of time in seconds this boss should be stunned for
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
+		float Duration = 0.8f;
+};
+
+USTRUCT(BlueprintType)
+struct FCombatSettings_Mordath
+{
+	GENERATED_BODY()
+
+	// Should we stop animations when we are hit?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bEnableHitStop : 1;
+
+	// The amount of time (in seconds) we stay paused when we hit something
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
+		float HitStopTime = 0.1f;
+
+	// Settings that affect Mordath's attack values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Attack")
+		FAttackSettings_Mordath AttackSettings;
+
+	// Settings that affect Mordath's dash values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Dash")
+		FDashSettings_Mordath DashSettings;
+
+	// Settings that affect Mordath's stun values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
+		FStunSettings_Mordath StunSettings;
+};
+
 UCLASS()
 class MYTHOLOGICALBOSS_API AMordath final : public ACharacter
 {
@@ -151,14 +210,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		class UFSM* GetFSM() const { return FSM; }
 
+	// Returns the light attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetLightAttackDamage() const { return Combat.LightAttackDamage; }
+		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
+
+	// Returns the heavy attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.HeavyAttackDamage; }
+		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
+
+	// Returns the special attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRange() const { return Combat.AttackDistance; }
+		FORCEINLINE float GetSpecialAttackDamage() const { return Combat.AttackSettings.SpecialAttackDamage; }
+
+	// Returns the attack distance value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRadius() const { return Combat.AttackRadius; }
+		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
+
+	// Returns the attack radius value
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 protected:
 	void BeginPlay() override;
@@ -440,6 +510,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
 
+	// List of debugging options
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		FDebug_Mordath Debug;
 
@@ -455,17 +526,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FComboSettings ComboSettings;
 
-	// Properties of the jump attack curve
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat", DisplayName = "Jump Attack Curve")
-		FBezier JumpAttack_Bezier;
-
-	// Properties of the dash curve
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat", DisplayName = "Dash Curve")
-		FBezier Dash_Bezier;
-
 	// Properties of the boss's combat settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FCombatSettings_Mordath Combat;
+
+	// List of camera shakes
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakes_Mordath CameraShakes;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
@@ -509,6 +576,9 @@ protected:
 
 private:
 	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
+
+	FBezier& JumpAttack_Bezier = Combat.AttackSettings.JumpAttack_Bezier;
+	FBezier& Dash_Bezier = Combat.DashSettings.Dash_Bezier;
 
 	FTimerHandle UpdateInfoTimerHandle;
 
