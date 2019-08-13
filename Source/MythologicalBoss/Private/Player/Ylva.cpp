@@ -374,7 +374,8 @@ void AYlva::LightAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FSM->PopState();
 
-	DelayStaminaRegeneration();
+	if (Stamina > Combat.StaminaSettings.LightAttackStamina)
+		DelayStaminaRegeneration();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
@@ -425,7 +426,8 @@ void AYlva::HeavyAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FSM->PopState();
 
-	DelayStaminaRegeneration();
+	if (Stamina > Combat.StaminaSettings.HeavyAttackStamina)
+		DelayStaminaRegeneration();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&

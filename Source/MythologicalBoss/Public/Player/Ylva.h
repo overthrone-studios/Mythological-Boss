@@ -281,6 +281,7 @@ protected:
 	// Called via input to exit the running state
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void StopRunning();
+
 	// Called via input to start dashing
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void Dash();
