@@ -106,7 +106,11 @@ struct FCombatSettings_Ylva : public FCombatSettings
 {
 	GENERATED_BODY()
 
-	// Settings that affect Ylva's stamina value
+	// Settings that affect Ylva's attack values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FAttackSettings AttackSettings;
+
+	// Settings that affect Ylva's stamina values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FStaminaSettings_Ylva StaminaSettings;
 
