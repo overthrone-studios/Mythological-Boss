@@ -179,6 +179,9 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
+
+	// Begin the state machine
+	FSM->Start();
 }
 
 void AYlva::Tick(const float DeltaTime)
