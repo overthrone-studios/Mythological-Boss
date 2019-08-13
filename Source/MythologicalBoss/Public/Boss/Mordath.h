@@ -83,8 +83,12 @@ struct FCombatSettings_Mordath
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float AttackRadius = 10.0f;
 
+	// Should we stop animations when we are hit?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bEnableHitStop : 1;
+
 	// The amount of time (in seconds) we stay paused when we hit something
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
 		float HitStopTime = 0.1f;
 
 	// The amount of time (in seconds) that the boss can be allowed to jump attack again
@@ -144,19 +148,17 @@ class MYTHOLOGICALBOSS_API AMordath final : public ACharacter
 public:
 	AMordath();
 
-	class UBehaviorTree* GetBT() const { return BossBT; }
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		class UFSM* GetFSM() const { return FSM; }
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetLightAttackDamage() const { return CombatSettings.LightAttackDamage; }
+		FORCEINLINE float GetLightAttackDamage() const { return Combat.LightAttackDamage; }
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetHeavyAttackDamage() const { return CombatSettings.HeavyAttackDamage; }
+		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.HeavyAttackDamage; }
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRange() const { return CombatSettings.AttackDistance; }
+		FORCEINLINE float GetAttackRange() const { return Combat.AttackDistance; }
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRadius() const { return CombatSettings.AttackRadius; }
+		FORCEINLINE float GetAttackRadius() const { return Combat.AttackRadius; }
 
 protected:
 	void BeginPlay() override;
@@ -164,25 +166,76 @@ protected:
 	void PossessedBy(AController* NewController) override;
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	FRotator FacePlayer();
-
 	void SendInfo();
 	bool ShouldDestroyDestructibleObjects();
-
-	void ChooseComboWithDelay();
-	void ChooseCombo();
-
-	void NextAttack();
 
 	void FinishStun();
 	void FinishCooldown();
 
-	void Die();
-	void DestroySelf();
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FRotator FacePlayer();
 
-	void PauseAnims();
-	void UnPauseAnims();
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void ChooseComboWithDelay();
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void ChooseCombo();
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void NextAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void Die();
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void DestroySelf();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void PauseAnims();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void UnPauseAnims();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void ChooseAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		float GetDistanceToPlayer() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FVector GetDirectionToPlayer() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void EnableInvincibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void DisableInvincibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		bool IsInvincible();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void BeginJumpAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void BeginDash(enum EDashType_Combo DashType);
+	
+	UFUNCTION()
+		void DoDash();
+	
+	UFUNCTION()
+		void DoJumpAttack();
+
+	UFUNCTION()
+		void FinishJumpAttack();
+
+	#pragma region Events
+	// Called when the player's health is less than or equal to 0
+	UFUNCTION()
+		void OnPlayerDeath();
+
+	// Called when the dash timeline component has finished
+	UFUNCTION()
+		void OnDashFinished();
+	#pragma endregion 
 
 	// Boss states
 	#pragma region Idle
@@ -339,58 +392,6 @@ protected:
 		void OnExitFarRange();
 	#pragma endregion 
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void ChooseAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		float GetDistanceToPlayer() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FVector GetDirectionToPlayer() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void EnableInvincibility();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void DisableInvincibility();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		bool IsInvincible();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void BeginJumpAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void BeginDash(enum EDashType_Combo DashType);
-	
-	UFUNCTION()
-		void DoDash();
-	
-	UFUNCTION()
-		void DoJumpAttack();
-
-	UFUNCTION()
-		void FinishJumpAttack();
-
-	// Called when the player's health is less than or equal to 0
-	UFUNCTION()
-		void OnPlayerDeath();
-
-	UFUNCTION()
-		void OnDashFinished();
-
-	UPROPERTY()
-		class UTimelineComponent* JumpAttackTimelineComponent;
-	UPROPERTY()
-		class UTimelineComponent* DashTimelineComponent;
-
-	// The skeletal mesh representing the player
-	USkeletalMesh* SkeletalMesh;
-
-	class UBehaviorTree* BossBT;
-
-	class ABossAIController* BossAIController{};
-
 	// The boss's Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* FSM;
@@ -398,6 +399,14 @@ protected:
 	// The boss's range Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* RangeFSM;
+
+	// Used for calculating the jump curve
+	UPROPERTY()
+		class UTimelineComponent* JumpAttackTimelineComponent;
+
+	// Used for calculating the dash curve
+	UPROPERTY()
+		class UTimelineComponent* DashTimelineComponent;
 
 	// The starting health of the boss
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 100.0f, ClampMax = 100000.0f))
@@ -456,11 +465,11 @@ protected:
 
 	// Properties of the boss's combat settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
-		FCombatSettings_Mordath CombatSettings;
+		FCombatSettings_Mordath Combat;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
-	uint8 HitCounter = 0;
+	uint8 HitCounter = 0; // To keep track of how many hits we've taken
 
 	// True when we have been damaged
 	uint8 bIsHit : 1;
@@ -468,39 +477,52 @@ protected:
 	// Cached world pointer
 	UWorld* World{};
 
+	// Our custom AI controller
+	class ABossAIController* BossAIController{};
+	
+	// The skeletal mesh representing the player
+	USkeletalMesh* SkeletalMesh;
+
 	// Cached game instance pointer
 	class UOverthroneGameInstance* GameInstance{};
 
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
-	// Cached boss's anim instance, to control and trigger animations
+	// Cached anim instance, to control and trigger animations
 	class UMordathAnimInstance* AnimInstance{};
 
-	// Cached Overthrone HUD reference, used to access menus
+	// Cached Overthrone HUD reference, used to access HUDs
 	class AOverthroneHUD* OverthroneHUD{};
 
+	// Cached main HUD
 	class UMainPlayerHUD* MainHUD{};
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
+	// The combo we are using
 	UComboData* ChosenCombo;
 
+	// Used to iterate, select or remove a combo, this to avoid touching the actual combos list
 	TArray<UComboData*> CachedCombos;
 
 private:
 	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
 
 	FTimerHandle UpdateInfoTimerHandle;
-	FTimerHandle ComboDelayTimerHandle;
-	FTimerHandle InvincibilityTimerHandle;
+
 	FTimerHandle StunExpiryTimerHandle;
 	FTimerHandle DeathExpiryTimerHandle;
+
 	FTimerHandle JumpAttackCooldownTimerHandle;
 	FTimerHandle DashCooldownTimerHandle;
+
+	FTimerHandle ComboDelayTimerHandle;
+	FTimerHandle InvincibilityTimerHandle;
 	FTimerHandle HitStopTimerHandle;
 
+	// Access to player information
 	ACharacter* PlayerCharacter;
 	APlayerController* PlayerController;
 };

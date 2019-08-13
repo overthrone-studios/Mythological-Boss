@@ -147,9 +147,6 @@ AMordath::AMordath()
 
 	RangeFSM->InitState(0);
 
-	// Assign the behaviour tree
-	BossBT = Cast<UBehaviorTree>(StaticLoadObject(UBehaviorTree::StaticClass(), nullptr, TEXT("BehaviorTree'/Game/AI/BT_Boss.BT_Boss'")));
-
 	// Configure capsule component
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(185.0f, true);
@@ -527,7 +524,7 @@ void AMordath::OnExitHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
-	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, CombatSettings.JumpAttackCooldown);
+	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.JumpAttackCooldown);
 }
 #pragma endregion
 
@@ -634,7 +631,7 @@ void AMordath::OnEnterStunnedState()
 
 	AnimInstance->bIsStunned = true;
 
-	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, CombatSettings.StunDuration);
+	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, Combat.StunDuration);
 }
 
 void AMordath::UpdateStunnedState()
@@ -702,7 +699,7 @@ void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, CombatSettings.DashCooldown);
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.DashCooldown);
 }
 #pragma endregion
 
@@ -1068,18 +1065,22 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		if (Debug.bLogHits)
 			ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 
-		// Go to damaged state if we are not stunned
 		if (FSM->GetActiveStateName() != "Stunned")
 		{
+			// Cancel current animation and enter the damaged state
 			FSM->PopState();
 			FSM->PushState("Damaged");
 
-			PauseAnims();
-			GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, CombatSettings.HitStopTime);
+			// Apply hit stop
+			if (Combat.bEnableHitStop)
+			{
+				PauseAnims();
+				GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
+			}
 		}
 
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
+		PlayerController->ClientPlayCameraShake(Combat.DamagedShake, Combat.DamagedShakeIntensity);
 
 		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
@@ -1100,7 +1101,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PushState("Beaten");
 
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CombatSettings.DamagedShake, CombatSettings.DamagedShakeIntensity);
+		PlayerController->ClientPlayCameraShake(Combat.DamagedShake, Combat.DamagedShakeIntensity);
 
 		// Update our health
 		Health = FMath::Clamp(Health - DamageAmount, 0.0f, StartingHealth);
@@ -1205,28 +1206,28 @@ void AMordath::BeginDash(const enum EDashType_Combo DashType)
 	break;
 
 	case Dash_Backward:
-		Dash_Bezier.B = GetActorLocation() + -GetActorForwardVector() * (CombatSettings.DashDistance/2.0f);
-		Dash_Bezier.C = GetActorLocation() + -GetActorForwardVector() * CombatSettings.DashDistance;
+		Dash_Bezier.B = GetActorLocation() + -GetActorForwardVector() * (Combat.DashDistance/2.0f);
+		Dash_Bezier.C = GetActorLocation() + -GetActorForwardVector() * Combat.DashDistance;
 		Dash_Bezier.C.Z = GetActorLocation().Z;
 	break;
 
 	case Dash_Left:
 	{
-		FVector MidPoint = GetActorLocation() + GetActorRightVector() * CombatSettings.DashDistance;
+		FVector MidPoint = GetActorLocation() + GetActorRightVector() * Combat.DashDistance;
 		MidPoint.Z = Dash_Bezier.CurveHeight;
 
 		Dash_Bezier.B = MidPoint;
-		Dash_Bezier.C = MidPoint + GetActorForwardVector() * CombatSettings.DashDistance;
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * Combat.DashDistance;
 	}
 	break;
 
 	case Dash_Right:
 	{
-		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * (CombatSettings.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
+		FVector MidPoint = GetActorLocation() + -GetActorRightVector() * (Combat.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 		MidPoint.Z = Dash_Bezier.CurveHeight;
 		
 		Dash_Bezier.B = MidPoint;
-		Dash_Bezier.C = MidPoint + GetActorForwardVector() * (CombatSettings.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
+		Dash_Bezier.C = MidPoint + GetActorForwardVector() * (Combat.DashDistance - ChosenCombo->GetCurrentAttackInfo()->AcceptanceRadius);
 	}
 	break;
 	}
