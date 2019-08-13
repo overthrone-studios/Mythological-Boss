@@ -70,8 +70,12 @@ struct FCameraShake_Mordath
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		TSubclassOf<class UCameraShake> Shake;
 
+	// Scale the shake intensity basedo on the amount of hit we have recieved
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bScaleIntensityBasedOnHits : 1;
+
 	// The intensity of the camera shake
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 1000.0f, EditCondition = "!bScaleIntensityBasedOnHits"))
 		float Intensity = 1.0f;
 };
 

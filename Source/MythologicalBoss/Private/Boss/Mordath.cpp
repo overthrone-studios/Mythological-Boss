@@ -1061,6 +1061,9 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	{
 		HitCounter++;
 
+		if (CameraShakes.Damaged.bScaleIntensityBasedOnHits)
+			CameraShakes.Damaged.Intensity = HitCounter - 1;
+
 		if (Debug.bLogHits)
 			ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 
