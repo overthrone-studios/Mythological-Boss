@@ -59,6 +59,10 @@ struct FCameraShakes_Ylva
 	// The camera shake to play when we are damaged by the boss
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShake_Ylva Damaged;
+
+	// The camera shake to play when we are blocking the boss's attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShake_Ylva ShieldHit;
 };
 
 USTRUCT(BlueprintType)

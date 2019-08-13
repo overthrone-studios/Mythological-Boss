@@ -1038,7 +1038,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				FSM->PushState("Shield Hit");
 
 				// Shake the camera
-				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
 				// Update values
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
