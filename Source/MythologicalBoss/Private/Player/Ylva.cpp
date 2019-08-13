@@ -518,7 +518,7 @@ void AYlva::Dash()
 		// Do we have enough stamina to dash?
 		if (!bGodMode && Stamina > Combat.StaminaSettings.DashStamina)
 		{
-			UpdateStamina(Combat.StaminaSettings.DashStamina);
+			DecreaseStamina(Combat.StaminaSettings.DashStamina);
 			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
 
 			DelayStaminaRegeneration();
@@ -565,11 +565,7 @@ void AYlva::RegenerateStamina(const float Rate)
 	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || GetWorldTimerManager().IsTimerActive(StaminaRegenTimerHandle))
 		return;
 
-	if (Stamina < StartingStamina)
-	{
-		Stamina += Rate * World->DeltaTimeSeconds;
-		GameInstance->PlayerStamina = Stamina;
-	}
+	IncreaseStamina(Rate * World->DeltaTimeSeconds);
 }
 
 void AYlva::Die()
@@ -663,7 +659,7 @@ void AYlva::UpdateRunState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	if (!bGodMode)
-		UpdateStamina(Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds);
+		DecreaseStamina(Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds);
 
 	if (GetVelocity().IsZero() || 
 		MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || 
@@ -748,7 +744,7 @@ void AYlva::OnEnterLightAttackState()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(Combat.StaminaSettings.LightAttackStamina);
+			DecreaseStamina(Combat.StaminaSettings.LightAttackStamina);
 	}
 	else
 	{
@@ -788,7 +784,7 @@ void AYlva::OnEnterLightAttack2State()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(Combat.StaminaSettings.LightAttackStamina);
+			DecreaseStamina(Combat.StaminaSettings.LightAttackStamina);
 	}
 	else
 	{
@@ -828,7 +824,7 @@ void AYlva::OnEnterHeavyAttackState()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(Combat.StaminaSettings.HeavyAttackStamina);
+			DecreaseStamina(Combat.StaminaSettings.HeavyAttackStamina);
 	}
 	else
 	{
@@ -868,7 +864,7 @@ void AYlva::OnEnterHeavyAttack2State()
 	if (Stamina > 0)
 	{
 		if (!bGodMode)
-			UpdateStamina(Combat.StaminaSettings.HeavyAttackStamina);
+			DecreaseStamina(Combat.StaminaSettings.HeavyAttackStamina);
 	}
 	else
 	{
@@ -1057,7 +1053,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 				// Update values
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-				UpdateStamina(Combat.StaminaSettings.ShieldHitStamina);
+				DecreaseStamina(Combat.StaminaSettings.ShieldHitStamina);
 			break;
 
 			default:
@@ -1104,9 +1100,15 @@ void AYlva::SetHealth(const float NewHealthAmount)
 	GameInstance->PlayerHealth = Health;
 }
 
-void AYlva::UpdateStamina(const float AmountToSubtract)
+void AYlva::DecreaseStamina(const float Amount)
 {
-	Stamina = FMath::Clamp(Stamina - AmountToSubtract, 0.0f, StartingStamina);
+	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, StartingStamina);
+	GameInstance->PlayerStamina = Stamina;
+}
+
+void AYlva::IncreaseStamina(const float Amount)
+{
+	Stamina = FMath::Clamp(Stamina + Amount, 0.0f, StartingStamina);
 	GameInstance->PlayerStamina = Stamina;
 }
 

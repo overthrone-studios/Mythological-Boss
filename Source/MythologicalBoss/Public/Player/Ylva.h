@@ -329,9 +329,13 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void UpdateHealth(float AmountToSubtract);
 
-	// Update stamina value
+	// Subtract stamina value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void UpdateStamina(float AmountToSubtract);
+		void DecreaseStamina(float Amount);
+
+	// Add stamina value
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void IncreaseStamina(float Amount);
 
 	// Resets stamina back to default
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
