@@ -142,6 +142,14 @@ struct FCombatSettings_Ylva
 {
 	GENERATED_BODY()
 
+	// Should we stop animations when we are hit?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bEnableHitStop : 1;
+
+	// The amount of time (in seconds) we stay paused when we hit something
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
+		float HitStopTime = 0.1f;
+
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FAttackSettings_Ylva AttackSettings;
@@ -329,6 +337,12 @@ protected:
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
+
+	// Hit stop functions
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void PauseAnims();
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void UnPauseAnims();
 
 	// Did we successfully parry?
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -557,4 +571,7 @@ protected:
 private:
 	FTimerHandle DeathStateExpiryTimer;
 	FTimerHandle ParryEventExpiryTimer;
+	FTimerHandle HitStopTimerHandle;
+
+	ACharacter* Boss;
 };

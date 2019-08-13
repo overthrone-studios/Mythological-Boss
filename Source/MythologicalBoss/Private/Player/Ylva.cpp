@@ -21,6 +21,7 @@
 #include "TimerManager.h"
 #include "FSM.h"
 #include "Log.h"
+#include "OverthroneFunctionLibrary.h"
 
 AYlva::AYlva()
 {
@@ -172,6 +173,9 @@ void AYlva::BeginPlay()
 
 	// Cache the world object
 	World = GetWorld();
+
+	// Cache the boss character
+	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 
 	// Cache the player controller
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -1033,22 +1037,29 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				FSM->PopState();
 				FSM->PushState("Shield Hit");
 
+				// Shake the camera
+				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+
 				// Update values
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 				UpdateStamina(Combat.StaminaSettings.ShieldHitStamina);
-
-				// Shake the camera
-				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 			break;
 
 			default:
 				// Enter damaged state
 				FSM->PushState("Damaged");
 
-				UpdateHealth(DamageAmount);
+				// Apply hit stop
+				if (Combat.bEnableHitStop)
+				{
+					PauseAnims();
+					GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
+				}
 
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+
+				UpdateHealth(DamageAmount);
 			break;
 		}
 	}
@@ -1105,6 +1116,18 @@ void AYlva::ResetHealth()
 void AYlva::ResetGlobalTimeDilation()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
+}
+
+void AYlva::PauseAnims()
+{
+	GetMesh()->bPauseAnims = true;
+	Boss->GetMesh()->bPauseAnims = true;
+}
+
+void AYlva::UnPauseAnims()
+{
+	GetMesh()->bPauseAnims = false;
+	Boss->GetMesh()->bPauseAnims = false;
 }
 
 void AYlva::StartParryEvent()
