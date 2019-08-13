@@ -87,6 +87,9 @@ struct FCombatSettings
 		FAttackSettings AttackSettings;
 };
 
+/**
+ * Base class of an overthrone character
+ */
 UCLASS(Abstract)
 class MYTHOLOGICALBOSS_API AOverthroneCharacter : public ACharacter
 {
