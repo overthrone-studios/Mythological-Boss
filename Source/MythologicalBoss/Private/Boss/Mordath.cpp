@@ -150,6 +150,7 @@ AMordath::AMordath()
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(185.0f, true);
 	GetCapsuleComponent()->SetCapsuleRadius(75.0f, true);
+	GetCapsuleComponent()->bReturnMaterialOnMove = true;
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	

@@ -138,6 +138,7 @@ AYlva::AYlva()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(30.0f, 90.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
+	GetCapsuleComponent()->bReturnMaterialOnMove = true;
 
 	// Set our turn rates for input
 	TurnRate = 45.0f;
