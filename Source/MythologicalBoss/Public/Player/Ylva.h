@@ -533,11 +533,11 @@ protected:
 		float StaminaRegenerationRate = 10.0f;
 
 	// Ylva's movement settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+	UPROPERTY(EditInstanceOnly, Category = "Ylva", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
 
 	// Configure lock on settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+	UPROPERTY(EditInstanceOnly, Category = "Ylva", DisplayName = "Lock-On")
 		FLockOnSettings LockOnSettings;
 
 	// Ylva's camera shake settings
