@@ -81,10 +81,6 @@ struct FCombatSettings
 	// The amount of time (in seconds) we stay paused when we hit something
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
 		float HitStopTime = 0.1f;
-
-	// Settings that affect the character's attack values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FAttackSettings AttackSettings;
 };
 
 /**
@@ -138,11 +134,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		class UFSM* FSM;
 
-	// The player's starting health
+	// The character's starting health
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
 		float StartingHealth = 100.0f;
 
-	// The player's current health
+	// The character's current health
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		float Health = 100.0f;
 
