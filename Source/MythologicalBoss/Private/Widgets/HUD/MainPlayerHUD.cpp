@@ -4,7 +4,6 @@
 #include "WidgetTree.h"
 #include "ProgressBar.h"
 #include "Public/OverthroneGameInstance.h"
-#include "Log.h"
 
 void UMainPlayerHUD::Init()
 {
@@ -19,15 +18,15 @@ void UMainPlayerHUD::Init()
 
 float UMainPlayerHUD::GetPlayerHealthAsPercentage() const
 {
-	return GameInstance->PlayerHealth / GameInstance->PlayerStartingHealth;
+	return GameInstance->PlayerInfo.Health / GameInstance->PlayerInfo.StartingHealth;
 }
 
 float UMainPlayerHUD::GetPlayerStaminaAsPercentage() const
 {
-	return GameInstance->PlayerStamina / GameInstance->PlayerStartingStamina;
+	return GameInstance->PlayerInfo.Stamina / GameInstance->PlayerInfo.StartingStamina;
 }
 
 float UMainPlayerHUD::GetBossHealthAsPercentage() const
 {
-	return GameInstance->BossHealth / GameInstance->BossStartingHealth;
+	return GameInstance->BossInfo.Health / GameInstance->BossInfo.StartingHealth;
 }

@@ -8,6 +8,30 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeathSignature);
 
+USTRUCT()
+struct FCharacterInfo
+{
+	GENERATED_BODY()
+
+	FVector Location{};
+
+	float StartingHealth = 0;
+	float Health = 0;
+
+	uint8 bIsDead : 1;
+};
+
+USTRUCT()
+struct FPlayerInfo : public FCharacterInfo
+{
+	GENERATED_BODY()
+
+	float StartingStamina = 0;
+	float Stamina = 0;
+
+	uint8 bParrySucceeded : 1;
+};
+
 /**
  * High-level manager object for Overthrone game
  */
@@ -45,36 +69,8 @@ public:
 	void SetLockOnRotation(const FRotator& LockOnRotation) const;
 	void ToggleLockOnVisibility(bool bIsVisible) const;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
-		FVector PlayerLocation{};
-
-	UPROPERTY(BlueprintReadWrite, Category = "Ylva")
-		float PlayerStartingHealth{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
-		float PlayerHealth{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
-		float PlayerStartingStamina{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
-		float PlayerStamina{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
-		FVector BossLocation{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
-		float BossHealth{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game Instance | Boss Info")
-		float BossStartingHealth{};
-
-	// The parry window time frame
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
-		uint8 bParrySucceeded : 1;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ylva")
-		uint8 bIsPlayerDead : 1;
+	FPlayerInfo PlayerInfo;
+	FCharacterInfo BossInfo;
 
 	class ALockOn* LockOn;
 

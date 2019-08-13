@@ -246,7 +246,7 @@ void AMordath::BeginPlay()
 
 	// Cache our game instance
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
-	GameInstance->BossStartingHealth = StartingHealth;
+	GameInstance->BossInfo.StartingHealth = StartingHealth;
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
 	SendInfo();
@@ -267,7 +267,7 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GameInstance->bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
+	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
 		FSM->PopState();
 		FSM->PushState("Stunned");
@@ -295,7 +295,7 @@ void AMordath::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (GameInstance->bIsPlayerDead)
+	if (GameInstance->PlayerInfo.bIsDead)
 		return;
 
 	FacePlayer();
@@ -653,7 +653,7 @@ void AMordath::OnExitStunnedState()
 	if (ChosenCombo)
 		NextAttack();
 
-	GameInstance->bParrySucceeded = false;
+	GameInstance->PlayerInfo.bParrySucceeded = false;
 	AnimInstance->bIsStunned = false;
 }
 #pragma endregion
@@ -1131,8 +1131,8 @@ FRotator AMordath::FacePlayer()
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossHealth = Health;
-	GameInstance->BossLocation = GetActorLocation();
+	GameInstance->BossInfo.Health = Health;
+	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
 void AMordath::BeginJumpAttack()

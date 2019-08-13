@@ -191,10 +191,10 @@ void AYlva::BeginPlay()
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
-	GameInstance->PlayerStartingHealth = StartingHealth;
-	GameInstance->PlayerHealth = Health;
-	GameInstance->PlayerStartingStamina = StartingStamina;
-	GameInstance->PlayerStamina = Stamina;
+	GameInstance->PlayerInfo.StartingHealth = StartingHealth;
+	GameInstance->PlayerInfo.Health = Health;
+	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
+	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
 
@@ -209,18 +209,18 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	GameInstance->PlayerLocation = GetActorLocation();
+	GameInstance->PlayerInfo.Location = GetActorLocation();
 
 	if (LockOnSettings.bShouldLockOnTarget)
 	{
-		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossLocation);
+		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossInfo.Location);
 		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
 
 		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 
-		GameInstance->SetLockOnLocation(GameInstance->BossLocation);
+		GameInstance->SetLockOnLocation(GameInstance->BossInfo.Location);
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
 }
@@ -320,7 +320,7 @@ void AYlva::LookUpAtRate(const float Rate)
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossHealth <= 0.0f || FSM->GetActiveStateName() == "Death")
+	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
 		return;
 
 	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
@@ -331,7 +331,7 @@ void AYlva::ToggleLockOn()
 void AYlva::EnableLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossHealth <= 0.0f || FSM->GetActiveStateName() == "Death")
+	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
 		return;
 
 	LockOnSettings.bShouldLockOnTarget = true;
@@ -586,7 +586,7 @@ void AYlva::Respawn()
 
 	FSM->PopState();
 
-	GameInstance->bIsPlayerDead = false;
+	GameInstance->PlayerInfo.bIsDead = false;
 
 	UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
 }
@@ -939,7 +939,7 @@ void AYlva::OnEnterDeathState()
 
 	MovementComponent->DisableMovement();
 
-	GameInstance->bIsPlayerDead = true;
+	GameInstance->PlayerInfo.bIsDead = true;
 	GameInstance->OnPlayerDeath.Broadcast();
 
 	GetWorldTimerManager().SetTimer(DeathStateExpiryTimer, this, &AYlva::Respawn, RespawnDelay);
@@ -1007,7 +1007,7 @@ void AYlva::OnExitParryState()
 
 	AnimInstance->bIsShieldHit = false;
 
-	GameInstance->bParrySucceeded = false;
+	GameInstance->PlayerInfo.bParrySucceeded = false;
 
 	ResetGlobalTimeDilation();
 
@@ -1091,49 +1091,49 @@ void AYlva::OnBossDeath()
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
 	Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, StartingStamina);
-	GameInstance->PlayerStamina = Stamina;
+	GameInstance->PlayerInfo.Stamina = Stamina;
 }
 
 void AYlva::SetHealth(const float NewHealthAmount)
 {
 	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
-	GameInstance->PlayerHealth = Health;
+	GameInstance->PlayerInfo.Health = Health;
 }
 
 void AYlva::DecreaseStamina(const float Amount)
 {
 	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, StartingStamina);
-	GameInstance->PlayerStamina = Stamina;
+	GameInstance->PlayerInfo.Stamina = Stamina;
 }
 
 void AYlva::IncreaseStamina(const float Amount)
 {
 	Stamina = FMath::Clamp(Stamina + Amount, 0.0f, StartingStamina);
-	GameInstance->PlayerStamina = Stamina;
+	GameInstance->PlayerInfo.Stamina = Stamina;
 }
 
 void AYlva::DecreaseHealth(const float Amount)
 {
 	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
-	GameInstance->PlayerHealth = Health;
+	GameInstance->PlayerInfo.Health = Health;
 }
 
 void AYlva::IncreaseHealth(const float Amount)
 {
 	Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
-	GameInstance->PlayerHealth = Health;
+	GameInstance->PlayerInfo.Health = Health;
 }
 
 void AYlva::ResetStamina()
 {
 	Stamina = StartingStamina;
-	GameInstance->PlayerStamina = Stamina;
+	GameInstance->PlayerInfo.Stamina = Stamina;
 }
 
 void AYlva::ResetHealth()
 {
 	Health = StartingHealth;
-	GameInstance->PlayerHealth = Health;
+	GameInstance->PlayerInfo.Health = Health;
 }
 
 void AYlva::ResetGlobalTimeDilation()
@@ -1155,7 +1155,7 @@ void AYlva::UnPauseAnims()
 
 void AYlva::StartParryEvent()
 {
-	GameInstance->bParrySucceeded = true;
+	GameInstance->PlayerInfo.bParrySucceeded = true;
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
