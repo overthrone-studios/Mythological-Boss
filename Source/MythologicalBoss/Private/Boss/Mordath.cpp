@@ -347,12 +347,13 @@ void AMordath::UpdateFollowState()
 	switch (RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && !GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && 
+			!GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
 			ChooseAttack();
 	break;
 
 	case 1 /*Mid*/:
-
+		//BeginDash(Dash_Forward);
 	break;
 
 	case 2 /*Far*/:
@@ -631,6 +632,8 @@ void AMordath::OnEnterStunnedState()
 	// Reset hit count
 	HitCounter = 0;
 
+	BossAIController->StopMovement();
+
 	AnimInstance->bIsStunned = true;
 
 	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, Combat.StunSettings.Duration);
@@ -640,12 +643,6 @@ void AMordath::UpdateStunnedState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	// If stun animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
-		AnimInstance->bIsStunned = false;
 }
 
 void AMordath::OnExitStunnedState()
@@ -655,6 +652,7 @@ void AMordath::OnExitStunnedState()
 	if (ChosenCombo)
 		NextAttack();
 
+	GameInstance->bParrySucceeded = false;
 	AnimInstance->bIsStunned = false;
 }
 #pragma endregion
@@ -1182,6 +1180,11 @@ void AMordath::FinishJumpAttack()
 {
 	NextAttack();
 	FSM->PopState();
+}
+
+bool AMordath::IsStunned()
+{
+	return FSM->GetActiveStateID() == 14;
 }
 
 void AMordath::BeginDash(const enum EDashType_Combo DashType)

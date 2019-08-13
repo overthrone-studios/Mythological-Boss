@@ -313,6 +313,9 @@ protected:
 	UFUNCTION()
 		void FinishJumpAttack();
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		bool IsStunned();
+
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
