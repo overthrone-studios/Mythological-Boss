@@ -1,7 +1,6 @@
 // Copyright Overthrone Studios 2019
 
 #include "OverthroneAnimInstance.h"
-#include "Public/OverthroneCharacter.h"
 
 void UOverthroneAnimInstance::NativeInitializeAnimation()
 {
@@ -14,10 +13,6 @@ void UOverthroneAnimInstance::NativeInitializeAnimation()
 	if (OwningPawn)
 	{
 		PawnMovementComponent = OwningPawn->GetMovementComponent();
-
-		// If it's our character cache it for later use
-		if (OwningPawn->IsA(AOverthroneCharacter::StaticClass()))
-			OverthroneCharacter = Cast<AOverthroneCharacter>(OwningPawn);
 	}
 
 	GenericsMachineIndex = GetStateMachineIndex("Generics");
@@ -31,7 +26,7 @@ void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 		return;
 
 	// Update movement speed for use in the Idle/Run blendspace
-	MovementSpeed = OverthroneCharacter->GetVelocity().Size();
+	MovementSpeed = OwningPawn->GetVelocity().Size();
 }
 
 void UOverthroneAnimInstance::LeaveAllStates()

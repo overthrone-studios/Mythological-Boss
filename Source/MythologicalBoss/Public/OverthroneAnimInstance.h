@@ -21,28 +21,28 @@ public:
 		float MovementSpeed = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsHit;
+		uint8 bIsHit : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bIsDead;
+		uint8 bIsDead : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptLightAttack;
+		uint8 bAcceptLightAttack : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptSecondLightAttack;
+		uint8 bAcceptSecondLightAttack : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptThirdLightAttack;
+		uint8 bAcceptThirdLightAttack : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptHeavyAttack;
+		uint8 bAcceptHeavyAttack : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptSecondHeavyAttack;
+		uint8 bAcceptSecondHeavyAttack : 1;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		bool bAcceptThirdHeavyAttack;
+		uint8 bAcceptThirdHeavyAttack : 1;
 
 	// Used to get a reference to the anim state machine, and to query time remaining
 	int32 GenericsMachineIndex;
@@ -51,11 +51,9 @@ protected:
 	void NativeInitializeAnimation() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath Anim Instance")
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Anim Instance")
 		APawn* OwningPawn{};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath Anim Instance")
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Anim Instance")
 		UPawnMovementComponent* PawnMovementComponent{};
-
-	class AOverthroneCharacter* OverthroneCharacter{};
 };
