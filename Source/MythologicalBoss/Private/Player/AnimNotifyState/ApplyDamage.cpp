@@ -27,7 +27,7 @@ void UApplyDamage::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 	FHitResult HitResult;
 	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, ETraceTypeQuery::TraceTypeQuery1, true, {}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
-	if (HitResult.bBlockingHit)
+	if (HitResult.bBlockingHit && !bHasHit)
 	{
 		const auto HitActor = HitResult.GetActor();
 		const FDamageEvent DamageEvent;
@@ -38,6 +38,16 @@ void UApplyDamage::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 			AttackDamage = Ylva->GetLightAttackDamage();
 
 		if (HitActor)
+		{
+			bHasHit = true;
+
+			Ylva->PauseAnimsWithTimer();
 			HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
+		}
 	}
+}
+
+void UApplyDamage::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+{
+	bHasHit = false;
 }

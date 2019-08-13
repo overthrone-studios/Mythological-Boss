@@ -159,6 +159,12 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+void AYlva::PauseAnimsWithTimer()
+{
+	PauseAnims();
+	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
+}
+
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();

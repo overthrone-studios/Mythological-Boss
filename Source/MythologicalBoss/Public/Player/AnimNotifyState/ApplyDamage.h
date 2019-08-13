@@ -15,4 +15,8 @@ class MYTHOLOGICALBOSS_API UApplyDamage final : public UAnimNotifyState
 	
 protected:
 	void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
+	void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
+private:
+	uint8 bHasHit : 1;
 };

@@ -166,6 +166,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float LookUpRate;
 
+	// Pause current animation, triggers a reset timer when called
+	void PauseAnimsWithTimer();
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
