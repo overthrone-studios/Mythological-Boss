@@ -143,20 +143,28 @@ public:
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	// Returns the light attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the attack distance value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
 
 	// Returns the attack radius value
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
+
+	// Returns true if we are light attacking
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsLightAttacking() const;
+
+	// Returns true if we are heavy attacking
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsHeavyAttacking() const;
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")

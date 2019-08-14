@@ -204,6 +204,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
+	// Returns true if we are light attacking
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsLightAttacking() const;
+
+	// Returns true if we are heavy attacking
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsHeavyAttacking() const;
+
+	// Returns true if we are special attacking
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsSpecialAttacking() const;
+
+	// Pause current animation, triggers a reset timer when called
+	void PauseAnimsWithTimer();
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;

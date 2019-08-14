@@ -159,10 +159,23 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+bool AYlva::IsLightAttacking() const
+{
+	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8;
+}
+
+bool AYlva::IsHeavyAttacking() const
+{
+	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10;
+}
+
 void AYlva::PauseAnimsWithTimer()
 {
-	PauseAnims();
-	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
+	if (Combat.bEnableHitStop)
+	{
+		PauseAnims();
+		GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
+	}
 }
 
 void AYlva::BeginPlay()
@@ -1043,11 +1056,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				FSM->PushState("Damaged");
 
 				// Apply hit stop
-				if (Combat.bEnableHitStop)
-				{
-					PauseAnims();
-					GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
-				}
+				PauseAnimsWithTimer();
 
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
