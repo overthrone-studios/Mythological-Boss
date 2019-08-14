@@ -7,6 +7,8 @@
 #include "Widgets/HUD/MasterHUD.h"
 #include "Widgets/HUD/FSMVisualizerHUD.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/CameraAnim.h"
+#include "Camera/CameraAnimInst.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -188,6 +190,9 @@ void AYlva::BeginPlay()
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+	// Cache our player camera manager for playing camera animations
+	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 
 	// Cache our anim instance
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
@@ -725,12 +730,6 @@ void AYlva::UpdateBlockingState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	RegenerateStamina(StaminaRegenerationRate);
-
-	if (GetVelocity().Z < 0.0f)
-	{
-		FSM->PopState("Block");
-		FSM->PushState("Fall");
-	}
 }
 
 void AYlva::OnExitBlockingState()
@@ -997,6 +996,11 @@ void AYlva::OnEnterParryState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	if (!Combat.ParrySettings.ParryCameraAnimInst)
+	{
+		Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
+	}
+
 	YlvaAnimInstance->bIsShieldHit = true;
 
 	StartParryEvent();
@@ -1013,8 +1017,9 @@ void AYlva::OnExitParryState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	YlvaAnimInstance->bIsShieldHit = false;
+	Combat.ParrySettings.ParryCameraAnimInst = nullptr;
 
+	YlvaAnimInstance->bIsShieldHit = false;
 	GameInstance->PlayerInfo.bParrySucceeded = false;
 
 	ResetGlobalTimeDilation();
@@ -1136,7 +1141,6 @@ void AYlva::StartParryEvent()
 	GameInstance->PlayerInfo.bParrySucceeded = true;
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
-
 	GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, Combat.ParrySettings.TimeUntilParryEventIsCompleted);
 }
 

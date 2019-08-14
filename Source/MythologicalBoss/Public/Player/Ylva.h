@@ -92,6 +92,11 @@ struct FParrySettings_Ylva
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UCameraAnim* ParryCameraAnim;
+
+	class UCameraAnimInst* ParryCameraAnimInst;
+
 	// The parry window time frame
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float ParryWindowTime = 0.1f;
@@ -504,5 +509,6 @@ private:
 
 	FTimerHandle StaminaRegenTimerHandle;
 
+	class APlayerCameraManager* CameraManager;
 	ACharacter* Boss;
 };
