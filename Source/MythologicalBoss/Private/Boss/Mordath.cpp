@@ -2,6 +2,7 @@
 
 #include "Mordath.h"
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneHUD.h"
 #include "BossAIController.h"
 #include "Boss/MordathAnimInstance.h"
 #include "Components/CapsuleComponent.h"
@@ -11,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
+#include "HUD/MasterHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "TimerManager.h"
 #include "FSM.h"
@@ -217,6 +219,9 @@ void AMordath::BeginPlay()
 
 	// Cache our anim instance
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
+
+	// Cache the FSM Visualizer HUD
+	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
 	GameInstance->BossInfo.StartingHealth = StartingHealth;

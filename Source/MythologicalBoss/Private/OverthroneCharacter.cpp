@@ -4,7 +4,6 @@
 #include "Public/OverthroneGameInstance.h"
 #include "Public/OverthroneAnimInstance.h"
 #include "Public/OverthroneHUD.h"
-#include "HUD/MasterHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -48,9 +47,6 @@ void AOverthroneCharacter::BeginPlay()
 	// Cache our game instance reference
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->OnLowHealth.AddDynamic(this, &AOverthroneCharacter::OnLowHealth);
-
-	// Cache the FSM Visualizer HUD
-	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()

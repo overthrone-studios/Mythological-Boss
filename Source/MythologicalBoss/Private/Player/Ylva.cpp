@@ -192,6 +192,10 @@ void AYlva::BeginPlay()
 	// Cache our anim instance
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
 
+	// Cache the FSM Visualizer HUD
+	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
+
+	// Initialize player info
 	GameInstance->PlayerInfo.StartingHealth = StartingHealth;
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
