@@ -62,6 +62,16 @@ struct FBezier
 };
 
 USTRUCT(BlueprintType)
+struct FMovementSettings_Mordath : public FMovementSettings
+{
+	GENERATED_BODY()
+
+	// The movement speed of the boss when we're at mid range distance from the player
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 1000000.0f))
+		float MidRangeWalkSpeed = 800.0f;
+};
+
+USTRUCT(BlueprintType)
 struct FCameraShakes_Mordath
 {
 	GENERATED_BODY()
@@ -205,16 +215,19 @@ public:
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Returns true if we are light attacking
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		bool IsLightAttacking() const;
 
 	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are special attacking
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		bool IsSpecialAttacking() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		float GetWalkSpeed() const;
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
@@ -480,7 +493,7 @@ protected:
 
 	// Mordath's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")
-		FMovementSettings MovementSettings;
+		FMovementSettings_Mordath MovementSettings;
 
 	// The combo settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
