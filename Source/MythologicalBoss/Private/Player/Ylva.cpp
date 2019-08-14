@@ -381,7 +381,10 @@ void AYlva::Block()
 
 void AYlva::StopBlocking()
 {
-	FSM->PopState("Block");
+	if (FSM->GetActiveStateID() == 5 /*Death*/)
+		return;
+
+	FSM->RemoveAllStatesFromStack();
 }
 
 void AYlva::LightAttack()
@@ -1002,6 +1005,8 @@ void AYlva::OnEnterParryState()
 			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
 	}
 
+	PlayerController->SetIgnoreLookInput(true);
+
 	YlvaAnimInstance->bIsShieldHit = true;
 
 	StartParryEvent();
@@ -1018,7 +1023,10 @@ void AYlva::OnExitParryState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	Combat.ParrySettings.ParryCameraAnimInst->Stop(true);
 	Combat.ParrySettings.ParryCameraAnimInst = nullptr;
+
+	PlayerController->SetIgnoreLookInput(false);
 
 	YlvaAnimInstance->bIsShieldHit = false;
 	GameInstance->PlayerInfo.bParrySucceeded = false;
