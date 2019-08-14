@@ -2,6 +2,7 @@
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamageBoss.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "ApexDestruction/Public/DestructibleActor.h"
 #include "Mordath.h"
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
@@ -32,7 +33,7 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 	const auto HitActor = HitResult.GetActor();
 	const FDamageEvent DamageEvent;
 
-	if (HitActor && HitActor->IsA(ACharacter::StaticClass()))
+	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) || HitActor->IsA(ADestructibleActor::StaticClass())))
 	{
 		bIsHit = true;
 

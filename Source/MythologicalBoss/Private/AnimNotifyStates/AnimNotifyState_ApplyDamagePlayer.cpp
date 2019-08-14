@@ -2,6 +2,7 @@
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamagePlayer.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "DestructibleActor.h"
 #include "Ylva.h"
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
@@ -30,7 +31,7 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 	const auto HitActor = HitResult.GetActor();
 	const FDamageEvent DamageEvent;
 
-	if (HitActor && HitActor->IsA(ACharacter::StaticClass()))
+	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) || HitActor->IsA(ADestructibleActor::StaticClass())))
 	{
 		bIsHit = true;
 
