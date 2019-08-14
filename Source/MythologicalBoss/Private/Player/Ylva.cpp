@@ -522,7 +522,7 @@ void AYlva::Dash()
 		return;
 
 	// If we are moving and grounded
-	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround())
+	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && !GetWorldTimerManager().IsTimerActive(DashCooldownTimer))
 	{
 		// Do the dash
 		FVector VelocityNormalized = GetVelocity();
@@ -532,6 +532,8 @@ void AYlva::Dash()
 		// Do we have enough stamina to dash?
 		if (!bGodMode && Stamina > Combat.StaminaSettings.DashStamina)
 		{
+			StartDashCooldown();
+
 			DecreaseStamina(Combat.StaminaSettings.DashStamina);
 			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
 
@@ -1181,4 +1183,9 @@ bool AYlva::IsParrySuccessful()
 void AYlva::DelayStaminaRegeneration()
 {
 	GetWorldTimerManager().SetTimer(StaminaRegenTimerHandle, Combat.StaminaSettings.StaminaRegenDelay, false);
+}
+
+void AYlva::StartDashCooldown()
+{
+	GetWorldTimerManager().SetTimer(DashCooldownTimer, MovementSettings.DashCooldown, false);
 }
