@@ -209,7 +209,7 @@ void AMordath::BeginPlay()
 	InitTimelineComponent(JumpAttackTimelineComponent, JumpAttack_Bezier.Curve, JumpAttack_Bezier.PlaybackSpeed, "DoJumpAttack", "FinishJumpAttack");
 	InitTimelineComponent(DashTimelineComponent, Dash_Bezier.Curve, Dash_Bezier.PlaybackSpeed, "DoDash", "OnDashFinished");
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 
 	// Cache the Combos array to use for randomization
 	CachedCombos = ComboSettings.Combos;
@@ -716,6 +716,8 @@ void AMordath::OnEnterCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
 	if (GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
 		RangeFSM->PushState("Mid");
 }
@@ -738,6 +740,8 @@ void AMordath::OnExitCloseRange()
 void AMordath::OnEnterMidRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed;
 
 	if (GetDistanceToPlayer() <= AcceptanceRadius)
 	{
@@ -918,7 +922,7 @@ void AMordath::ChooseCombo()
 			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
 		}
 
-		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+		MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 	}
 	else
 	{
@@ -946,7 +950,7 @@ void AMordath::ChooseComboWithDelay()
 	if (Debug.bLogComboDelayTime)
 		ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed/2.0f;
+	MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 }
 
 void AMordath::ChooseAttack()
@@ -1017,18 +1021,18 @@ void AMordath::NextAttack()
 		if (NewDelay > 0.0f)
 		{
 			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetDelayTimer(), this, &AMordath::NextAttack, NewDelay);
-			MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed/2.0f;
+			MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 		}
 		else
 		{
-			MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+			//MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 			ChosenCombo->NextAttack();
 		}
 
 		return;
 	}
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	//MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	ChosenCombo->NextAttack();
 }
 
@@ -1315,4 +1319,19 @@ bool AMordath::IsHeavyAttacking() const
 bool AMordath::IsSpecialAttacking() const
 {
 	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11;
+}
+
+float AMordath::GetWalkSpeed() const
+{
+	switch (RangeFSM->GetActiveStateID())
+	{
+	case 0 /*Close*/:
+		return MovementSettings.WalkSpeed;
+
+	case 1 /*Mid*/:
+		return MovementSettings.MidRangeWalkSpeed;
+
+	default:
+		return MovementSettings.WalkSpeed;
+	}
 }
