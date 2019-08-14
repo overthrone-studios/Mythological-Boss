@@ -3,7 +3,6 @@
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamagePlayer.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Ylva.h"
-#include "Log.h"
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
