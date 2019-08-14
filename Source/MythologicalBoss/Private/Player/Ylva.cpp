@@ -998,7 +998,8 @@ void AYlva::OnEnterParryState()
 
 	if (!Combat.ParrySettings.ParryCameraAnimInst)
 	{
-		Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
+		if (Combat.ParrySettings.ParryCameraAnim)
+			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
 	}
 
 	YlvaAnimInstance->bIsShieldHit = true;
