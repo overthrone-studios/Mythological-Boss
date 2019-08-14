@@ -221,6 +221,7 @@ void AMordath::BeginPlay()
 	// Initialize game instance variables
 	GameInstance->BossInfo.StartingHealth = StartingHealth;
 	GameInstance->BossInfo.Health = Health;
+	GameInstance->OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
 	SendInfo();
@@ -846,6 +847,11 @@ void AMordath::UpdateCharacterInfo()
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
+void AMordath::OnLowHealth()
+{
+	ChangeHitboxSize(Combat.AttackSettings.AttackDistanceOnLowHealth, Combat.AttackSettings.AttackRadiusOnLowHealth);
+}
+
 void AMordath::FinishStun()
 {
 	FSM->PopState();
@@ -1078,6 +1084,12 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	}
 
 	return DamageAmount;
+}
+
+void AMordath::ChangeHitboxSize(const float NewRange, const float NewRadius)
+{
+	Combat.AttackSettings.AttackDistance = NewRange;
+	Combat.AttackSettings.AttackRadius = NewRadius;
 }
 
 FRotator AMordath::FacePlayer()

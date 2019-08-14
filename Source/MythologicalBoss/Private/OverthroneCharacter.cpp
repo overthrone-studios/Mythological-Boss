@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Log.h"
 
 AOverthroneCharacter::AOverthroneCharacter()
 {
@@ -46,6 +47,7 @@ void AOverthroneCharacter::BeginPlay()
 
 	// Cache our game instance reference
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance->OnLowHealth.AddDynamic(this, &AOverthroneCharacter::OnLowHealth);
 
 	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD(UFSMVisualizerHUD::StaticClass()));
@@ -56,11 +58,25 @@ void AOverthroneCharacter::UpdateCharacterInfo()
 	check(0 && "You must implement UpdateCharacterInfo()");
 }
 
+void AOverthroneCharacter::ChangeHitboxSize(float NewRange, float NewRadius)
+{
+	check(0 && "You must implement ChangeHitboxSize()");
+}
+
+void AOverthroneCharacter::OnLowHealth()
+{
+}
+
 void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 {
 	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
 
 	UpdateCharacterInfo();
+
+	if (Health <= StartingHealth * LowHealthThreshold && !bWasLowHealthEventTriggered)
+	{
+		BroadcastLowHealth();
+	}
 }
 
 void AOverthroneCharacter::IncreaseHealth(const float Amount)
@@ -75,6 +91,11 @@ void AOverthroneCharacter::DecreaseHealth(const float Amount)
 	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
 
 	UpdateCharacterInfo();
+
+	if (Health <= StartingHealth * LowHealthThreshold && !bWasLowHealthEventTriggered)
+	{
+		BroadcastLowHealth();
+	}
 }
 
 void AOverthroneCharacter::ResetHealth()
@@ -93,17 +114,23 @@ void AOverthroneCharacter::Die()
 	AnimInstance->LeaveAllStates();
 }
 
-void AOverthroneCharacter::PauseAnims()
+void AOverthroneCharacter::BroadcastLowHealth()
+{
+	GameInstance->OnLowHealth.Broadcast();
+	bWasLowHealthEventTriggered = true;
+}
+
+void AOverthroneCharacter::PauseAnims() const
 {
 	GetMesh()->bPauseAnims = true;
 }
 
-void AOverthroneCharacter::UnPauseAnims()
+void AOverthroneCharacter::UnPauseAnims() const
 {
 	GetMesh()->bPauseAnims = false;
 }
 
-bool AOverthroneCharacter::IsInvincible()
+bool AOverthroneCharacter::IsInvincible() const
 {
 	return !bCanBeDamaged;
 }

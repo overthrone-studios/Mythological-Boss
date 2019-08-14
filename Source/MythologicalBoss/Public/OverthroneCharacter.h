@@ -67,6 +67,14 @@ struct FAttackSettings
 	// The radius of the sphere raycast when attacking light or heavy
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
 		float AttackRadius = 20.0f;
+
+	// The attack range when attacking light or heavy on low health
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float AttackDistanceOnLowHealth = 120.0f;
+
+	// The radius of the sphere raycast when attacking light or heavy on low health
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
+		float AttackRadiusOnLowHealth = 40.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -123,12 +131,20 @@ protected:
 
 	// Hit stop functions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		void PauseAnims();
+		void PauseAnims() const;
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		void UnPauseAnims();
+		void UnPauseAnims() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		bool IsInvincible();
+		bool IsInvincible() const;
+
+	// Changes the hit box dimensions
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void ChangeHitboxSize(float NewRange, float NewRadius);
+
+	// Called when the character's health is less than or equal to the low health threshold
+	UFUNCTION()
+		virtual void OnLowHealth();
 
 	// The character's finite state machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
@@ -137,6 +153,10 @@ protected:
 	// The character's starting health
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
 		float StartingHealth = 100.0f;
+
+	// The character's low health threshold
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float LowHealthThreshold = 0.25f;
 
 	// The character's current health
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
@@ -171,4 +191,9 @@ protected:
 
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle HitStopTimerHandle;
+
+private:
+	void BroadcastLowHealth();
+
+	uint8 bWasLowHealthEventTriggered : 1;
 };

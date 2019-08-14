@@ -225,13 +225,16 @@ protected:
 	void PossessedBy(AController* NewController) override;
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	void ChangeHitboxSize(float NewRange, float NewRadius) override;
+	void UpdateCharacterInfo() override;
+
+	void OnLowHealth() override;
+
 	void SendInfo();
 	bool ShouldDestroyDestructibleObjects();
 
 	void FinishStun();
 	void FinishCooldown();
-
-	void UpdateCharacterInfo() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FRotator FacePlayer();

@@ -196,6 +196,7 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
 	GameInstance->PlayerInfo.Stamina = Stamina;
+	GameInstance->OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
 
@@ -269,6 +270,12 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AYlva::ToggleGodMode);
 #endif
+}
+
+void AYlva::ChangeHitboxSize(const float NewRange, const float NewRadius)
+{
+	Combat.AttackSettings.AttackDistance = NewRange;
+	Combat.AttackSettings.AttackRadius = NewRadius;
 }
 
 void AYlva::UpdateCharacterInfo()
@@ -1077,6 +1084,12 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 void AYlva::OnBossDeath()
 {
 	DisableLockOn();
+}
+
+void AYlva::OnLowHealth()
+{
+	ULog::LogYes("Low health?", true);
+	ChangeHitboxSize(Combat.AttackSettings.AttackDistanceOnLowHealth, Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
 void AYlva::SetStamina(const float NewStaminaAmount)

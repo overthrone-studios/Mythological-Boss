@@ -184,6 +184,7 @@ protected:
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void ChangeHitboxSize(float NewRange, float NewRadius) override;
 	void UpdateCharacterInfo() override;
 
 	// Called for forwards/backward input
@@ -440,6 +441,8 @@ protected:
 
 	UFUNCTION()
 		void OnBossDeath(); // Called when the boss's health is less than or equal to zero
+
+	void OnLowHealth() override;
 
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
