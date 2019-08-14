@@ -497,6 +497,17 @@ void AMordath::OnEnterHeavyAttack2State()
 void AMordath::UpdateHeavyAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	// If attack animation has finished, go back to previous state
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+
+	if (TimeRemaining <= 0.4f)
+	{
+		NextAttack();
+
+		FSM->PopState();
+	}
 }
 
 void AMordath::OnExitHeavyAttack2State()
@@ -1159,8 +1170,6 @@ void AMordath::DoJumpAttack()
 
 void AMordath::FinishJumpAttack()
 {
-	NextAttack();
-	FSM->PopState();
 }
 
 bool AMordath::IsStunned()
