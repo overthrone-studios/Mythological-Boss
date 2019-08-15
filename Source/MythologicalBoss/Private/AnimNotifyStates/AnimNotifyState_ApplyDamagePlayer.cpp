@@ -1,7 +1,6 @@
 // Copyright Overthrone Studios 2019
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamagePlayer.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "DestructibleActor.h"
 #include "Ylva.h"
 
@@ -34,6 +33,9 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) || HitActor->IsA(ADestructibleActor::StaticClass())))
 	{
 		bIsHit = true;
+
+		// Pin the mesh to the hit location
+		Ylva->DetachSword();
 
 		// Apply hit stop
 		Ylva->PauseAnimsWithTimer();

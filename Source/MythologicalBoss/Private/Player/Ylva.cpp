@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -184,6 +185,8 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SwordMesh = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
+
 	Stamina = StartingStamina;
 
 	// Cache the boss character
@@ -205,7 +208,6 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
 	GameInstance->PlayerInfo.Stamina = Stamina;
-	GameInstance->OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
 
@@ -998,7 +1000,7 @@ void AYlva::OnEnterParryState()
 	if (!Combat.ParrySettings.ParryCameraAnimInst)
 	{
 		if (Combat.ParrySettings.ParryCameraAnim)
-			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
+			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim, Combat.ParrySettings.CameraAnimSpeed);
 	}
 
 	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, GetControlRotation().Roll);
@@ -1015,7 +1017,8 @@ void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (FSM->GetActiveStateUptime() > 0.4f)
+	// Reverse camera anim when 'X' seconds have passed
+	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted - 0.2f)
 		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
 
 	RegenerateStamina(StaminaRegenerationRate);
@@ -1145,6 +1148,26 @@ void AYlva::ResetStamina()
 void AYlva::ResetGlobalTimeDilation()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
+}
+
+void AYlva::AttachSword() const
+{
+	if (SwordMesh)
+	{
+		SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation("SwordSocket"));
+		SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation("SwordSocket") + FRotator(0.0f, -10.0f, 90.0f));
+		
+		SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, FName("SwordSocket"));
+	}
+}
+
+void AYlva::DetachSword()
+{
+	if (SwordMesh)
+	{
+		SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
+	}
 }
 
 void AYlva::StartParryEvent()

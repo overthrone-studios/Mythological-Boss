@@ -1,7 +1,6 @@
 // Copyright Overthrone Studios 2019
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamageBoss.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "ApexDestruction/Public/DestructibleActor.h"
 #include "Mordath.h"
 

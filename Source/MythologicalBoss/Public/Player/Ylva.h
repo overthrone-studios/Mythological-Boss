@@ -92,8 +92,13 @@ struct FParrySettings_Ylva
 {
 	GENERATED_BODY()
 
+	// The camera animation to play when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UCameraAnim* ParryCameraAnim;
+
+	// The speed of the camera animation
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float CameraAnimSpeed = 1.0f;
 
 	class UCameraAnimInst* ParryCameraAnimInst;
 
@@ -111,7 +116,7 @@ struct FParrySettings_Ylva
 
 	// The camera rotation pitch to set when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))
-		float CameraPitchOnSuccess = 340.0f;
+		float CameraPitchOnSuccess = 360.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -134,6 +139,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect parry values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
+
+	// The amount of time (in seconds) the sword "sticks" when hit
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 2.0f))
+		float SwordStickTime = 0.1f;
 };
 
 /*
@@ -178,6 +187,14 @@ public:
 	// Returns true if we are heavy attacking
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		bool IsHeavyAttacking() const;
+
+	// Attach sword to the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void AttachSword() const;
+
+	// Detach from the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DetachSword();
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -507,9 +524,13 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
 
+	UStaticMeshComponent* SwordMesh;
+
 private:
 	FTimerHandle DashCooldownTimer;
 	FTimerHandle ParryEventExpiryTimer;
+
+	FTimerHandle SwordDetachmentExpiryTimer;
 
 	FTimerHandle StaminaRegenTimerHandle;
 

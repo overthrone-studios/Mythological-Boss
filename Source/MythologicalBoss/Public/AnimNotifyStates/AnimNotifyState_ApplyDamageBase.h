@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "K2Node_FunctionResult.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "AnimNotifyState_ApplyDamageBase.generated.h"
 
 /**
@@ -18,6 +18,12 @@ protected:
 	void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
 
 	virtual void OnHit(USkeletalMeshComponent* MeshComp);
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FName StartBone = "RightHand";
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FName EndBone = "SwordEnd";
 
 	FHitResult HitResult;
 
