@@ -19,6 +19,12 @@ protected:
 
 	virtual void OnHit(USkeletalMeshComponent* MeshComp);
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FName StartBone = "RightHand";
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FName EndBone = "SwordEnd";
+
 	FHitResult HitResult;
 
 	float AttackDamage = 100.0f;
