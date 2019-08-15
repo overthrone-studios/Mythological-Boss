@@ -19,7 +19,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		TArray<UFootstepData*> GetFootstepMappings() const { return FootstepMappings; }
 
+	UPROPERTY(EditInstanceOnly, Category = "Footsteps")
+		uint8 bDebug : 1;
+
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Properties")
+	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
 		TArray<UFootstepData*> FootstepMappings;
 };

@@ -18,10 +18,12 @@ class MYTHOLOGICALBOSS_API UAnimNotify_PlayFootstepSound final : public UAnimNot
 	
 
 protected:
-	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (ToolTip = "Enable/Disable the ability to play footsteps?"))
+	// Enable/Disable the ability to play footsteps?
+	UPROPERTY(EditInstanceOnly, Category = "Footstep")
 		bool bEnableFootsteps = true;
 
-	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (EditCondition = "bEnableFootsteps", ToolTip = "An array of footstep data assets to play depending on the material the character is moving on"))
+	// An array of footstep data assets to play depending on the material the character is moving on
+	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (EditCondition = "bEnableFootsteps", ToolTip = ""))
 		UFootstepCollection* FootstepCollection;
 
 	void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
@@ -30,10 +32,12 @@ protected:
 	void PlayFootstepSound();
 
 	// Returns the footstep sound asset based on the physical material it's moving on
-	USoundBase* GetFootstepSound(TWeakObjectPtr<UPhysicalMaterial>* Surface);
+	USoundBase* GetFootstepSound(TWeakObjectPtr<UPhysicalMaterial>* Surface) const;
 
 private:
 	FFindFloorResult FloorResult;
+
+	TArray<class UFootstepData*> FootstepMappings;
 
 	ACharacter* Character;
 };

@@ -22,26 +22,37 @@ void UAnimNotify_PlayFootstepSound::PlayFootstepSound()
 
 	if (FloorResult.bBlockingHit)
 	{
-		if (IsValid(GetFootstepSound(&FloorResult.HitResult.PhysMaterial)))
+		USoundBase* FootstepSound = GetFootstepSound(&FloorResult.HitResult.PhysMaterial);
+
+		if (IsValid(FootstepSound))
 		{
-			UGameplayStatics::PlaySoundAtLocation(Character, GetFootstepSound(&FloorResult.HitResult.PhysMaterial), FloorResult.HitResult.Location);
+			UGameplayStatics::PlaySoundAtLocation(Character, FootstepSound, FloorResult.HitResult.Location);
 		}
 		else
 		{
-			ULog::DebugMessage(WARNING, "No physical material found for " + FloorResult.HitResult.GetActor()->GetName(), true);
+			if (FootstepCollection->bDebug)
+				ULog::DebugMessage(WARNING, "No physical material found for " + FloorResult.HitResult.GetActor()->GetName(), true);
 		}
 	}
 }
 
-USoundBase* UAnimNotify_PlayFootstepSound::GetFootstepSound(TWeakObjectPtr<UPhysicalMaterial>* Surface)
+USoundBase* UAnimNotify_PlayFootstepSound::GetFootstepSound(TWeakObjectPtr<UPhysicalMaterial>* Surface) const
 {
 	for (auto FootstepData : FootstepCollection->GetFootstepMappings())
 	{
 		if (FootstepData->GetPhysicalMaterial() == Surface->Get())
-			return FootstepData->GetFootstepSounds()[FMath::RandRange(0, FootstepData->GetFootstepSounds().Num() - 1)];
+		{
+			USoundBase* ChosenSound = FootstepData->GetFootstepSounds()[FMath::RandRange(0, FootstepData->GetFootstepSounds().Num() - 1)];
+
+			if (FootstepCollection->bDebug)
+				ULog::DebugMessage(INFO, ChosenSound->GetName() + " selected", true);
+
+			return ChosenSound;
+		}
 	}
 
-	ULog::DebugMessage(WARNING, "No footstep sound", true);
+	if (FootstepCollection->bDebug)
+		ULog::DebugMessage(WARNING, "No footstep sound", true);
 
 	return nullptr;
 }
