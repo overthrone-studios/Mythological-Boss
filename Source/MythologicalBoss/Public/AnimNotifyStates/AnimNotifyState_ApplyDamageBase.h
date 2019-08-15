@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "K2Node_FunctionResult.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "AnimNotifyState_ApplyDamageBase.generated.h"
 
 /**

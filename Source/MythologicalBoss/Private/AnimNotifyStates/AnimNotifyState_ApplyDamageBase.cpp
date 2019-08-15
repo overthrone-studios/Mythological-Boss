@@ -1,7 +1,6 @@
 // Copyright Overthrone Studios 2019
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamageBase.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)

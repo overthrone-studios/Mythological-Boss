@@ -1,7 +1,6 @@
 // Copyright Overthrone Studios 2019
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamagePlayer.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "DestructibleActor.h"
 #include "Ylva.h"
 
