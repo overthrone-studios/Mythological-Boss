@@ -381,7 +381,7 @@ void AYlva::Block()
 
 void AYlva::StopBlocking()
 {
-	if (FSM->GetActiveStateID() == 5 /*Death*/)
+	if (FSM->GetActiveStateID() == 5 /*Death*/ || FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
 
 	FSM->RemoveAllStatesFromStack();
@@ -392,11 +392,9 @@ void AYlva::LightAttack()
 	// Are we in any of these states?
 	if (FSM->GetActiveStateID() == 7 /*Fall*/ ||
 		FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/)
+		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
+		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
-
-	if (FSM->GetActiveStateID() == 22 /*Parry*/)
-		FSM->PopState();
 
 	if (Stamina > Combat.StaminaSettings.LightAttackStamina)
 		DelayStaminaRegeneration();
@@ -444,11 +442,9 @@ void AYlva::HeavyAttack()
 	// Are we in any of these states?
 	if (FSM->GetActiveStateID() == 7 /*Fall*/ ||
 		FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/)
+		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
+		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
-
-	if (FSM->GetActiveStateID() == 22 /*Parry*/)
-		FSM->PopState();
 
 	if (Stamina > Combat.StaminaSettings.HeavyAttackStamina)
 		DelayStaminaRegeneration();
@@ -1005,6 +1001,9 @@ void AYlva::OnEnterParryState()
 			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
 	}
 
+	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, GetControlRotation().Roll);
+	GetController()->SetControlRotation(NewRotation);
+
 	PlayerController->SetIgnoreLookInput(true);
 
 	YlvaAnimInstance->bIsShieldHit = true;
@@ -1016,7 +1015,7 @@ void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (FSM->GetActiveStateUptime() > 0.3f)
+	if (FSM->GetActiveStateUptime() > 0.4f)
 		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
 
 	RegenerateStamina(StaminaRegenerationRate);
@@ -1158,6 +1157,7 @@ void AYlva::StartParryEvent()
 
 void AYlva::FinishParryEvent()
 {
+	FSM->PopState("Block");
 	FSM->PopState();
 }
 
