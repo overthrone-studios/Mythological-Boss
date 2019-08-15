@@ -226,7 +226,6 @@ void AMordath::BeginPlay()
 	// Initialize game instance variables
 	GameInstance->BossInfo.StartingHealth = StartingHealth;
 	GameInstance->BossInfo.Health = Health;
-	GameInstance->OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
 	SendInfo();

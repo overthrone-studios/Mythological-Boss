@@ -208,7 +208,6 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
 	GameInstance->PlayerInfo.Stamina = Stamina;
-	GameInstance->OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
 
@@ -1018,7 +1017,8 @@ void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (FSM->GetActiveStateUptime() > 0.4f)
+	// Reverse camera anim when 'X' seconds have passed
+	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted - 0.2f)
 		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
 
 	RegenerateStamina(StaminaRegenerationRate);
