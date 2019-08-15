@@ -108,6 +108,10 @@ struct FParrySettings_Ylva
 	// How long (in seconds) should we stay in the parry event?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float TimeUntilParryEventIsCompleted = 0.5f;
+
+	// The camera rotation pitch to set when parry has succeeded
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))
+		float CameraPitchOnSuccess = 340.0f;
 };
 
 USTRUCT(BlueprintType)
