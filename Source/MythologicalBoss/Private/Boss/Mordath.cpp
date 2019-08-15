@@ -596,6 +596,8 @@ void AMordath::OnEnterDeathState()
 
 	GameInstance->OnBossDeath.Broadcast();
 
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
 }
 
