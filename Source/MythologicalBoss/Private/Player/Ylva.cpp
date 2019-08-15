@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -183,6 +184,8 @@ void AYlva::PauseAnimsWithTimer()
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SwordMesh = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
 
 	Stamina = StartingStamina;
 
@@ -1145,6 +1148,26 @@ void AYlva::ResetStamina()
 void AYlva::ResetGlobalTimeDilation()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
+}
+
+void AYlva::AttachSword() const
+{
+	if (SwordMesh)
+	{
+		SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation("SwordSocket"));
+		SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation("SwordSocket") + FRotator(0.0f, -10.0f, 90.0f));
+		
+		SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, FName("SwordSocket"));
+	}
+}
+
+void AYlva::DetachSword()
+{
+	if (SwordMesh)
+	{
+		SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
+	}
 }
 
 void AYlva::StartParryEvent()

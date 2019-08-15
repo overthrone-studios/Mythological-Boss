@@ -134,6 +134,9 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect parry values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 2.0f))
+		float SwordStickTime = 0.1f;
 };
 
 /*
@@ -178,6 +181,14 @@ public:
 	// Returns true if we are heavy attacking
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		bool IsHeavyAttacking() const;
+
+	// Attach sword to the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void AttachSword() const;
+
+	// Detach from the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DetachSword();
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -507,9 +518,13 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
 
+	UStaticMeshComponent* SwordMesh;
+
 private:
 	FTimerHandle DashCooldownTimer;
 	FTimerHandle ParryEventExpiryTimer;
+
+	FTimerHandle SwordDetachmentExpiryTimer;
 
 	FTimerHandle StaminaRegenTimerHandle;
 
