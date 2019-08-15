@@ -1016,6 +1016,9 @@ void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	if (FSM->GetActiveStateUptime() > 0.3f)
+		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
+
 	RegenerateStamina(StaminaRegenerationRate);
 }
 
