@@ -116,7 +116,7 @@ struct FParrySettings_Ylva
 
 	// The camera rotation pitch to set when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))
-		float CameraPitchOnSuccess = 340.0f;
+		float CameraPitchOnSuccess = 360.0f;
 };
 
 USTRUCT(BlueprintType)
