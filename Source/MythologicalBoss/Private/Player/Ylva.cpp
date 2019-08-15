@@ -1001,7 +1001,7 @@ void AYlva::OnEnterParryState()
 	if (!Combat.ParrySettings.ParryCameraAnimInst)
 	{
 		if (Combat.ParrySettings.ParryCameraAnim)
-			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
+			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim, Combat.ParrySettings.CameraAnimSpeed);
 	}
 
 	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, GetControlRotation().Roll);

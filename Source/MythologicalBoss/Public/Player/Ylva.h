@@ -92,8 +92,13 @@ struct FParrySettings_Ylva
 {
 	GENERATED_BODY()
 
+	// The camera animation to play when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UCameraAnim* ParryCameraAnim;
+
+	// The speed of the camera animation
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float CameraAnimSpeed = 1.0f;
 
 	class UCameraAnimInst* ParryCameraAnimInst;
 
@@ -135,6 +140,7 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
 
+	// The amount of time (in seconds) the sword "sticks" when hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 2.0f))
 		float SwordStickTime = 0.1f;
 };
