@@ -234,6 +234,8 @@ void AMordath::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
+	ensureAlways(ComboSettings.Combos.Num() != 0);
+
 	// Begin the state machines
 	FSM->Start();
 	RangeFSM->Start();
@@ -292,6 +294,12 @@ void AMordath::OnEnterFollowState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	if (!ChosenCombo)
+	{
+		ULog::DebugMessage(ERROR, "There are no combos in the list. A crash will occur!", true);
+		return;
+	}
 
 	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
