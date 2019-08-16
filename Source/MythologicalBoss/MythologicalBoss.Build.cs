@@ -8,7 +8,7 @@ public class MythologicalBoss : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "RHI", "MenuSystem", "ApexDestruction" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "RHI", "MenuSystem", "ApexDestruction", "MediaAssets" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "MenuSystem", "Debug" });
     }
