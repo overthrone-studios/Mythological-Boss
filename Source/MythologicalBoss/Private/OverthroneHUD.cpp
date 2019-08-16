@@ -50,5 +50,7 @@ void AOverthroneHUD::InitWidgets()
 	MasterHUD->SwitchToHUDIndex(0);
 #else
 	MasterHUD->SwitchToHUDIndex(2);
+	MasterHUD->HideTitle();
+	MasterHUD->HideBoxes();
 #endif
 }
