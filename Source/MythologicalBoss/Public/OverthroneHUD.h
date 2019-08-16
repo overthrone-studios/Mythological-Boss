@@ -27,10 +27,4 @@ protected:
 
 	class UMasterHUD* MasterHUD{};
 	TSubclassOf<class UHUDBase> HUDWidgetClass;
-
-	class UUserWidget* IntroCutsceneWidget{};
-	TSubclassOf<class UUserWidget> IntroCutsceneWidgetClass;
-
-private:
-	class UOverthroneGameInstance* GameInstance;
 };
