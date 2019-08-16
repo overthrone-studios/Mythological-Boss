@@ -7,7 +7,7 @@
 #include "OverthroneFunctionLibrary.generated.h"
 
 /**
- * A list of useful utitly and helpful public funtions exposed to blueprints
+ * A list of useful utility and helpful public functions exposed to blueprints
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API UOverthroneFunctionLibrary final : public UBlueprintFunctionLibrary
@@ -19,6 +19,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Project Information")
 		static FString GetProjectVersion();
 	
-	UFUNCTION(BlueprintPure, Category = "Project Information")
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class ACharacter* GetBossCharacter(UWorld* InWorld);
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
+		static class UOverthroneGameInstance* GetGameInstance(const UObject* WorldContext);
 };
