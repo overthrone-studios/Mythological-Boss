@@ -5,28 +5,28 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Log.generated.h"
 
-// Current class name and function name where this is called
+// Get the current class name and function name where this is called
 #define CUR_CLASS_FUNC (FString(__FUNCTION__))
 
-// Current class name and function name where this is called
+// Get the current class name and function name where this is called
 #define CUR_CLASS_FUNC_WITH_LINE (CUR_CLASS_FUNC + ": " + CUR_LINE)
 
-// Current class where this is called
+// Get the current class where this is called
 #define CUR_CLASS (FString(__FUNCTION__).Left(FString(__FUNCTION__).Find(TEXT(":"))) )
 
-// Current function name where this is called!
+// Get the current function name where this is called!
 #define CUR_FUNC (FString(__FUNCTION__).Right(FString(__FUNCTION__).Len() - FString(__FUNCTION__).Find(TEXT("::")) - 2 ))
   
-// Current line number in the code where this is called
-#define CUR_LINE  ("Line " + FString::FromInt(__LINE__))
+// Get the current line number in the code where this is called
+#define CUR_LINE ("Line " + FString::FromInt(__LINE__))
 
-// Current function name and the line number in the code where this is called
+// Get the current function name and the line number in the code where this is called
 #define CUR_FUNC_WITH_LINE  (CUR_FUNC + ": " + CUR_LINE)
 
-// Current class and line number where this is called
+// Get the current class and line number where this is called
 #define CUR_CLASS_WITH_LINE (CUR_CLASS + "(" + CUR_LINE + ")")
   
-// Current function signature where this is called
+// Get the current function signature where this is called
 #define CUR_FUNC_SIG (FString(__FUNCSIG__))
 
 UENUM()
@@ -52,9 +52,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 		static void ObjectValidity(UObject* ObjectRef, bool bLogInViewport = false);
 
-	// Log a debug message to the console or viewport
+	// Log a debug message to the console or viewport (FString version)
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void DebugMessage(ELogType LogLevel, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
+		static void DebugMessage(ELogType LogLevel, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+
+	// Log a debug message to the console or viewport (FName version)
+	static void DebugMessage(ELogType LogLevel, const FName& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
 
 	// Log a hello message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")

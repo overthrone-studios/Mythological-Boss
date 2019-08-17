@@ -63,6 +63,47 @@ void ULog::DebugMessage(const ELogType LogLevel, const FString& LogMessage, cons
 	}
 }
 
+void ULog::DebugMessage(const ELogType LogLevel, const FName& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+{
+	switch (LogLevel)
+	{
+	case INFO:
+		if (bLogInViewport)
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, LogMessage.ToString());
+		else
+			UE_LOG(LogTemp, Display, TEXT("%s"), *LogMessage.ToString())
+	break;
+
+	case SUCCESS:
+		if (bLogInViewport)
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, LogMessage.ToString());
+		else
+			UE_LOG(LogSuccess, Log, TEXT("%s"), *LogMessage.ToString())
+	break;
+
+	case WARNING:
+		if (bLogInViewport)
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, LogMessage.ToString());
+		else
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage.ToString())
+	break;
+
+	case ERROR:
+		if (bLogInViewport)
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, LogMessage.ToString());
+		else
+			UE_LOG(LogTemp, Error, TEXT("%s"), *LogMessage.ToString())
+	break;
+
+	case FATAL:
+		UE_LOG(LogTemp, Fatal, TEXT("%s"), *LogMessage.ToString())
+	break;
+
+	default:
+		break;
+	}
+}
+
 void ULog::LogHello(const bool bLogInViewport)
 {
 	if (bLogInViewport)
@@ -106,8 +147,6 @@ void ULog::LogNo(const FString& Prefix, const bool bLogInViewport)
 	else
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
 }
-
-
 
 void ULog::LogNumber(const int8 Number, const bool bLogInViewport, const float TimeToDisplay)
 {
