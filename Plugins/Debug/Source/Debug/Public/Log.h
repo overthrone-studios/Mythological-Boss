@@ -61,7 +61,7 @@ public:
 
 	// Log a hello message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void LogHello(bool bLogInViewport = false);
+		static void Hello(bool bLogInViewport = false);
 	
 	// Log a yes message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
@@ -78,43 +78,43 @@ public:
 	static void LogNo(const FString& Prefix, bool bLogInViewport = false);
 
 	// Log a number to the console or viewport (int8 version)
-	static void LogNumber(int8 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(int8 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int16 version)
-	static void LogNumber(int16 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(int16 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int32 version)
-	static void LogNumber(int32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(int32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int64 version)
-	static void LogNumber(int64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(int64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int8 version)
-	static void LogNumber(uint8 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(uint8 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int16 version)
-	static void LogNumber(uint16 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(uint16 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int32 version)
-	static void LogNumber(uint32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(uint32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int64 version)
-	static void LogNumber(uint64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(uint64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (float version)
-	static void LogNumber(float Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(float Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (double version)
-	static void LogNumber(double Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(double Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (long version)
-	static void LogNumber(long Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(long Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (long double version)
-	static void LogNumber(long double Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Number(long double Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log the given bool value to the console or viewport
-	static void LogBool(bool bBoolToTest, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void Bool(bool bBoolToTest, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 private:
 	static void LogInt(int64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
