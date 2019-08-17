@@ -106,18 +106,31 @@ void ULog::DebugMessage(const ELogType LogLevel, const FName& LogMessage, const 
 
 void ULog::Fatal(const FString& LogMessage)
 {
+	UE_LOG(LogTemp, Fatal, TEXT("%s"), *LogMessage)
 }
 
-void ULog::Error(const FString& LogMessage, bool bLogInViewport, float TimeToDisplay)
+void ULog::Error(const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, LogMessage);
+	else
+		UE_LOG(LogTemp, Error, TEXT("%s"), *LogMessage)
 }
 
-void ULog::Warning(const FString& LogMessage, bool bLogInViewport, float TimeToDisplay)
+void ULog::Warning(const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, LogMessage);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
 }
 
-void ULog::Info(const FString& LogMessage, bool bLogInViewport, float TimeToDisplay)
+void ULog::Info(const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, LogMessage);
+	else
+		UE_LOG(LogTemp, Display, TEXT("%s"), *LogMessage)
 }
 
 void ULog::Hello(const bool bLogInViewport)
