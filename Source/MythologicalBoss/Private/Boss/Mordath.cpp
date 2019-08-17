@@ -297,7 +297,7 @@ void AMordath::OnEnterFollowState()
 
 	if (!ChosenCombo)
 	{
-		ULog::DebugMessage(ERROR, "There are no combos in the list. A crash will occur!", true);
+		ULog::DebugMessage(ERROR, FString("There are no combos in the list. A crash will occur!"), true);
 		return;
 	}
 
@@ -905,7 +905,7 @@ void AMordath::ChooseCombo()
 {
 	if (ComboSettings.Combos.Num() == 0)
 	{
-		ULog::DebugMessage(ERROR, "There are no combos to choose from! Add a combo asset to the list.", true);
+		ULog::DebugMessage(ERROR, FString("There are no combos to choose from! Add a combo asset to the list."), true);
 		return;
 	}
 

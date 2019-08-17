@@ -52,7 +52,7 @@ USoundBase* UAnimNotify_PlayFootstepSound::GetFootstepSound(TWeakObjectPtr<UPhys
 	}
 
 	if (FootstepCollection->bDebug)
-		ULog::DebugMessage(WARNING, "No footstep sound", true);
+		ULog::DebugMessage(WARNING, FString("No footstep sound"), true);
 
 	return nullptr;
 }
