@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogSuccess, All, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogSuccess, Display, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogNumber, Display, All)
 
 class FDebugModule : public IModuleInterface
 {

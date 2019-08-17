@@ -20,3 +20,4 @@ void FDebugModule::ShutdownModule()
 IMPLEMENT_MODULE(FDebugModule, Debug)
 
 DEFINE_LOG_CATEGORY(LogSuccess)
+DEFINE_LOG_CATEGORY(LogNumber)
