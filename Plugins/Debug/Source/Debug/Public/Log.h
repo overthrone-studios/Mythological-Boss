@@ -59,6 +59,22 @@ public:
 	// Log a debug message to the console or viewport (FName version)
 	static void DebugMessage(ELogType LogLevel, const FName& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
 
+	// Log a fatal error message to the console and crash
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Fatal(const FString& LogMessage);
+
+	// Log an error message to the console or viewport
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Error(const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+
+	// Log a warning message to the console or viewport
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Warning(const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+
+	// Log an information message to the console or viewport
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Info(const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+
 	// Log a hello message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 		static void Hello(bool bLogInViewport = false);
@@ -118,4 +134,5 @@ public:
 
 private:
 	static void LogInt(int64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	static void LogUInt(uint64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 };
