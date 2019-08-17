@@ -189,8 +189,6 @@ void AYlva::BeginPlay()
 
 	Stamina = StartingStamina;
 
-	ULog::Vector(GetActorLocation(), true);
-
 	// Cache the boss character
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 
