@@ -189,6 +189,8 @@ void AYlva::BeginPlay()
 
 	Stamina = StartingStamina;
 
+	ULog::Vector(GetActorLocation(), true);
+
 	// Cache the boss character
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 
@@ -1113,7 +1115,7 @@ void AYlva::OnBossDeath()
 
 void AYlva::OnLowHealth()
 {
-	ULog::LogYes("Low health?", true);
+	ULog::Yes("Low health?", true);
 	ChangeHitboxSize(Combat.AttackSettings.AttackDistanceOnLowHealth, Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 

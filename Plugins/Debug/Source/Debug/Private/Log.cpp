@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "Engine/Engine.h"
 #include "Debug.h"
+#include "Math/Vector.h"
 
 void ULog::ObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 {
@@ -141,7 +142,7 @@ void ULog::Hello(const bool bLogInViewport)
 		UE_LOG(LogTemp, Warning, TEXT("Hello"))
 }
 
-void ULog::LogYes(const bool bLogInViewport)
+void ULog::Yes(const bool bLogInViewport)
 {
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Yes"));
@@ -149,7 +150,7 @@ void ULog::LogYes(const bool bLogInViewport)
 		UE_LOG(LogTemp, Warning, TEXT("Yes"))
 }
 
-void ULog::LogYes(const FString& Prefix, const bool bLogInViewport)
+void ULog::Yes(const FString& Prefix, const bool bLogInViewport)
 {
 	const FString LogMessage = Prefix + ": Yes";
 
@@ -159,7 +160,7 @@ void ULog::LogYes(const FString& Prefix, const bool bLogInViewport)
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
 }
 
-void ULog::LogNo(const bool bLogInViewport)
+void ULog::No(const bool bLogInViewport)
 {
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("No"));
@@ -167,7 +168,7 @@ void ULog::LogNo(const bool bLogInViewport)
 		UE_LOG(LogTemp, Warning, TEXT("No"))
 }
 
-void ULog::LogNo(const FString& Prefix, const bool bLogInViewport)
+void ULog::No(const FString& Prefix, const bool bLogInViewport)
 {
 	const FString LogMessage = Prefix + ": No";
 
@@ -271,6 +272,14 @@ void ULog::Bool(const bool bBoolToTest, const bool bLogInViewport, const float T
 		else
 			UE_LOG(LogTemp, Display, TEXT("False"))
 	}
+}
+
+void ULog::Vector(const FVector& Vector, const bool bLogInViewport, const float TimeToDisplay)
+{
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Vector.ToString());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Vector.ToString())
 }
 
 void ULog::LogInt(const int64 Number, const bool bLogInViewport, const float TimeToDisplay)

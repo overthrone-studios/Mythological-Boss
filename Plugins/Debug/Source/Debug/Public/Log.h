@@ -81,17 +81,17 @@ public:
 	
 	// Log a yes message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void LogYes(bool bLogInViewport = false);
+		static void Yes(bool bLogInViewport = false);
 
 	// Log a no message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void LogNo(bool bLogInViewport = false);
+		static void No(bool bLogInViewport = false);
 
 	// Log a yes message to the console or viewport (with an optional prefix string)
-	static void LogYes(const FString& Prefix, bool bLogInViewport = false);
+	static void Yes(const FString& Prefix, bool bLogInViewport = false);
 
 	// Log a no message to the console or viewport (with an optional prefix string)
-	static void LogNo(const FString& Prefix, bool bLogInViewport = false);
+	static void No(const FString& Prefix, bool bLogInViewport = false);
 
 	// Log a number to the console or viewport (int8 version)
 	static void Number(int8 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
@@ -100,21 +100,22 @@ public:
 	static void Number(int16 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int32 version)
-	static void Number(int32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Number(int32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (int64 version)
 	static void Number(int64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
-	// Log a number to the console or viewport (int8 version)
+	// Log a number to the console or viewport (uint8 version)
 	static void Number(uint8 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
-	// Log a number to the console or viewport (int16 version)
+	// Log a number to the console or viewport (uint16 version)
 	static void Number(uint16 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
-	// Log a number to the console or viewport (int32 version)
+	// Log a number to the console or viewport (uint32 version)
 	static void Number(uint32 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
-	// Log a number to the console or viewport (int64 version)
+	// Log a number to the console or viewport (uint64 version)
 	static void Number(uint64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a number to the console or viewport (float version)
@@ -130,7 +131,12 @@ public:
 	static void Number(long double Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log the given bool value to the console or viewport
-	static void Bool(bool bBoolToTest, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Bool(bool bBoolToTest, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+
+	// Log a FVector value to the console or viewport
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Vector(const FVector& Vector, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 private:
 	static void LogInt(int64 Number, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
