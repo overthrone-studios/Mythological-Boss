@@ -229,6 +229,7 @@ void AYlva::Tick(const float DeltaTime)
 
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 
+	// Lock-on mechanic
 	if (LockOnSettings.bShouldLockOnTarget)
 	{
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossInfo.Location);
@@ -242,7 +243,11 @@ void AYlva::Tick(const float DeltaTime)
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
 
-	if (Combat.ChargeSettings.bLoseChargeOvertime && !GetWorldTimerManager().IsTimerActive(ChargeLossTimerHandle))
+	// Charge loss mechanic
+	if (Combat.ChargeSettings.bLoseChargeOvertime && 
+		!GetWorldTimerManager().IsTimerActive(ChargeLossTimerHandle) && 
+		Combat.ChargeSettings.Charge < Combat.ChargeSettings.MaxCharge &&
+		Combat.ChargeSettings.Charge != 0.0f)
 		LoseCharge(Combat.ChargeSettings.ChargeLossRate * World->DeltaTimeSeconds);
 
 #if !UE_BUILD_SHIPPING
@@ -1185,7 +1190,7 @@ void AYlva::GainCharge()
 
 	UpdateCharacterInfo();
 
-	if (Combat.ChargeSettings.bLoseChargeOvertime)
+	if (Combat.ChargeSettings.bLoseChargeOvertime && Combat.ChargeSettings.Charge < Combat.ChargeSettings.MaxCharge)
 		GetWorldTimerManager().SetTimer(ChargeLossTimerHandle, Combat.ChargeSettings.DelayBeforeChargeLoss, false);
 }
 
