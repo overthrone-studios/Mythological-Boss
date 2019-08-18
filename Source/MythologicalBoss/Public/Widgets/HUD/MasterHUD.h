@@ -34,6 +34,8 @@ public:
 	void ShowBoxes();
 	void HideBoxes();
 
+	uint8 bLogHUDInitialized : 1;
+
 protected:
 	TArray<UHUDBase*> GetAllChildHUDs() const;
 

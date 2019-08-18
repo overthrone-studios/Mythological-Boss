@@ -38,7 +38,9 @@ void UMasterHUD::Init()
 	for (auto HUD : HUDs)
 	{
 		HUD->Init();
-		ULog::DebugMessage(INFO, FString(HUD->GetName() + " initialized"), true);
+
+		if (bLogHUDInitialized)
+			ULog::DebugMessage(INFO, FString(HUD->GetName() + " initialized"), true);
 	}
 
 	// Set debug box background to green to represent the active HUD
