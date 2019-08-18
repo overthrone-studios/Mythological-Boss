@@ -17,7 +17,7 @@ void ULog::ObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 	else
 	{
 		if (ObjectRef)
-			UE_LOG(LogObjectValidity, Display, TEXT("%s is valid"), *ObjectRef->GetName())
+			UE_LOG(LogObjectValidity, Warning, TEXT("%s is valid"), *ObjectRef->GetName())
 		else
 			UE_LOG(LogObjectValidity, Error, TEXT("Object is null"))	
 	}
@@ -38,7 +38,7 @@ void ULog::DebugMessage(const ELogType LogSeverity, const FString& Message, cons
 		if (bLogInViewport)
 			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, Message);
 		else
-			UE_LOG(LogSuccess, Display, TEXT("%s"), *Message)
+			UE_LOG(LogSuccess, Warning, TEXT("%s"), *Message)
 	break;
 
 	case WARNING:
@@ -79,7 +79,7 @@ void ULog::DebugMessage(const ELogType LogSeverity, const FName& Message, const 
 		if (bLogInViewport)
 			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, Message.ToString());
 		else
-			UE_LOG(LogSuccess, Display, TEXT("%s"), *Message.ToString())
+			UE_LOG(LogSuccess, Warning, TEXT("%s"), *Message.ToString())
 	break;
 
 	case WARNING:
@@ -123,7 +123,7 @@ void ULog::Success(const FString& Message, const bool bLogInViewport, const floa
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, Message);
 	else
-		UE_LOG(LogSuccess, Display, TEXT("%s"), *Message)
+		UE_LOG(LogSuccess, Warning, TEXT("%s"), *Message)
 }
 
 void ULog::Warning(const FString& Message, const bool bLogInViewport, const float TimeToDisplay)
