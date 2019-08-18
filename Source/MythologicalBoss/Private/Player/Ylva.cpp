@@ -209,7 +209,11 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->PlayerInfo.MaxCharge = Combat.ChargeSettings.MaxCharge;
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
+
+	// Bind events to our functions
+	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
+
 	GameInstance->Player = this;
 
 	StartRightSwordRotation = R_SwordMesh->RelativeRotation;
@@ -306,6 +310,12 @@ void AYlva::UpdateCharacterInfo()
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->PlayerInfo.Location = GetActorLocation();
+}
+
+void AYlva::BroadcastLowHealth()
+{
+	GameInstance->PlayerInfo.OnLowHealth.Broadcast();
+	bWasLowHealthEventTriggered = true;
 }
 
 void AYlva::MoveForward(const float Value)

@@ -237,6 +237,7 @@ protected:
 	void ChangeHitboxSize(float NewRadius) override;
 	void UpdateCharacterInfo() override;
 
+	void BroadcastLowHealth() override;
 	void OnLowHealth() override;
 
 	void SendInfo();

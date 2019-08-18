@@ -138,6 +138,10 @@ protected:
 	UFUNCTION()
 		virtual void OnLowHealth();
 
+	// Send out a signal to the functions that have binded to the OnLowHealth event
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void BroadcastLowHealth();
+
 	// The character's finite state machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		class UFSM* FSM;
@@ -189,9 +193,6 @@ protected:
 
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle HitStopTimerHandle;
-
-private:
-	void BroadcastLowHealth();
 
 	uint8 bWasLowHealthEventTriggered : 1;
 };

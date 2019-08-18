@@ -273,6 +273,7 @@ protected:
 
 	void ChangeHitboxSize(float NewRadius) override;
 	void UpdateCharacterInfo() override;
+	void BroadcastLowHealth() override;
 
 	// Called for forwards/backward input
 	void MoveForward(float Value);

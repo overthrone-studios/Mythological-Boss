@@ -213,19 +213,14 @@ void AMordath::BeginPlay()
 
 	// Cache the Combos array to use for randomization
 	CachedCombos = ComboSettings.Combos;
-
-	// Cache player character for knowing where it is
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
-
-	// Cache our anim instance
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
-
-	// Cache the FSM Visualizer HUD
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
 	GameInstance->BossInfo.StartingHealth = StartingHealth;
 	GameInstance->BossInfo.Health = Health;
+	GameInstance->BossInfo.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
 	SendInfo();
@@ -877,6 +872,12 @@ void AMordath::UpdateCharacterInfo()
 {
 	GameInstance->BossInfo.Health = Health;
 	GameInstance->BossInfo.Location = GetActorLocation();
+}
+
+void AMordath::BroadcastLowHealth()
+{
+	GameInstance->BossInfo.OnLowHealth.Broadcast();
+	bWasLowHealthEventTriggered = true;
 }
 
 void AMordath::OnLowHealth()

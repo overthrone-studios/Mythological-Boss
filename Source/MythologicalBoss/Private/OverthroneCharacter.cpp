@@ -39,9 +39,6 @@ void AOverthroneCharacter::BeginPlay()
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
-
-	// Bind the OnLowHealth event to our virtual function
-	GameInstance->OnLowHealth.AddDynamic(this, &AOverthroneCharacter::OnLowHealth);
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()
@@ -107,8 +104,7 @@ void AOverthroneCharacter::Die()
 
 void AOverthroneCharacter::BroadcastLowHealth()
 {
-	GameInstance->OnLowHealth.Broadcast();
-	bWasLowHealthEventTriggered = true;
+	check(0 && "You must implement BroadcastLowHealth()");
 }
 
 void AOverthroneCharacter::PauseAnims() const

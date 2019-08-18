@@ -19,6 +19,8 @@ struct FCharacterInfo
 	float StartingHealth = 0.0f;
 	float Health = 0.0f;
 
+	FOnLowHealthSignature OnLowHealth;
+
 	uint8 bIsDead : 1;
 };
 
@@ -48,7 +50,6 @@ public:
 
 	FOnBossDeathSignature OnPlayerDeath;
 	FOnBossDeathSignature OnBossDeath;
-	FOnLowHealthSignature OnLowHealth;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		bool IsGamePaused();
