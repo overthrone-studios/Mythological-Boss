@@ -162,6 +162,14 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+void AYlva::ApplyHitStop()
+{
+	if (Combat.bEnableHitStop)
+	{
+		DetachSword();
+	}
+}
+
 bool AYlva::IsLightAttacking() const
 {
 	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8;
@@ -174,11 +182,8 @@ bool AYlva::IsHeavyAttacking() const
 
 void AYlva::PauseAnimsWithTimer()
 {
-	if (Combat.bEnableHitStop)
-	{
-		PauseAnims();
-		GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
-	}
+	PauseAnims();
+	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
 }
 
 void AYlva::BeginPlay()

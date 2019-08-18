@@ -197,7 +197,7 @@ struct FCombatSettings_Ylva : public FCombatSettings
 		FChargeSettings_Ylva ChargeSettings;
 
 	// The amount of time (in seconds) the sword "sticks" when hit
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 2.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bEnableHitStop", ClampMin = 0.0f, ClampMax = 2.0f))
 		float SwordStickTime = 0.1f;
 
 	// Should the player rotate instantly where the camera is looking when attacking?
@@ -215,6 +215,8 @@ class MYTHOLOGICALBOSS_API AYlva final : public AOverthroneCharacter
 
 public:
 	AYlva();
+
+	void ApplyHitStop() override;
 
 	// Returns CameraBoom component
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -243,14 +245,6 @@ public:
 	// Returns true if we are heavy attacking
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		bool IsHeavyAttacking() const;
-
-	// Attach sword to the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void AttachSword() const;
-
-	// Detach from the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DetachSword();
 
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -412,6 +406,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void StartDashCooldown();
+
+	// Attach sword to the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void AttachSword() const;
+
+	// Detach from the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DetachSword();
 
 	// Returns the sword static mesh components attached to the left hand bone
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
