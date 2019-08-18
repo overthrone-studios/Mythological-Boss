@@ -16,8 +16,8 @@ struct FCharacterInfo
 
 	FVector Location{};
 
-	float StartingHealth = 0;
-	float Health = 0;
+	float StartingHealth = 0.0f;
+	float Health = 0.0f;
 
 	uint8 bIsDead : 1;
 };
@@ -27,8 +27,10 @@ struct FPlayerInfo : public FCharacterInfo
 {
 	GENERATED_BODY()
 
-	float StartingStamina = 0;
-	float Stamina = 0;
+	float MaxCharge = 0.0f;
+	float StartingStamina = 0.0f;
+	float Stamina = 0.0f;
+	float Charge = 0.0f;
 
 	uint8 bParrySucceeded : 1;
 };

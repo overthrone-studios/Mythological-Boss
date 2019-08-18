@@ -207,6 +207,8 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
 	GameInstance->PlayerInfo.Stamina = Stamina;
+	GameInstance->PlayerInfo.MaxCharge = Combat.ChargeSettings.MaxCharge;
+	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
 

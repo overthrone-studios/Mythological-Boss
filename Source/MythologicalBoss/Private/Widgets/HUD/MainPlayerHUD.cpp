@@ -26,6 +26,11 @@ float UMainPlayerHUD::GetPlayerStaminaAsPercentage() const
 	return GameInstance->PlayerInfo.Stamina / GameInstance->PlayerInfo.StartingStamina;
 }
 
+float UMainPlayerHUD::GetPlayerChargeAsPercentage() const
+{
+	return GameInstance->PlayerInfo.Charge / GameInstance->PlayerInfo.MaxCharge;
+}
+
 float UMainPlayerHUD::GetBossHealthAsPercentage() const
 {
 	return GameInstance->BossInfo.Health / GameInstance->BossInfo.StartingHealth;

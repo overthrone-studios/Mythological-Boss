@@ -88,6 +88,20 @@ struct FStaminaSettings_Ylva
 };
 
 USTRUCT(BlueprintType)
+struct FChargeSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// Ylva's current charge
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100000.0f))
+		float Charge = 0.0f;
+
+	// Ylva's charge limit
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float MaxCharge = 300.0f;
+};
+
+USTRUCT(BlueprintType)
 struct FDefenseSettings_Ylva
 {
 	GENERATED_BODY()
@@ -149,6 +163,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect parry values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
+
+	// Settings that affect charge values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FChargeSettings_Ylva ChargeSettings;
 
 	// The amount of time (in seconds) the sword "sticks" when hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 2.0f))

@@ -24,6 +24,9 @@ public:
 		float GetPlayerStaminaAsPercentage() const;
 
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
+		float GetPlayerChargeAsPercentage() const;
+
+	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
 		float GetBossHealthAsPercentage() const;
 
 protected:
