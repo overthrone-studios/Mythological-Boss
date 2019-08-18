@@ -185,17 +185,22 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SwordMesh = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
+	// Get the swords
+	R_SwordMesh = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName("Sword_R"));
+	L_SwordMesh = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName("Sword_L"));
 
 	Stamina = StartingStamina;
 
 	// Cache the boss character
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 
+	// Set default move speed
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Cache our player camera manager for playing camera animations
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	CameraManager->ViewPitchMin = 360.0f - CameraPitchMax;
+	CameraManager->ViewPitchMax = CameraPitchMin;
 
 	// Cache our anim instance
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
@@ -233,6 +238,9 @@ void AYlva::Tick(const float DeltaTime)
 		GameInstance->SetLockOnLocation(GameInstance->BossInfo.Location);
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
+
+	if (Debug.bLogCameraPitch)
+		ULog::Number(GetControlRotation().Pitch, true);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -283,9 +291,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 #endif
 }
 
-void AYlva::ChangeHitboxSize(const float NewRange, const float NewRadius)
+void AYlva::ChangeHitboxSize(const float NewRadius)
 {
-	Combat.AttackSettings.AttackDistance = NewRange;
 	Combat.AttackSettings.AttackRadius = NewRadius;
 }
 
@@ -1113,8 +1120,7 @@ void AYlva::OnBossDeath()
 
 void AYlva::OnLowHealth()
 {
-	ULog::Yes("Low health?", true);
-	ChangeHitboxSize(Combat.AttackSettings.AttackDistanceOnLowHealth, Combat.AttackSettings.AttackRadiusOnLowHealth);
+	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
 void AYlva::SetStamina(const float NewStaminaAmount)
@@ -1152,22 +1158,24 @@ void AYlva::ResetGlobalTimeDilation()
 
 void AYlva::AttachSword() const
 {
-	if (SwordMesh)
-	{
-		SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation("SwordSocket"));
-		SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation("SwordSocket") + FRotator(0.0f, -10.0f, 90.0f));
-		
-		SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, FName("SwordSocket"));
-	}
+	// Todo update for new model
+	//if (SwordMesh)
+	//{
+	//	SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation("SwordSocket"));
+	//	SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation("SwordSocket") + FRotator(0.0f, -10.0f, 90.0f));
+	//	
+	//	SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, FName("SwordSocket"));
+	//}
 }
 
 void AYlva::DetachSword()
 {
-	if (SwordMesh)
-	{
-		SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
-	}
+	// Todo update for new model
+	//if (SwordMesh)
+	//{
+	//	SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	//	GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
+	//}
 }
 
 void AYlva::StartParryEvent()

@@ -6,6 +6,16 @@
 #include "Ylva.generated.h"
 
 USTRUCT(BlueprintType)
+struct FDebug_Ylva : public FCharacterDebug
+{
+	GENERATED_BODY()
+
+	// Log the camera's pitch rotation value to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogCameraPitch : 1;
+};
+
+USTRUCT(BlueprintType)
 struct FMovementSettings_Ylva : public FMovementSettings
 {
 	GENERATED_BODY()
@@ -172,10 +182,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
-	// Returns the attack distance value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
-
 	// Returns the attack radius value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
@@ -214,7 +220,7 @@ protected:
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void ChangeHitboxSize(float NewRange, float NewRadius) override;
+	void ChangeHitboxSize(float NewRadius) override;
 	void UpdateCharacterInfo() override;
 
 	// Called for forwards/backward input
@@ -505,6 +511,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float StaminaRegenerationRate = 10.0f;
 
+	// The minimum pitch rotation value (in degrees) the camera can rotate
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
+		float CameraPitchMin = 90.0f;
+
+	// The maximum pitch rotation value (in degrees) the camera can rotate
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
+		float CameraPitchMax = 270.0f;
+
 	// Ylva's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
@@ -517,6 +531,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Ylva")
 		FCameraShakes_Ylva CameraShakes;
 
+	// Ylva's debug settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+		FDebug_Ylva Debug;
+
 	// Ylva's combat settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
 		FCombatSettings_Ylva Combat;
@@ -524,7 +542,10 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
 
-	UStaticMeshComponent* SwordMesh;
+	// The right hand sword mesh
+	UStaticMeshComponent* R_SwordMesh;
+	// The left hand sword mesh
+	UStaticMeshComponent* L_SwordMesh;
 
 private:
 	FTimerHandle DashCooldownTimer;
