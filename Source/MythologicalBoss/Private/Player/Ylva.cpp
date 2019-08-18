@@ -221,9 +221,6 @@ void AYlva::BeginPlay()
 
 	GameInstance->Player = this;
 
-	StartRightSwordRotation = R_SwordMesh->RelativeRotation;
-	StartLeftSwordRotation = L_SwordMesh->RelativeRotation;
-
 	// Begin the state machine
 	FSM->Start();
 }
@@ -1339,8 +1336,11 @@ UStaticMeshComponent* AYlva::GetLeftHandSword()
 
 	for (auto Component : Components.Array())
 	{
-		if (Component->GetName() == "Sword_L")
+		if (Component->GetName() == "Sword_L" || Component->GetName() == "Sword")
+		{
+			StartLeftSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
 			return Cast<UStaticMeshComponent>(Component);
+		}
 	}
 
 	#if !UE_BUILD_SHIPPING
@@ -1364,7 +1364,10 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 	for (auto Component : Components.Array())
 	{
 		if (Component->GetName() == "Sword_R" || Component->GetName() == "Sword")
+		{
+			StartRightSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
 			return Cast<UStaticMeshComponent>(Component);
+		}
 	}
 
 	#if !UE_BUILD_SHIPPING

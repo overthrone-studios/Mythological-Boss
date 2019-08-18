@@ -618,11 +618,11 @@ protected:
 
 	// Right hand sword socket name
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
-		FName R_SwordStartSocketName = "Sword Socket";
+		FName R_SwordStartSocketName = "SwordSocket";
 
 	// Left hand sword socket name
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
-		FName L_SwordStartSocketName = "Sword Socket";
+		FName L_SwordStartSocketName = "SwordSocket";
 
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
