@@ -435,7 +435,10 @@ void AYlva::LightAttack()
 		Stamina > Combat.StaminaSettings.LightAttackStamina)
 	{
 		FSM->PushState("Light Attack 1");
-		bUseControllerRotationYaw = true;
+
+		if (Combat.bRotateToCameraLookDirection)
+			bUseControllerRotationYaw = true;
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
@@ -443,12 +446,15 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		FSM->GetActiveStateUptime() > 0.4f &&
+		FSM->GetActiveStateUptime() > 0.3f &&
 		Stamina > Combat.StaminaSettings.LightAttackStamina)
 	{
 		FSM->PopState("Light Attack 1");
 		FSM->PushState("Light Attack 2");
-		bUseControllerRotationYaw = true;
+
+		if (Combat.bRotateToCameraLookDirection)
+			bUseControllerRotationYaw = true;
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
@@ -456,12 +462,15 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() == 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		FSM->GetActiveStateUptime() > 0.6f &&
+		FSM->GetActiveStateUptime() > 0.5f &&
 		Stamina > Combat.StaminaSettings.LightAttackStamina)
 	{
 		FSM->PopState("Light Attack 2");
 		FSM->PushState("Light Attack 1");
-		bUseControllerRotationYaw = true;
+
+		if (Combat.bRotateToCameraLookDirection)
+			bUseControllerRotationYaw = true;
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 }
@@ -485,7 +494,10 @@ void AYlva::HeavyAttack()
 		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
 	{
 		FSM->PushState("Heavy Attack 1");
-		bUseControllerRotationYaw = true;
+
+		if (Combat.bRotateToCameraLookDirection)
+			bUseControllerRotationYaw = true;
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
@@ -497,7 +509,10 @@ void AYlva::HeavyAttack()
 	{
 		FSM->PopState("Heavy Attack 1");
 		FSM->PushState("Heavy Attack 2");
-		bUseControllerRotationYaw = true;
+
+		if (Combat.bRotateToCameraLookDirection)
+			bUseControllerRotationYaw = true;
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
@@ -510,7 +525,10 @@ void AYlva::HeavyAttack()
 	{
 		FSM->PopState("Heavy Attack 2");
 		FSM->PushState("Heavy Attack 1");
-		bUseControllerRotationYaw = true;
+
+		if (Combat.bRotateToCameraLookDirection)
+			bUseControllerRotationYaw = true;
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 }
