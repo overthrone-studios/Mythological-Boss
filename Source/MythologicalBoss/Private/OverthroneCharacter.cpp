@@ -30,26 +30,17 @@ void AOverthroneCharacter::BeginPlay()
 	// Become vulnerable
 	bCanBeDamaged = true;
 
-	// Set the default health value
 	Health = StartingHealth;
 
-	// Cache the world object
+	// Initialize variables
 	World = GetWorld();
-
-	// Cache the player controller
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-	// Cache the movement component
 	MovementComponent = GetCharacterMovement();
-
-	// Cache our anim instance
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
-
-	// Cache the player HUD
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
-
-	// Cache our game instance reference
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+
+	// Bind the OnLowHealth event to our virtual function
 	GameInstance->OnLowHealth.AddDynamic(this, &AOverthroneCharacter::OnLowHealth);
 }
 
