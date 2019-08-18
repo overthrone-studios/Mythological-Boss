@@ -862,6 +862,9 @@ void AMordath::OnDashFinished()
 
 void AMordath::DestroySelf()
 {
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
 	Destroy();
 }
 
