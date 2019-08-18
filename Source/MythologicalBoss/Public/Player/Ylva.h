@@ -105,8 +105,28 @@ struct FChargeSettings_Ylva
 		float ChargeGain = 10.0f;
 
 	// The amount of charge we lose when we have taken damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "!bResetChargeAfterMaxHits", ClampMin = 0.0f, ClampMax = 100000.0f))
 		float ChargeLoss = 15.0f;
+
+	// If we are hit, should we reset the charge meter?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bResetChargeAfterMaxHits : 1;
+
+	// The maximum hits we can take before our charge is reset
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bResetChargeAfterMaxHits", ClampMin = 1, ClampMax = 100.0f))
+		uint8 MaxHitsBeforeChargeReset = 1;
+
+	// Should we decrease the charge meter overtime?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLoseChargeOvertime : 1;
+
+	// The amount of time (in seconds) we should delay before we start to lose charge
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f, ClampMax = 100000.0f))
+		float DelayBeforeChargeLoss = 2.0f;
+
+	// At what rate should we decrease the charge meter?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f, ClampMax = 100000.0f))
+		float ChargeLossRate = 100.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -400,6 +420,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void DecreaseCharge();
 
+	// Decreases the charge meter
+	void DecreaseCharge(float Amount);
+
 	// Resets the charge meter to 0
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetCharge();
@@ -601,6 +624,7 @@ private:
 	FTimerHandle SwordDetachmentExpiryTimer;
 
 	FTimerHandle StaminaRegenTimerHandle;
+	FTimerHandle ChargeLossTimerHandle;
 
 	class APlayerCameraManager* CameraManager;
 	ACharacter* Boss;

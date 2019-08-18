@@ -509,8 +509,6 @@ protected:
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
-	uint8 HitCounter = 0; // To keep track of how many hits we've taken
-
 	// Our custom AI controller
 	class ABossAIController* BossAIController{};
 	

@@ -235,6 +235,9 @@ void AYlva::Tick(const float DeltaTime)
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
 
+	if (Combat.ChargeSettings.bLoseChargeOvertime && !GetWorldTimerManager().IsTimerActive(ChargeLossTimerHandle))
+		DecreaseCharge(Combat.ChargeSettings.ChargeLossRate * World->DeltaTimeSeconds);
+
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogCameraPitch)
 		ULog::Number(GetControlRotation().Pitch, "Pitch: ", true);
@@ -1090,6 +1093,8 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 			break;
 
 			default:
+				HitCounter++;
+
 				// Enter damaged state
 				FSM->PushState("Damaged");
 
@@ -1101,7 +1106,16 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 				DecreaseHealth(DamageAmount);
 
-				DecreaseCharge();
+				// Determine whether to reset the charge meter or not
+				if (Combat.ChargeSettings.bResetChargeAfterMaxHits && HitCounter == Combat.ChargeSettings.MaxHitsBeforeChargeReset)
+				{
+					HitCounter = 0;
+					ResetCharge();
+				}
+				else
+				{
+					DecreaseCharge();
+				}
 			break;
 		}
 	}
@@ -1157,11 +1171,21 @@ void AYlva::IncreaseCharge()
 	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge + Combat.ChargeSettings.ChargeGain, 0.0f, Combat.ChargeSettings.MaxCharge);
 
 	UpdateCharacterInfo();
+
+	if (Combat.ChargeSettings.bLoseChargeOvertime)
+		GetWorldTimerManager().SetTimer(ChargeLossTimerHandle, Combat.ChargeSettings.DelayBeforeChargeLoss, false);
 }
 
 void AYlva::DecreaseCharge()
 {
 	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Combat.ChargeSettings.ChargeLoss, 0.0f, Combat.ChargeSettings.MaxCharge);
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::DecreaseCharge(const float Amount)
+{
+	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Amount, 0.0f, Combat.ChargeSettings.MaxCharge);
 
 	UpdateCharacterInfo();
 }

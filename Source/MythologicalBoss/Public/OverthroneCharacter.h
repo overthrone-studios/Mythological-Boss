@@ -160,6 +160,9 @@ protected:
 	// True when we have been damaged
 	uint8 bIsHit : 1;
 
+	// Tracks the amount of hits we've taken
+	uint8 HitCounter = 0;
+
 	// Cached world pointer
 	UWorld* World{};
 
