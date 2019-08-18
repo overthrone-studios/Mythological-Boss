@@ -192,22 +192,15 @@ void AYlva::BeginPlay()
 	// Set the default stamina value
 	Stamina = StartingStamina;
 
-	// Cache the boss character
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
-
-	// Set default move speed
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-
-	// Cache our player camera manager for playing camera animations
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
+	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
+	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
+
+	// Set pitch min max values
 	CameraManager->ViewPitchMin = 360.0f - CameraPitchMax;
 	CameraManager->ViewPitchMax = CameraPitchMin;
-
-	// Cache our anim instance
-	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
-
-	// Cache the FSM Visualizer HUD
-	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
 
 	// Initialize player info
 	GameInstance->PlayerInfo.StartingHealth = StartingHealth;
