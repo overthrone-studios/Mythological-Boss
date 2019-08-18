@@ -95,6 +95,9 @@ public:
 	// Sets default values for this character's properties
 	AOverthroneCharacter();
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void ApplyHitStop();
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
