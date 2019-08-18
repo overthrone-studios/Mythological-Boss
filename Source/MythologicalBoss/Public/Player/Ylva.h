@@ -250,7 +250,7 @@ public:
 
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void IncreaseCharge();
+		void GainCharge();
 
 	// Pause current animation, triggers a reset timer when called
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -418,10 +418,10 @@ protected:
 
 	// Decreases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DecreaseCharge();
+		void LoseCharge();
 
 	// Decreases the charge meter
-	void DecreaseCharge(float Amount);
+	void LoseCharge(float Amount);
 
 	// Resets the charge meter to 0
 	UFUNCTION(BlueprintCallable, Category = "Ylva")

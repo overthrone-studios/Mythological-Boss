@@ -236,7 +236,7 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	if (Combat.ChargeSettings.bLoseChargeOvertime && !GetWorldTimerManager().IsTimerActive(ChargeLossTimerHandle))
-		DecreaseCharge(Combat.ChargeSettings.ChargeLossRate * World->DeltaTimeSeconds);
+		LoseCharge(Combat.ChargeSettings.ChargeLossRate * World->DeltaTimeSeconds);
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogCameraPitch)
@@ -1114,7 +1114,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				}
 				else
 				{
-					DecreaseCharge();
+					LoseCharge();
 				}
 			break;
 		}
@@ -1166,7 +1166,7 @@ void AYlva::ResetStamina()
 	UpdateCharacterInfo();
 }
 
-void AYlva::IncreaseCharge()
+void AYlva::GainCharge()
 {
 	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge + Combat.ChargeSettings.ChargeGain, 0.0f, Combat.ChargeSettings.MaxCharge);
 
@@ -1176,14 +1176,14 @@ void AYlva::IncreaseCharge()
 		GetWorldTimerManager().SetTimer(ChargeLossTimerHandle, Combat.ChargeSettings.DelayBeforeChargeLoss, false);
 }
 
-void AYlva::DecreaseCharge()
+void AYlva::LoseCharge()
 {
 	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Combat.ChargeSettings.ChargeLoss, 0.0f, Combat.ChargeSettings.MaxCharge);
 
 	UpdateCharacterInfo();
 }
 
-void AYlva::DecreaseCharge(const float Amount)
+void AYlva::LoseCharge(const float Amount)
 {
 	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Amount, 0.0f, Combat.ChargeSettings.MaxCharge);
 
