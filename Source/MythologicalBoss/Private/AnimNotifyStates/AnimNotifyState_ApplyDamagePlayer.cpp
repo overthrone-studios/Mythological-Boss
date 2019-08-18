@@ -39,6 +39,9 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		// Apply hit stop
 		Ylva->PauseAnimsWithTimer();
 
+		// Give charge
+		Ylva->IncreaseCharge();
+
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 	}
 }

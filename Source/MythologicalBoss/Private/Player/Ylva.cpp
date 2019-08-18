@@ -298,6 +298,7 @@ void AYlva::UpdateCharacterInfo()
 {
 	GameInstance->PlayerInfo.Health = Health;
 	GameInstance->PlayerInfo.Stamina = Stamina;
+	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 }
 
@@ -1099,6 +1100,8 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
 				DecreaseHealth(DamageAmount);
+
+				DecreaseCharge();
 			break;
 		}
 	}
@@ -1145,6 +1148,27 @@ void AYlva::IncreaseStamina(const float Amount)
 void AYlva::ResetStamina()
 {
 	Stamina = StartingStamina;
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::IncreaseCharge()
+{
+	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge + Combat.ChargeSettings.ChargeGain, 0.0f, Combat.ChargeSettings.MaxCharge);
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::DecreaseCharge()
+{
+	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Combat.ChargeSettings.ChargeLoss, 0.0f, Combat.ChargeSettings.MaxCharge);
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::ResetCharge()
+{
+	Combat.ChargeSettings.Charge = 0;
 
 	UpdateCharacterInfo();
 }

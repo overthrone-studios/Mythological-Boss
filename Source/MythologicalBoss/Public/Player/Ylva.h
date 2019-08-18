@@ -98,7 +98,15 @@ struct FChargeSettings_Ylva
 
 	// Ylva's charge limit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float MaxCharge = 300.0f;
+		float MaxCharge = 100.0f;
+
+	// The amount of charge we gain when we have hit the boss
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100000.0f))
+		float ChargeGain = 10.0f;
+
+	// The amount of charge we lose when we have taken damage
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100000.0f))
+		float ChargeLoss = 15.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -220,6 +228,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void DetachSword();
 
+	// Increases the charge meter
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void IncreaseCharge();
+
+	// Pause current animation, triggers a reset timer when called
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void PauseAnimsWithTimer();
+
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
@@ -227,9 +243,6 @@ public:
 	// Look up/down rate, in deg/sec. Other scaling may affect final rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float LookUpRate;
-
-	// Pause current animation, triggers a reset timer when called
-	void PauseAnimsWithTimer();
 
 protected:
 	void BeginPlay() override;
@@ -382,6 +395,14 @@ protected:
 	// Returns the sword static mesh components attached to the right hand bone
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		UStaticMeshComponent* GetRightHandSword();
+
+	// Decreases the charge meter
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void DecreaseCharge();
+
+	// Resets the charge meter to 0
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ResetCharge();
 
 	// Player states
 	#pragma region Idle
