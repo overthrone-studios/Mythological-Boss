@@ -521,11 +521,11 @@ protected:
 
 	// The minimum pitch rotation value (in degrees) the camera can rotate
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
-		float CameraPitchMin = 90.0f;
+		float CameraPitchMin = 30.0f;
 
 	// The maximum pitch rotation value (in degrees) the camera can rotate
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
-		float CameraPitchMax = 270.0f;
+		float CameraPitchMax = 50.0f;
 
 	// Ylva's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva", DisplayName = "Movement")
