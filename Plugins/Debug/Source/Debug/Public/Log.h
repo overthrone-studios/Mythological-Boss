@@ -133,7 +133,7 @@ public:
 
 	// Log a FVector value to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Vector(const FVector& Vector, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+		static void Vector(const FVector& Vector, const FString& Prefix = "", bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 private:
 	static void LogInt(int64 Number, const FString& Prefix = "", bool bLogInViewport = false, float TimeToDisplay = 5.0f);

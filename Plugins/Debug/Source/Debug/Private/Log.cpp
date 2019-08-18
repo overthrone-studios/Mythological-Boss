@@ -221,25 +221,25 @@ void ULog::Number(const uint64 Number, const FString& Prefix, const bool bLogInV
 void ULog::Number(const float Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::SanitizeFloat(Number));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::SanitizeFloat(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%f"), Number)
+		UE_LOG(LogNumber, Warning, TEXT("%s%f"), *Prefix, Number)
 }
 
 void ULog::Number(const double Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::SanitizeFloat(Number));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::SanitizeFloat(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%f"), Number)
+		UE_LOG(LogNumber, Warning, TEXT("%s%f"), *Prefix, Number)
 }
 
 void ULog::Number(const long Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::FromInt(Number));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%d"), Number)
+		UE_LOG(LogNumber, Warning, TEXT("%s%d"), *Prefix, Number)
 }
 
 void ULog::Bool(const bool bBoolToTest, const bool bLogInViewport, const float TimeToDisplay)
@@ -260,12 +260,12 @@ void ULog::Bool(const bool bBoolToTest, const bool bLogInViewport, const float T
 	}
 }
 
-void ULog::Vector(const FVector& Vector, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Vector(const FVector& Vector, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Vector.ToString());
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + Vector.ToString());
 	else
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *Vector.ToString())
+		UE_LOG(LogTemp, Warning, TEXT("%s%s"), *Prefix, *Vector.ToString())
 }
 
 void ULog::LogInt(const int64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
@@ -273,7 +273,7 @@ void ULog::LogInt(const int64 Number, const FString& Prefix, const bool bLogInVi
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%s%d"), *Prefix, Number)
+		UE_LOG(LogNumber, Display, TEXT("%s%d"), *Prefix, Number)
 }
 
 void ULog::LogUInt(const uint64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
@@ -281,5 +281,5 @@ void ULog::LogUInt(const uint64 Number, const FString& Prefix, const bool bLogIn
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%s%d"), *Prefix, Number)
+		UE_LOG(LogNumber, Display, TEXT("%s%d"), *Prefix, Number)
 }
