@@ -33,11 +33,7 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 	{
 		bIsHit = true;
 
-		// Pin the mesh to the hit location
-		Ylva->DetachSword();
-
-		// Apply hit stop
-		Ylva->PauseAnimsWithTimer();
+		Ylva->ApplyHitStop();
 
 		// Give charge
 		Ylva->GainCharge();
