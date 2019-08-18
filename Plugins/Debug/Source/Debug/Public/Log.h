@@ -54,26 +54,30 @@ public:
 
 	// Log a debug message to the console or viewport (FString version)
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void DebugMessage(ELogType LogSeverity, const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+		static void DebugMessage(ELogType LogSeverity, const FString& Message, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a debug message to the console or viewport (FName version)
-	static void DebugMessage(ELogType LogSeverity, const FName& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
+	static void DebugMessage(ELogType LogSeverity, const FName& Message, bool bLogInViewport = false, float TimeToDisplay = 5.0f);	
 
 	// Log a fatal error message to the console and crash
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Fatal(const FString& LogMessage);
+		static void Fatal(const FString& Message);
 
 	// Log an error message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Error(const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+		static void Error(const FString& Message, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+
+	// Log a success message to the console or viewport
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		static void Success(const FString& Message, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a warning message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Warning(const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+		static void Warning(const FString& Message, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log an information message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")
-		static void Info(const FString& LogMessage, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
+		static void Info(const FString& Message, bool bLogInViewport = false, float TimeToDisplay = 5.0f);
 
 	// Log a hello message to the console or viewport
 	UFUNCTION(BlueprintCallable, Category = "Debug")

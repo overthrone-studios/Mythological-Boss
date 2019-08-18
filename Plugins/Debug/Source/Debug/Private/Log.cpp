@@ -17,46 +17,46 @@ void ULog::ObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 	else
 	{
 		if (ObjectRef)
-			UE_LOG(LogTemp, Log, TEXT("%s is valid"), *ObjectRef->GetName())
+			UE_LOG(LogObjectValidity, Display, TEXT("%s is valid"), *ObjectRef->GetName())
 		else
-			UE_LOG(LogTemp, Error, TEXT("Object is null"))	
+			UE_LOG(LogObjectValidity, Error, TEXT("Object is null"))	
 	}
 }
 
-void ULog::DebugMessage(const ELogType LogSeverity, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::DebugMessage(const ELogType LogSeverity, const FString& Message, const bool bLogInViewport, const float TimeToDisplay)
 {
 	switch (LogSeverity)
 	{
 	case INFO:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, LogMessage);
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Message);
 		else
-			UE_LOG(LogTemp, Display, TEXT("%s"), *LogMessage)
+			UE_LOG(LogMessage, Display, TEXT("%s"), *Message)
 	break;
 
 	case SUCCESS:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, LogMessage);
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, Message);
 		else
-			UE_LOG(LogSuccess, Log, TEXT("%s"), *LogMessage)
+			UE_LOG(LogSuccess, Display, TEXT("%s"), *Message)
 	break;
 
 	case WARNING:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, LogMessage);
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, Message);
 		else
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
+			UE_LOG(LogMessage, Warning, TEXT("%s"), *Message)
 	break;
 
 	case ERROR:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, LogMessage);
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, Message);
 		else
-			UE_LOG(LogTemp, Error, TEXT("%s"), *LogMessage)
+			UE_LOG(LogMessage, Error, TEXT("%s"), *Message)
 	break;
 
 	case FATAL:
-		UE_LOG(LogTemp, Fatal, TEXT("%s"), *LogMessage)
+		UE_LOG(LogMessage, Fatal, TEXT("%s"), *Message)
 	break;
 
 	default:
@@ -64,40 +64,40 @@ void ULog::DebugMessage(const ELogType LogSeverity, const FString& LogMessage, c
 	}
 }
 
-void ULog::DebugMessage(const ELogType LogSeverity, const FName& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::DebugMessage(const ELogType LogSeverity, const FName& Message, const bool bLogInViewport, const float TimeToDisplay)
 {
 	switch (LogSeverity)
 	{
 	case INFO:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, LogMessage.ToString());
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Message.ToString());
 		else
-			UE_LOG(LogTemp, Display, TEXT("%s"), *LogMessage.ToString())
+			UE_LOG(LogMessage, Display, TEXT("%s"), *Message.ToString())
 	break;
 
 	case SUCCESS:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, LogMessage.ToString());
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, Message.ToString());
 		else
-			UE_LOG(LogSuccess, Log, TEXT("%s"), *LogMessage.ToString())
+			UE_LOG(LogSuccess, Display, TEXT("%s"), *Message.ToString())
 	break;
 
 	case WARNING:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, LogMessage.ToString());
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, Message.ToString());
 		else
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage.ToString())
+			UE_LOG(LogMessage, Warning, TEXT("%s"), *Message.ToString())
 	break;
 
 	case ERROR:
 		if (bLogInViewport)
-			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, LogMessage.ToString());
+			GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, Message.ToString());
 		else
-			UE_LOG(LogTemp, Error, TEXT("%s"), *LogMessage.ToString())
+			UE_LOG(LogMessage, Error, TEXT("%s"), *Message.ToString())
 	break;
 
 	case FATAL:
-		UE_LOG(LogTemp, Fatal, TEXT("%s"), *LogMessage.ToString())
+		UE_LOG(LogMessage, Fatal, TEXT("%s"), *Message.ToString())
 	break;
 
 	default:
@@ -105,33 +105,41 @@ void ULog::DebugMessage(const ELogType LogSeverity, const FName& LogMessage, con
 	}
 }
 
-void ULog::Fatal(const FString& LogMessage)
+void ULog::Fatal(const FString& Message)
 {
-	UE_LOG(LogTemp, Fatal, TEXT("%s"), *LogMessage)
+	UE_LOG(LogMessage, Fatal, TEXT("%s"), *Message)
 }
 
-void ULog::Error(const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Error(const FString& Message, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, LogMessage);
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Red, Message);
 	else
-		UE_LOG(LogTemp, Error, TEXT("%s"), *LogMessage)
+		UE_LOG(LogMessage, Error, TEXT("%s"), *Message)
 }
 
-void ULog::Warning(const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Success(const FString& Message, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, LogMessage);
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Green, Message);
 	else
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
+		UE_LOG(LogSuccess, Display, TEXT("%s"), *Message)
 }
 
-void ULog::Info(const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Warning(const FString& Message, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, LogMessage);
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Yellow, Message);
 	else
-		UE_LOG(LogTemp, Display, TEXT("%s"), *LogMessage)
+		UE_LOG(LogMessage, Warning, TEXT("%s"), *Message)
+}
+
+void ULog::Info(const FString& Message, const bool bLogInViewport, const float TimeToDisplay)
+{
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Message);
+	else
+		UE_LOG(LogMessage, Display, TEXT("%s"), *Message)
 }
 
 void ULog::Hello(const bool bLogInViewport)
@@ -139,7 +147,7 @@ void ULog::Hello(const bool bLogInViewport)
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Hello"));
 	else
-		UE_LOG(LogTemp, Warning, TEXT("Hello"))
+		UE_LOG(LogMessage, Warning, TEXT("Hello"))
 }
 
 void ULog::Yes(const bool bLogInViewport)
@@ -147,17 +155,17 @@ void ULog::Yes(const bool bLogInViewport)
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("Yes"));
 	else
-		UE_LOG(LogTemp, Warning, TEXT("Yes"))
+		UE_LOG(LogBool, Warning, TEXT("Yes"))
 }
 
 void ULog::Yes(const FString& Prefix, const bool bLogInViewport)
 {
-	const FString LogMessage = Prefix + ": Yes";
+	const FString Message = Prefix + ": Yes";
 
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, LogMessage);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, Message);
 	else
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
+		UE_LOG(LogBool, Warning, TEXT("%s"), *Message)
 }
 
 void ULog::No(const bool bLogInViewport)
@@ -165,17 +173,17 @@ void ULog::No(const bool bLogInViewport)
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString("No"));
 	else
-		UE_LOG(LogTemp, Warning, TEXT("No"))
+		UE_LOG(LogBool, Warning, TEXT("No"))
 }
 
 void ULog::No(const FString& Prefix, const bool bLogInViewport)
 {
-	const FString LogMessage = Prefix + ": No";
+	const FString Message = Prefix + ": No";
 
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, LogMessage);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, Message);
 	else
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
+		UE_LOG(LogBool, Warning, TEXT("%s"), *Message)
 }
 
 void ULog::Number(const int8 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
@@ -254,9 +262,9 @@ void ULog::Bool(const bool bBoolToTest, const bool bLogInViewport, const float T
 	else
 	{
 		if (bBoolToTest)
-			UE_LOG(LogTemp, Display, TEXT("True"))
+			UE_LOG(LogBool, Warning, TEXT("True"))
 		else
-			UE_LOG(LogTemp, Display, TEXT("False"))
+			UE_LOG(LogBool, Warning, TEXT("False"))
 	}
 }
 
@@ -265,7 +273,7 @@ void ULog::Vector(const FVector& Vector, const FString& Prefix, const bool bLogI
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + Vector.ToString());
 	else
-		UE_LOG(LogTemp, Warning, TEXT("%s%s"), *Prefix, *Vector.ToString())
+		UE_LOG(LogVector, Warning, TEXT("%s%s"), *Prefix, *Vector.ToString())
 }
 
 void ULog::LogInt(const int64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
@@ -273,7 +281,7 @@ void ULog::LogInt(const int64 Number, const FString& Prefix, const bool bLogInVi
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogNumber, Display, TEXT("%s%d"), *Prefix, Number)
+		UE_LOG(LogNumber, Warning, TEXT("%s%d"), *Prefix, Number)
 }
 
 void ULog::LogUInt(const uint64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
@@ -281,5 +289,5 @@ void ULog::LogUInt(const uint64 Number, const FString& Prefix, const bool bLogIn
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogNumber, Display, TEXT("%s%d"), *Prefix, Number)
+		UE_LOG(LogNumber, Warning, TEXT("%s%d"), *Prefix, Number)
 }
