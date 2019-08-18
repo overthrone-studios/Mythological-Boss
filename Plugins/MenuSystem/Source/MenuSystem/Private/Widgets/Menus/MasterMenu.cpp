@@ -2,7 +2,6 @@
 
 #include "MasterMenu.h"
 #include "WidgetTree.h"
-#include "MenuHUD.h"
 #include "Components/WidgetSwitcher.h"
 #include "Kismet/GameplayStatics.h"
 #include "Log.h"
