@@ -7,6 +7,10 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogSuccess, Display, All)
 DECLARE_LOG_CATEGORY_EXTERN(LogNumber, Display, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogBool, Display, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogVector, Display, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogMessage, Display, All)
+DECLARE_LOG_CATEGORY_EXTERN(LogObjectValidity, Display, All)
 
 class FDebugModule : public IModuleInterface
 {
