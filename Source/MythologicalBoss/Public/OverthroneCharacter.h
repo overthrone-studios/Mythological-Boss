@@ -143,7 +143,7 @@ protected:
 		class UFSM* FSM;
 
 	// The character's starting health
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 100.0f, ClampMax = 1000000.0f))
 		float StartingHealth = 100.0f;
 
 	// The character's low health threshold
