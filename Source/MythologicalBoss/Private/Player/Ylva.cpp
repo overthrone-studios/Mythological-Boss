@@ -257,7 +257,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveForward", this, &AYlva::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AYlva::MoveRight);
 
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
+	// We have 2 versions of the rotation bindings to handle different kinds of devices
 	// "Turn" handles devices that provide an absolute delta, such as a mouse.
 	// "TurnRate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
