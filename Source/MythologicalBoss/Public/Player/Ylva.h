@@ -357,6 +357,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void StartDashCooldown();
 
+	// Returns the sword static mesh components attached to the left hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		UStaticMeshComponent* GetLeftHandSword();
+
+	// Returns the sword static mesh components attached to the right hand bone
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		UStaticMeshComponent* GetRightHandSword();
+
 	// Player states
 	#pragma region Idle
 	UFUNCTION()
@@ -541,6 +549,9 @@ protected:
 
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
+
+	// A set of all of our child components attached to this actor
+	TSet<UActorComponent*> Components;
 
 	// The right hand sword mesh
 	UStaticMeshComponent* R_SwordMesh;

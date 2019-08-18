@@ -185,10 +185,14 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get the swords
-	R_SwordMesh = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName("Sword_R"));
-	L_SwordMesh = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName("Sword_L"));
+	// Store all our child components
+	Components = GetComponents();
 
+	// Get the swords
+	R_SwordMesh = GetRightHandSword();
+	L_SwordMesh = GetLeftHandSword();
+
+	// Set the default stamina value
 	Stamina = StartingStamina;
 
 	// Cache the boss character
@@ -1239,4 +1243,42 @@ void AYlva::DelayStaminaRegeneration()
 void AYlva::StartDashCooldown()
 {
 	GetWorldTimerManager().SetTimer(DashCooldownTimer, MovementSettings.DashCooldown, false);
+}
+
+UStaticMeshComponent* AYlva::GetLeftHandSword()
+{
+	if (Components.Num() == 0)
+	{
+		ULog::Info("Components array is empty. You must populate this to retrieve a component", true);
+		return nullptr;
+	}
+
+	for (auto Component : Components.Array())
+	{
+		if (Component->GetName() == "Sword_L")
+			return Cast<UStaticMeshComponent>(Component);
+	}
+
+	ULog::Info("Could not find the left hand sword", true);
+
+	return nullptr;
+}
+
+UStaticMeshComponent* AYlva::GetRightHandSword()
+{
+	if (Components.Num() == 0)
+	{
+		ULog::Info("Components array is empty. You must populate this to retrieve a component", true);
+		return nullptr;
+	}
+
+	for (auto Component : Components.Array())
+	{
+		if (Component->GetName() == "Sword_R" || Component->GetName() == "Sword")
+			return Cast<UStaticMeshComponent>(Component);
+	}
+
+	ULog::Info("Could not find the right hand sword", true);
+
+	return nullptr;
 }
