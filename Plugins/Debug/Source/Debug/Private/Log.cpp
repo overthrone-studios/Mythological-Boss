@@ -276,6 +276,14 @@ void ULog::Vector(const FVector& Vector, const FString& Prefix, const bool bLogI
 		UE_LOG(LogVector, Warning, TEXT("%s%s"), *Prefix, *Vector.ToString())
 }
 
+void ULog::Rotator(const FRotator& Rotator, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
+{
+	if (bLogInViewport)
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + Rotator.ToString());
+	else
+		UE_LOG(LogVector, Warning, TEXT("%s%s"), *Prefix, *Rotator.ToString())
+}
+
 void ULog::LogInt(const int64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
