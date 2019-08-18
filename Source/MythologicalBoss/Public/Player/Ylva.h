@@ -609,6 +609,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
 		FCombatSettings_Ylva Combat;
 
+	// Right hand sword socket name
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
+		FName R_SwordStartSocketName = "Sword Socket";
+
+	// Left hand sword socket name
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
+		FName L_SwordStartSocketName = "Sword Socket";
+
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
 
@@ -618,6 +626,9 @@ protected:
 	UStaticMeshComponent* L_SwordMesh;
 
 private:
+	FRotator StartRightSwordRotation{};
+	FRotator StartLeftSwordRotation{};
+
 	FTimerHandle DashCooldownTimer;
 	FTimerHandle ParryEventExpiryTimer;
 

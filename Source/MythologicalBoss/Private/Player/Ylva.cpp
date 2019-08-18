@@ -212,6 +212,9 @@ void AYlva::BeginPlay()
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 	GameInstance->Player = this;
 
+	StartRightSwordRotation = R_SwordMesh->RelativeRotation;
+	StartLeftSwordRotation = L_SwordMesh->RelativeRotation;
+
 	// Begin the state machine
 	FSM->Start();
 }
@@ -1204,24 +1207,22 @@ void AYlva::ResetGlobalTimeDilation()
 
 void AYlva::AttachSword() const
 {
-	// Todo update for new model
-	//if (SwordMesh)
-	//{
-	//	SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation("SwordSocket"));
-	//	SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation("SwordSocket") + FRotator(0.0f, -10.0f, 90.0f));
-	//	
-	//	SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, FName("SwordSocket"));
-	//}
+	if (R_SwordMesh)
+	{
+		R_SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation(R_SwordStartSocketName));
+		R_SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation(R_SwordStartSocketName) + StartRightSwordRotation);
+		
+		R_SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, R_SwordStartSocketName);
+	}
 }
 
 void AYlva::DetachSword()
 {
-	// Todo update for new model
-	//if (SwordMesh)
-	//{
-	//	SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	//	GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
-	//}
+	if (R_SwordMesh)
+	{
+		R_SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
+	}
 }
 
 void AYlva::StartParryEvent()
