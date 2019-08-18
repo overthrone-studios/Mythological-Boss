@@ -185,9 +185,6 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Store all our child components
-	Components = GetComponents();
-
 	// Get the swords
 	R_SwordMesh = GetRightHandSword();
 	L_SwordMesh = GetLeftHandSword();

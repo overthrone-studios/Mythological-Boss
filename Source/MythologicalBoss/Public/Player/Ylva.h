@@ -550,9 +550,6 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	class UYlvaAnimInstance* YlvaAnimInstance{};
 
-	// A set of all of our child components attached to this actor
-	TSet<UActorComponent*> Components;
-
 	// The right hand sword mesh
 	UStaticMeshComponent* R_SwordMesh;
 	// The left hand sword mesh

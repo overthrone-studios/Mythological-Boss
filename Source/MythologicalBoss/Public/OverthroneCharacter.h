@@ -163,6 +163,9 @@ protected:
 	// Cached world pointer
 	UWorld* World{};
 
+	// A set of all of our child components attached to this actor
+	TSet<UActorComponent*> Components;
+
 	// Cached player controller pointer
 	APlayerController* PlayerController{};
 

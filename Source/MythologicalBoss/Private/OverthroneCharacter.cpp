@@ -24,8 +24,13 @@ void AOverthroneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Store all our child components
+	Components = GetComponents();
+
+	// Become vulnerable
 	bCanBeDamaged = true;
 
+	// Set the default health value
 	Health = StartingHealth;
 
 	// Cache the world object
