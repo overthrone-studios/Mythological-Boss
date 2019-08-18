@@ -11,7 +11,6 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	if (!Mordath)
 		return;
 
-	AttackDistance = Mordath->GetAttackRange();
 	AttackRadius = Mordath->GetAttackRadius();
 
 	if (Mordath->IsLightAttacking())

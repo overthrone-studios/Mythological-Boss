@@ -28,7 +28,6 @@ protected:
 	FHitResult HitResult;
 
 	float AttackDamage = 100.0f;
-	float AttackDistance = 100.0f;
 	float AttackRadius = 10.0f;
 
 	uint8 bIsHit : 1;

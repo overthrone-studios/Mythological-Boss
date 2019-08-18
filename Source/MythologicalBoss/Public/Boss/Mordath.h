@@ -206,10 +206,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FORCEINLINE float GetSpecialAttackDamage() const { return Combat.AttackSettings.SpecialAttackDamage; }
 
-	// Returns the attack distance value
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FORCEINLINE float GetAttackRange() const { return Combat.AttackSettings.AttackDistance; }
-
 	// Returns the attack radius value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
@@ -238,7 +234,7 @@ protected:
 	void PossessedBy(AController* NewController) override;
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	void ChangeHitboxSize(float NewRange, float NewRadius) override;
+	void ChangeHitboxSize(float NewRadius) override;
 	void UpdateCharacterInfo() override;
 
 	void OnLowHealth() override;

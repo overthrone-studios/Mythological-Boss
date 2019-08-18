@@ -878,7 +878,7 @@ void AMordath::UpdateCharacterInfo()
 
 void AMordath::OnLowHealth()
 {
-	ChangeHitboxSize(Combat.AttackSettings.AttackDistanceOnLowHealth, Combat.AttackSettings.AttackRadiusOnLowHealth);
+	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
 void AMordath::FinishStun()
@@ -1115,9 +1115,8 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	return DamageAmount;
 }
 
-void AMordath::ChangeHitboxSize(const float NewRange, const float NewRadius)
+void AMordath::ChangeHitboxSize(const float NewRadius)
 {
-	Combat.AttackSettings.AttackDistance = NewRange;
 	Combat.AttackSettings.AttackRadius = NewRadius;
 }
 

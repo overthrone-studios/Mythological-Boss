@@ -60,17 +60,9 @@ struct FAttackSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float HeavyAttackDamage = 100.0f;
 
-	// The attack range when attacking light or heavy
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float AttackDistance = 100.0f;
-
 	// The radius of the sphere raycast when attacking light or heavy
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
 		float AttackRadius = 20.0f;
-
-	// The attack range when attacking light or heavy on low health
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float AttackDistanceOnLowHealth = 120.0f;
 
 	// The radius of the sphere raycast when attacking light or heavy on low health
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1000.0f))
@@ -140,7 +132,7 @@ protected:
 
 	// Changes the hit box dimensions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void ChangeHitboxSize(float NewRange, float NewRadius);
+		virtual void ChangeHitboxSize(float NewRadius);
 
 	// Called when the character's health is less than or equal to the low health threshold
 	UFUNCTION()

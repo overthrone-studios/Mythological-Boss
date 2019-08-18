@@ -53,7 +53,7 @@ void AOverthroneCharacter::UpdateCharacterInfo()
 	check(0 && "You must implement UpdateCharacterInfo()");
 }
 
-void AOverthroneCharacter::ChangeHitboxSize(float NewRange, float NewRadius)
+void AOverthroneCharacter::ChangeHitboxSize(float NewRadius)
 {
 	check(0 && "You must implement ChangeHitboxSize()");
 }

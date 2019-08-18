@@ -11,7 +11,6 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 	if (!Ylva)
 		return;
 
-	AttackDistance = Ylva->GetAttackRange();
 	AttackRadius = Ylva->GetAttackRadius();
 
 	if (Ylva->IsLightAttacking())
