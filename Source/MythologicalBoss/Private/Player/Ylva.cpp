@@ -240,7 +240,7 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	if (Debug.bLogCameraPitch)
-		ULog::Number(GetControlRotation().Pitch, true);
+		ULog::Number(GetControlRotation().Pitch, "Pitch: ", true);
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

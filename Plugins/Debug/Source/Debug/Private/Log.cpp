@@ -23,9 +23,9 @@ void ULog::ObjectValidity(UObject* ObjectRef, const bool bLogInViewport)
 	}
 }
 
-void ULog::DebugMessage(const ELogType LogLevel, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::DebugMessage(const ELogType LogSeverity, const FString& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
-	switch (LogLevel)
+	switch (LogSeverity)
 	{
 	case INFO:
 		if (bLogInViewport)
@@ -64,9 +64,9 @@ void ULog::DebugMessage(const ELogType LogLevel, const FString& LogMessage, cons
 	}
 }
 
-void ULog::DebugMessage(const ELogType LogLevel, const FName& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::DebugMessage(const ELogType LogSeverity, const FName& LogMessage, const bool bLogInViewport, const float TimeToDisplay)
 {
-	switch (LogLevel)
+	switch (LogSeverity)
 	{
 	case INFO:
 		if (bLogInViewport)
@@ -178,51 +178,47 @@ void ULog::No(const FString& Prefix, const bool bLogInViewport)
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage)
 }
 
-void ULog::Number(const int8 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const int8 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogInt(Number, bLogInViewport, TimeToDisplay);
-	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::FromInt(Number));
-	else
-		UE_LOG(LogTemp, Display, TEXT("%i"), Number)
+	LogInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const int16 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const int16 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogInt(Number, bLogInViewport, TimeToDisplay);
+	LogInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const int32 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const int32 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogInt(Number, bLogInViewport, TimeToDisplay);
+	LogInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const int64 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const int64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogInt(Number, bLogInViewport, TimeToDisplay);
+	LogInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const uint8 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const uint8 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogUInt(Number, bLogInViewport, TimeToDisplay);
+	LogUInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const uint16 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const uint16 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogUInt(Number, bLogInViewport, TimeToDisplay);
+	LogUInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const uint32 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const uint32 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogUInt(Number, bLogInViewport, TimeToDisplay);
+	LogUInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const uint64 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const uint64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	LogUInt(Number, bLogInViewport, TimeToDisplay);
+	LogUInt(Number, Prefix, bLogInViewport, TimeToDisplay);
 }
 
-void ULog::Number(const float Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const float Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::SanitizeFloat(Number));
@@ -230,7 +226,7 @@ void ULog::Number(const float Number, const bool bLogInViewport, const float Tim
 		UE_LOG(LogTemp, Display, TEXT("%f"), Number)
 }
 
-void ULog::Number(const double Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const double Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::SanitizeFloat(Number));
@@ -238,22 +234,12 @@ void ULog::Number(const double Number, const bool bLogInViewport, const float Ti
 		UE_LOG(LogTemp, Display, TEXT("%f"), Number)
 }
 
-void ULog::Number(const long Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::Number(const long Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
 		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::FromInt(Number));
 	else
 		UE_LOG(LogTemp, Display, TEXT("%d"), Number)
-}
-
-void ULog::Number(const long double Number, const bool bLogInViewport, const float TimeToDisplay)
-{
-	const FString LongDoubleString = FString::SanitizeFloat(Number);
-
-	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, LongDoubleString);
-	else
-		UE_LOG(LogTemp, Display, TEXT("%s"), *LongDoubleString)
 }
 
 void ULog::Bool(const bool bBoolToTest, const bool bLogInViewport, const float TimeToDisplay)
@@ -282,20 +268,18 @@ void ULog::Vector(const FVector& Vector, const bool bLogInViewport, const float 
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *Vector.ToString())
 }
 
-void ULog::LogInt(const int64 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::LogInt(const int64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::FromInt(Number));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%d"), Number)
+		UE_LOG(LogTemp, Display, TEXT("%s%d"), *Prefix, Number)
 }
 
-void ULog::LogUInt(const uint64 Number, const bool bLogInViewport, const float TimeToDisplay)
+void ULog::LogUInt(const uint64 Number, const FString& Prefix, const bool bLogInViewport, const float TimeToDisplay)
 {
-	const auto NewNumber = Number;
-
 	if (bLogInViewport)
-		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, FString::FromInt(NewNumber));
+		GEngine->AddOnScreenDebugMessage(-1, TimeToDisplay, FColor::Cyan, Prefix + FString::FromInt(Number));
 	else
-		UE_LOG(LogTemp, Display, TEXT("%d"), NewNumber)
+		UE_LOG(LogTemp, Display, TEXT("%s%d"), *Prefix, Number)
 }
