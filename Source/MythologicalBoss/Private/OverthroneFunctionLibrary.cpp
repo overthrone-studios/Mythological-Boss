@@ -2,6 +2,8 @@
 
 #include "OverthroneFunctionLibrary.h"
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneHUD.h"
+#include "Public/BossBattleGameMode.h"
 #include "ConfigCacheIni.h"
 #include "Mordath.h"
 #include "EngineUtils.h"
@@ -18,18 +20,30 @@ FString UOverthroneFunctionLibrary::GetProjectVersion()
 
 ACharacter* UOverthroneFunctionLibrary::GetBossCharacter(UWorld* InWorld)
 {
-	ACharacter* BossCharacter = nullptr;
-
 	for (const TActorIterator<AMordath> ActorItr(InWorld); ActorItr;)
 	{
-		BossCharacter = *ActorItr;
-		break;
+		return *ActorItr;
 	}
 
-	return BossCharacter;
+	return nullptr;
 }
 
 UOverthroneGameInstance* UOverthroneFunctionLibrary::GetGameInstance(const UObject* WorldContext)
 {
 	return Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(WorldContext));
+}
+
+AOverthroneHUD* UOverthroneFunctionLibrary::GetHUD(APlayerController* InPlayerController)
+{
+	return Cast<AOverthroneHUD>(InPlayerController->GetHUD());
+}
+
+UMasterHUD* UOverthroneFunctionLibrary::GetMasterHUD(APlayerController* InPlayerController)
+{
+	return GetHUD(InPlayerController)->GetMasterHUD();
+}
+
+ABossBattleGameMode* UOverthroneFunctionLibrary::GetGameMode(const UObject* WorldContext)
+{
+	return Cast<ABossBattleGameMode>(UGameplayStatics::GetGameMode(WorldContext));
 }

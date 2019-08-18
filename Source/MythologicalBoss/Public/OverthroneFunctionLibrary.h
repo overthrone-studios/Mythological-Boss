@@ -19,9 +19,23 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Project Information")
 		static FString GetProjectVersion();
 	
+	// Get the first boss character found in the level
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class ACharacter* GetBossCharacter(UWorld* InWorld);
 
+	// Get our custom game instance
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class UOverthroneGameInstance* GetGameInstance(const UObject* WorldContext);
+
+	// Get our custom HUD object
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
+		static class AOverthroneHUD* GetHUD(APlayerController* InPlayerController);
+
+	// Get our master HUD widget
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
+		static class UMasterHUD* GetMasterHUD(APlayerController* InPlayerController);
+
+	// Get our custom game mode
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
+		static class ABossBattleGameMode* GetGameMode(const UObject* WorldContext);
 };
