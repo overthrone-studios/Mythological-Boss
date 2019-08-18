@@ -240,8 +240,10 @@ void AYlva::Tick(const float DeltaTime)
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
 
+#if !UE_BUILD_SHIPPING
 	if (Debug.bLogCameraPitch)
 		ULog::Number(GetControlRotation().Pitch, "Pitch: ", true);
+#endif
 }
 
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -1246,7 +1248,10 @@ UStaticMeshComponent* AYlva::GetLeftHandSword()
 {
 	if (Components.Num() == 0)
 	{
+		#if !UE_BUILD_SHIPPING
 		ULog::Info("Components array is empty. You must populate this to retrieve a component", true);
+		#endif
+
 		return nullptr;
 	}
 
@@ -1256,7 +1261,9 @@ UStaticMeshComponent* AYlva::GetLeftHandSword()
 			return Cast<UStaticMeshComponent>(Component);
 	}
 
+	#if !UE_BUILD_SHIPPING
 	ULog::Info("Could not find the left hand sword", true);
+	#endif
 
 	return nullptr;
 }
@@ -1265,7 +1272,10 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 {
 	if (Components.Num() == 0)
 	{
+		#if !UE_BUILD_SHIPPING
 		ULog::Info("Components array is empty. You must populate this to retrieve a component", true);
+		#endif
+
 		return nullptr;
 	}
 
@@ -1275,7 +1285,9 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 			return Cast<UStaticMeshComponent>(Component);
 	}
 
+	#if !UE_BUILD_SHIPPING
 	ULog::Info("Could not find the right hand sword", true);
+	#endif
 
 	return nullptr;
 }
