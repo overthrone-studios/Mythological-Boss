@@ -203,9 +203,7 @@ void AYlva::BeginPlay()
 	R_SwordMesh = GetRightHandSword();
 	L_SwordMesh = GetLeftHandSword();
 
-	// Set the default stamina value
-	//Stamina = StartingStamina;
-
+	// Initialize our variables
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
@@ -434,8 +432,7 @@ void AYlva::Block()
 {
 	if (FSM->GetActiveStateID() != 7 /*Fall*/ &&
 		FSM->GetActiveStateID() != 5 /*Death*/ &&
-		FSM->GetActiveStateID() != 20 /*Damaged*/
-		)
+		FSM->GetActiveStateID() != 20 /*Damaged*/)
 	{
 		FSM->PopState();
 		FSM->PushState("Block");
@@ -459,19 +456,6 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
 
-	if (StaminaComponent->HasEnoughForLightAttack())
-	{
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetLightAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetLightAttackValue());
-
-			StaminaComponent->DelayRegeneration();
-		}
-	}
-
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -482,6 +466,16 @@ void AYlva::LightAttack()
 
 		if (Combat.bRotateToCameraLookDirection)
 			bUseControllerRotationYaw = true;
+
+		if (!bGodMode)
+		{
+			if (StaminaComponent->IsUsingSmoothBar())
+				StartLosingStamina(StaminaComponent->GetLightAttackValue());
+			else
+				DecreaseStamina(StaminaComponent->GetLightAttackValue());
+
+			StaminaComponent->DelayRegeneration();
+		}
 
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
@@ -499,6 +493,16 @@ void AYlva::LightAttack()
 		if (Combat.bRotateToCameraLookDirection)
 			bUseControllerRotationYaw = true;
 
+		if (!bGodMode)
+		{
+			if (StaminaComponent->IsUsingSmoothBar())
+				StartLosingStamina(StaminaComponent->GetLightAttackValue());
+			else
+				DecreaseStamina(StaminaComponent->GetLightAttackValue());
+
+			StaminaComponent->DelayRegeneration();
+		}
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
@@ -515,6 +519,16 @@ void AYlva::LightAttack()
 		if (Combat.bRotateToCameraLookDirection)
 			bUseControllerRotationYaw = true;
 
+		if (!bGodMode)
+		{
+			if (StaminaComponent->IsUsingSmoothBar())
+				StartLosingStamina(StaminaComponent->GetLightAttackValue());
+			else
+				DecreaseStamina(StaminaComponent->GetLightAttackValue());
+
+			StaminaComponent->DelayRegeneration();
+		}
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 }
@@ -528,19 +542,6 @@ void AYlva::HeavyAttack()
 		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
 
-	if (StaminaComponent->HasEnoughForHeavyAttack())
-	{
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetLightAttackValue());
-
-			StaminaComponent->DelayRegeneration();
-		}
-	}
-
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
@@ -551,6 +552,16 @@ void AYlva::HeavyAttack()
 
 		if (Combat.bRotateToCameraLookDirection)
 			bUseControllerRotationYaw = true;
+
+		if (!bGodMode)
+		{
+			if (StaminaComponent->IsUsingSmoothBar())
+				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
+			else
+				DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
+
+			StaminaComponent->DelayRegeneration();
+		}
 
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
@@ -567,6 +578,16 @@ void AYlva::HeavyAttack()
 		if (Combat.bRotateToCameraLookDirection)
 			bUseControllerRotationYaw = true;
 
+		if (!bGodMode)
+		{
+			if (StaminaComponent->IsUsingSmoothBar())
+				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
+			else
+				DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
+
+			StaminaComponent->DelayRegeneration();
+		}
+
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
@@ -582,6 +603,16 @@ void AYlva::HeavyAttack()
 
 		if (Combat.bRotateToCameraLookDirection)
 			bUseControllerRotationYaw = true;
+
+		if (!bGodMode)
+		{
+			if (StaminaComponent->IsUsingSmoothBar())
+				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
+			else
+				DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
+
+			StaminaComponent->DelayRegeneration();
+		}
 
 		MovementComponent->SetMovementMode(MOVE_None);
 	}
@@ -1271,9 +1302,6 @@ void AYlva::StartLosingStamina(const float Amount)
 {
 	StaminaComponent->DecreaseStamina(Amount);
 
-	ULog::Number(StaminaComponent->GetPreviousStamina(), "Previous Stamina: ", true);
-	ULog::Number(StaminaComponent->GetCurrentStamina(), "Target Stamina: ", true);
-
 	StaminaRegenTimeline->PlayFromStart();
 }
 
@@ -1282,8 +1310,6 @@ void AYlva::LoseStamina()
 	const float Time = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
 
 	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Time));
-	ULog::Number(StaminaComponent->GetSmoothedStamina(), "New Stamina: ", true);
-	ULog::Number(StaminaComponent->GetCurrentStamina(), "Target Stamina: ", true);
 
 	UpdateCharacterInfo();
 }
