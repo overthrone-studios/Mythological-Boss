@@ -383,6 +383,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetStamina();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void StartLosingStamina(float Amount);
+
+	UFUNCTION()
+		void LoseStamina();
+
+	UFUNCTION()
+		void FinishLosingStamina();
+
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
@@ -577,6 +586,14 @@ protected:
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
 		uint8 bGodMode : 1;
+
+	// This timeline plays when we have taken damage
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
+		class UTimelineComponent* StaminaRegenTimeline;
+
+	// The float curve to use when taking damage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva")
+		class UCurveFloat* StaminaRegenCurve;
 
 	// The player's current stamina level
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")

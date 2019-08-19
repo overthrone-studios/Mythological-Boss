@@ -134,6 +134,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina")
 		uint8 bSmoothBar : 1;
 
+	// The actor's previous health before being damaged
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
+		float PreviousStamina;
+
+	// The actor's updated health when bSmoothBar is enabled
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
+		float NewStamina;
+
 	// The rate of stamina regeneration (How fast do we replenish stamina)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
 		float RegenerationRate = 200.0f;
@@ -161,14 +169,6 @@ protected:
 	// The stamina value to subtract when being hit while blocking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
 		float ShieldHit = 300.0f;
-
-	// The actor's previous health before being damaged
-	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
-		float PreviousStamina;
-
-	// The actor's updated health when bSmoothBar is enabled
-	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
-		float NewStamina;
 
 private:
 	AActor* Owner;
