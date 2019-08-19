@@ -169,12 +169,12 @@ protected:
 		class UHealthComponent* HealthComponent;
 
 	// This timeline plays when we have taken damage
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
-		class UTimelineComponent* TakeDamageTimeline;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		class UTimelineComponent* HealthLossTimeline;
 
 	// The float curve to use when taking damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character")
-		class UCurveFloat* TakeDamageCurve;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health")
+		class UCurveFloat* HealthLossCurve;
 
 	// The skeletal mesh representing the character
 	USkeletalMesh* SkeletalMesh;

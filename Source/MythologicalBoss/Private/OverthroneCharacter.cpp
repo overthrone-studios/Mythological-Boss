@@ -21,7 +21,7 @@ AOverthroneCharacter::AOverthroneCharacter()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(FName("Health Component"));
 
 	// Take damage timeline component
-	TakeDamageTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Take Damage Timeline"));
+	HealthLossTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Take Damage Timeline"));
 
 	GetCapsuleComponent()->bReturnMaterialOnMove = true;
 
@@ -33,7 +33,7 @@ void AOverthroneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InitTimelineComponent(TakeDamageTimeline, TakeDamageCurve, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
+	InitTimelineComponent(HealthLossTimeline, HealthLossCurve, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
 
 	// Store all our child components
 	Components = GetComponents();
@@ -101,12 +101,12 @@ void AOverthroneCharacter::StartLosingHealth(const float Amount)
 {
 	HealthComponent->DecreaseHealth(Amount);
 
-	TakeDamageTimeline->PlayFromStart();
+	HealthLossTimeline->PlayFromStart();
 }
 
 void AOverthroneCharacter::LoseHealth()
 {
-	const float Time = TakeDamageCurve->GetFloatValue(TakeDamageTimeline->GetPlaybackPosition());
+	const float Time = HealthLossCurve->GetFloatValue(HealthLossTimeline->GetPlaybackPosition());
 
 	HealthComponent->SetSmoothedHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Time));
 
