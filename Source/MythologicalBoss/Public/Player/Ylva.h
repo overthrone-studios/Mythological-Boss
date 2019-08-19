@@ -491,15 +491,6 @@ protected:
 		void OnExitHeavyAttack2State();
 	#pragma endregion 
 
-	#pragma region Fall
-	UFUNCTION()
-		void OnEnterFallingState();
-	UFUNCTION()
-		void UpdateFallingState();
-	UFUNCTION()
-		void OnExitFallingState();
-	#pragma endregion 
-
 	#pragma region Damaged
 	UFUNCTION()
 		void OnEnterDamagedState();

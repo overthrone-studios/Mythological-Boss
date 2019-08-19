@@ -61,7 +61,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(3, "Light Attack 1");
 	FSM->AddState(4, "Block");
 	FSM->AddState(5, "Death");
-	FSM->AddState(7, "Fall");
 	FSM->AddState(8, "Light Attack 2");
 	FSM->AddState(9, "Heavy Attack 1");
 	FSM->AddState(10, "Heavy Attack 2");
@@ -93,10 +92,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDeathState);
 	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDeathState);
 	FSM->GetState(5)->OnExitState.AddDynamic(this, &AYlva::OnExitDeathState);
-
-	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterFallingState);
-	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateFallingState);
-	FSM->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitFallingState);
 
 	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterLightAttack2State);
 	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateLightAttack2State);
@@ -414,8 +409,7 @@ void AYlva::DisableLockOn()
 
 void AYlva::Block()
 {
-	if (FSM->GetActiveStateID() != 7 /*Fall*/ &&
-		FSM->GetActiveStateID() != 5 /*Death*/ &&
+	if (FSM->GetActiveStateID() != 5 /*Death*/ &&
 		FSM->GetActiveStateID() != 20 /*Damaged*/)
 	{
 		FSM->PopState();
@@ -434,8 +428,7 @@ void AYlva::StopBlocking()
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (FSM->GetActiveStateID() == 7 /*Fall*/ ||
-		FSM->GetActiveStateID() == 5 /*Death*/ ||
+	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
 		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
 		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
@@ -520,8 +513,7 @@ void AYlva::LightAttack()
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (FSM->GetActiveStateID() == 7 /*Fall*/ ||
-		FSM->GetActiveStateID() == 5 /*Death*/ ||
+	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
 		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
 		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
@@ -802,26 +794,6 @@ void AYlva::OnExitRunState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-}
-#pragma endregion
-
-#pragma region Fall
-void AYlva::OnEnterFallingState()
-{
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-}
-
-void AYlva::UpdateFallingState()
-{
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	if (GetVelocity().Z == 0.0f)
-		FSM->PopState("Fall");
-}
-
-void AYlva::OnExitFallingState()
-{
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
 #pragma endregion
 
