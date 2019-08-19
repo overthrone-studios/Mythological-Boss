@@ -615,7 +615,6 @@ private:
 
 	FTimerHandle SwordDetachmentExpiryTimer;
 
-	FTimerHandle StaminaRegenTimerHandle;
 	FTimerHandle ChargeLossTimerHandle;
 
 	class APlayerCameraManager* CameraManager;
