@@ -674,7 +674,6 @@ void AYlva::Dash()
 		{
 			StartDashCooldown();
 
-			// Todo start losing stamina
 			if (StaminaComponent->IsUsingSmoothBar())
 				StartLosingStamina(StaminaComponent->GetDashValue());
 			else
@@ -1211,7 +1210,6 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 				// Update values
 				DecreaseHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-				//DecreaseStamina(StaminaComponent->GetShieldHitValue()); // Todo start losing stamina
 				if (StaminaComponent->IsUsingSmoothBar())
 					StartLosingStamina(StaminaComponent->GetShieldHitValue());
 				else
@@ -1269,14 +1267,13 @@ void AYlva::OnLowHealth()
 
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
-	//Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, StartingStamina);
 	StaminaComponent->SetStamina(NewStaminaAmount);
+
 	UpdateCharacterInfo();
 }
 
 void AYlva::DecreaseStamina(const float Amount)
 {
-	//Stamina = FMath::Clamp(Stamina - Amount, 0.0f, StartingStamina);
 	StaminaComponent->DecreaseStamina(Amount);
 
 	UpdateCharacterInfo();
@@ -1284,7 +1281,6 @@ void AYlva::DecreaseStamina(const float Amount)
 
 void AYlva::IncreaseStamina(const float Amount)
 {
-	//Stamina = FMath::Clamp(Stamina + Amount, 0.0f, StartingStamina);
 	StaminaComponent->IncreaseStamina(Amount);
 
 	UpdateCharacterInfo();
@@ -1292,7 +1288,6 @@ void AYlva::IncreaseStamina(const float Amount)
 
 void AYlva::ResetStamina()
 {
-	//Stamina = StartingStamina;
 	StaminaComponent->ResetStamina();
 
 	UpdateCharacterInfo();
@@ -1429,11 +1424,6 @@ bool AYlva::IsParrySuccessful()
 {
 	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
 }
-
-//void AYlva::DelayStaminaRegeneration()
-//{
-//	GetWorldTimerManager().SetTimer(StaminaRegenTimerHandle, Combat.StaminaSettings.StaminaRegenDelay, false);
-//}
 
 void AYlva::StartDashCooldown()
 {
