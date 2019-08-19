@@ -546,7 +546,7 @@ void AYlva::Run()
 		return;
 
 	// If we are moving and grounded
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina > Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds)
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina >= 0.0f)
 	{
 		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 
@@ -727,13 +727,11 @@ void AYlva::UpdateRunState()
 	if (!bGodMode)
 		DecreaseStamina(Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds);
 
-	if (GetVelocity().IsZero() || 
-		MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || 
-		Stamina <= Combat.StaminaSettings.RunStamina)
+	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || Stamina <= 0.0f)
+	{
+		DelayStaminaRegeneration();
 		FSM->PopState();
-
-	if (GetVelocity().Z < 0.0f)
-		FSM->PushState("Fall");
+	}
 }
 
 void AYlva::OnExitRunState()
