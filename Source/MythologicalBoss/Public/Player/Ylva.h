@@ -159,8 +159,8 @@ struct FCombatSettings_Ylva : public FCombatSettings
 		FParrySettings_Ylva ParrySettings;
 
 	// Settings that affect charge values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FChargeSettings_Ylva ChargeSettings;
+	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	//	FChargeSettings_Ylva ChargeSettings;
 
 	// The amount of time (in seconds) the sword "sticks" when hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bEnableHitStop", ClampMin = 0.0f, ClampMax = 2.0f))
@@ -214,7 +214,7 @@ public:
 
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void GainCharge();
+		void IncreaseCharge();
 
 	// Pause current animation, triggers a reset timer when called
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -358,6 +358,15 @@ protected:
 	UFUNCTION()
 		void FinishLosingStamina();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void StartGainingCharge(float Amount);
+
+	UFUNCTION()
+		void GainCharge();
+
+	UFUNCTION()
+		void FinishGainingCharge();
+
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
@@ -400,10 +409,10 @@ protected:
 
 	// Decreases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void LoseCharge();
+		void DecreaseCharge();
 
 	// Decreases the charge meter
-	void LoseCharge(float Amount);
+	void DecreaseCharge(float Amount);
 
 	// Resets the charge meter to 0
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -546,17 +555,28 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UStaminaComponent* StaminaComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UChargeAttackComponent* ChargeAttackComponent;
+
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
 		uint8 bGodMode : 1;
 
-	// This timeline plays when we have taken damage
+	// This timeline plays when we are regenerating stamina
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")
 		class UTimelineComponent* StaminaRegenTimeline;
 
-	// The float curve to use when taking damage
+	// The float curve to use when regenerating stamina
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
 		class UCurveFloat* StaminaRegenCurve;
+
+	// This timeline plays when we are building charge
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Charge Attack")
+		class UTimelineComponent* ChargeAttackTimeline;
+
+	// The float curve to use when building charge
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Charge Attack")
+		class UCurveFloat* ChargeAttackCurve;
 
 	// How long (in seconds) after the player's death, should we wait to respawn?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))

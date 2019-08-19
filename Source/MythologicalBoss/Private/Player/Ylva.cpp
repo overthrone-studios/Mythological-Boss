@@ -4,6 +4,7 @@
 #include "Player/YlvaAnimInstance.h"
 #include "Public/OverthroneHUD.h"
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneFunctionLibrary.h"
 #include "Widgets/HUD/MasterHUD.h"
 #include "Widgets/HUD/FSMVisualizerHUD.h"
 #include "Camera/CameraComponent.h"
@@ -16,6 +17,7 @@
 #include "Components/TimelineComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
+#include "Components/ChargeAttackComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -27,7 +29,6 @@
 #include "TimerManager.h"
 #include "FSM.h"
 #include "Log.h"
-#include "OverthroneFunctionLibrary.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -165,6 +166,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(FName("Stamina Component"));
 	StaminaRegenTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Stamina Regen Timeline"));
 
+	// Charge attack component
+	ChargeAttackComponent = CreateDefaultSubobject<UChargeAttackComponent>(FName("Charge Attack Component"));
+	ChargeAttackTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Charge Attack Timeline"));
+
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -198,6 +203,7 @@ void AYlva::BeginPlay()
 	Super::BeginPlay();
 
 	InitTimelineComponent(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
+	InitTimelineComponent(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
 	// Get the swords
 	R_SwordMesh = GetRightHandSword();
@@ -219,8 +225,8 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->PlayerInfo.StartingStamina = StaminaComponent->GetDefaultStamina();
 	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
-	GameInstance->PlayerInfo.MaxCharge = Combat.ChargeSettings.MaxCharge;
-	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
+	GameInstance->PlayerInfo.MaxCharge = ChargeAttackComponent->GetMaxCharge();
+	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
 
 	// Bind events to our functions
 	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
@@ -257,11 +263,13 @@ void AYlva::Tick(const float DeltaTime)
 		RegenerateStamina(StaminaComponent->GetRegenRate());
 
 	// Charge loss mechanic
-	if (Combat.ChargeSettings.bLoseChargeOvertime && 
-		!GetWorldTimerManager().IsTimerActive(ChargeLossTimerHandle) && 
-		Combat.ChargeSettings.Charge < Combat.ChargeSettings.MaxCharge &&
-		Combat.ChargeSettings.Charge != 0.0f)
-		LoseCharge(Combat.ChargeSettings.ChargeLossRate * World->DeltaTimeSeconds);
+	if (ChargeAttackComponent->CanLoseChargeOvertime() && 
+		ChargeAttackComponent->IsLosingCharge() && 
+		!ChargeAttackComponent->IsChargeFull() && 
+		!ChargeAttackComponent->IsChargeEmpty())
+	{
+		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
+	}
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogCameraPitch)
@@ -326,7 +334,7 @@ void AYlva::UpdateCharacterInfo()
 {
 	GameInstance->PlayerInfo.Health = HealthComponent->GetSmoothedHealth();
 	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetSmoothedStamina();
-	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
+	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetSmoothedCharge();
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 }
 
@@ -1234,14 +1242,14 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 					DecreaseHealth(DamageAmount);
 
 				// Determine whether to reset the charge meter or not
-				if (Combat.ChargeSettings.bResetChargeAfterMaxHits && HitCounter == Combat.ChargeSettings.MaxHitsBeforeChargeReset)
+				if (ChargeAttackComponent->WantsResetAfterMaxHits()/*Combat.ChargeSettings.bResetChargeAfterMaxHits*/ && HitCounter == ChargeAttackComponent->GetMaxHits()/*Combat.ChargeSettings.MaxHitsBeforeChargeReset*/)
 				{
 					HitCounter = 0;
 					ResetCharge();
 				}
 				else
 				{
-					LoseCharge();
+					DecreaseCharge();
 				}
 			break;
 		}
@@ -1316,33 +1324,60 @@ void AYlva::FinishLosingStamina()
 	UpdateCharacterInfo();
 }
 
+void AYlva::StartGainingCharge(const float Amount)
+{
+	ChargeAttackComponent->IncreaseCharge(Amount);
+
+	ChargeAttackTimeline->PlayFromStart();
+}
+
 void AYlva::GainCharge()
 {
-	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge + Combat.ChargeSettings.ChargeGain, 0.0f, Combat.ChargeSettings.MaxCharge);
+	const float Time = ChargeAttackCurve->GetFloatValue(ChargeAttackTimeline->GetPlaybackPosition());
 
-	UpdateCharacterInfo();
-
-	if (Combat.ChargeSettings.bLoseChargeOvertime && Combat.ChargeSettings.Charge < Combat.ChargeSettings.MaxCharge)
-		GetWorldTimerManager().SetTimer(ChargeLossTimerHandle, Combat.ChargeSettings.DelayBeforeChargeLoss, false);
-}
-
-void AYlva::LoseCharge()
-{
-	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Combat.ChargeSettings.ChargeLoss, 0.0f, Combat.ChargeSettings.MaxCharge);
+	ChargeAttackComponent->SetSmoothedCharge(FMath::Lerp(ChargeAttackComponent->GetPreviousCharge(), ChargeAttackComponent->GetCurrentCharge(), Time));
 
 	UpdateCharacterInfo();
 }
 
-void AYlva::LoseCharge(const float Amount)
+void AYlva::FinishGainingCharge()
 {
-	Combat.ChargeSettings.Charge = FMath::Clamp(Combat.ChargeSettings.Charge - Amount, 0.0f, Combat.ChargeSettings.MaxCharge);
+	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
+		ChargeAttackComponent->DelayChargeLoss();
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::IncreaseCharge()
+{
+	if (ChargeAttackComponent->IsUsingSmoothBar())
+		StartGainingCharge(ChargeAttackComponent->GetChargeGain());
+	else
+		ChargeAttackComponent->IncreaseCharge(ChargeAttackComponent->GetChargeGain());
+
+	UpdateCharacterInfo();
+
+	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
+		ChargeAttackComponent->DelayChargeLoss();
+}
+
+void AYlva::DecreaseCharge()
+{
+	ChargeAttackComponent->DecreaseCharge(ChargeAttackComponent->GetChargeLoss());
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::DecreaseCharge(const float Amount)
+{
+	ChargeAttackComponent->DecreaseCharge(Amount);
 
 	UpdateCharacterInfo();
 }
 
 void AYlva::ResetCharge()
 {
-	Combat.ChargeSettings.Charge = 0;
+	ChargeAttackComponent->ResetCharge();
 
 	UpdateCharacterInfo();
 }
