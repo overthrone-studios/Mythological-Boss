@@ -21,7 +21,7 @@ public:
 
 	// Returns true if the regen timer is not active
 	UFUNCTION(BlueprintPure, Category = "Stamina")
-		bool IsRegenerating();
+		bool IsDelayFinished();
 
 	// Return the actor's default stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")

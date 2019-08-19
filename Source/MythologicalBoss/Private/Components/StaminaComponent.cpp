@@ -27,7 +27,7 @@ void UStaminaComponent::DelayRegeneration()
 	Owner->GetWorldTimerManager().SetTimer(RegenTimerHandle, RegenerationDelay, false);
 }
 
-bool UStaminaComponent::IsRegenerating()
+bool UStaminaComponent::IsDelayFinished()
 {
 	return !Owner->GetWorldTimerManager().IsTimerActive(RegenTimerHandle);
 }
