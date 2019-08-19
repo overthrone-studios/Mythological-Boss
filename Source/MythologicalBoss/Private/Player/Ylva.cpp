@@ -14,6 +14,7 @@
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/HealthComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -210,8 +211,8 @@ void AYlva::BeginPlay()
 	CameraManager->ViewPitchMax = CameraPitchMin;
 
 	// Initialize player info
-	GameInstance->PlayerInfo.StartingHealth = StartingHealth;
-	GameInstance->PlayerInfo.Health = Health;
+	GameInstance->PlayerInfo.StartingHealth = HealthComponent->GetDefaultHealth();
+	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->PlayerInfo.MaxCharge = Combat.ChargeSettings.MaxCharge;
@@ -315,7 +316,7 @@ void AYlva::ChangeHitboxSize(const float NewRadius)
 
 void AYlva::UpdateCharacterInfo()
 {
-	GameInstance->PlayerInfo.Health = NewHealth;
+	GameInstance->PlayerInfo.Health = HealthComponent->GetNewHealth();
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->PlayerInfo.Location = GetActorLocation();
@@ -333,8 +334,8 @@ void AYlva::StartLosingHealth(const float Amount)
 
 	if (Debug.bLogHealthValues)
 	{
-		ULog::Number(PreviousHealth, "Previous Health: ", true);
-		ULog::Number(Health, "Target Health: ", true);
+		ULog::Number(HealthComponent->GetPreviousHealth(), "Previous Health: ", true);
+		ULog::Number(HealthComponent->GetCurrentHealth(), "Target Health: ", true);
 	}
 }
 
@@ -343,7 +344,7 @@ void AYlva::LoseHealth()
 	Super::LoseHealth();
 
 	if (Debug.bLogHealthValues)
-		ULog::Number(NewHealth, "New Health: ", true);
+		ULog::Number(HealthComponent->GetNewHealth(), "New Health: ", true);
 }
 
 void AYlva::MoveForward(const float Value)
@@ -1115,7 +1116,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		return DamageAmount;
 
 	// Apply damage once
-	if (Health > 0.0f && !bIsHit)
+	if (HealthComponent->GetCurrentHealth() > 0.0f && !bIsHit)
 	{
 		// Pop the active state that's not Idle or Block
 		if (FSM->GetActiveStateName() != "Idle" &&
@@ -1161,7 +1162,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
-				if (bSmoothHealthBar)
+				if (HealthComponent->IsUsingSmoothBar())
 					StartLosingHealth(DamageAmount);
 				else
 					DecreaseHealth(DamageAmount);
@@ -1180,7 +1181,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		}
 	}
 
-	if (Health <= 0.0f && FSM->GetActiveStateName() != "Death")
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
 	{
 		Die();
 	}

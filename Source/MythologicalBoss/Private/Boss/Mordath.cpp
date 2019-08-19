@@ -7,6 +7,7 @@
 #include "Boss/MordathAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/HealthComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimNode_StateMachine.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -190,8 +191,8 @@ void AMordath::BeginPlay()
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
-	GameInstance->BossInfo.StartingHealth = StartingHealth;
-	GameInstance->BossInfo.Health = Health;
+	GameInstance->BossInfo.StartingHealth = HealthComponent->GetDefaultHealth();
+	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->BossInfo.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->Boss = this;
@@ -842,7 +843,7 @@ void AMordath::FinishCooldown()
 
 void AMordath::UpdateCharacterInfo()
 {
-	GameInstance->BossInfo.Health = NewHealth;
+	GameInstance->BossInfo.Health = HealthComponent->GetNewHealth();
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
@@ -1062,7 +1063,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Apply hit stop
 		PauseAnimsWithTimer();
 
-		if (bSmoothHealthBar)
+		if (HealthComponent->IsUsingSmoothBar())
 			StartLosingHealth(DamageAmount);
 		else
 			DecreaseHealth(DamageAmount);
@@ -1082,14 +1083,14 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PopState();
 		FSM->PushState("Beaten");
 
-		if (bSmoothHealthBar)
+		if (HealthComponent->IsUsingSmoothBar())
 			StartLosingHealth(DamageAmount);
 		else
 			DecreaseHealth(DamageAmount);
 	}
 
 	// Are we dead?
-	if (Health <= 0.0f && FSM->GetActiveStateName() != "Death")
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
 	{
 		Die();
 	}
@@ -1116,7 +1117,7 @@ FRotator AMordath::FacePlayer()
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossInfo.Health = NewHealth;
+	GameInstance->BossInfo.Health = HealthComponent->GetNewHealth();
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 

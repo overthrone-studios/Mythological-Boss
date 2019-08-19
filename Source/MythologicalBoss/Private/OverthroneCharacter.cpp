@@ -11,10 +11,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "Log.h"
 #include "Components/TimelineComponent.h"
+#include "Components/HealthComponent.h"
 
 AOverthroneCharacter::AOverthroneCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Health component
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(FName("Health Component"));
 
 	// Take damage timeline component
 	TakeDamageTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Take Damage Timeline"));
@@ -37,9 +41,9 @@ void AOverthroneCharacter::BeginPlay()
 	// Become vulnerable
 	bCanBeDamaged = true;
 
-	Health = StartingHealth;
-	PreviousHealth = Health;
-	NewHealth = Health;
+	//Health = StartingHealth;
+	//PreviousHealth = Health;
+	//NewHealth = Health;
 
 	// Initialize variables
 	World = GetWorld();
@@ -99,9 +103,9 @@ void AOverthroneCharacter::OnLowHealth()
 
 void AOverthroneCharacter::StartLosingHealth(const float Amount)
 {
-	PreviousHealth = Health;
-	Health -= Amount;
-
+	//PreviousHealth = Health;
+	//Health -= Amount;
+	HealthComponent->DecreaseHealth(Amount);
 	TakeDamageTimeline->PlayFromStart();
 }
 
@@ -109,69 +113,75 @@ void AOverthroneCharacter::LoseHealth()
 {
 	const float Time = TakeDamageCurve->GetFloatValue(TakeDamageTimeline->GetPlaybackPosition());
 
-	NewHealth = FMath::Lerp(PreviousHealth, Health, Time);
+	//NewHealth = FMath::Lerp(PreviousHealth, Health, Time);
+
+	HealthComponent->SetNewHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Time));
 
 	UpdateCharacterInfo();
 	
 	// Are we on low health?
-	if (Health <= StartingHealth * LowHealthThreshold && !bWasLowHealthEventTriggered)
+	if (HealthComponent->IsLowHealth() && !bWasLowHealthEventTriggered)
 		BroadcastLowHealth();
 }
 
 void AOverthroneCharacter::FinishLosingHealth()
 {
-	Health = NewHealth;
-	PreviousHealth = Health;
+	//Health = NewHealth;
+	//PreviousHealth = Health;
 
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 {
-	PreviousHealth = Health;
+	//PreviousHealth = Health;
 
-	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
-	NewHealth = Health;
+	//Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
+	//NewHealth = Health;
+
+	HealthComponent->SetHealth(NewHealthAmount);
 
 	UpdateCharacterInfo();
 
-	if (Health <= StartingHealth * LowHealthThreshold && !bWasLowHealthEventTriggered)
-	{
+	// Are we on low health?
+	if (HealthComponent->IsLowHealth() && !bWasLowHealthEventTriggered)
 		BroadcastLowHealth();
-	}
 }
 
 void AOverthroneCharacter::IncreaseHealth(const float Amount)
 {
-	PreviousHealth = Health;
+	//PreviousHealth = Health;
 
-	Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
-	NewHealth = Health;
+	//Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
+	//NewHealth = Health;
+
+	HealthComponent->IncreaseHealth(Amount);
 
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::DecreaseHealth(const float Amount)
 {
-	PreviousHealth = Health;
+	//PreviousHealth = Health;
 
-	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
-	NewHealth = Health;
+	//Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
+	//NewHealth = Health;
+
+	HealthComponent->DecreaseHealth(Amount);
 
 	UpdateCharacterInfo();
 
-	if (Health <= StartingHealth * LowHealthThreshold && !bWasLowHealthEventTriggered)
-	{
+	// Are we on low health?
+	if (HealthComponent->IsLowHealth() && !bWasLowHealthEventTriggered)
 		BroadcastLowHealth();
-	}
 }
 
 void AOverthroneCharacter::ResetHealth()
 {
-	Health = StartingHealth;
-	PreviousHealth = Health;
-	NewHealth = Health;
-
+	//Health = StartingHealth;
+	//PreviousHealth = Health;
+	//NewHealth = Health;
+	HealthComponent->ResetHealth();
 	UpdateCharacterInfo();
 }
 
