@@ -35,6 +35,34 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE bool IsUsingSmoothBar() const { return bSmoothBar; }
 
+	// Return the regeneration rate value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetRegenRate() const { return RegenerationRate; }
+
+	// Return the regeneration delay value (in seconds)
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetRegenDelay() const { return RegenerationDelay; }
+
+	// Return the light attack stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetLightAttackValue() const { return LightAttack; }
+
+	// Return the heavy attack stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetHeavyAttackValue() const { return HeavyAttack; }
+
+	// Return the dash stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetDashValue() const { return Dash; }
+
+	// Return the run stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetRunValue() const { return Run; }
+
+	// Return the shield hit stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetShieldHitValue() const { return ShieldHit; }
+
 	// Set a new current stamina value
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 		void SetStamina(float NewStaminaAmount);
@@ -54,7 +82,6 @@ public:
 	// Resets stamina back to default
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 		void ResetStamina();
-
 
 protected:
 	void BeginPlay() override;
