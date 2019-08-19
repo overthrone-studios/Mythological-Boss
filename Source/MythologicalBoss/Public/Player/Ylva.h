@@ -58,36 +58,6 @@ struct FCameraShakes_Ylva : public FCameraShakes
 };
 
 USTRUCT(BlueprintType)
-struct FStaminaSettings_Ylva
-{
-	GENERATED_BODY()
-
-	// The stamina value to subtract when light attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float LightAttackStamina = 10.0f;
-
-	// The stamina value to subtract when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float HeavyAttackStamina = 30.0f;
-
-	// The stamina value to subtract when dashing
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float DashStamina = 40.0f;
-
-	// The stamina value to subtract while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float RunStamina = 2.0f;
-
-	// The stamina value to subtract when being hit while blocking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float ShieldHitStamina = 300.0f;
-
-	// The amount of time (in seconds) we should wait before regenerating stamina
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float StaminaRegenDelay = 1.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FChargeSettings_Ylva
 {
 	GENERATED_BODY()
@@ -179,10 +149,6 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FAttackSettings AttackSettings;
-
-	// Settings that affect Ylva's stamina values
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-	//	FStaminaSettings_Ylva StaminaSettings;
 
 	// Settings that affect blocking values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -403,9 +369,6 @@ protected:
 	void StartParryEvent();
 	void FinishParryEvent();
 
-	//UFUNCTION(BlueprintCallable, Category = "Ylva")
-	//	void DelayStaminaRegeneration();
-
 	// God mode functions
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void EnableGodMode();
@@ -588,28 +551,16 @@ protected:
 		uint8 bGodMode : 1;
 
 	// This timeline plays when we have taken damage
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")
 		class UTimelineComponent* StaminaRegenTimeline;
 
 	// The float curve to use when taking damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
 		class UCurveFloat* StaminaRegenCurve;
-
-	// The player's current stamina level
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
-	//	float Stamina = 100.0f;
-
-	// The player's starting stamina
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
-	//	float StartingStamina = 100.0f;
 
 	// How long (in seconds) after the player's death, should we wait to respawn?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float RespawnDelay = 1.8f;
-
-	// The rate of stamina regeneration
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-	//	float StaminaRegenerationRate = 10.0f;
 
 	// The minimum pitch rotation value (in degrees) the camera can rotate
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
