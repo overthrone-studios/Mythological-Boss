@@ -176,33 +176,11 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character")
 		class UCurveFloat* TakeDamageCurve;
 
-	// The character's starting health
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 100.0f, ClampMax = 1000000.0f))
-	//	float StartingHealth = 100.0f;
-
-	// The character's low health threshold
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
-	//	float LowHealthThreshold = 0.25f;
-
-	// The character's current health
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
-	//	float Health = 100.0f;
-
-	// The health value before we took damage
-	//float PreviousHealth = 100.0f;
-
-	// The health value while losing health
-	//float NewHealth = 100.0f;
-
 	// The skeletal mesh representing the character
 	USkeletalMesh* SkeletalMesh;
 
 	// True when we have been damaged
 	uint8 bIsHit : 1;
-
-	// Should we use smooth health bar?
-	//UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Overthrone Character")
-	//	uint8 bSmoothHealthBar : 1;
 
 	// Tracks the amount of hits we've taken
 	uint8 HitCounter = 0;
