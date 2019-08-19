@@ -114,7 +114,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
 		float ChargeGainPerHit = 10.0f;
 
-	// The amount of charge we loss after we've taken damage
+	// The amount of charge we lose after we've taken damage
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
 		float ChargeLossPerHit = 20.0f;
 
