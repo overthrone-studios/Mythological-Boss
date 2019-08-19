@@ -41,10 +41,6 @@ void AOverthroneCharacter::BeginPlay()
 	// Become vulnerable
 	bCanBeDamaged = true;
 
-	//Health = StartingHealth;
-	//PreviousHealth = Health;
-	//NewHealth = Health;
-
 	// Initialize variables
 	World = GetWorld();
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -103,17 +99,14 @@ void AOverthroneCharacter::OnLowHealth()
 
 void AOverthroneCharacter::StartLosingHealth(const float Amount)
 {
-	//PreviousHealth = Health;
-	//Health -= Amount;
 	HealthComponent->DecreaseHealth(Amount);
+
 	TakeDamageTimeline->PlayFromStart();
 }
 
 void AOverthroneCharacter::LoseHealth()
 {
 	const float Time = TakeDamageCurve->GetFloatValue(TakeDamageTimeline->GetPlaybackPosition());
-
-	//NewHealth = FMath::Lerp(PreviousHealth, Health, Time);
 
 	HealthComponent->SetNewHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Time));
 
@@ -126,19 +119,11 @@ void AOverthroneCharacter::LoseHealth()
 
 void AOverthroneCharacter::FinishLosingHealth()
 {
-	//Health = NewHealth;
-	//PreviousHealth = Health;
-
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 {
-	//PreviousHealth = Health;
-
-	//Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
-	//NewHealth = Health;
-
 	HealthComponent->SetHealth(NewHealthAmount);
 
 	UpdateCharacterInfo();
@@ -150,11 +135,6 @@ void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 
 void AOverthroneCharacter::IncreaseHealth(const float Amount)
 {
-	//PreviousHealth = Health;
-
-	//Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
-	//NewHealth = Health;
-
 	HealthComponent->IncreaseHealth(Amount);
 
 	UpdateCharacterInfo();
@@ -162,11 +142,6 @@ void AOverthroneCharacter::IncreaseHealth(const float Amount)
 
 void AOverthroneCharacter::DecreaseHealth(const float Amount)
 {
-	//PreviousHealth = Health;
-
-	//Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
-	//NewHealth = Health;
-
 	HealthComponent->DecreaseHealth(Amount);
 
 	UpdateCharacterInfo();
@@ -178,10 +153,8 @@ void AOverthroneCharacter::DecreaseHealth(const float Amount)
 
 void AOverthroneCharacter::ResetHealth()
 {
-	//Health = StartingHealth;
-	//PreviousHealth = Health;
-	//NewHealth = Health;
 	HealthComponent->ResetHealth();
+
 	UpdateCharacterInfo();
 }
 
