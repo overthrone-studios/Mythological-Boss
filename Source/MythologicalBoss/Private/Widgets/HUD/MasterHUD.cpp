@@ -7,8 +7,8 @@
 #include "Image.h"
 #include "TextBlock.h"
 
-static FLinearColor White = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
-static FLinearColor Green = FLinearColor(0.187166f, 1.0f, 0.198517f, 1.0f);
+static FLinearColor GWhite = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
+static FLinearColor GGreen = FLinearColor(0.187166f, 1.0f, 0.198517f, 1.0f);
 
 void UMasterHUD::Init()
 {
@@ -56,7 +56,7 @@ void UMasterHUD::HighlightBox(const int32 Index)
 	}
 
 	const auto Background = Cast<UImage>(Boxes[Index]->WidgetTree->FindWidget("BGImage"));
-	Background->SetColorAndOpacity(Green);
+	Background->SetColorAndOpacity(GGreen);
 }
 
 void UMasterHUD::UnhighlightBox(const int32 Index)
@@ -68,7 +68,7 @@ void UMasterHUD::UnhighlightBox(const int32 Index)
 	}
 
 	const auto Background = Cast<UImage>(Boxes[Index]->WidgetTree->FindWidget("BGImage"));
-	Background->SetColorAndOpacity(White);
+	Background->SetColorAndOpacity(GWhite);
 }
 
 void UMasterHUD::ShowTitle()
