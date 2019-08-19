@@ -141,6 +141,18 @@ protected:
 	UFUNCTION()
 		virtual void OnLowHealth();
 
+	// Prep work before playing the timeline to lose health
+	UFUNCTION()
+		virtual void StartLosingHealth(float Amount);
+
+	// Called every tick of the take damage timeline
+	UFUNCTION()
+		virtual void LoseHealth();
+
+	// Called when the timeline has finished playing
+	UFUNCTION()
+		void FinishLosingHealth();
+
 	// Send out a signal to the functions that have binded to the OnLowHealth event
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void BroadcastLowHealth();
@@ -160,6 +172,12 @@ protected:
 	// The character's current health
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		float Health = 100.0f;
+
+	// The health value before we took damage
+	float PreviousHealth = 100.0f;
+
+	// The health value while losing health
+	float NewHealth = 100.0f;
 
 	// The skeletal mesh representing the character
 	USkeletalMesh* SkeletalMesh;

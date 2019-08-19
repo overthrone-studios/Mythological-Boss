@@ -13,6 +13,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -158,6 +159,9 @@ AYlva::AYlva() : AOverthroneCharacter()
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
+	// Take damage timeline component
+	TakeDamageTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Take Damage Timeline"));
+
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -189,6 +193,8 @@ void AYlva::PauseAnimsWithTimer()
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitTimelineComponent(TakeDamageTimeline, Combat.TakeDamageCurve, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
 
 	// Get the swords
 	R_SwordMesh = GetRightHandSword();
@@ -313,7 +319,7 @@ void AYlva::ChangeHitboxSize(const float NewRadius)
 
 void AYlva::UpdateCharacterInfo()
 {
-	GameInstance->PlayerInfo.Health = Health;
+	GameInstance->PlayerInfo.Health = NewHealth;
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->PlayerInfo.Location = GetActorLocation();
@@ -1140,7 +1146,8 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
-				DecreaseHealth(DamageAmount);
+				StartLosingHealth(DamageAmount);
+				//DecreaseHealth(DamageAmount);
 
 				// Determine whether to reset the charge meter or not
 				if (Combat.ChargeSettings.bResetChargeAfterMaxHits && HitCounter == Combat.ChargeSettings.MaxHitsBeforeChargeReset)
@@ -1172,6 +1179,53 @@ void AYlva::OnBossDeath()
 void AYlva::OnLowHealth()
 {
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
+}
+
+void AYlva::StartLosingHealth(const float Amount)
+{
+	Super::StartLosingHealth(Amount);
+
+	//ULog::Number(PreviousHealth, "Previous Health: ", true);
+	//ULog::Number(Health, "Target Health: ", true);
+
+	TakeDamageTimeline->PlayFromStart();
+}
+
+void AYlva::LoseHealth()
+{
+	Super::LoseHealth();
+
+	const float Time = Combat.TakeDamageCurve->GetFloatValue(TakeDamageTimeline->GetPlaybackPosition());
+
+	NewHealth = FMath::Lerp(PreviousHealth, Health, Time);
+}
+
+void AYlva::InitTimelineComponent(UTimelineComponent* InTimelineComponent, UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
+{
+	// Timeline Initialization
+	FOnTimelineFloat TimelineCallback;
+	FOnTimelineEvent TimelineFinishedCallback;
+	TimelineCallback.BindUFunction(this, TimelineCallbackFuncName);
+	TimelineFinishedCallback.BindUFunction(this, TimelineFinishedCallbackFuncName);
+
+	if (InCurveFloat)
+	{
+		InTimelineComponent = NewObject<UTimelineComponent>(this, InTimelineComponent->GetFName());
+		InTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		InTimelineComponent->SetPropertySetObject(this);
+		InTimelineComponent->SetLooping(false);
+		InTimelineComponent->SetPlaybackPosition(0.0f, false, false);
+		InTimelineComponent->SetPlayRate(InPlaybackSpeed);
+		InTimelineComponent->AddInterpFloat(InCurveFloat, TimelineCallback);
+		InTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
+		InTimelineComponent->SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
+		InTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
+		InTimelineComponent->RegisterComponent();
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, "Failed to initialize the " + InTimelineComponent->GetName() + ". A curve float asset is missing!", true);
+	}
 }
 
 void AYlva::SetStamina(const float NewStaminaAmount)

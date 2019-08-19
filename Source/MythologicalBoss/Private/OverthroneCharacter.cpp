@@ -31,6 +31,7 @@ void AOverthroneCharacter::BeginPlay()
 	bCanBeDamaged = true;
 
 	Health = StartingHealth;
+	PreviousHealth = Health;
 
 	// Initialize variables
 	World = GetWorld();
@@ -60,8 +61,34 @@ void AOverthroneCharacter::OnLowHealth()
 {
 }
 
+void AOverthroneCharacter::StartLosingHealth(const float Amount)
+{
+	PreviousHealth = Health;
+	Health -= Amount;
+}
+
+void AOverthroneCharacter::LoseHealth()
+{
+	UpdateCharacterInfo();
+	
+	if (Health <= StartingHealth * LowHealthThreshold && !bWasLowHealthEventTriggered)
+	{
+		BroadcastLowHealth();
+	}
+}
+
+void AOverthroneCharacter::FinishLosingHealth()
+{
+	Health = NewHealth;
+	PreviousHealth = Health;
+
+	UpdateCharacterInfo();
+}
+
 void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 {
+	PreviousHealth = Health;
+
 	Health = FMath::Clamp(NewHealthAmount, 0.0f, StartingHealth);
 
 	UpdateCharacterInfo();
@@ -74,6 +101,8 @@ void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 
 void AOverthroneCharacter::IncreaseHealth(const float Amount)
 {
+	PreviousHealth = Health;
+
 	Health = FMath::Clamp(Health + Amount, 0.0f, StartingHealth);
 
 	UpdateCharacterInfo();
@@ -81,6 +110,8 @@ void AOverthroneCharacter::IncreaseHealth(const float Amount)
 
 void AOverthroneCharacter::DecreaseHealth(const float Amount)
 {
+	PreviousHealth = Health;
+
 	Health = FMath::Clamp(Health - Amount, 0.0f, StartingHealth);
 
 	UpdateCharacterInfo();
@@ -94,14 +125,13 @@ void AOverthroneCharacter::DecreaseHealth(const float Amount)
 void AOverthroneCharacter::ResetHealth()
 {
 	Health = StartingHealth;
+	PreviousHealth = Health;
 
 	UpdateCharacterInfo();
 }
 
 void AOverthroneCharacter::Die()
 {
-	SetHealth(0.0f);
-
 	bCanBeDamaged = false;
 
 	AnimInstance->LeaveAllStates();
