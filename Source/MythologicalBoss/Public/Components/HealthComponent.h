@@ -7,7 +7,7 @@
 #include "HealthComponent.generated.h"
 
 
-UCLASS(ClassGroup=(Health), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
 class MYTHOLOGICALBOSS_API UHealthComponent final : public UActorComponent
 {
 	GENERATED_BODY()
