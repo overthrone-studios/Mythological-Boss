@@ -6,6 +6,9 @@ UStaminaComponent::UStaminaComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	DefaultStamina = 100.0f;
+
+	InitStamina();
 }
 
 void UStaminaComponent::BeginPlay()
@@ -14,3 +17,18 @@ void UStaminaComponent::BeginPlay()
 
 	
 }
+
+void UStaminaComponent::InitStamina()
+{
+	Stamina = DefaultStamina;
+	PreviousStamina = DefaultStamina;
+	NewStamina = DefaultStamina;
+}
+
+#if WITH_EDITOR
+void UStaminaComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	if (PropertyChangedEvent.GetPropertyName() == "DefaultStamina")
+		Stamina = DefaultStamina;
+}
+#endif
