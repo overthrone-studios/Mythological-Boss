@@ -29,7 +29,7 @@ public:
 
 	// Return the actor's new health value
 	UFUNCTION(BlueprintPure, Category = "Health")
-		FORCEINLINE float GetNewHealth() const { return NewHealth; }
+		FORCEINLINE float GetSmoothedHealth() const { return NewHealth; }
 
 	// Return the actor's new health value
 	UFUNCTION(BlueprintPure, Category = "Health")
@@ -49,7 +49,7 @@ public:
 
 	// Set the new health value
 	UFUNCTION(BlueprintCallable, Category = "Health")
-		void SetNewHealth(float Value);
+		void SetSmoothedHealth(float Value);
 
 	// Add health by an amount
 	UFUNCTION(BlueprintCallable, Category = "Health")

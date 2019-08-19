@@ -108,7 +108,7 @@ void AOverthroneCharacter::LoseHealth()
 {
 	const float Time = TakeDamageCurve->GetFloatValue(TakeDamageTimeline->GetPlaybackPosition());
 
-	HealthComponent->SetNewHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Time));
+	HealthComponent->SetSmoothedHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Time));
 
 	UpdateCharacterInfo();
 	

@@ -48,7 +48,7 @@ void UHealthComponent::SetHealth(const float NewHealthAmount)
 	NewHealth = Health;
 }
 
-void UHealthComponent::SetNewHealth(const float Value)
+void UHealthComponent::SetSmoothedHealth(const float Value)
 {
 	NewHealth = Value;
 }

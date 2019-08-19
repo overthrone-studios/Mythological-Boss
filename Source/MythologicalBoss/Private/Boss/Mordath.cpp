@@ -843,7 +843,7 @@ void AMordath::FinishCooldown()
 
 void AMordath::UpdateCharacterInfo()
 {
-	GameInstance->BossInfo.Health = HealthComponent->GetNewHealth();
+	GameInstance->BossInfo.Health = HealthComponent->GetSmoothedHealth();
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
@@ -1117,7 +1117,7 @@ FRotator AMordath::FacePlayer()
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossInfo.Health = HealthComponent->GetNewHealth();
+	GameInstance->BossInfo.Health = HealthComponent->GetSmoothedHealth();
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
