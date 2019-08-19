@@ -15,6 +15,14 @@ class MYTHOLOGICALBOSS_API UStaminaComponent final : public UActorComponent
 public:	
 	UStaminaComponent();
 
+	// Delay stamina regeneration by the regeneration delay
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+		void DelayRegeneration();
+
+	// Returns true if the regen timer is not active
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		bool IsRegenerating();
+
 	// Return the actor's default stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE float GetDefaultStamina() const { return DefaultStamina; }
@@ -32,8 +40,28 @@ public:
 		FORCEINLINE float GetSmoothedStamina() const { return NewStamina; }
 
 	// Returns true if smooth bar is enabled
-	UFUNCTION(BlueprintPure, Category = "Health")
+	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE bool IsUsingSmoothBar() const { return bSmoothBar; }
+
+	// Returns true if we have enough stamina for light attacking
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool HasEnoughForLightAttack() const { return Stamina > LightAttack; }
+
+	// Returns true if we have enough stamina for light attacking
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool HasEnoughForHeavyAttack() const { return Stamina > HeavyAttack; }
+
+	// Returns true if we have enough stamina for light attacking
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool HasEnoughForDash() const { return Stamina > Dash; }
+
+	// Returns true if we don't have stamina (Stamina <= 0)
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool IsStaminaEmpty() const { return Stamina <= 0.0f; }
+
+	// Returns true if we have stamina (Stamina > 0)
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool HasStamina() const { return Stamina > 0.0f; }
 
 	// Return the regeneration rate value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -141,4 +169,9 @@ protected:
 	// The actor's updated health when bSmoothBar is enabled
 	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
 		float NewStamina;
+
+private:
+	AActor* Owner;
+
+	FTimerHandle RegenTimerHandle;
 };

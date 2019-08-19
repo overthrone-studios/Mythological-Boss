@@ -1,6 +1,8 @@
 // Copyright Overthrone Studios 2019
 
 #include "Components/StaminaComponent.h"
+#include "GameFramework/Actor.h"
+#include "TimerManager.h"
 
 UStaminaComponent::UStaminaComponent()
 {
@@ -9,6 +11,25 @@ UStaminaComponent::UStaminaComponent()
 	DefaultStamina = 100.0f;
 
 	InitStamina();
+}
+
+void UStaminaComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Owner = GetOwner();
+
+	InitStamina();
+}
+
+void UStaminaComponent::DelayRegeneration()
+{
+	Owner->GetWorldTimerManager().SetTimer(RegenTimerHandle, RegenerationDelay, false);
+}
+
+bool UStaminaComponent::IsRegenerating()
+{
+	return !Owner->GetWorldTimerManager().IsTimerActive(RegenTimerHandle);
 }
 
 void UStaminaComponent::SetStamina(const float NewStaminaAmount)
@@ -42,13 +63,6 @@ void UStaminaComponent::DecreaseStamina(const float Amount)
 
 void UStaminaComponent::ResetStamina()
 {
-	InitStamina();
-}
-
-void UStaminaComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
 	InitStamina();
 }
 
