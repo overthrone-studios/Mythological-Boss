@@ -202,7 +202,7 @@ void AYlva::BeginPlay()
 	L_SwordMesh = GetLeftHandSword();
 
 	// Set the default stamina value
-	Stamina = StartingStamina;
+	//Stamina = StartingStamina;
 
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -217,8 +217,8 @@ void AYlva::BeginPlay()
 	// Initialize player info
 	GameInstance->PlayerInfo.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->PlayerInfo.StartingStamina = StartingStamina;
-	GameInstance->PlayerInfo.Stamina = Stamina;
+	GameInstance->PlayerInfo.StartingStamina = StaminaComponent->GetDefaultStamina();
+	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
 	GameInstance->PlayerInfo.MaxCharge = Combat.ChargeSettings.MaxCharge;
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 
@@ -251,6 +251,10 @@ void AYlva::Tick(const float DeltaTime)
 		GameInstance->SetLockOnLocation(GameInstance->BossInfo.Location);
 		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
+
+	// Stamina regen mechanic
+	if (StaminaComponent->IsDelayFinished())
+		RegenerateStamina(StaminaComponent->GetRegenRate());
 
 	// Charge loss mechanic
 	if (Combat.ChargeSettings.bLoseChargeOvertime && 
@@ -321,7 +325,7 @@ void AYlva::ChangeHitboxSize(const float NewRadius)
 void AYlva::UpdateCharacterInfo()
 {
 	GameInstance->PlayerInfo.Health = HealthComponent->GetSmoothedHealth();
-	GameInstance->PlayerInfo.Stamina = Stamina;
+	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 }
@@ -453,14 +457,14 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
 
-	if (Stamina > Combat.StaminaSettings.LightAttackStamina)
-		DelayStaminaRegeneration();
+	if (StaminaComponent->HasEnoughForLightAttack())
+		StaminaComponent->DelayRegeneration();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		Stamina > Combat.StaminaSettings.LightAttackStamina)
+		StaminaComponent->HasEnoughForLightAttack())
 	{
 		FSM->PushState("Light Attack 1");
 
@@ -475,7 +479,7 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		FSM->GetActiveStateUptime() > 0.3f &&
-		Stamina > Combat.StaminaSettings.LightAttackStamina)
+		StaminaComponent->HasEnoughForLightAttack())
 	{
 		FSM->PopState("Light Attack 1");
 		FSM->PushState("Light Attack 2");
@@ -491,7 +495,7 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		FSM->GetActiveStateUptime() > 0.5f &&
-		Stamina > Combat.StaminaSettings.LightAttackStamina)
+		StaminaComponent->HasEnoughForLightAttack())
 	{
 		FSM->PopState("Light Attack 2");
 		FSM->PushState("Light Attack 1");
@@ -512,14 +516,14 @@ void AYlva::HeavyAttack()
 		FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
 
-	if (Stamina > Combat.StaminaSettings.HeavyAttackStamina)
-		DelayStaminaRegeneration();
+	if (StaminaComponent->HasEnoughForHeavyAttack())
+		StaminaComponent->DelayRegeneration();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
+		StaminaComponent->HasEnoughForHeavyAttack())
 	{
 		FSM->PushState("Heavy Attack 1");
 
@@ -533,7 +537,7 @@ void AYlva::HeavyAttack()
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateUptime() > 0.7f &&
-		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
+		StaminaComponent->HasEnoughForHeavyAttack())
 	{
 		FSM->PopState("Heavy Attack 1");
 		FSM->PushState("Heavy Attack 2");
@@ -549,7 +553,7 @@ void AYlva::HeavyAttack()
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() == 10 /*Heavy Attack 2*/ &&
 		FSM->GetActiveStateUptime() > 0.5f &&
-		Stamina > Combat.StaminaSettings.HeavyAttackStamina)
+		StaminaComponent->HasEnoughForHeavyAttack())
 	{
 		FSM->PopState("Heavy Attack 2");
 		FSM->PushState("Heavy Attack 1");
@@ -572,7 +576,7 @@ void AYlva::Run()
 		return;
 
 	// If we are moving and grounded
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && Stamina >= 0.0f)
+	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && StaminaComponent->HasStamina())
 	{
 		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 
@@ -594,7 +598,7 @@ void AYlva::StopRunning()
 
 	// Delay stamina regeneration
 	if (FSM->GetActiveStateName() == "Run")
-		DelayStaminaRegeneration();
+		StaminaComponent->DelayRegeneration();
 
 	FSM->PopState();
 }
@@ -613,14 +617,15 @@ void AYlva::Dash()
 		VelocityNormalized.Z = 0;
 
 		// Do we have enough stamina to dash?
-		if (!bGodMode && Stamina > Combat.StaminaSettings.DashStamina)
+		if (!bGodMode && StaminaComponent->HasEnoughForDash())
 		{
 			StartDashCooldown();
 
-			DecreaseStamina(Combat.StaminaSettings.DashStamina);
+			// Todo start losing stamina
+			DecreaseStamina(StaminaComponent->GetDashValue());
 			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
 
-			DelayStaminaRegeneration();
+			StaminaComponent->DelayRegeneration();
 		}
 		else if (bGodMode)
 		{
@@ -661,7 +666,7 @@ void AYlva::Pause()
 
 void AYlva::RegenerateStamina(const float Rate)
 {
-	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || GetWorldTimerManager().IsTimerActive(StaminaRegenTimerHandle))
+	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ /*|| GetWorldTimerManager().IsTimerActive(StaminaRegenTimerHandle)*/)
 		return;
 
 	IncreaseStamina(Rate * World->DeltaTimeSeconds);
@@ -698,7 +703,7 @@ void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	RegenerateStamina(StaminaRegenerationRate);
+	RegenerateStamina(StaminaComponent->GetRegenRate());
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
@@ -723,7 +728,7 @@ void AYlva::UpdateWalkState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	RegenerateStamina(StaminaRegenerationRate);
+	//RegenerateStamina(StaminaRegenerationRate);
 
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PopState("Walk");
@@ -751,11 +756,11 @@ void AYlva::UpdateRunState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	if (!bGodMode)
-		DecreaseStamina(Combat.StaminaSettings.RunStamina * World->DeltaTimeSeconds);
+		DecreaseStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
 
-	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || Stamina <= 0.0f)
+	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
 	{
-		DelayStaminaRegeneration();
+		StaminaComponent->DelayRegeneration();
 		FSM->PopState();
 	}
 }
@@ -801,7 +806,7 @@ void AYlva::UpdateBlockingState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	RegenerateStamina(StaminaRegenerationRate);
+	//RegenerateStamina(StaminaRegenerationRate);
 }
 
 void AYlva::OnExitBlockingState()
@@ -820,10 +825,10 @@ void AYlva::OnEnterLightAttackState()
 
 	AnimInstance->bAcceptLightAttack = true;
 
-	if (Stamina > 0)
+	if (StaminaComponent->HasStamina())
 	{
 		if (!bGodMode)
-			DecreaseStamina(Combat.StaminaSettings.LightAttackStamina);
+			DecreaseStamina(StaminaComponent->GetLightAttackValue());
 	}
 	else
 	{
@@ -860,10 +865,10 @@ void AYlva::OnEnterLightAttack2State()
 
 	AnimInstance->bAcceptSecondLightAttack = true;
 
-	if (Stamina > 0)
+	if (StaminaComponent->HasStamina())
 	{
 		if (!bGodMode)
-			DecreaseStamina(Combat.StaminaSettings.LightAttackStamina);
+			DecreaseStamina(StaminaComponent->GetLightAttackValue());
 	}
 	else
 	{
@@ -900,10 +905,10 @@ void AYlva::OnEnterHeavyAttackState()
 
 	AnimInstance->bAcceptHeavyAttack = true;
 
-	if (Stamina > 0)
+	if (StaminaComponent->HasStamina())
 	{
 		if (!bGodMode)
-			DecreaseStamina(Combat.StaminaSettings.HeavyAttackStamina);
+			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
 	}
 	else
 	{
@@ -940,10 +945,10 @@ void AYlva::OnEnterHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = true;
 
-	if (Stamina > 0)
+	if (StaminaComponent->HasStamina())
 	{
 		if (!bGodMode)
-			DecreaseStamina(Combat.StaminaSettings.HeavyAttackStamina);
+			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
 	}
 	else
 	{
@@ -988,7 +993,7 @@ void AYlva::UpdateDamagedState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	RegenerateStamina(StaminaRegenerationRate);
+	//RegenerateStamina(StaminaRegenerationRate);
 
 	// If hit animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
@@ -1043,7 +1048,7 @@ void AYlva::OnEnterShieldHitState()
 	YlvaAnimInstance->bIsShieldHit = true;
 	bIsHit = true;
 
-	DelayStaminaRegeneration();
+	StaminaComponent->DelayRegeneration();
 }
 
 void AYlva::UpdateShieldHitState()
@@ -1092,7 +1097,7 @@ void AYlva::UpdateParryState()
 	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted - 0.2f)
 		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
 
-	RegenerateStamina(StaminaRegenerationRate);
+	//RegenerateStamina(StaminaComponent->GetRegenRate());
 }
 
 void AYlva::OnExitParryState()
@@ -1151,7 +1156,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 				// Update values
 				DecreaseHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-				DecreaseStamina(Combat.StaminaSettings.ShieldHitStamina);
+				DecreaseStamina(StaminaComponent->GetShieldHitValue()); // Todo start losing stamina
 			break;
 
 			default:
@@ -1205,28 +1210,31 @@ void AYlva::OnLowHealth()
 
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
-	Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, StartingStamina);
-
+	//Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, StartingStamina);
+	StaminaComponent->SetStamina(NewStaminaAmount);
 	UpdateCharacterInfo();
 }
 
 void AYlva::DecreaseStamina(const float Amount)
 {
-	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, StartingStamina);
+	//Stamina = FMath::Clamp(Stamina - Amount, 0.0f, StartingStamina);
+	StaminaComponent->DecreaseStamina(Amount);
 
 	UpdateCharacterInfo();
 }
 
 void AYlva::IncreaseStamina(const float Amount)
 {
-	Stamina = FMath::Clamp(Stamina + Amount, 0.0f, StartingStamina);
+	//Stamina = FMath::Clamp(Stamina + Amount, 0.0f, StartingStamina);
+	StaminaComponent->IncreaseStamina(Amount);
 
 	UpdateCharacterInfo();
 }
 
 void AYlva::ResetStamina()
 {
-	Stamina = StartingStamina;
+	//Stamina = StartingStamina;
+	StaminaComponent->ResetStamina();
 
 	UpdateCharacterInfo();
 }
@@ -1340,10 +1348,10 @@ bool AYlva::IsParrySuccessful()
 	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
 }
 
-void AYlva::DelayStaminaRegeneration()
-{
-	GetWorldTimerManager().SetTimer(StaminaRegenTimerHandle, Combat.StaminaSettings.StaminaRegenDelay, false);
-}
+//void AYlva::DelayStaminaRegeneration()
+//{
+//	GetWorldTimerManager().SetTimer(StaminaRegenTimerHandle, Combat.StaminaSettings.StaminaRegenDelay, false);
+//}
 
 void AYlva::StartDashCooldown()
 {

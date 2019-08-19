@@ -181,8 +181,8 @@ struct FCombatSettings_Ylva : public FCombatSettings
 		FAttackSettings AttackSettings;
 
 	// Settings that affect Ylva's stamina values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FStaminaSettings_Ylva StaminaSettings;
+	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	//	FStaminaSettings_Ylva StaminaSettings;
 
 	// Settings that affect blocking values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -394,8 +394,8 @@ protected:
 	void StartParryEvent();
 	void FinishParryEvent();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DelayStaminaRegeneration();
+	//UFUNCTION(BlueprintCallable, Category = "Ylva")
+	//	void DelayStaminaRegeneration();
 
 	// God mode functions
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -579,20 +579,20 @@ protected:
 		uint8 bGodMode : 1;
 
 	// The player's current stamina level
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
-		float Stamina = 100.0f;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
+	//	float Stamina = 100.0f;
 
 	// The player's starting stamina
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
-		float StartingStamina = 100.0f;
+	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 100.0f, ClampMax = 10000.0f))
+	//	float StartingStamina = 100.0f;
 
 	// How long (in seconds) after the player's death, should we wait to respawn?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float RespawnDelay = 1.8f;
 
 	// The rate of stamina regeneration
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float StaminaRegenerationRate = 10.0f;
+	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+	//	float StaminaRegenerationRate = 10.0f;
 
 	// The minimum pitch rotation value (in degrees) the camera can rotate
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
