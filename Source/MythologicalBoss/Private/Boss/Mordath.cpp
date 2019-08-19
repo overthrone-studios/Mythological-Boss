@@ -146,6 +146,26 @@ AMordath::AMordath()
 
 	RangeFSM->InitState(0);
 
+	// Create a stage FSM
+	StageFSM = CreateDefaultSubobject<UFSM>(FName("Stage FSM"));
+	StageFSM->AddState(0, "Stage 1");
+	StageFSM->AddState(1, "Stage 2");
+	StageFSM->AddState(2, "Stage 3");
+
+	StageFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFirstStage);
+	StageFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFirstStage);
+	StageFSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitFirstStage);
+
+	StageFSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSecondStage);
+	StageFSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSecondStage);
+	StageFSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitSecondStage);
+
+	StageFSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThirdStage);
+	StageFSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThirdStage);
+	StageFSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThirdStage);
+
+	StageFSM->InitState(0);
+
 	// Configure capsule component
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(185.0f, true);
@@ -207,6 +227,7 @@ void AMordath::BeginPlay()
 	// Begin the state machines
 	FSM->Start();
 	RangeFSM->Start();
+	StageFSM->Start();
 }
 
 void AMordath::Tick(const float DeltaTime)
@@ -230,7 +251,7 @@ void AMordath::PossessedBy(AController* NewController)
 	BossAIController = Cast<ABossAIController>(NewController);
 }
 
-// Boss FSM
+// Main FSM
 #pragma region Idle
 void AMordath::OnEnterIdleState()
 {
@@ -767,6 +788,58 @@ void AMordath::UpdateFarRange()
 void AMordath::OnExitFarRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+// Stage FSM
+#pragma region Stage 1
+void AMordath::OnEnterFirstStage()
+{
+	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateFirstStage()
+{
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+}
+
+void AMordath::OnExitFirstStage()
+{
+	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Stage 2
+void AMordath::OnEnterSecondStage()
+{
+	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateSecondStage()
+{
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+}
+
+void AMordath::OnExitSecondStage()
+{
+	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Stage 3
+void AMordath::OnEnterThirdStage()
+{
+	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateThirdStage()
+{
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+}
+
+void AMordath::OnExitThirdStage()
+{
+	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 }
 #pragma endregion 
 

@@ -460,9 +460,41 @@ protected:
 		void OnExitFarRange();
 	#pragma endregion 
 
+	// Boss stages
+	#pragma region Stage 1
+	UFUNCTION()
+		void OnEnterFirstStage();
+	UFUNCTION()
+		void UpdateFirstStage();
+	UFUNCTION()
+		void OnExitFirstStage();
+	#pragma endregion 
+
+	#pragma region Stage 2
+	UFUNCTION()
+		void OnEnterSecondStage();
+	UFUNCTION()
+		void UpdateSecondStage();
+	UFUNCTION()
+		void OnExitSecondStage();
+	#pragma endregion 
+
+	#pragma region Stage 3
+	UFUNCTION()
+		void OnEnterThirdStage();
+	UFUNCTION()
+		void UpdateThirdStage();
+	UFUNCTION()
+		void OnExitThirdStage();
+	#pragma endregion 
+
 	// The boss's range Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* RangeFSM;
+
+	// The boss's stage Finite State Machine
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class UFSM* StageFSM;
 
 	// Used for calculating the jump curve
 	UPROPERTY()
