@@ -571,6 +571,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UStaminaComponent* StaminaComponent;
+
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
 		uint8 bGodMode : 1;

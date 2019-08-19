@@ -15,6 +15,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/StaminaComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -159,6 +160,9 @@ AYlva::AYlva() : AOverthroneCharacter()
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+	// Stamina component
+	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(FName("Stamina Component"));
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -316,7 +320,7 @@ void AYlva::ChangeHitboxSize(const float NewRadius)
 
 void AYlva::UpdateCharacterInfo()
 {
-	GameInstance->PlayerInfo.Health = HealthComponent->GetNewHealth();
+	GameInstance->PlayerInfo.Health = HealthComponent->GetSmoothedHealth();
 	GameInstance->PlayerInfo.Stamina = Stamina;
 	GameInstance->PlayerInfo.Charge = Combat.ChargeSettings.Charge;
 	GameInstance->PlayerInfo.Location = GetActorLocation();
@@ -344,7 +348,7 @@ void AYlva::LoseHealth()
 	Super::LoseHealth();
 
 	if (Debug.bLogHealthValues)
-		ULog::Number(HealthComponent->GetNewHealth(), "New Health: ", true);
+		ULog::Number(HealthComponent->GetSmoothedHealth(), "New Health: ", true);
 }
 
 void AYlva::MoveForward(const float Value)
