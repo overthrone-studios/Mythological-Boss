@@ -31,7 +31,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE float GetSmoothedHealth() const { return NewHealth; }
 
-	// Return the actor's new health value
+	// Return the actor's low health threshold value as percentage
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE float GetLowHealthThreshold() const { return LowHealthThreshold; }
 	
