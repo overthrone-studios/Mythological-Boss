@@ -174,30 +174,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
-void AYlva::ApplyHitStop()
-{
-	if (Combat.bEnableHitStop)
-	{
-		DetachSword();
-	}
-}
-
-bool AYlva::IsLightAttacking() const
-{
-	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8;
-}
-
-bool AYlva::IsHeavyAttacking() const
-{
-	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10;
-}
-
-void AYlva::PauseAnimsWithTimer()
-{
-	PauseAnims();
-	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
-}
-
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
@@ -771,9 +747,6 @@ void AYlva::UpdateIdleState()
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
-
-	if (GetVelocity().Z < 0.0f)
-		FSM->PushState("Fall");
 }
 
 void AYlva::OnExitIdleState()
@@ -792,13 +765,8 @@ void AYlva::UpdateWalkState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	//RegenerateStamina(StaminaComponent->GetRegenRate());
-
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PopState("Walk");
-
-	if (GetVelocity().Z < 0.0f)
-		FSM->PushState("Fall");
 }
 
 void AYlva::OnExitWalkState()
@@ -886,16 +854,6 @@ void AYlva::OnEnterLightAttackState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptLightAttack = true;
-
-	if (StaminaComponent->HasStamina())
-	{
-		if (!bGodMode)
-			DecreaseStamina(StaminaComponent->GetLightAttackValue());
-	}
-	else
-	{
-		SetStamina(0);
-	}
 }
 
 void AYlva::UpdateLightAttackState()
@@ -926,16 +884,6 @@ void AYlva::OnEnterLightAttack2State()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondLightAttack = true;
-
-	if (StaminaComponent->HasStamina())
-	{
-		if (!bGodMode)
-			DecreaseStamina(StaminaComponent->GetLightAttackValue());
-	}
-	else
-	{
-		SetStamina(0);
-	}
 }
 
 void AYlva::UpdateLightAttack2State()
@@ -966,16 +914,6 @@ void AYlva::OnEnterHeavyAttackState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptHeavyAttack = true;
-
-	if (StaminaComponent->HasStamina())
-	{
-		//if (!bGodMode)
-		//	DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
-	}
-	else
-	{
-		SetStamina(0);
-	}
 }
 
 void AYlva::UpdateHeavyAttackState()
@@ -1006,16 +944,6 @@ void AYlva::OnEnterHeavyAttack2State()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondHeavyAttack = true;
-
-	if (StaminaComponent->HasStamina())
-	{
-		//if (!bGodMode)
-		//	DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
-	}
-	else
-	{
-		SetStamina(0);
-	}
 }
 
 void AYlva::UpdateHeavyAttack2State()
@@ -1054,8 +982,6 @@ void AYlva::OnEnterDamagedState()
 void AYlva::UpdateDamagedState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	//RegenerateStamina(StaminaRegenerationRate);
 
 	// If hit animation has finished, go back to previous state
 	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
@@ -1158,8 +1084,6 @@ void AYlva::UpdateParryState()
 	// Reverse camera anim when 'X' seconds have passed
 	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted - 0.2f)
 		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
-
-	//RegenerateStamina(StaminaComponent->GetRegenRate());
 }
 
 void AYlva::OnExitParryState()
@@ -1242,7 +1166,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 					DecreaseHealth(DamageAmount);
 
 				// Determine whether to reset the charge meter or not
-				if (ChargeAttackComponent->WantsResetAfterMaxHits()/*Combat.ChargeSettings.bResetChargeAfterMaxHits*/ && HitCounter == ChargeAttackComponent->GetMaxHits()/*Combat.ChargeSettings.MaxHitsBeforeChargeReset*/)
+				if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
 				{
 					HitCounter = 0;
 					ResetCharge();
@@ -1463,6 +1387,30 @@ bool AYlva::IsParrySuccessful()
 void AYlva::StartDashCooldown()
 {
 	GetWorldTimerManager().SetTimer(DashCooldownTimer, MovementSettings.DashCooldown, false);
+}
+
+void AYlva::ApplyHitStop()
+{
+	if (Combat.bEnableHitStop)
+	{
+		DetachSword();
+	}
+}
+
+bool AYlva::IsLightAttacking() const
+{
+	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8;
+}
+
+bool AYlva::IsHeavyAttacking() const
+{
+	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10;
+}
+
+void AYlva::PauseAnimsWithTimer()
+{
+	PauseAnims();
+	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
 }
 
 UStaticMeshComponent* AYlva::GetLeftHandSword()
