@@ -102,12 +102,6 @@ void AOverthroneCharacter::StartLosingHealth(const float Amount)
 	PreviousHealth = Health;
 	Health -= Amount;
 
-	if (bLogHealthValues)
-	{
-		ULog::Number(PreviousHealth, "Previous Health: ", true);
-		ULog::Number(Health, "Target Health: ", true);
-	}
-
 	TakeDamageTimeline->PlayFromStart();
 }
 
@@ -116,9 +110,6 @@ void AOverthroneCharacter::LoseHealth()
 	const float Time = TakeDamageCurve->GetFloatValue(TakeDamageTimeline->GetPlaybackPosition());
 
 	NewHealth = FMath::Lerp(PreviousHealth, Health, Time);
-
-	if (bLogHealthValues)
-		ULog::Number(NewHealth, "New Health: ", true);
 
 	UpdateCharacterInfo();
 	

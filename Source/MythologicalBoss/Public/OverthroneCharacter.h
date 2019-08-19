@@ -10,7 +10,9 @@ struct FCharacterDebug
 {
 	GENERATED_BODY()
 
-
+	// Log our health values to the viewport?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogHealthValues : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -153,7 +155,7 @@ protected:
 
 	// Called when the timeline has finished playing
 	UFUNCTION()
-		void FinishLosingHealth();
+		virtual void FinishLosingHealth();
 
 	// Send out a signal to the functions that have binded to the OnLowHealth event
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
@@ -195,8 +197,9 @@ protected:
 	// True when we have been damaged
 	uint8 bIsHit : 1;
 
+	// Should we use smooth health bar?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Overthrone Character")
-		uint8 bLogHealthValues : 1;
+		uint8 bSmoothHealthBar : 1;
 
 	// Tracks the amount of hits we've taken
 	uint8 HitCounter = 0;

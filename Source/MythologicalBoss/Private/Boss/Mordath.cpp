@@ -1062,7 +1062,10 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Apply hit stop
 		PauseAnimsWithTimer();
 
-		StartLosingHealth(DamageAmount);
+		if (bSmoothHealthBar)
+			StartLosingHealth(DamageAmount);
+		else
+			DecreaseHealth(DamageAmount);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
@@ -1079,7 +1082,10 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PopState();
 		FSM->PushState("Beaten");
 
-		StartLosingHealth(DamageAmount);
+		if (bSmoothHealthBar)
+			StartLosingHealth(DamageAmount);
+		else
+			DecreaseHealth(DamageAmount);
 	}
 
 	// Are we dead?

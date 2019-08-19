@@ -273,6 +273,9 @@ protected:
 	void UpdateCharacterInfo() override;
 	void BroadcastLowHealth() override;
 
+	void StartLosingHealth(float Amount) override;
+	void LoseHealth() override;
+
 	// Called for forwards/backward input
 	void MoveForward(float Value);
 

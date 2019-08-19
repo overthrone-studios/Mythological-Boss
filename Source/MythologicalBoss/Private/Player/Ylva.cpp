@@ -327,6 +327,25 @@ void AYlva::BroadcastLowHealth()
 	bWasLowHealthEventTriggered = true;
 }
 
+void AYlva::StartLosingHealth(const float Amount)
+{
+	Super::StartLosingHealth(Amount);
+
+	if (Debug.bLogHealthValues)
+	{
+		ULog::Number(PreviousHealth, "Previous Health: ", true);
+		ULog::Number(Health, "Target Health: ", true);
+	}
+}
+
+void AYlva::LoseHealth()
+{
+	Super::LoseHealth();
+
+	if (Debug.bLogHealthValues)
+		ULog::Number(NewHealth, "New Health: ", true);
+}
+
 void AYlva::MoveForward(const float Value)
 {
 	if (Controller && Value != 0.0f)
@@ -1142,7 +1161,10 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
-				StartLosingHealth(DamageAmount);
+				if (bSmoothHealthBar)
+					StartLosingHealth(DamageAmount);
+				else
+					DecreaseHealth(DamageAmount);
 
 				// Determine whether to reset the charge meter or not
 				if (Combat.ChargeSettings.bResetChargeAfterMaxHits && HitCounter == Combat.ChargeSettings.MaxHitsBeforeChargeReset)
