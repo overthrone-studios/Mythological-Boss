@@ -11,11 +11,45 @@ UStaminaComponent::UStaminaComponent()
 	InitStamina();
 }
 
+void UStaminaComponent::SetStamina(const float NewStaminaAmount)
+{
+	PreviousStamina = Stamina;
+
+	Stamina = FMath::Clamp(NewStaminaAmount, 0.0f, DefaultStamina);
+	NewStamina = Stamina;
+}
+
+void UStaminaComponent::SetSmoothedStamina(const float Value)
+{
+	NewStamina = Value;
+}
+
+void UStaminaComponent::IncreaseStamina(const float Amount)
+{
+	PreviousStamina = Stamina;
+
+	Stamina = FMath::Clamp(Stamina + Amount, 0.0f, DefaultStamina);
+	NewStamina = Stamina;
+}
+
+void UStaminaComponent::DecreaseStamina(const float Amount)
+{
+	PreviousStamina = Stamina;
+
+	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, DefaultStamina);
+	NewStamina = Stamina;
+}
+
+void UStaminaComponent::ResetStamina()
+{
+	InitStamina();
+}
+
 void UStaminaComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
+	InitStamina();
 }
 
 void UStaminaComponent::InitStamina()
