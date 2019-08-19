@@ -203,10 +203,6 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Should the player rotate instantly where the camera is looking when attacking?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bRotateToCameraLookDirection : 1;
-
-	// The float curve to use when taking damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UCurveFloat* TakeDamageCurve;
 };
 
 /*
@@ -564,9 +560,6 @@ protected:
 
 	void OnLowHealth() override;
 
-	void StartLosingHealth(float Amount) override;
-	void LoseHealth() override;
-
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -574,10 +567,6 @@ protected:
 	// The camera that follows the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
-
-	// This timeline plays when we have taken damage
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ylva")
-		class UTimelineComponent* TakeDamageTimeline;
 
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
@@ -644,8 +633,6 @@ protected:
 	UStaticMeshComponent* L_SwordMesh;
 
 private:
-	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
-
 	FRotator StartRightSwordRotation{};
 	FRotator StartLeftSwordRotation{};
 

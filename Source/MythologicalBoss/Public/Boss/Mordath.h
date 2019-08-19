@@ -523,8 +523,6 @@ protected:
 	TArray<UComboData*> CachedCombos;
 
 private:
-	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
-
 	FBezier& JumpAttack_Bezier = Combat.AttackSettings.JumpAttack_Bezier;
 	FBezier& Dash_Bezier = Combat.DashSettings.Dash_Bezier;
 

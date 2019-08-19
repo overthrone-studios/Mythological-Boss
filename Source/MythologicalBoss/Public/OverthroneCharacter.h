@@ -104,6 +104,8 @@ protected:
 
 	virtual void UpdateCharacterInfo();
 
+	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
+
 	// Set a new health value
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void SetHealth(float NewHealthAmount);
@@ -142,7 +144,7 @@ protected:
 		virtual void OnLowHealth();
 
 	// Prep work before playing the timeline to lose health
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void StartLosingHealth(float Amount);
 
 	// Called every tick of the take damage timeline
@@ -160,6 +162,14 @@ protected:
 	// The character's finite state machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		class UFSM* FSM;
+
+	// This timeline plays when we have taken damage
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
+		class UTimelineComponent* TakeDamageTimeline;
+
+	// The float curve to use when taking damage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character")
+		class UCurveFloat* TakeDamageCurve;
 
 	// The character's starting health
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Overthrone Character", meta = (ClampMin = 100.0f, ClampMax = 1000000.0f))
@@ -184,6 +194,9 @@ protected:
 
 	// True when we have been damaged
 	uint8 bIsHit : 1;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Overthrone Character")
+		uint8 bLogHealthValues : 1;
 
 	// Tracks the amount of hits we've taken
 	uint8 HitCounter = 0;

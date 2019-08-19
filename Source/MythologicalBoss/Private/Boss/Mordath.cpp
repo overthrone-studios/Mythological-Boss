@@ -174,34 +174,6 @@ AMordath::AMordath()
 	Combat.DashSettings.Dash_Bezier.CurveHeight = 190.0f;
 }
 
-void AMordath::InitTimelineComponent(UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
-{
-	// Timeline Initialization
-	FOnTimelineFloat TimelineCallback;
-	FOnTimelineEvent TimelineFinishedCallback;
-	TimelineCallback.BindUFunction(this, TimelineCallbackFuncName);
-	TimelineFinishedCallback.BindUFunction(this, TimelineFinishedCallbackFuncName);
-
-	if (InCurveFloat)
-	{
-		InTimelineComponent = NewObject<UTimelineComponent>(this, InTimelineComponent->GetFName());
-		InTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-		InTimelineComponent->SetPropertySetObject(this);
-		InTimelineComponent->SetLooping(false);
-		InTimelineComponent->SetPlaybackPosition(0.0f, false, false);
-		InTimelineComponent->SetPlayRate(InPlaybackSpeed);
-		InTimelineComponent->AddInterpFloat(InCurveFloat, TimelineCallback);
-		InTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
-		InTimelineComponent->SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
-		InTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
-		InTimelineComponent->RegisterComponent();
-	}
-	else
-	{
-		ULog::DebugMessage(ERROR, "Failed to initialize the " + InTimelineComponent->GetName() + ". A curve float asset is missing!", true);
-	}
-}
-
 void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
@@ -870,7 +842,7 @@ void AMordath::FinishCooldown()
 
 void AMordath::UpdateCharacterInfo()
 {
-	GameInstance->BossInfo.Health = Health;
+	GameInstance->BossInfo.Health = NewHealth;
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
@@ -1090,7 +1062,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Apply hit stop
 		PauseAnimsWithTimer();
 
-		DecreaseHealth(DamageAmount);
+		StartLosingHealth(DamageAmount);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
@@ -1107,7 +1079,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PopState();
 		FSM->PushState("Beaten");
 
-		DecreaseHealth(DamageAmount);
+		StartLosingHealth(DamageAmount);
 	}
 
 	// Are we dead?
@@ -1138,7 +1110,7 @@ FRotator AMordath::FacePlayer()
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossInfo.Health = Health;
+	GameInstance->BossInfo.Health = NewHealth;
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
