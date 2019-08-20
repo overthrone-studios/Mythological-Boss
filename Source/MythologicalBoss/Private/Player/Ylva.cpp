@@ -991,8 +991,11 @@ void AYlva::UpdateParryState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// Reverse camera anim when 'X' seconds have passed
-	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted - 0.2f)
-		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f);
+	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted/2.0f - 0.1f)
+	{
+		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(FMath::Clamp(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f, 0.0f, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength));
+		ULog::Number(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime(), "Current Time: ", true);
+	}
 }
 
 void AYlva::OnExitParryState()
