@@ -58,48 +58,6 @@ struct FCameraShakes_Ylva : public FCameraShakes
 };
 
 USTRUCT(BlueprintType)
-struct FChargeSettings_Ylva
-{
-	GENERATED_BODY()
-
-	// Ylva's current charge
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100000.0f))
-		float Charge = 0.0f;
-
-	// Ylva's charge limit
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float MaxCharge = 100.0f;
-
-	// The amount of charge we gain when we have hit the boss
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100000.0f))
-		float ChargeGain = 10.0f;
-
-	// The amount of charge we lose when we have taken damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "!bResetChargeAfterMaxHits", ClampMin = 0.0f, ClampMax = 100000.0f))
-		float ChargeLoss = 15.0f;
-
-	// If we are hit, should we reset the charge meter?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bResetChargeAfterMaxHits : 1;
-
-	// The maximum hits we can take before our charge is reset
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bResetChargeAfterMaxHits", ClampMin = 1, ClampMax = 100.0f))
-		uint8 MaxHitsBeforeChargeReset = 1;
-
-	// Should we decrease the charge meter overtime?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLoseChargeOvertime : 1;
-
-	// The amount of time (in seconds) we should delay before we start to lose charge
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f, ClampMax = 100000.0f))
-		float DelayBeforeChargeLoss = 2.0f;
-
-	// At what rate should we decrease the charge meter?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f, ClampMax = 100000.0f))
-		float ChargeLossRate = 100.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FDefenseSettings_Ylva
 {
 	GENERATED_BODY()
@@ -157,10 +115,6 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect parry values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
-
-	// Settings that affect charge values
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-	//	FChargeSettings_Ylva ChargeSettings;
 
 	// The amount of time (in seconds) the sword "sticks" when hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bEnableHitStop", ClampMin = 0.0f, ClampMax = 2.0f))
