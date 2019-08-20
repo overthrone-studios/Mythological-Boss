@@ -8,6 +8,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
 USTRUCT()
 struct FCharacterInfo
@@ -50,6 +52,8 @@ public:
 
 	FOnBossDeathSignature OnPlayerDeath;
 	FOnBossDeathSignature OnBossDeath;
+	FOnSecondStageSignature OnSecondStage;
+	FOnThirdStageSignature OnThirdStage;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		bool IsGamePaused();

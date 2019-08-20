@@ -205,7 +205,7 @@ void AMordath::BeginPlay()
 	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 
 	// Cache the Combos array to use for randomization
-	CachedCombos = ComboSettings.Combos;
+	CachedCombos = ComboSettings.FirstStageCombos;
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
@@ -215,6 +215,8 @@ void AMordath::BeginPlay()
 	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->BossInfo.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
+	GameInstance->OnSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
+	GameInstance->OnThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
 	GameInstance->Boss = this;
 	SendInfo();
 
@@ -222,7 +224,7 @@ void AMordath::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
-	ensureAlways(ComboSettings.Combos.Num() != 0);
+	ensureAlways(ComboSettings.FirstStageCombos.Num() != 0);
 
 	// Begin the state machines
 	FSM->Start();
@@ -801,6 +803,11 @@ void AMordath::OnEnterFirstStage()
 void AMordath::UpdateFirstStage()
 {
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+
+	// Can we enter the second stage?
+	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth && 
+		HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
+		GameInstance->OnSecondStage.Broadcast();
 }
 
 void AMordath::OnExitFirstStage()
@@ -818,6 +825,11 @@ void AMordath::OnEnterSecondStage()
 void AMordath::UpdateSecondStage()
 {
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+
+	// Can we enter the third stage?
+	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth && 
+		HealthComponent->GetCurrentHealth() > 0.0f)
+		GameInstance->OnThirdStage.Broadcast();
 }
 
 void AMordath::OnExitSecondStage()
@@ -901,10 +913,24 @@ void AMordath::OnDashFinished()
 	}
 }
 
+void AMordath::OnSecondStageHealth()
+{
+	StageFSM->PushState(1);
+	StageFSM->PopState(0);
+}
+
+void AMordath::OnThirdStageHealth()
+{
+	StageFSM->PushState(2);
+	StageFSM->PopState(1);
+	StageFSM->PopState(0);
+}
+
 void AMordath::DestroySelf()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 
 	Destroy();
 }
@@ -953,7 +979,7 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 
 void AMordath::ChooseCombo()
 {
-	if (ComboSettings.Combos.Num() == 0)
+	if (ComboSettings.FirstStageCombos.Num() == 0)
 	{
 		ULog::DebugMessage(ERROR, FString("There are no combos to choose from! Add a combo asset to the list."), true);
 		return;
@@ -987,7 +1013,7 @@ void AMordath::ChooseCombo()
 	{
 		ComboIndex = 0;
 
-		CachedCombos = ComboSettings.Combos;
+		CachedCombos = ComboSettings.FirstStageCombos;
 		ChooseCombo();
 	}
 }
@@ -1084,14 +1110,12 @@ void AMordath::NextAttack()
 		}
 		else
 		{
-			//MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 			ChosenCombo->NextAttack();
 		}
 
 		return;
 	}
 
-	//MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	ChosenCombo->NextAttack();
 }
 
@@ -1136,6 +1160,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Apply hit stop
 		PauseAnimsWithTimer();
 
+		// Lose health
 		if (HealthComponent->IsUsingSmoothBar())
 			StartLosingHealth(DamageAmount);
 		else
@@ -1156,6 +1181,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PopState();
 		FSM->PushState("Beaten");
 
+		// Lose health
 		if (HealthComponent->IsUsingSmoothBar())
 			StartLosingHealth(DamageAmount);
 		else

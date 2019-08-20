@@ -106,9 +106,17 @@ struct FComboSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bChooseRandomCombo : 1;
 
-	// A list of combos the boss character will choose from
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		TArray<UComboData*> Combos;
+	// A list of combos the boss character will choose from when in the first stage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		TArray<UComboData*> FirstStageCombos;
+
+	// A list of combos the boss character will choose from when in the second stage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		TArray<UComboData*> SecondStageCombos;
+
+	// A list of combos the boss character will choose from when in the third stage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		TArray<UComboData*> ThirdStageCombos;
 };
 
 USTRUCT(BlueprintType)
@@ -303,6 +311,12 @@ protected:
 	// Called when the dash timeline component has finished
 	UFUNCTION()
 		void OnDashFinished();
+
+	UFUNCTION()
+		void OnSecondStageHealth();
+
+	UFUNCTION()
+		void OnThirdStageHealth();
 	#pragma endregion 
 
 	// Boss states
@@ -519,6 +533,14 @@ protected:
 	// The distance to ray cast from the boss's location (for destructible actor detection)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
 		float BoxDetectionDistance = 130.0f;
+
+	// The health value where we enter the second stage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float SecondStageHealth = 0.6f;
+
+	// The health value where we enter the third stage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float ThirdStageHealth = 0.3f;
 
 	// Mordath's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")
