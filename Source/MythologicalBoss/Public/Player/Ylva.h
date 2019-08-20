@@ -35,6 +35,10 @@ struct FMovementSettings_Ylva : public FMovementSettings
 	// Should the player stop moving when attacking?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bStopMovingWhenAttacking : 1;
+
+	// Should the player stop moving when taking damage?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bStopMovingWhenDamaged : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -102,10 +106,6 @@ struct FParrySettings_Ylva
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UCameraAnim* ParryCameraAnim;
 
-	// The speed of the camera animation
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float CameraAnimSpeed = 1.0f;
-
 	class UCameraAnimInst* ParryCameraAnimInst;
 
 	// The parry window time frame
@@ -115,10 +115,6 @@ struct FParrySettings_Ylva
 	// This value will be used when a parry is successful (slowing down time)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float TimeDilationOnSuccessfulParry = 0.4f;
-
-	// How long (in seconds) should we stay in the parry event?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float TimeUntilParryEventIsCompleted = 0.5f;
 
 	// The camera rotation pitch to set when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))

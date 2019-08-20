@@ -410,7 +410,8 @@ void AYlva::DisableLockOn()
 void AYlva::Block()
 {
 	if (FSM->GetActiveStateID() != 5 /*Death*/ &&
-		FSM->GetActiveStateID() != 20 /*Damaged*/)
+		FSM->GetActiveStateID() != 20 /*Damaged*/ &&
+		FSM->GetActiveStateID() != 22 /*Parry*/)
 	{
 		FSM->PopState();
 		FSM->PushState("Block");
@@ -419,20 +420,25 @@ void AYlva::Block()
 
 void AYlva::StopBlocking()
 {
-	if (FSM->GetActiveStateID() == 5 /*Death*/ || FSM->GetActiveStateID() == 22 /*Parry*/)
+	if (FSM->GetActiveStateID() == 5 /*Death*/)
 		return;
 
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
-	FSM->RemoveAllStatesFromStack();
+	bUseControllerRotationYaw = false;
+
+	if (Combat.ParrySettings.ParryCameraAnimInst && Combat.ParrySettings.ParryCameraAnimInst->bFinished)
+		FSM->PopState();
 }
 
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
 	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
-		FSM->GetActiveStateID() == 22 /*Parry*/)
+		FSM->GetActiveStateID() == 20 /*Damaged*/)
 		return;
+
+	if (FSM->GetActiveStateID() == 22 /*Parry*/)
+		FinishParryEvent();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
@@ -491,9 +497,11 @@ void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
 	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
-		FSM->GetActiveStateID() == 22 /*Parry*/)
+		FSM->GetActiveStateID() == 20 /*Damaged*/)
 		return;
+
+	if (FSM->GetActiveStateID() == 22 /*Parry*/)
+		FinishParryEvent();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
@@ -882,7 +890,8 @@ void AYlva::OnEnterDamagedState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->SetMovementMode(MOVE_None);
+	if (MovementSettings.bStopMovingWhenAttacking)
+		MovementComponent->SetMovementMode(MOVE_None);
 
 	bIsHit = true;
 	AnimInstance->bIsHit = true;
@@ -973,7 +982,7 @@ void AYlva::OnEnterParryState()
 	if (!Combat.ParrySettings.ParryCameraAnimInst)
 	{
 		if (Combat.ParrySettings.ParryCameraAnim)
-			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim, Combat.ParrySettings.CameraAnimSpeed);
+			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
 	}
 
 	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, GetControlRotation().Roll);
@@ -989,21 +998,16 @@ void AYlva::OnEnterParryState()
 void AYlva::UpdateParryState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	// Reverse camera anim when 'X' seconds have passed
-	if (FSM->GetActiveStateUptime() > Combat.ParrySettings.TimeUntilParryEventIsCompleted/2.0f - 0.1f)
-	{
-		Combat.ParrySettings.ParryCameraAnimInst->SetCurrentTime(FMath::Clamp(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime() - 0.01f, 0.0f, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength));
-		ULog::Number(Combat.ParrySettings.ParryCameraAnimInst->GetCurrentTime(), "Current Time: ", true);
-	}
 }
 
 void AYlva::OnExitParryState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	Combat.ParrySettings.ParryCameraAnimInst->Stop(true);
-	Combat.ParrySettings.ParryCameraAnimInst = nullptr;
+	if (Combat.ParrySettings.ParryCameraAnimInst->CurTime == 0.0f)
+		Combat.ParrySettings.ParryCameraAnimInst->Stop();
+
+	Combat.ParrySettings.ParryCameraAnimInst = nullptr;	
 
 	PlayerController->SetIgnoreLookInput(false);
 
@@ -1254,13 +1258,15 @@ void AYlva::StartParryEvent()
 	GameInstance->PlayerInfo.bParrySucceeded = true;
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
-	GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, Combat.ParrySettings.TimeUntilParryEventIsCompleted);
+
+	if (!GetWorldTimerManager().IsTimerActive(ParryEventExpiryTimer))
+		GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 
 void AYlva::FinishParryEvent()
 {
-	FSM->PopState("Block");
 	FSM->PopState();
+	FSM->PopState("Block");
 }
 
 void AYlva::EnableGodMode()
