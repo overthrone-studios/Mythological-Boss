@@ -204,8 +204,6 @@ void AMordath::BeginPlay()
 
 	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 
-	// Cache the Combos array to use for randomization
-	CachedCombos = ComboSettings.FirstStageCombos;
 	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
@@ -917,6 +915,9 @@ void AMordath::OnSecondStageHealth()
 {
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
+
+	CachedCombos.Empty();
+	ChooseCombo();
 }
 
 void AMordath::OnThirdStageHealth()
@@ -924,6 +925,9 @@ void AMordath::OnThirdStageHealth()
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);
 	StageFSM->PopState(0);
+
+	CachedCombos.Empty();
+	ChooseCombo();
 }
 
 void AMordath::DestroySelf()
@@ -979,23 +983,17 @@ bool AMordath::ShouldDestroyDestructibleObjects()
 
 void AMordath::ChooseCombo()
 {
-	if (ComboSettings.FirstStageCombos.Num() == 0)
-	{
-		ULog::DebugMessage(ERROR, FString("There are no combos to choose from! Add a combo asset to the list."), true);
-		return;
-	}
-
 	if (ComboSettings.bChooseRandomCombo)
 		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
 
 	if (CachedCombos.Num() > 0)
 	{
-		// If the combo data asset is valid at 'Index'
+		// Is the combo data asset valid at 'Index'
 		if (CachedCombos[ComboIndex])
 		{
 			ChosenCombo = CachedCombos[ComboIndex];
 
-			if (Debug.bLogChosenCombo)
+			if (Debug.bLogCurrentCombo)
 				ULog::DebugMessage(SUCCESS, "Combo " + ChosenCombo->GetName() + " chosen", true);
 
 			ChosenCombo->Init();
@@ -1013,7 +1011,33 @@ void AMordath::ChooseCombo()
 	{
 		ComboIndex = 0;
 
-		CachedCombos = ComboSettings.FirstStageCombos;
+		switch (StageFSM->GetActiveStateID())
+		{
+		case 0:
+			if (Debug.bLogCurrentStageCombo)
+				ULog::Info("Using stage 1 combos", true);
+
+			CachedCombos = ComboSettings.FirstStageCombos;
+		break;
+
+		case 1:
+			if (Debug.bLogCurrentStageCombo)
+				ULog::Info("Using stage 2 combos", true);
+
+			CachedCombos = ComboSettings.SecondStageCombos;
+		break;
+
+		case 2:
+			if (Debug.bLogCurrentStageCombo)
+				ULog::Info("Using stage 3 combos", true);
+
+			CachedCombos = ComboSettings.ThirdStageCombos;
+		break;
+
+		default:
+		break;
+		}
+
 		ChooseCombo();
 	}
 }

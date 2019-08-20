@@ -19,13 +19,17 @@ struct FDebug_Mordath : public FCharacterDebug
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogDirection : 1;
 
-	// Log the new chosen combo to the viewport or console
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogChosenCombo : 1;
-
 	// Log the delay time (in seconds) when a new combo is chosen to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogComboDelayTime : 1;
+
+	// Log the current combo name to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogCurrentCombo : 1;
+
+	// Log the current stage combo to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogCurrentStageCombo : 1;
 
 	// Log the hit count to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
