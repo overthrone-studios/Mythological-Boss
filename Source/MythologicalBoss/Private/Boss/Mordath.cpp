@@ -222,8 +222,6 @@ void AMordath::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
-	ensureAlways(ComboSettings.FirstStageCombos.Num() != 0);
-
 	// Begin the state machines
 	FSM->Start();
 	RangeFSM->Start();
