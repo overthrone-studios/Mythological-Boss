@@ -13,6 +13,10 @@ struct FCharacterDebug
 	// Log our health values to the viewport?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogHealthValues : 1;
+
+	// Allow raycasts to be drawn?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bShowRaycasts : 1;
 };
 
 USTRUCT(BlueprintType)
