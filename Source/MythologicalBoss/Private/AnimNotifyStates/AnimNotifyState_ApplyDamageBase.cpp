@@ -1,7 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamageBase.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "Public/OverthroneCharacter.h"
 
 void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
@@ -13,7 +13,7 @@ void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshCo
 	const FVector StartTrace = MeshComp->GetSocketLocation(StartBone);
 	const FVector EndTrace = MeshComp->GetSocketLocation(EndBone);
 
-	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_Pawn), true, {}, EDrawDebugTrace::ForDuration, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_Pawn), true, {}, DebugTrace, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
 	if (HitResult.bBlockingHit && !bIsHit)
 	{

@@ -11,6 +11,11 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 	if (!Ylva)
 		return;
 
+	if (Ylva->Debug.bShowRaycasts)
+		DebugTrace = EDrawDebugTrace::ForDuration;
+	else
+		DebugTrace = EDrawDebugTrace::None;
+
 	AttackRadius = Ylva->GetAttackRadius();
 
 	if (Ylva->IsLightAttacking())

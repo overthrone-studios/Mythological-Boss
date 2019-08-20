@@ -11,6 +11,11 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	if (!Mordath)
 		return;
 
+	if (Mordath->Debug.bShowRaycasts)
+		DebugTrace = EDrawDebugTrace::ForDuration;
+	else
+		DebugTrace = EDrawDebugTrace::None;
+
 	AttackRadius = Mordath->GetAttackRadius();
 
 	if (Mordath->IsLightAttacking())

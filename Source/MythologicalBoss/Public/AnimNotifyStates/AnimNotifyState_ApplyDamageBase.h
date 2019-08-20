@@ -4,6 +4,7 @@
 
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "AnimNotifyState_ApplyDamageBase.generated.h"
 
 /**
@@ -31,6 +32,8 @@ protected:
 	float AttackRadius = 10.0f;
 
 	uint8 bIsHit : 1;
+
+	enum EDrawDebugTrace::Type DebugTrace;
 
 	class AOverthroneCharacter* OverthroneCharacter;
 };
