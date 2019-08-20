@@ -31,6 +31,10 @@ struct FMovementSettings_Ylva : public FMovementSettings
 	// The amount of time (in seconds) until we can dash again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float DashCooldown = 1.0f;
+
+	// Should the player stop moving when attacking?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bStopMovingWhenAttacking : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -65,6 +69,28 @@ struct FDefenseSettings_Ylva
 	// This value will be used to buffer the damage received when the boss hits the player while blocking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float DamageBuffer = 0.5f;
+
+	// The block idle anim montage to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* BlockIdle;
+};
+
+USTRUCT(BlueprintType)
+struct FAttackSettings_Ylva : public FAttackSettings
+{
+	GENERATED_BODY()
+
+	// The light attack 1 anim montage to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* LightAttack1;
+
+	// The light attack 2 anim montage to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* LightAttack2;
+
+	// The heavy attack 1 anim montage to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* HeavyAttack1;
 };
 
 USTRUCT(BlueprintType)
@@ -106,7 +132,7 @@ struct FCombatSettings_Ylva : public FCombatSettings
 
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FAttackSettings AttackSettings;
+		FAttackSettings_Ylva AttackSettings;
 
 	// Settings that affect blocking values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -181,6 +207,10 @@ public:
 	// Look up/down rate, in deg/sec. Other scaling may affect final rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float LookUpRate;
+
+	// Ylva's debug settings
+	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+		FDebug_Ylva Debug;
 
 protected:
 	void BeginPlay() override;
@@ -546,10 +576,6 @@ protected:
 	// Ylva's camera shake settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva")
 		FCameraShakes_Ylva CameraShakes;
-
-	// Ylva's debug settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva")
-		FDebug_Ylva Debug;
 
 	// Ylva's combat settings
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")

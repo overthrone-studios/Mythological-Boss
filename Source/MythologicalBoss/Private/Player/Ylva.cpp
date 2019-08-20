@@ -422,6 +422,7 @@ void AYlva::StopBlocking()
 	if (FSM->GetActiveStateID() == 5 /*Death*/ || FSM->GetActiveStateID() == 22 /*Parry*/)
 		return;
 
+	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 	FSM->RemoveAllStatesFromStack();
 }
 
@@ -454,14 +455,15 @@ void AYlva::LightAttack()
 			StaminaComponent->DelayRegeneration();
 		}
 
-		MovementComponent->SetMovementMode(MOVE_None);
+		if (MovementSettings.bStopMovingWhenAttacking)
+			MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
 		FSM->GetActiveStateID() == 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		FSM->GetActiveStateUptime() > 0.3f &&
+		FSM->GetActiveStateUptime() > 0.2f &&
 		StaminaComponent->HasEnoughForLightAttack())
 	{
 		FSM->PopState("Light Attack 1");
@@ -480,33 +482,8 @@ void AYlva::LightAttack()
 			StaminaComponent->DelayRegeneration();
 		}
 
-		MovementComponent->SetMovementMode(MOVE_None);
-	}
-	else if (
-		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		FSM->GetActiveStateID() == 8 /*Light Attack 2*/ &&
-		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		FSM->GetActiveStateUptime() > 0.5f &&
-		StaminaComponent->HasEnoughForLightAttack())
-	{
-		FSM->PopState("Light Attack 2");
-		FSM->PushState("Light Attack 1");
-
-		if (Combat.bRotateToCameraLookDirection)
-			bUseControllerRotationYaw = true;
-
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetLightAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetLightAttackValue());
-
-			StaminaComponent->DelayRegeneration();
-		}
-
-		MovementComponent->SetMovementMode(MOVE_None);
+		if (MovementSettings.bStopMovingWhenAttacking)
+			MovementComponent->SetMovementMode(MOVE_None);
 	}
 }
 
@@ -539,7 +516,8 @@ void AYlva::HeavyAttack()
 			StaminaComponent->DelayRegeneration();
 		}
 
-		MovementComponent->SetMovementMode(MOVE_None);
+		if (MovementSettings.bStopMovingWhenAttacking)
+			MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
 		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
@@ -564,33 +542,8 @@ void AYlva::HeavyAttack()
 			StaminaComponent->DelayRegeneration();
 		}
 
-		MovementComponent->SetMovementMode(MOVE_None);
-	}
-	else if (
-		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateID() == 10 /*Heavy Attack 2*/ &&
-		FSM->GetActiveStateUptime() > 0.5f &&
-		StaminaComponent->HasEnoughForHeavyAttack())
-	{
-		FSM->PopState("Heavy Attack 2");
-		FSM->PushState("Heavy Attack 1");
-
-		if (Combat.bRotateToCameraLookDirection)
-			bUseControllerRotationYaw = true;
-
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
-
-			StaminaComponent->DelayRegeneration();
-		}
-
-		MovementComponent->SetMovementMode(MOVE_None);
+		if (MovementSettings.bStopMovingWhenAttacking)
+			MovementComponent->SetMovementMode(MOVE_None);
 	}
 }
 
@@ -729,6 +682,8 @@ void AYlva::Respawn()
 void AYlva::OnEnterIdleState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 }
 
 void AYlva::UpdateIdleState()
@@ -758,7 +713,7 @@ void AYlva::UpdateWalkState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
-		FSM->PopState("Walk");
+		FSM->PopState();
 }
 
 void AYlva::OnExitWalkState()
@@ -802,8 +757,9 @@ void AYlva::OnEnterBlockingState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	YlvaAnimInstance->bIsBlocking = true;
 	bUseControllerRotationYaw = true;
+
+	AnimInstance->Montage_Play(Combat.BlockSettings.BlockIdle);
 }
 
 void AYlva::UpdateBlockingState()
@@ -815,7 +771,6 @@ void AYlva::OnExitBlockingState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	YlvaAnimInstance->bIsBlocking = false;
 	bUseControllerRotationYaw = false;
 }
 #pragma endregion
@@ -825,18 +780,14 @@ void AYlva::OnEnterLightAttackState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptLightAttack = true;
+	AnimInstance->Montage_Play(Combat.AttackSettings.LightAttack1);
 }
 
 void AYlva::UpdateLightAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack1))
 		FSM->PopState();
 }
 
@@ -845,8 +796,6 @@ void AYlva::OnExitLightAttackState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
-
-	AnimInstance->bAcceptLightAttack = false;
 }
 #pragma endregion
 
@@ -855,18 +804,14 @@ void AYlva::OnEnterLightAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptSecondLightAttack = true;
+	AnimInstance->Montage_Play(Combat.AttackSettings.LightAttack2);
 }
 
 void AYlva::UpdateLightAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack2))
 		FSM->PopState();
 }
 
@@ -875,8 +820,6 @@ void AYlva::OnExitLightAttack2State()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
-
-	AnimInstance->bAcceptSecondLightAttack = false;
 }
 #pragma endregion
 
@@ -885,18 +828,14 @@ void AYlva::OnEnterHeavyAttackState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptHeavyAttack = true;
+	AnimInstance->Montage_Play(Combat.AttackSettings.HeavyAttack1);
 }
 
 void AYlva::UpdateHeavyAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.HeavyAttack1))
 		FSM->PopState();
 }
 
@@ -905,8 +844,6 @@ void AYlva::OnExitHeavyAttackState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
-
-	AnimInstance->bAcceptHeavyAttack = false;
 }
 #pragma endregion
 
