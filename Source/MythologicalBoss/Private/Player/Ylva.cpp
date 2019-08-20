@@ -1049,8 +1049,13 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
-				// Update values
-				DecreaseHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+				// Update health
+				if (HealthComponent->IsUsingSmoothBar())
+					StartLosingHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+				else
+					DecreaseHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+
+				// Update stamina
 				if (StaminaComponent->IsUsingSmoothBar())
 					StartLosingStamina(StaminaComponent->GetShieldHitValue());
 				else
@@ -1069,6 +1074,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
+				// Update health
 				if (HealthComponent->IsUsingSmoothBar())
 					StartLosingHealth(DamageAmount);
 				else
