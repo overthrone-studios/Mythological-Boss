@@ -240,6 +240,10 @@ public:
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
+	// List of debugging options
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		FDebug_Mordath Debug;
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
@@ -561,10 +565,6 @@ protected:
 	// List of camera shakes
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakes_Mordath CameraShakes;
-
-	// List of debugging options
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		FDebug_Mordath Debug;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
