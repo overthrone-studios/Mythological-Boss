@@ -18,27 +18,27 @@ void UAttackComboComponent::BeginPlay()
 	Owner = GetOwner();
 }
 
-uint8 UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
+int32 UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
 {
-	uint8 ComboIndex = 0;
+	int8 ComboIndex = -1;
 
 	switch (InAttackType)
 	{
 	case Light:
-		if (LightAttacks.Num() == 0)
+		if (LightAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Light Attacks list", true);
-			return TreeIndex;
+			return ComboIndex;
 		}
 
 		ComboIndex = AdvanceCombo_Internal(Light);
 	break;
 
 	case Heavy:
-		if (HeavyAttacks.Num() == 0)
+		if (HeavyAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Heavy Attacks list", true);
-			return TreeIndex;
+			return ComboIndex;
 		}
 
 		ComboIndex = AdvanceCombo_Internal(Heavy);
@@ -46,79 +46,169 @@ uint8 UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
 	break;
 
 	case Special:
-		if (SpecialAttacks.Num() == 0)
+		if (SpecialAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Special Attacks list", true);
-			return TreeIndex;
+			return ComboIndex;
 		}
 
 		ComboIndex = AdvanceCombo_Internal(Special);
+	break;
+
+	case None:
+		ComboIndex = -1;
 	break;
 	}
 
 	return ComboIndex;
 }
 
-uint8 UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)
+int8 UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)
 {
-	if (TreeIndex >= ComboTreeDepth)
+	if (TreeIndex >= ComboTreeDepth && Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle))
 	{
-		if (bDebug)
+		if (bLogTreeStatus)
 			ULog::Info("Reached the max tree depth, resetting...", true);
 
-		ResetCombo();
+		return -1;
+	}
 
-		return TreeIndex;
+	if (TreeIndex >= ComboTreeDepth && !Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle))
+	{
+		Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
+		return -1;
 	}
 
 	// Start the combo reset timer
 	Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
 
+	// Get out if we are still delaying
+	if (Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle))
+		return -1;
+
 	TreeIndex++;
 
-	uint8 IndexToReturn = TreeIndex;
+	int8 IndexToReturn = TreeIndex;
 
 	// Choose the attack
 	switch (InAttackType)
 	{
 	case Light:
-		LightAttackIndex++;
-		IndexToReturn = LightAttackIndex;
-
-		Combo.Add(Light);
+		IndexToReturn = AdvanceAttack(LightAttackIndex, LightAttacks.List, Light);
 	break;
 
 	case Heavy:
-		HeavyAttackIndex++;
-		IndexToReturn = HeavyAttackIndex;
-
-		Combo.Add(Heavy);
+		IndexToReturn = AdvanceAttack(HeavyAttackIndex, HeavyAttacks.List, Heavy);
 	break;
 
 	case Special:
-		SpecialAttackIndex++;
-		IndexToReturn = SpecialAttackIndex;
-
-		Combo.Add(Special);
+		IndexToReturn = AdvanceAttack(SpecialAttackIndex, SpecialAttacks.List, Special);
 	break;
+
+	case None:
+		IndexToReturn = -1;
+	break;	
 	}
 
-	if (bDebug)
+	if (bLogComboIndex)
 		ULog::Number(TreeIndex, "Combo Index: ", true);
 
 	return IndexToReturn;
 }
 
+int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const EAttackType& InAttackType)
+{
+	AttackIndex++;
+
+	if (AttackIndex > AttackList.Num())
+		AttackIndex = 1;
+
+	Combo.Add(InAttackType);
+
+	switch (InAttackType)
+	{
+	case Light:
+		DelayAttack(LightAttacks.AttackDelay); 
+
+		if (bLogAttackIndex)
+			ULog::Number(AttackIndex, "Light Attack Index: ", true);
+	break;
+
+	case Heavy:
+		DelayAttack(HeavyAttacks.AttackDelay); 
+
+		if (bLogAttackIndex)
+			ULog::Number(AttackIndex, "Heavy Attack Index: ", true);
+	break;
+
+	case Special:
+		DelayAttack(SpecialAttacks.AttackDelay); 
+
+		if (bLogAttackIndex)
+			ULog::Number(AttackIndex, "Special Attack Index: ", true);
+	break;
+
+	case None:
+	break;
+	}
+
+	return AttackIndex;
+}
+
+void UAttackComboComponent::DelayAttack(const float& Delay)
+{
+	if (!Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle))
+		Owner->GetWorldTimerManager().SetTimer(AttackDelayTimerHandle, Delay, false);
+}
+
 void UAttackComboComponent::ResetCombo()
 {
+	// Clear indices
 	TreeIndex = 0;
 	LightAttackIndex = 0;
 	HeavyAttackIndex = 0;
 	SpecialAttackIndex = 0;
 
-	Combo.Empty();
-	Owner->GetWorldTimerManager().ClearTimer(ComboResetTimerHandle);
+	if (bLogAttackChain)
+		LogAttackChain();
 
-	if (bDebug)
+	// Save our attack chain
+	PreviousCombo = Combo;
+
+	// Clear for the next attack chain
+	Combo.Empty();
+
+	// Clear timers
+	Owner->GetWorldTimerManager().ClearTimer(ComboResetTimerHandle);
+	Owner->GetWorldTimerManager().ClearTimer(AttackDelayTimerHandle);
+
+	if (bLogTreeStatus)
 		ULog::Success("Combo reset!", true);
+}
+
+void UAttackComboComponent::LogAttackChain()
+{
+	for (const auto Attack : Combo)
+	{
+		switch (Attack)
+		{
+			case Light:
+				ULog::Success("Light", true);
+			break;
+
+			case Heavy:
+				ULog::Success("Heavy", true);
+			break;
+
+			case Special:
+				ULog::Success("Special", true);
+			break;
+
+			case None:
+			break;
+
+			default: 
+			break;
+		}
+	}
 }
