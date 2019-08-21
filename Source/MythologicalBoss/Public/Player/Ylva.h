@@ -13,6 +13,10 @@ struct FDebug_Ylva : public FCharacterDebug
 	// Log the camera's pitch rotation value to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogCameraPitch : 1;
+
+	// Log the camera's pitch rotation value to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogCurrentAnimTime : 1;
 };
 
 USTRUCT(BlueprintType)

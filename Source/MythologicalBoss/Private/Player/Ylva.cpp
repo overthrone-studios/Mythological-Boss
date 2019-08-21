@@ -426,7 +426,7 @@ void AYlva::StopBlocking()
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 	bUseControllerRotationYaw = false;
 
-	if (Combat.ParrySettings.ParryCameraAnimInst && Combat.ParrySettings.ParryCameraAnimInst->bFinished)
+	//if (Combat.ParrySettings.ParryCameraAnimInst && Combat.ParrySettings.ParryCameraAnimInst->bFinished)
 		FSM->PopState();
 }
 
@@ -437,13 +437,15 @@ void AYlva::LightAttack()
 		FSM->GetActiveStateID() == 20 /*Damaged*/)
 		return;
 
+	FSM->PopState("Block");
+
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
 	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
+		//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		StaminaComponent->HasEnoughForLightAttack())
 	{
 		FSM->PushState("Light Attack 1");
@@ -467,8 +469,8 @@ void AYlva::LightAttack()
 	else if (
 		FSM->GetActiveStateID() == 3 /*Light Attack 1*/ &&
 		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
+		//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+		//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		FSM->GetActiveStateUptime() > 0.2f &&
 		StaminaComponent->HasEnoughForLightAttack())
 	{
@@ -500,11 +502,13 @@ void AYlva::HeavyAttack()
 		FSM->GetActiveStateID() == 20 /*Damaged*/)
 		return;
 
+	FSM->PopState("Block");
+
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
-
-	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+	//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+	if (
 		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
 		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
 		StaminaComponent->HasEnoughForHeavyAttack())
@@ -528,10 +532,10 @@ void AYlva::HeavyAttack()
 			MovementComponent->SetMovementMode(MOVE_None);
 	}
 	else if (
-		FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+		//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+		//FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
 		FSM->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateUptime() > 0.7f &&
+		FSM->GetActiveStateUptime() > 0.5f &&
 		StaminaComponent->HasEnoughForHeavyAttack())
 	{
 		FSM->PopState("Heavy Attack 1");
@@ -795,6 +799,12 @@ void AYlva::UpdateLightAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	if (Debug.bLogCurrentAnimTime)
+		ULog::Number(AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1), "Light Attack current time: ", true);
+
+	//if (AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1) >= Combat.AttackSettings.LightAttack1->SequenceLength)
+	//	FSM->PopState();
+
 	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack1))
 		FSM->PopState();
 }
@@ -802,6 +812,8 @@ void AYlva::UpdateLightAttackState()
 void AYlva::OnExitLightAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	//AnimInstance->Montage_Stop(0.3f, Combat.AttackSettings.LightAttack1);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -827,6 +839,8 @@ void AYlva::OnExitLightAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	AnimInstance->Montage_Stop(0.3f, Combat.AttackSettings.LightAttack2);
+
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
 #pragma endregion
@@ -850,6 +864,8 @@ void AYlva::UpdateHeavyAttackState()
 void AYlva::OnExitHeavyAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	AnimInstance->Montage_Stop(0.3f, Combat.AttackSettings.HeavyAttack1);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -1246,6 +1262,9 @@ void AYlva::AttachSword() const
 
 void AYlva::DetachSword()
 {
+	if (Combat.SwordStickTime <= 0.0f)
+		return;
+
 	if (R_SwordMesh)
 	{
 		R_SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
