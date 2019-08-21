@@ -586,11 +586,11 @@ void AYlva::HeavyAttack()
 		switch (ComboIndex)
 		{
 		case 1:
-			BeginLightAttack("Heavy Attack 1");
+			BeginHeavyAttack("Heavy Attack 1");
 		break;
 
 		case 2:
-			BeginLightAttack("Heavy Attack 2");
+			BeginHeavyAttack("Heavy Attack 2");
 		break;
 		}
 	}
