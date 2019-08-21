@@ -265,13 +265,17 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void StopBlocking();
 
-	// Called via input to enter the light attacking state
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void LightAttack();
+		void BeginLightAttack(const FName& LightAttackName);
+	
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void BeginHeavyAttack(const FName& HeavyAttackName);
+
+	// Called via input to enter the light attacking state
+	void LightAttack();
 
 	// Called via input to enter the heavy attacking state
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void HeavyAttack();
+	void HeavyAttack();
 
 	// Called via input released to stop using controller rotation yaw
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -532,6 +536,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UChargeAttackComponent* ChargeAttackComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UAttackComboComponent* AttackComboComponent;
 
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")

@@ -2,14 +2,20 @@
 
 #include "Player/Ylva.h"
 #include "Player/YlvaAnimInstance.h"
-#include "Public/OverthroneHUD.h"
-#include "Public/OverthroneGameInstance.h"
-#include "Public/OverthroneFunctionLibrary.h"
+
+#include "OverthroneHUD.h"
+#include "OverthroneGameInstance.h"
+#include "OverthroneFunctionLibrary.h"
+#include "FSM.h"
+#include "Log.h"
+
 #include "Widgets/HUD/MasterHUD.h"
 #include "Widgets/HUD/FSMVisualizerHUD.h"
+
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraAnim.h"
 #include "Camera/CameraAnimInst.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -18,17 +24,20 @@
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Components/ChargeAttackComponent.h"
+#include "Components/AttackComboComponent.h"
+
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimNode_StateMachine.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
-#include "FSM.h"
-#include "Log.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -165,6 +174,9 @@ AYlva::AYlva() : AOverthroneCharacter()
 	ChargeAttackComponent = CreateDefaultSubobject<UChargeAttackComponent>(FName("Charge Attack Component"));
 	ChargeAttackTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Charge Attack Timeline"));
 
+	// Attack combo component
+	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
+
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -198,12 +210,11 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
 	GameInstance->PlayerInfo.MaxCharge = ChargeAttackComponent->GetMaxCharge();
 	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
+	GameInstance->Player = this;
 
 	// Bind events to our functions
 	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
-
-	GameInstance->Player = this;
 
 	// Begin the state machine
 	FSM->Start();
@@ -430,6 +441,50 @@ void AYlva::StopBlocking()
 		FSM->PopState();
 }
 
+void AYlva::BeginLightAttack(const FName& LightAttackName)
+{
+	FSM->PopState();
+	FSM->PushState(LightAttackName);
+
+	if (Combat.bRotateToCameraLookDirection)
+		bUseControllerRotationYaw = true;
+
+	if (!bGodMode)
+	{
+		if (StaminaComponent->IsUsingSmoothBar())
+			StartLosingStamina(StaminaComponent->GetLightAttackValue());
+		else
+			DecreaseStamina(StaminaComponent->GetLightAttackValue());
+
+		StaminaComponent->DelayRegeneration();
+	}
+
+	if (MovementSettings.bStopMovingWhenAttacking)
+		MovementComponent->SetMovementMode(MOVE_None);
+}
+
+void AYlva::BeginHeavyAttack(const FName& HeavyAttackName)
+{
+	FSM->PopState();
+	FSM->PushState(HeavyAttackName);
+
+	if (Combat.bRotateToCameraLookDirection)
+		bUseControllerRotationYaw = true;
+
+	if (!bGodMode)
+	{
+		if (StaminaComponent->IsUsingSmoothBar())
+			StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
+		else
+			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
+
+		StaminaComponent->DelayRegeneration();
+	}
+
+	if (MovementSettings.bStopMovingWhenAttacking)
+		MovementComponent->SetMovementMode(MOVE_None);
+}
+
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
@@ -442,57 +497,74 @@ void AYlva::LightAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		StaminaComponent->HasEnoughForLightAttack())
+	if (StaminaComponent->HasEnoughForLightAttack())
 	{
-		FSM->PushState("Light Attack 1");
-
-		if (Combat.bRotateToCameraLookDirection)
-			bUseControllerRotationYaw = true;
-
-		if (!bGodMode)
+		const uint8 ComboIndex = AttackComboComponent->AdvanceCombo(Light);
+		
+		switch (ComboIndex)
 		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetLightAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetLightAttackValue());
+		case 1:
+			BeginLightAttack("Light Attack 1");
+		break;
 
-			StaminaComponent->DelayRegeneration();
+		case 2:
+			BeginLightAttack("Light Attack 2");
+		break;
 		}
-
-		if (MovementSettings.bStopMovingWhenAttacking)
-			MovementComponent->SetMovementMode(MOVE_None);
 	}
-	else if (
-		FSM->GetActiveStateID() == 3 /*Light Attack 1*/ &&
-		FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		FSM->GetActiveStateUptime() > 0.2f &&
-		StaminaComponent->HasEnoughForLightAttack())
-	{
-		FSM->PopState("Light Attack 1");
-		FSM->PushState("Light Attack 2");
+	
 
-		if (Combat.bRotateToCameraLookDirection)
-			bUseControllerRotationYaw = true;
+	//if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+	//	//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+	//	//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
+	//	StaminaComponent->HasEnoughForLightAttack())
+	//{
+	//	FSM->PushState("Light Attack 1");
 
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetLightAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetLightAttackValue());
+	//	if (Combat.bRotateToCameraLookDirection)
+	//		bUseControllerRotationYaw = true;
 
-			StaminaComponent->DelayRegeneration();
-		}
+	//	if (!bGodMode)
+	//	{
+	//		if (StaminaComponent->IsUsingSmoothBar())
+	//			StartLosingStamina(StaminaComponent->GetLightAttackValue());
+	//		else
+	//			DecreaseStamina(StaminaComponent->GetLightAttackValue());
 
-		if (MovementSettings.bStopMovingWhenAttacking)
-			MovementComponent->SetMovementMode(MOVE_None);
-	}
+	//		StaminaComponent->DelayRegeneration();
+	//	}
+
+	//	if (MovementSettings.bStopMovingWhenAttacking)
+	//		MovementComponent->SetMovementMode(MOVE_None);
+	//}
+	//else if (
+	//	FSM->GetActiveStateID() == 3 /*Light Attack 1*/ &&
+	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+	//	//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+	//	//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
+	//	FSM->GetActiveStateUptime() > 0.2f &&
+	//	StaminaComponent->HasEnoughForLightAttack())
+	//{
+	//	FSM->PopState("Light Attack 1");
+	//	FSM->PushState("Light Attack 2");
+
+	//	if (Combat.bRotateToCameraLookDirection)
+	//		bUseControllerRotationYaw = true;
+
+	//	if (!bGodMode)
+	//	{
+	//		if (StaminaComponent->IsUsingSmoothBar())
+	//			StartLosingStamina(StaminaComponent->GetLightAttackValue());
+	//		else
+	//			DecreaseStamina(StaminaComponent->GetLightAttackValue());
+
+	//		StaminaComponent->DelayRegeneration();
+	//	}
+
+	//	if (MovementSettings.bStopMovingWhenAttacking)
+	//		MovementComponent->SetMovementMode(MOVE_None);
+	//}
 }
 
 void AYlva::HeavyAttack()
@@ -506,57 +578,74 @@ void AYlva::HeavyAttack()
 
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
+
+	if (StaminaComponent->HasEnoughForHeavyAttack())
+	{
+		const uint8 ComboIndex = AttackComboComponent->AdvanceCombo(Heavy);
+		
+		switch (ComboIndex)
+		{
+		case 1:
+			BeginLightAttack("Heavy Attack 1");
+		break;
+
+		case 2:
+			BeginLightAttack("Heavy Attack 2");
+		break;
+		}
+	}
+
 	//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
 	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-	if (
-		FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-		StaminaComponent->HasEnoughForHeavyAttack())
-	{
-		FSM->PushState("Heavy Attack 1");
+	//if (
+	//	FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
+	//	FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
+	//	StaminaComponent->HasEnoughForHeavyAttack())
+	//{
+	//	FSM->PushState("Heavy Attack 1");
 
-		if (Combat.bRotateToCameraLookDirection)
-			bUseControllerRotationYaw = true;
+	//	if (Combat.bRotateToCameraLookDirection)
+	//		bUseControllerRotationYaw = true;
 
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
+	//	if (!bGodMode)
+	//	{
+	//		if (StaminaComponent->IsUsingSmoothBar())
+	//			StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
+	//		else
+	//			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
 
-			StaminaComponent->DelayRegeneration();
-		}
+	//		StaminaComponent->DelayRegeneration();
+	//	}
 
-		if (MovementSettings.bStopMovingWhenAttacking)
-			MovementComponent->SetMovementMode(MOVE_None);
-	}
-	else if (
-		//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-		//FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-		FSM->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
-		FSM->GetActiveStateUptime() > 0.5f &&
-		StaminaComponent->HasEnoughForHeavyAttack())
-	{
-		FSM->PopState("Heavy Attack 1");
-		FSM->PushState("Heavy Attack 2");
+	//	if (MovementSettings.bStopMovingWhenAttacking)
+	//		MovementComponent->SetMovementMode(MOVE_None);
+	//}
+	//else if (
+	//	//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
+	//	//FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
+	//	FSM->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
+	//	FSM->GetActiveStateUptime() > 0.5f &&
+	//	StaminaComponent->HasEnoughForHeavyAttack())
+	//{
+	//	FSM->PopState("Heavy Attack 1");
+	//	FSM->PushState("Heavy Attack 2");
 
-		if (Combat.bRotateToCameraLookDirection)
-			bUseControllerRotationYaw = true;
+	//	if (Combat.bRotateToCameraLookDirection)
+	//		bUseControllerRotationYaw = true;
 
-		if (!bGodMode)
-		{
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-			else
-				DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
+	//	if (!bGodMode)
+	//	{
+	//		if (StaminaComponent->IsUsingSmoothBar())
+	//			StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
+	//		else
+	//			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
 
-			StaminaComponent->DelayRegeneration();
-		}
+	//		StaminaComponent->DelayRegeneration();
+	//	}
 
-		if (MovementSettings.bStopMovingWhenAttacking)
-			MovementComponent->SetMovementMode(MOVE_None);
-	}
+	//	if (MovementSettings.bStopMovingWhenAttacking)
+	//		MovementComponent->SetMovementMode(MOVE_None);
+	//}
 }
 
 void AYlva::DisableControllerRotationYaw()
@@ -792,28 +881,27 @@ void AYlva::OnEnterLightAttackState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->Montage_Play(Combat.AttackSettings.LightAttack1);
+	AnimInstance->Montage_Play(AttackComboComponent->GetCurrentLightAttackAnim());
 }
 
 void AYlva::UpdateLightAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (Debug.bLogCurrentAnimTime)
-		ULog::Number(AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1), "Light Attack current time: ", true);
+	//if (Debug.bLogCurrentAnimTime)
+	//	ULog::Number(AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1), "Light Attack current time: ", true);
 
-	//if (AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1) >= Combat.AttackSettings.LightAttack1->SequenceLength)
+	////if (AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1) >= Combat.AttackSettings.LightAttack1->SequenceLength)
+	////	FSM->PopState();
+
+	//if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack1))
 	//	FSM->PopState();
-
-	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack1))
-		FSM->PopState();
 }
 
 void AYlva::OnExitLightAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	//AnimInstance->Montage_Stop(0.3f, Combat.AttackSettings.LightAttack1);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -824,22 +912,21 @@ void AYlva::OnEnterLightAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->Montage_Play(Combat.AttackSettings.LightAttack2);
+	AnimInstance->Montage_Play(AttackComboComponent->GetCurrentLightAttackAnim());
 }
 
 void AYlva::UpdateLightAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack2))
-		FSM->PopState();
+	//if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack2))
+	//	FSM->PopState();
 }
 
 void AYlva::OnExitLightAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->Montage_Stop(0.3f, Combat.AttackSettings.LightAttack2);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -850,22 +937,21 @@ void AYlva::OnEnterHeavyAttackState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->Montage_Play(Combat.AttackSettings.HeavyAttack1);
+	AnimInstance->Montage_Play(AttackComboComponent->GetCurrentHeavyAttackAnim());
 }
 
 void AYlva::UpdateHeavyAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.HeavyAttack1))
-		FSM->PopState();
+	//if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.HeavyAttack1))
+	//	FSM->PopState();
 }
 
 void AYlva::OnExitHeavyAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->Montage_Stop(0.3f, Combat.AttackSettings.HeavyAttack1);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
