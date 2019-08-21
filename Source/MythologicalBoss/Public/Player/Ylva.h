@@ -84,24 +84,6 @@ struct FDefenseSettings_Ylva
 };
 
 USTRUCT(BlueprintType)
-struct FAttackSettings_Ylva : public FAttackSettings
-{
-	GENERATED_BODY()
-
-	// The light attack 1 anim montage to play
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* LightAttack1;
-
-	// The light attack 2 anim montage to play
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* LightAttack2;
-
-	// The heavy attack 1 anim montage to play
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* HeavyAttack1;
-};
-
-USTRUCT(BlueprintType)
 struct FParrySettings_Ylva
 {
 	GENERATED_BODY()
@@ -132,7 +114,7 @@ struct FCombatSettings_Ylva : public FCombatSettings
 
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FAttackSettings_Ylva AttackSettings;
+		FAttackSettings AttackSettings;
 
 	// Settings that affect blocking values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
