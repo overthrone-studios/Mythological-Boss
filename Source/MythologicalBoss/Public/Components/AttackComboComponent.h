@@ -78,7 +78,7 @@ public:
 
 	// Returns the combo we've created
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE TArray<TEnumAsByte<EAttackType>> GetComboChain() const { return Combo; }
+		FORCEINLINE TArray<TEnumAsByte<EAttackType>> GetComboChain() const { return PreviousCombo; }
 
 protected:
 	void BeginPlay() override;
