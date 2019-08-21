@@ -510,61 +510,11 @@ void AYlva::LightAttack()
 		case 2:
 			BeginLightAttack("Light Attack 2");
 		break;
+
+		default: 
+		break;
 		}
 	}
-	
-
-	//if (FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-	//	//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-	//	//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-	//	StaminaComponent->HasEnoughForLightAttack())
-	//{
-	//	FSM->PushState("Light Attack 1");
-
-	//	if (Combat.bRotateToCameraLookDirection)
-	//		bUseControllerRotationYaw = true;
-
-	//	if (!bGodMode)
-	//	{
-	//		if (StaminaComponent->IsUsingSmoothBar())
-	//			StartLosingStamina(StaminaComponent->GetLightAttackValue());
-	//		else
-	//			DecreaseStamina(StaminaComponent->GetLightAttackValue());
-
-	//		StaminaComponent->DelayRegeneration();
-	//	}
-
-	//	if (MovementSettings.bStopMovingWhenAttacking)
-	//		MovementComponent->SetMovementMode(MOVE_None);
-	//}
-	//else if (
-	//	FSM->GetActiveStateID() == 3 /*Light Attack 1*/ &&
-	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-	//	//FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-	//	//FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-	//	FSM->GetActiveStateUptime() > 0.2f &&
-	//	StaminaComponent->HasEnoughForLightAttack())
-	//{
-	//	FSM->PopState("Light Attack 1");
-	//	FSM->PushState("Light Attack 2");
-
-	//	if (Combat.bRotateToCameraLookDirection)
-	//		bUseControllerRotationYaw = true;
-
-	//	if (!bGodMode)
-	//	{
-	//		if (StaminaComponent->IsUsingSmoothBar())
-	//			StartLosingStamina(StaminaComponent->GetLightAttackValue());
-	//		else
-	//			DecreaseStamina(StaminaComponent->GetLightAttackValue());
-
-	//		StaminaComponent->DelayRegeneration();
-	//	}
-
-	//	if (MovementSettings.bStopMovingWhenAttacking)
-	//		MovementComponent->SetMovementMode(MOVE_None);
-	//}
 }
 
 void AYlva::HeavyAttack()
@@ -592,60 +542,11 @@ void AYlva::HeavyAttack()
 		case 2:
 			BeginHeavyAttack("Heavy Attack 2");
 		break;
+
+		default: 
+		break;
 		}
 	}
-
-	//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-	//	FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-	//if (
-	//	FSM->GetActiveStateID() != 9 /*Heavy Attack 1*/ &&
-	//	FSM->GetActiveStateID() != 10 /*Heavy Attack 2*/ &&
-	//	StaminaComponent->HasEnoughForHeavyAttack())
-	//{
-	//	FSM->PushState("Heavy Attack 1");
-
-	//	if (Combat.bRotateToCameraLookDirection)
-	//		bUseControllerRotationYaw = true;
-
-	//	if (!bGodMode)
-	//	{
-	//		if (StaminaComponent->IsUsingSmoothBar())
-	//			StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-	//		else
-	//			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
-
-	//		StaminaComponent->DelayRegeneration();
-	//	}
-
-	//	if (MovementSettings.bStopMovingWhenAttacking)
-	//		MovementComponent->SetMovementMode(MOVE_None);
-	//}
-	//else if (
-	//	//FSM->GetActiveStateID() != 3 /*Light Attack 1*/ &&
-	//	//FSM->GetActiveStateID() != 8 /*Light Attack 2*/ &&
-	//	FSM->GetActiveStateID() == 9 /*Heavy Attack 1*/ &&
-	//	FSM->GetActiveStateUptime() > 0.5f &&
-	//	StaminaComponent->HasEnoughForHeavyAttack())
-	//{
-	//	FSM->PopState("Heavy Attack 1");
-	//	FSM->PushState("Heavy Attack 2");
-
-	//	if (Combat.bRotateToCameraLookDirection)
-	//		bUseControllerRotationYaw = true;
-
-	//	if (!bGodMode)
-	//	{
-	//		if (StaminaComponent->IsUsingSmoothBar())
-	//			StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-	//		else
-	//			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
-
-	//		StaminaComponent->DelayRegeneration();
-	//	}
-
-	//	if (MovementSettings.bStopMovingWhenAttacking)
-	//		MovementComponent->SetMovementMode(MOVE_None);
-	//}
 }
 
 void AYlva::DisableControllerRotationYaw()
