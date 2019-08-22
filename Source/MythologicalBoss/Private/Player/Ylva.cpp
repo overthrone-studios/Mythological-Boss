@@ -449,25 +449,20 @@ void AYlva::StopBlocking()
 
 void AYlva::UpdateStamina(const float StaminaToSubtract)
 {
-	if (StaminaComponent->IsUsingSmoothBar())
+	StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
+
+	// Stop animating displayed stamina
+	if (StaminaRegenTimeline->IsPlaying())
+		StaminaRegenTimeline->Stop();
+
+	DecreaseStamina(StaminaToSubtract);
+
+	if (StaminaComponent->GetDecreaseDelay() > 0.0f)
 	{
-		StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
-
-		// Stop animating displayed stamina
-		if (StaminaRegenTimeline->IsPlaying())
-			StaminaRegenTimeline->Stop();
-
-		DecreaseStamina(StaminaToSubtract);
-
-		if (StaminaComponent->GetDecreaseDelay() > 0.0f)
-		{
-			GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
-		}
-		else
-			StartLosingStamina();
+		GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
 	}
 	else
-		DecreaseStamina(StaminaToSubtract);
+		StartLosingStamina();
 
 	StaminaComponent->DelayRegeneration();
 }

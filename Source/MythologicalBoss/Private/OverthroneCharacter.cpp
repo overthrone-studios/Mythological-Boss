@@ -159,25 +159,20 @@ void AOverthroneCharacter::ResetHealth()
 
 void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 {
-	if (HealthComponent->IsUsingSmoothBar())
+	HealthComponent->SetSmoothedHealth(HealthComponent->GetSmoothedHealth());
+
+	// Stop animating displayed health
+	if (HealthLossTimeline->IsPlaying())
+		HealthLossTimeline->Stop();
+
+	DecreaseHealth(HealthToSubtract);
+
+	if (HealthComponent->GetDecreaseDelay() > 0.0f)
 	{
-		HealthComponent->SetSmoothedHealth(HealthComponent->GetSmoothedHealth());
-
-		// Stop animating displayed health
-		if (HealthLossTimeline->IsPlaying())
-			HealthLossTimeline->Stop();
-
-		DecreaseHealth(HealthToSubtract);
-
-		if (HealthComponent->GetDecreaseDelay() > 0.0f)
-		{
-			GetWorldTimerManager().SetTimer(HealthComponent->GetDelayTimerHandle(), this, &AOverthroneCharacter::StartLosingHealth, HealthComponent->GetDecreaseDelay(), false);
-		}
-		else
-			StartLosingHealth();
+		GetWorldTimerManager().SetTimer(HealthComponent->GetDelayTimerHandle(), this, &AOverthroneCharacter::StartLosingHealth, HealthComponent->GetDecreaseDelay(), false);
 	}
 	else
-		DecreaseHealth(HealthToSubtract);
+		StartLosingHealth();
 }
 
 void AOverthroneCharacter::Die()
