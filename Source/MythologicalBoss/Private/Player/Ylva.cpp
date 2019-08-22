@@ -451,6 +451,11 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 {
 	if (StaminaComponent->IsUsingSmoothBar())
 	{
+		StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
+
+		if (StaminaRegenTimeline->IsPlaying())
+			StaminaRegenTimeline->Stop();
+
 		DecreaseStamina(StaminaToSubtract);
 
 		if (StaminaComponent->GetDecreaseDelay() > 0.0f)

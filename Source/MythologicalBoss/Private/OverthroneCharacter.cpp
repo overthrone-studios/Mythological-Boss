@@ -161,6 +161,11 @@ void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 {
 	if (HealthComponent->IsUsingSmoothBar())
 	{
+		HealthComponent->SetSmoothedHealth(HealthComponent->GetSmoothedHealth());
+
+		if (HealthLossTimeline->IsPlaying())
+			HealthLossTimeline->Stop();
+
 		DecreaseHealth(HealthToSubtract);
 
 		if (HealthComponent->GetDecreaseDelay() > 0.0f)

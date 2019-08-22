@@ -48,6 +48,7 @@ void UStaminaComponent::SetStamina(const float NewStaminaAmount)
 void UStaminaComponent::SetSmoothedStamina(const float Value)
 {
 	NewStamina = Value;
+	PreviousStamina = NewStamina;
 }
 
 void UStaminaComponent::IncreaseStamina(const float Amount)
@@ -60,7 +61,8 @@ void UStaminaComponent::IncreaseStamina(const float Amount)
 
 void UStaminaComponent::DecreaseStamina(const float Amount)
 {
-	PreviousStamina = Stamina;
+	if (NewStamina <= Stamina)
+		PreviousStamina = Stamina;
 
 	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, DefaultStamina);
 }
