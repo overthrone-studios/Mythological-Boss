@@ -219,7 +219,7 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
-	AnimInstance->bLogDirection = true;
+	//AnimInstance->bLogDirection = true;
 
 	// Begin the state machine
 	FSM->Start();
