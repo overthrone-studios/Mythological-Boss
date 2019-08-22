@@ -154,7 +154,7 @@ protected:
 		virtual void OnLowHealth();
 
 	// Prep work before playing the timeline to lose health
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+	UFUNCTION()
 		virtual void StartLosingHealth(float Amount);
 
 	// Called every tick of the take damage timeline
