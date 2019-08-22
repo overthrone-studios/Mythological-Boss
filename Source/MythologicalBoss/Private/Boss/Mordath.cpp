@@ -211,6 +211,7 @@ void AMordath::BeginPlay()
 	// Initialize game instance variables
 	GameInstance->BossInfo.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetCurrentHealth();
 	GameInstance->BossInfo.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->OnSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
@@ -944,7 +945,8 @@ void AMordath::FinishCooldown()
 
 void AMordath::UpdateCharacterInfo()
 {
-	GameInstance->BossInfo.Health = HealthComponent->GetSmoothedHealth();
+	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
@@ -1182,11 +1184,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Apply hit stop
 		PauseAnimsWithTimer();
 
-		// Lose health
-		if (HealthComponent->IsUsingSmoothBar())
-			StartLosingHealth(DamageAmount);
-		else
-			DecreaseHealth(DamageAmount);
+		UpdateHealth(DamageAmount);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
@@ -1203,11 +1201,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		FSM->PopState();
 		FSM->PushState("Beaten");
 
-		// Lose health
-		if (HealthComponent->IsUsingSmoothBar())
-			StartLosingHealth(DamageAmount);
-		else
-			DecreaseHealth(DamageAmount);
+		UpdateHealth(DamageAmount);
 	}
 
 	// Are we dead?
@@ -1238,7 +1232,8 @@ FRotator AMordath::FacePlayer()
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossInfo.Health = HealthComponent->GetSmoothedHealth();
+	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 	GameInstance->BossInfo.Location = GetActorLocation();
 }
 

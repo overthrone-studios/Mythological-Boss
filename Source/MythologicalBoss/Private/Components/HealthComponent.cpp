@@ -3,6 +3,7 @@
 #include "Components/HealthComponent.h"
 #include "OverthroneCharacter.h"
 #include "GameFramework/Actor.h"
+#include "TimerManager.h"
 
 UHealthComponent::UHealthComponent()
 {
@@ -11,6 +12,11 @@ UHealthComponent::UHealthComponent()
 	DefaultHealth = 100.0f;
 
 	InitHealth();
+}
+
+bool UHealthComponent::IsDelayFinished()
+{
+	return !Owner->GetWorldTimerManager().IsTimerActive(DelayTimerHandle);
 }
 
 void UHealthComponent::BeginPlay()
@@ -66,7 +72,7 @@ void UHealthComponent::DecreaseHealth(const float Amount)
 	PreviousHealth = Health;
 
 	Health = FMath::Clamp(Health - Amount, 0.0f, DefaultHealth);
-	NewHealth = Health;
+	//NewHealth = Health;
 }
 
 void UHealthComponent::ResetHealth()

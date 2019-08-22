@@ -320,6 +320,9 @@ protected:
 		void ResetStamina();
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void UpdateStamina(float StaminaToSubtract);
+
+	UFUNCTION()
 		void StartLosingStamina(float Amount);
 
 	UFUNCTION()

@@ -206,10 +206,13 @@ void AYlva::BeginPlay()
 	// Initialize player info
 	GameInstance->PlayerInfo.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 	GameInstance->PlayerInfo.StartingStamina = StaminaComponent->GetDefaultStamina();
 	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
+	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetCurrentStamina();
 	GameInstance->PlayerInfo.MaxCharge = ChargeAttackComponent->GetMaxCharge();
 	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
+	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
 	GameInstance->Player = this;
 
 	// Bind events to our functions
@@ -314,9 +317,12 @@ void AYlva::ChangeHitboxSize(const float NewRadius)
 
 void AYlva::UpdateCharacterInfo()
 {
-	GameInstance->PlayerInfo.Health = HealthComponent->GetSmoothedHealth();
-	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetSmoothedStamina();
-	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetSmoothedCharge();
+	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
+	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
+	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
+	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 }
 
@@ -441,6 +447,27 @@ void AYlva::StopBlocking()
 		FSM->PopState();
 }
 
+void AYlva::UpdateStamina(const float StaminaToSubtract)
+{
+	if (StaminaComponent->IsUsingSmoothBar())
+	{
+		DecreaseStamina(StaminaToSubtract);
+
+		if (StaminaComponent->GetDecreaseDelay() > 0.0f)
+		{
+			FTimerDelegate TimerDelegate;
+			TimerDelegate.BindUFunction(this, "StartLosingStamina", StaminaToSubtract);
+			GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), TimerDelegate, StaminaComponent->GetDecreaseDelay(), false);
+		}
+		else
+			StartLosingStamina(StaminaToSubtract);
+	}
+	else
+		DecreaseStamina(StaminaToSubtract);
+
+	StaminaComponent->DelayRegeneration();
+}
+
 void AYlva::BeginLightAttack(const FName& LightAttackName)
 {
 	FSM->PopState();
@@ -451,12 +478,7 @@ void AYlva::BeginLightAttack(const FName& LightAttackName)
 
 	if (!bGodMode)
 	{
-		if (StaminaComponent->IsUsingSmoothBar())
-			StartLosingStamina(StaminaComponent->GetLightAttackValue());
-		else
-			DecreaseStamina(StaminaComponent->GetLightAttackValue());
-
-		StaminaComponent->DelayRegeneration();
+		UpdateStamina(StaminaComponent->GetLightAttackValue());
 	}
 
 	if (MovementSettings.bStopMovingWhenAttacking)
@@ -473,12 +495,7 @@ void AYlva::BeginHeavyAttack(const FName& HeavyAttackName)
 
 	if (!bGodMode)
 	{
-		if (StaminaComponent->IsUsingSmoothBar())
-			StartLosingStamina(StaminaComponent->GetHeavyAttackValue());
-		else
-			DecreaseStamina(StaminaComponent->GetHeavyAttackValue());
-
-		StaminaComponent->DelayRegeneration();
+		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
 	}
 
 	if (MovementSettings.bStopMovingWhenAttacking)
@@ -605,14 +622,9 @@ void AYlva::Dash()
 		{
 			StartDashCooldown();
 
-			if (StaminaComponent->IsUsingSmoothBar())
-				StartLosingStamina(StaminaComponent->GetDashValue());
-			else
-				DecreaseStamina(StaminaComponent->GetDashValue());
+			UpdateStamina(StaminaComponent->GetDashValue());
 
 			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
-
-			StaminaComponent->DelayRegeneration();
 		}
 		else if (bGodMode)
 		{
@@ -653,7 +665,7 @@ void AYlva::Pause()
 
 void AYlva::RegenerateStamina(const float Rate)
 {
-	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || !StaminaComponent->IsDelayFinished())
+	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || !StaminaComponent->IsRegenFinished())
 		return;
 
 	IncreaseStamina(Rate * World->DeltaTimeSeconds);
@@ -1059,17 +1071,9 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
-				// Update health
-				if (HealthComponent->IsUsingSmoothBar())
-					StartLosingHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-				else
-					DecreaseHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-
-				// Update stamina
-				if (StaminaComponent->IsUsingSmoothBar())
-					StartLosingStamina(StaminaComponent->GetShieldHitValue());
-				else
-					DecreaseStamina(StaminaComponent->GetShieldHitValue());
+				// Update stats
+				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+				UpdateStamina(StaminaComponent->GetShieldHitValue());
 			break;
 
 			default:
@@ -1084,11 +1088,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
-				// Update health
-				if (HealthComponent->IsUsingSmoothBar())
-					StartLosingHealth(DamageAmount);
-				else
-					DecreaseHealth(DamageAmount);
+				UpdateHealth(DamageAmount);
 
 				// Determine whether to reset the charge meter or not
 				if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
@@ -1152,8 +1152,6 @@ void AYlva::ResetStamina()
 
 void AYlva::StartLosingStamina(const float Amount)
 {
-	StaminaComponent->DecreaseStamina(Amount);
-
 	StaminaRegenTimeline->PlayFromStart();
 }
 

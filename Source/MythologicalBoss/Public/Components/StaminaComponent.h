@@ -21,7 +21,15 @@ public:
 
 	// Returns true if the regen timer is not active
 	UFUNCTION(BlueprintPure, Category = "Stamina")
+		bool IsRegenFinished();
+
+	// Returns true if the delay timer is not active
+	UFUNCTION(BlueprintPure, Category = "Stamina")
 		bool IsDelayFinished();
+
+	// Returns the delay timer handle
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FTimerHandle& GetDelayTimerHandle() { return DelayTimerHandle; }
 
 	// Return the actor's default stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -42,6 +50,10 @@ public:
 	// Returns true if smooth bar is enabled
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE bool IsUsingSmoothBar() const { return bSmoothBar; }
+
+	// Return the delay value when using smooth bar
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetDecreaseDelay() const { return Delay; }
 
 	// Returns true if we have enough stamina for light attacking
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -134,6 +146,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina")
 		uint8 bSmoothBar : 1;
 
+	// The amount of time (in seconds) we should wait before decreasing stamina smoothly
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina", meta = (EditCondition = "bSmoothBar", ClampMin = 0.0f, ClampMax = 10.0f))
+		float Delay = 0.5f;
+
 	// The actor's previous health before being damaged
 	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
 		float PreviousStamina;
@@ -174,4 +190,5 @@ private:
 	AActor* Owner;
 
 	FTimerHandle RegenTimerHandle;
+	FTimerHandle DelayTimerHandle;
 };

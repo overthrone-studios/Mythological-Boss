@@ -20,6 +20,7 @@ struct FCharacterInfo
 
 	float StartingHealth = 0.0f;
 	float Health = 0.0f;
+	float SmoothedHealth = 0.0f;
 
 	FOnLowHealthSignature OnLowHealth;
 
@@ -34,7 +35,9 @@ struct FPlayerInfo : public FCharacterInfo
 	float MaxCharge = 0.0f;
 	float StartingStamina = 0.0f;
 	float Stamina = 0.0f;
+	float SmoothedStamina = 0.0f;
 	float Charge = 0.0f;
+	float SmoothedCharge = 0.0f;
 
 	uint8 bParrySucceeded : 1;
 };

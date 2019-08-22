@@ -21,13 +21,25 @@ public:
 		float GetPlayerHealthAsPercentage() const;
 
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
+		float GetPlayerSmoothedHealthAsPercentage() const;
+
+	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
 		float GetPlayerStaminaAsPercentage() const;
+
+	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
+		float GetPlayerSmoothedStaminaAsPercentage() const;
 
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
 		float GetPlayerChargeAsPercentage() const;
 
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
+		float GetPlayerSmoothedChargeAsPercentage() const;
+
+	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
 		float GetBossHealthAsPercentage() const;
+
+	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
+		float GetBossSmoothedHealthAsPercentage() const;
 
 protected:
 	class UOverthroneGameInstance* GameInstance;

@@ -21,9 +21,19 @@ float UMainPlayerHUD::GetPlayerHealthAsPercentage() const
 	return GameInstance->PlayerInfo.Health / GameInstance->PlayerInfo.StartingHealth;
 }
 
+float UMainPlayerHUD::GetPlayerSmoothedHealthAsPercentage() const
+{
+	return GameInstance->PlayerInfo.SmoothedHealth / GameInstance->PlayerInfo.StartingHealth;
+}
+
 float UMainPlayerHUD::GetPlayerStaminaAsPercentage() const
 {
 	return GameInstance->PlayerInfo.Stamina / GameInstance->PlayerInfo.StartingStamina;
+}
+
+float UMainPlayerHUD::GetPlayerSmoothedStaminaAsPercentage() const
+{
+	return GameInstance->PlayerInfo.SmoothedStamina / GameInstance->PlayerInfo.StartingStamina;
 }
 
 float UMainPlayerHUD::GetPlayerChargeAsPercentage() const
@@ -31,7 +41,17 @@ float UMainPlayerHUD::GetPlayerChargeAsPercentage() const
 	return GameInstance->PlayerInfo.Charge / GameInstance->PlayerInfo.MaxCharge;
 }
 
+float UMainPlayerHUD::GetPlayerSmoothedChargeAsPercentage() const
+{
+	return GameInstance->PlayerInfo.SmoothedCharge / GameInstance->PlayerInfo.MaxCharge;
+}
+
 float UMainPlayerHUD::GetBossHealthAsPercentage() const
 {
 	return GameInstance->BossInfo.Health / GameInstance->BossInfo.StartingHealth;
+}
+
+float UMainPlayerHUD::GetBossSmoothedHealthAsPercentage() const
+{
+	return GameInstance->BossInfo.SmoothedHealth / GameInstance->BossInfo.StartingHealth;
 }

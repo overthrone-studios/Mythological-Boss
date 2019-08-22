@@ -12,6 +12,7 @@
 #include "Log.h"
 #include "Components/TimelineComponent.h"
 #include "Components/HealthComponent.h"
+#include "TimerManager.h"
 
 AOverthroneCharacter::AOverthroneCharacter()
 {
@@ -99,8 +100,6 @@ void AOverthroneCharacter::OnLowHealth()
 
 void AOverthroneCharacter::StartLosingHealth(const float Amount)
 {
-	HealthComponent->DecreaseHealth(Amount);
-
 	HealthLossTimeline->PlayFromStart();
 }
 
@@ -156,6 +155,25 @@ void AOverthroneCharacter::ResetHealth()
 	HealthComponent->ResetHealth();
 
 	UpdateCharacterInfo();
+}
+
+void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
+{
+	if (HealthComponent->IsUsingSmoothBar())
+	{
+		DecreaseHealth(HealthToSubtract);
+
+		if (HealthComponent->GetDecreaseDelay() > 0.0f)
+		{
+			FTimerDelegate TimerDelegate;
+			TimerDelegate.BindUFunction(this, "StartLosingHealth", HealthToSubtract);
+			GetWorldTimerManager().SetTimer(HealthComponent->GetDelayTimerHandle(), TimerDelegate, HealthComponent->GetDecreaseDelay(), false);
+		}
+		else
+			StartLosingHealth(HealthToSubtract);
+	}
+	else
+		DecreaseHealth(HealthToSubtract);
 }
 
 void AOverthroneCharacter::Die()

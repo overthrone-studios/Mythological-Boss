@@ -27,9 +27,14 @@ void UStaminaComponent::DelayRegeneration()
 	Owner->GetWorldTimerManager().SetTimer(RegenTimerHandle, RegenerationDelay, false);
 }
 
-bool UStaminaComponent::IsDelayFinished()
+bool UStaminaComponent::IsRegenFinished()
 {
 	return !Owner->GetWorldTimerManager().IsTimerActive(RegenTimerHandle);
+}
+
+bool UStaminaComponent::IsDelayFinished()
+{
+	return !Owner->GetWorldTimerManager().IsTimerActive(DelayTimerHandle);
 }
 
 void UStaminaComponent::SetStamina(const float NewStaminaAmount)
@@ -58,7 +63,6 @@ void UStaminaComponent::DecreaseStamina(const float Amount)
 	PreviousStamina = Stamina;
 
 	Stamina = FMath::Clamp(Stamina - Amount, 0.0f, DefaultStamina);
-	NewStamina = Stamina;
 }
 
 void UStaminaComponent::ResetStamina()

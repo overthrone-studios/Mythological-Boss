@@ -128,6 +128,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void ResetHealth();
 
+	// Update the character's health
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		void UpdateHealth(float HealthToSubtract);
+
 	// Kill self
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void Die();

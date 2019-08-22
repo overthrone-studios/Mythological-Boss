@@ -15,6 +15,14 @@ class MYTHOLOGICALBOSS_API UHealthComponent final : public UActorComponent
 public:
 	UHealthComponent();
 
+	// Returns true if the delay timer is not active
+	UFUNCTION(BlueprintPure, Category = "Health")
+		bool IsDelayFinished();
+
+	// Returns the delay timer handle
+	UFUNCTION(BlueprintPure, Category = "Health")
+		FTimerHandle& GetDelayTimerHandle() { return DelayTimerHandle; }
+
 	// Return the actor's default health value
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE float GetDefaultHealth() const { return DefaultHealth; }
@@ -42,6 +50,10 @@ public:
 	// Returns true if the actor's health is less than or equal to the low health threshold
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE bool IsLowHealth() const { return Health <= DefaultHealth * LowHealthThreshold; }
+
+	// Return the delay value when using smooth bar
+	UFUNCTION(BlueprintPure, Category = "Health")
+		FORCEINLINE float GetDecreaseDelay() const { return Delay; }
 	
 	// Set a new current health value
 	UFUNCTION(BlueprintCallable, Category = "Health")
@@ -94,6 +106,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Health")
 		uint8 bSmoothBar : 1;
 
+	// The amount of time (in seconds) we should wait before decreasing health smoothly
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "bSmoothBar", ClampMin = 0.0f, ClampMax = 10.0f))
+		float Delay = 0.5f;
+
 	// The actor's previous health before being damaged
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
 		float PreviousHealth;
@@ -105,4 +121,7 @@ protected:
 	// The actor that owns this component
 	UPROPERTY(BlueprintReadOnly)
 		AActor* Owner;
+
+private:
+	FTimerHandle DelayTimerHandle;
 };
