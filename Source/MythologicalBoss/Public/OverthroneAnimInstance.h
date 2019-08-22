@@ -20,6 +20,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float MovementDirection = 0.0f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsHit : 1;
 
@@ -43,6 +46,9 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bAcceptThirdHeavyAttack : 1;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Combat")
+		uint8 bLogDirection : 1;
 
 	// Used to get a reference to the anim state machine, and to query time remaining
 	int32 GenericsMachineIndex;
