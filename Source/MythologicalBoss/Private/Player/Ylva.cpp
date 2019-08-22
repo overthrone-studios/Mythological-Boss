@@ -478,10 +478,12 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 	StaminaComponent->DelayRegeneration();
 }
 
-void AYlva::BeginLightAttack(const FName& LightAttackName)
+void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
-	FSM->PopState();
-	FSM->PushState(LightAttackName);
+	//FSM->PopState();
+	//FSM->PushState(LightAttackName);
+
+	AnimInstance->Montage_Play(AttackMontage);
 
 	if (Combat.bRotateToCameraLookDirection)
 		bUseControllerRotationYaw = true;
@@ -495,10 +497,12 @@ void AYlva::BeginLightAttack(const FName& LightAttackName)
 		MovementComponent->SetMovementMode(MOVE_None);
 }
 
-void AYlva::BeginHeavyAttack(const FName& HeavyAttackName)
+void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
-	FSM->PopState();
-	FSM->PushState(HeavyAttackName);
+	//FSM->PopState();
+	//FSM->PushState(HeavyAttackName);
+
+	AnimInstance->Montage_Play(AttackMontage);
 
 	if (Combat.bRotateToCameraLookDirection)
 		bUseControllerRotationYaw = true;
@@ -526,21 +530,9 @@ void AYlva::LightAttack()
 
 	if (StaminaComponent->HasEnoughForLightAttack())
 	{
-		const uint8 ComboIndex = AttackComboComponent->AdvanceCombo(Light);
-		
-		switch (ComboIndex)
-		{
-		case 1:
-			BeginLightAttack("Light Attack 1");
-		break;
+		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
 
-		case 2:
-			BeginLightAttack("Light Attack 2");
-		break;
-
-		default: 
-		break;
-		}
+		BeginLightAttack(AttackMontageToPlay);
 	}
 }
 
@@ -558,21 +550,9 @@ void AYlva::HeavyAttack()
 
 	if (StaminaComponent->HasEnoughForHeavyAttack())
 	{
-		const uint8 ComboIndex = AttackComboComponent->AdvanceCombo(Heavy);
+		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
 		
-		switch (ComboIndex)
-		{
-		case 1:
-			BeginHeavyAttack("Heavy Attack 1");
-		break;
-
-		case 2:
-			BeginHeavyAttack("Heavy Attack 2");
-		break;
-
-		default: 
-		break;
-		}
+		BeginHeavyAttack(AttackMontageToPlay);
 	}
 }
 
@@ -810,21 +790,11 @@ void AYlva::OnEnterLightAttackState()
 void AYlva::UpdateLightAttackState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	//if (Debug.bLogCurrentAnimTime)
-	//	ULog::Number(AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1), "Light Attack current time: ", true);
-
-	////if (AnimInstance->Montage_GetPosition(Combat.AttackSettings.LightAttack1) >= Combat.AttackSettings.LightAttack1->SequenceLength)
-	////	FSM->PopState();
-
-	//if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack1))
-	//	FSM->PopState();
 }
 
 void AYlva::OnExitLightAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -842,8 +812,6 @@ void AYlva::UpdateLightAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	//if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.LightAttack2))
-	//	FSM->PopState();
 }
 
 void AYlva::OnExitLightAttack2State()

@@ -248,10 +248,10 @@ protected:
 		void StopBlocking();
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void BeginLightAttack(const FName& LightAttackName);
+		void BeginLightAttack(class UAnimMontage* AttackMontage);
 	
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void BeginHeavyAttack(const FName& HeavyAttackName);
+		void BeginHeavyAttack(class UAnimMontage* AttackMontage);
 
 	// Called via input to enter the light attacking state
 	void LightAttack();

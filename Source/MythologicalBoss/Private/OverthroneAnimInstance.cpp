@@ -34,7 +34,7 @@ void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 
 	if (bLogDirection)
 	{
-		ULog::Number(MovementDirection, "Direction: ", true);
+		//ULog::Number(MovementDirection, "Direction: ", true);
 	}
 }
 

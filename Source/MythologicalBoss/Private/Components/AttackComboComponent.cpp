@@ -18,9 +18,9 @@ void UAttackComboComponent::BeginPlay()
 	Owner = GetOwner();
 }
 
-int32 UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
+class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
 {
-	int8 ComboIndex = -1;
+	UAnimMontage* AttackMontage = nullptr;
 
 	switch (InAttackType)
 	{
@@ -28,20 +28,20 @@ int32 UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
 		if (LightAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Light Attacks list", true);
-			return ComboIndex;
+			return AttackMontage;
 		}
 
-		ComboIndex = AdvanceCombo_Internal(Light);
+		AttackMontage = AdvanceCombo_Internal(Light);
 	break;
 
 	case Heavy:
 		if (HeavyAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Heavy Attacks list", true);
-			return ComboIndex;
+			return AttackMontage;
 		}
 
-		ComboIndex = AdvanceCombo_Internal(Heavy);
+		AttackMontage = AdvanceCombo_Internal(Heavy);
 
 	break;
 
@@ -49,34 +49,34 @@ int32 UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
 		if (SpecialAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Special Attacks list", true);
-			return ComboIndex;
+			return AttackMontage;
 		}
 
-		ComboIndex = AdvanceCombo_Internal(Special);
+		AttackMontage = AdvanceCombo_Internal(Special);
 	break;
 
 	case None:
-		ComboIndex = -1;
+		AttackMontage = nullptr;
 	break;
 	}
 
-	return ComboIndex;
+	return AttackMontage;
 }
 
-int8 UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)
+class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)
 {
 	if (TreeIndex >= ComboTreeDepth && Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle))
 	{
 		if (bLogTreeStatus)
 			ULog::Info("Reached the max tree depth, resetting...", true);
 
-		return -1;
+		return nullptr;
 	}
 
 	if (TreeIndex >= ComboTreeDepth && !Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle))
 	{
 		Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
-		return -1;
+		return nullptr;
 	}
 
 	// Start the combo reset timer
@@ -84,44 +84,54 @@ int8 UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttac
 
 	// Get out if we are still delaying
 	if (Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle))
-		return -1;
+		return nullptr;
 
-	TreeIndex++;
-
-	int8 IndexToReturn = TreeIndex;
+	UAnimMontage* MontageToReturn = nullptr;
 
 	// Choose the attack
 	switch (InAttackType)
 	{
 	case Light:
-		IndexToReturn = AdvanceAttack(LightAttackIndex, LightAttacks.List, Light);
+		AdvanceAttack(LightAttackIndex, LightAttacks.List, Light);
+		MontageToReturn = GetCurrentLightAttackAnim();
+
+		LightAttackIndex++;
 	break;
 
 	case Heavy:
-		IndexToReturn = AdvanceAttack(HeavyAttackIndex, HeavyAttacks.List, Heavy);
+		AdvanceAttack(HeavyAttackIndex, HeavyAttacks.List, Heavy);
+		MontageToReturn = GetCurrentHeavyAttackAnim();
+
+		HeavyAttackIndex++;
 	break;
 
 	case Special:
-		IndexToReturn = AdvanceAttack(SpecialAttackIndex, SpecialAttacks.List, Special);
+		AdvanceAttack(SpecialAttackIndex, SpecialAttacks.List, Special);
+		MontageToReturn = GetCurrentSpecialAttackAnim();
+
+		SpecialAttackIndex++;
 	break;
 
 	case None:
-		IndexToReturn = -1;
+		MontageToReturn = nullptr;
 	break;	
 	}
 
-	if (bLogComboIndex)
-		ULog::Number(TreeIndex, "Combo Index: ", true);
+	TreeIndex++;
 
-	return IndexToReturn;
+	if (bLogComboTreeIndex)
+		ULog::Number(TreeIndex, "Tree Index: ", true);
+
+	return MontageToReturn;
 }
 
 int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const EAttackType& InAttackType)
 {
-	AttackIndex++;
-
-	if (AttackIndex > AttackList.Num())
-		AttackIndex = 1;
+	if (AttackIndex >= AttackList.Num())
+	{
+		AttackIndex = 0;
+		return AttackIndex;
+	}
 
 	Combo.Add(InAttackType);
 

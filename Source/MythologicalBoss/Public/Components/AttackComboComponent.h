@@ -50,7 +50,7 @@ public:
 
 	// Advances to the next attack in the combo tree (-1 means the tree failed to advance)
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
-		int32 AdvanceCombo(enum EAttackType InAttackType);
+		class UAnimMontage* AdvanceCombo(enum EAttackType InAttackType);
 
 	// Returns the array of light attacks
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -66,15 +66,15 @@ public:
 
 	// Returns the current light attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE class UAnimMontage* GetCurrentLightAttackAnim() const { return LightAttacks.List[LightAttackIndex-1]; }
+		FORCEINLINE class UAnimMontage* GetCurrentLightAttackAnim() const { return LightAttacks.List[LightAttackIndex]; }
 
 	// Returns the current heavy attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE class UAnimMontage* GetCurrentHeavyAttackAnim() const { return HeavyAttacks.List[HeavyAttackIndex-1]; }
+		FORCEINLINE class UAnimMontage* GetCurrentHeavyAttackAnim() const { return HeavyAttacks.List[HeavyAttackIndex]; }
 
 	// Returns the current special attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE class UAnimMontage* GetCurrentSpecialAttackAnim() const { return SpecialAttacks.List[SpecialAttackIndex-1]; }
+		FORCEINLINE class UAnimMontage* GetCurrentSpecialAttackAnim() const { return SpecialAttacks.List[SpecialAttackIndex]; }
 
 	// Returns the combo we've created
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -112,7 +112,7 @@ protected:
 
 	// Log the current tree index
 	UPROPERTY(EditInstanceOnly, Category = "Combo Tree")
-		uint8 bLogComboIndex : 1;
+		uint8 bLogComboTreeIndex : 1;
 
 	// Log the current attack index
 	UPROPERTY(EditInstanceOnly, Category = "Combo Tree")
@@ -127,7 +127,7 @@ protected:
 		uint8 bLogTreeStatus : 1;
 
 private:
-	int8 AdvanceCombo_Internal(enum EAttackType InAttackType);
+	class UAnimMontage* AdvanceCombo_Internal(enum EAttackType InAttackType);
 	int8 AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const enum EAttackType& InAttackType);
 
 	void DelayAttack(const float& Delay);
