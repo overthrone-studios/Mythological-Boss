@@ -753,7 +753,7 @@ void AYlva::UpdateRunState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	if (!bGodMode)
-		DecreaseStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
+		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
 
 	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
 	{
