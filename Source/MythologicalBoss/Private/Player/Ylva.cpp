@@ -453,6 +453,7 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 	{
 		StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
 
+		// Stop animating displayed stamina
 		if (StaminaRegenTimeline->IsPlaying())
 			StaminaRegenTimeline->Stop();
 

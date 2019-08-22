@@ -163,6 +163,7 @@ void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 	{
 		HealthComponent->SetSmoothedHealth(HealthComponent->GetSmoothedHealth());
 
+		// Stop animating displayed health
 		if (HealthLossTimeline->IsPlaying())
 			HealthLossTimeline->Stop();
 
