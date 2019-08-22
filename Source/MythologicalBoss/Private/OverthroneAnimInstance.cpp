@@ -1,6 +1,8 @@
 // Copyright Overthrone Studios 2019
 
 #include "OverthroneAnimInstance.h"
+#include "Log.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UOverthroneAnimInstance::NativeInitializeAnimation()
 {
@@ -25,8 +27,15 @@ void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	if (!OwningPawn || !PawnMovementComponent)
 		return;
 
-	// Update movement speed for use in the Idle/Run blendspace
-	MovementSpeed = OwningPawn->GetVelocity().Size();
+	const FVector Velocity = OwningPawn->GetVelocity();
+
+	// Update movement speed and direction for use in the locomotion blendspace
+	MovementSpeed = Velocity.Size();
+
+	if (bLogDirection)
+	{
+		ULog::Number(MovementDirection, "Direction: ", true);
+	}
 }
 
 void UOverthroneAnimInstance::LeaveAllStates()
