@@ -217,6 +217,7 @@ void AYlva::BeginPlay()
 
 	// Bind events to our functions
 	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
+	GameInstance->PlayerInfo.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
 	//AnimInstance->bLogDirection = true;
@@ -337,6 +338,12 @@ void AYlva::BroadcastLowHealth()
 {
 	GameInstance->PlayerInfo.OnLowHealth.Broadcast();
 	bWasLowHealthEventTriggered = true;
+}
+
+void AYlva::BroadcastLowStamina()
+{
+	GameInstance->PlayerInfo.OnLowStamina.Broadcast();
+	bWasLowStaminaEventTriggered = true;
 }
 
 void AYlva::StartLosingHealth()
@@ -1100,11 +1107,33 @@ void AYlva::OnLowHealth()
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
+void AYlva::OnLowStamina()
+{
+	ULog::Info("Low stamina!", true);
+
+	// Todo Implement function
+
+	MovementComponent->MaxWalkSpeed /= 2.0f;
+}
+
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
 	StaminaComponent->SetStamina(NewStaminaAmount);
 
 	UpdateCharacterInfo();
+
+	// Are we on low stamina?
+	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
+	{
+		BroadcastLowStamina();
+	}
+	else if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+	{
+		// Todo update player values
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+		bWasLowStaminaEventTriggered = false;
+	}
 }
 
 void AYlva::DecreaseStamina(const float Amount)
@@ -1112,6 +1141,12 @@ void AYlva::DecreaseStamina(const float Amount)
 	StaminaComponent->DecreaseStamina(Amount);
 
 	UpdateCharacterInfo();
+
+	// Are we on low stamina?
+	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
+	{
+		BroadcastLowStamina();
+	}
 }
 
 void AYlva::IncreaseStamina(const float Amount)
@@ -1119,6 +1154,14 @@ void AYlva::IncreaseStamina(const float Amount)
 	StaminaComponent->IncreaseStamina(Amount);
 
 	UpdateCharacterInfo();
+
+	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+	{
+		// Todo update player values
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+		bWasLowStaminaEventTriggered = false;
+	}
 }
 
 void AYlva::ResetStamina()
@@ -1126,6 +1169,9 @@ void AYlva::ResetStamina()
 	StaminaComponent->ResetStamina();
 
 	UpdateCharacterInfo();
+
+	// Todo update player values
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 
 void AYlva::StartLosingStamina()

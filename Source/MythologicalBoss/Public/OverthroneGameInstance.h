@@ -8,6 +8,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
@@ -31,6 +32,8 @@ USTRUCT()
 struct FPlayerInfo : public FCharacterInfo
 {
 	GENERATED_BODY()
+
+	FOnLowStaminaSignature OnLowStamina;
 
 	float MaxCharge = 0.0f;
 	float StartingStamina = 0.0f;

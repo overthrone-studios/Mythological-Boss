@@ -49,7 +49,7 @@ public:
 
 	// Returns true if smooth bar is enabled
 	UFUNCTION(BlueprintPure, Category = "Stamina")
-		FORCEINLINE bool IsUsingSmoothBar() const { return bSmoothBar; }
+		FORCEINLINE float GetLowStaminaThreshold() const { return LowStaminaThreshold; }
 
 	// Return the delay value when using smooth bar
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -70,6 +70,10 @@ public:
 	// Returns true if we don't have stamina (Stamina <= 0)
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE bool IsStaminaEmpty() const { return Stamina <= 0.0f; }
+
+	// Returns true if we are low on stamina
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool IsLowStamina() const { return Stamina <= DefaultStamina * LowStaminaThreshold; }
 
 	// Returns true if we have stamina (Stamina > 0)
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -142,9 +146,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina", meta = (ClampMin = 0.0f))
 		float DefaultStamina = 100.0f;
 
-	// Should we use a smooth stamina bar?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina")
-		uint8 bSmoothBar : 1;
+	// The actor's low stamina point
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float LowStaminaThreshold = 0.25f;
 
 	// The amount of time (in seconds) we should wait before decreasing stamina smoothly
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina", meta = (EditCondition = "bSmoothBar", ClampMin = 0.0f, ClampMax = 10.0f))

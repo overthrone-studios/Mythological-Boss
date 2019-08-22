@@ -205,6 +205,8 @@ protected:
 	void UpdateCharacterInfo() override;
 	void BroadcastLowHealth() override;
 
+	void BroadcastLowStamina();
+
 	void StartLosingHealth() override;
 	void LoseHealth() override;
 
@@ -508,6 +510,9 @@ protected:
 
 	void OnLowHealth() override;
 
+	UFUNCTION()
+		void OnLowStamina();
+
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -591,6 +596,8 @@ protected:
 
 private:
 	float InputX = 0.0f, InputZ = 0.0f;
+
+	uint8 bWasLowStaminaEventTriggered : 1;
 
 	FRotator StartRightSwordRotation{};
 	FRotator StartLeftSwordRotation{};
