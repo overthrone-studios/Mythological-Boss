@@ -193,6 +193,8 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
+
+	float RecentDamage = 0.0f;
 };
 
 UCLASS()
@@ -221,6 +223,10 @@ public:
 	// Returns the attack radius value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
+
+	// Returns the recent damage value
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FORCEINLINE float GetRecentDamage() const { return Combat.RecentDamage; }
 
 	// Returns true if we are light attacking
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
@@ -325,6 +331,9 @@ protected:
 
 	UFUNCTION()
 		void OnThirdStageHealth();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Mordath")
+		void OnAfterTakeDamage();
 	#pragma endregion 
 
 	// Boss states
