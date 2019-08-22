@@ -1193,7 +1193,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		// Reset our hits
 		HitCounter = 0;
 
-		// Become invincible and set a timer to disable invinciblity after 'X' seconds
+		// Become invincible and set a timer to disable invincibility after 'X' seconds
 		EnableInvincibility();
 		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, Combat.InvincibilityTimeAfterDamage);
 
