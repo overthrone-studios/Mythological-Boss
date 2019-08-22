@@ -219,6 +219,8 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
+	AnimInstance->bLogDirection = true;
+
 	// Begin the state machine
 	FSM->Start();
 }
@@ -226,6 +228,11 @@ void AYlva::BeginPlay()
 void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Calculate direction
+	const auto DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
+	const auto NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(InputZ, -InputX, 0.0f)));
+	AnimInstance->MovementDirection = NewDirection.GetNormalized().Yaw;
 
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 
@@ -353,6 +360,8 @@ void AYlva::LoseHealth()
 
 void AYlva::MoveForward(const float Value)
 {
+	InputZ = Value;
+
 	if (Controller && Value != 0.0f)
 	{
 		// Find out which way is forward
@@ -369,6 +378,8 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
+	InputX = Value;
+
 	if (Controller && Value != 0.0f)
 	{
 		// Find out which way is right

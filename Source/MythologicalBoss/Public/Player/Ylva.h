@@ -590,6 +590,8 @@ protected:
 	UStaticMeshComponent* L_SwordMesh;
 
 private:
+	float InputX = 0.0f, InputZ = 0.0f;
+
 	FRotator StartRightSwordRotation{};
 	FRotator StartLeftSwordRotation{};
 
