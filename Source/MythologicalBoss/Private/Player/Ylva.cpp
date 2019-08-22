@@ -738,7 +738,10 @@ void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
+	if (StaminaComponent->IsLowStamina())
+		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed/2.0f;
+	else
+		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 }
 
 void AYlva::UpdateRunState()
