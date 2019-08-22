@@ -98,7 +98,7 @@ void AOverthroneCharacter::OnLowHealth()
 {
 }
 
-void AOverthroneCharacter::StartLosingHealth(const float Amount)
+void AOverthroneCharacter::StartLosingHealth()
 {
 	HealthLossTimeline->PlayFromStart();
 }
@@ -165,12 +165,10 @@ void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 
 		if (HealthComponent->GetDecreaseDelay() > 0.0f)
 		{
-			FTimerDelegate TimerDelegate;
-			TimerDelegate.BindUFunction(this, "StartLosingHealth", HealthToSubtract);
-			GetWorldTimerManager().SetTimer(HealthComponent->GetDelayTimerHandle(), TimerDelegate, HealthComponent->GetDecreaseDelay(), false);
+			GetWorldTimerManager().SetTimer(HealthComponent->GetDelayTimerHandle(), this, &AOverthroneCharacter::StartLosingHealth, HealthComponent->GetDecreaseDelay(), false);
 		}
 		else
-			StartLosingHealth(HealthToSubtract);
+			StartLosingHealth();
 	}
 	else
 		DecreaseHealth(HealthToSubtract);

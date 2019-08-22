@@ -155,7 +155,7 @@ protected:
 
 	// Prep work before playing the timeline to lose health
 	UFUNCTION()
-		virtual void StartLosingHealth(float Amount);
+		virtual void StartLosingHealth();
 
 	// Called every tick of the take damage timeline
 	UFUNCTION()

@@ -332,9 +332,9 @@ void AYlva::BroadcastLowHealth()
 	bWasLowHealthEventTriggered = true;
 }
 
-void AYlva::StartLosingHealth(const float Amount)
+void AYlva::StartLosingHealth()
 {
-	Super::StartLosingHealth(Amount);
+	Super::StartLosingHealth();
 
 	if (Debug.bLogHealthValues)
 	{
@@ -455,12 +455,10 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 
 		if (StaminaComponent->GetDecreaseDelay() > 0.0f)
 		{
-			FTimerDelegate TimerDelegate;
-			TimerDelegate.BindUFunction(this, "StartLosingStamina", StaminaToSubtract);
-			GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), TimerDelegate, StaminaComponent->GetDecreaseDelay(), false);
+			GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
 		}
 		else
-			StartLosingStamina(StaminaToSubtract);
+			StartLosingStamina();
 	}
 	else
 		DecreaseStamina(StaminaToSubtract);
@@ -1150,7 +1148,7 @@ void AYlva::ResetStamina()
 	UpdateCharacterInfo();
 }
 
-void AYlva::StartLosingStamina(const float Amount)
+void AYlva::StartLosingStamina()
 {
 	StaminaRegenTimeline->PlayFromStart();
 }

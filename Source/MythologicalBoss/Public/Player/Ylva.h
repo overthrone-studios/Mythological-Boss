@@ -205,7 +205,7 @@ protected:
 	void UpdateCharacterInfo() override;
 	void BroadcastLowHealth() override;
 
-	void StartLosingHealth(float Amount) override;
+	void StartLosingHealth() override;
 	void LoseHealth() override;
 
 	// Called for forwards/backward input
@@ -323,7 +323,7 @@ protected:
 		void UpdateStamina(float StaminaToSubtract);
 
 	UFUNCTION()
-		void StartLosingStamina(float Amount);
+		void StartLosingStamina();
 
 	UFUNCTION()
 		void LoseStamina();
