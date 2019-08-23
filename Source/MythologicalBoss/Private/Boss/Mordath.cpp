@@ -1331,14 +1331,19 @@ FVector AMordath::FindLocationToTeleport(const FVector& Origin, const float Radi
 {
 	const float T = FMath::RandRange(PI, 2 * PI);
 
-	const FVector NewLocation{
+	FVector NewLocation
+	{
 		Origin.X + Radius * FMath::Cos(T), 
 		Origin.Y + Radius * FMath::Sin(T), 
-		GetActorLocation().Z 
+		GetActorLocation().Z
 	};
 
 	if (!GameInstance->PlayArea.IsInside(NewLocation))
-		return FindLocationToTeleport(Origin, Radius);
+	{
+		NewLocation = FMath::RandPointInBox(GameInstance->PlayArea);
+
+		return FVector(NewLocation.X, NewLocation.Y, GetActorLocation().Z);
+	}
 
 	if (Debug.bShowTeleportedLocation)
 		DrawDebugSphere(GetWorld(), FVector(NewLocation.X, NewLocation.Y, Origin.Z), 20.0f, 20, FColor::Green, false, 2.0f, 0.0f, 3.0f);
