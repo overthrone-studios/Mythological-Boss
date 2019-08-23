@@ -34,6 +34,10 @@ struct FDebug_Mordath : public FCharacterDebug
 	// Log the hit count to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogHits : 1;
+
+	// Draw a sphere at the teleported location
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bShowTeleportedLocation : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -316,6 +320,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		bool IsStunned();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		FVector FindLocationToTeleport(const FVector& Origin, float Radius) const;
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0

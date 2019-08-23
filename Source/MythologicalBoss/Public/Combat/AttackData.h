@@ -46,6 +46,10 @@ public:
 	UPROPERTY(EditInstanceOnly)
 		uint8 bCanDashWithAttack : 1;
 
+	// Can we teleport before we attack?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bCanTeleportWithAttack : 1;
+
 	// The type of dash to use before attacking
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bCanDashWithAttack"))
 		TEnumAsByte<EDashType_Combo> DashType;

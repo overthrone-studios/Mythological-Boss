@@ -3,6 +3,7 @@
 #include "Mordath.h"
 #include "Public/OverthroneGameInstance.h"
 #include "Public/OverthroneHUD.h"
+#include "Player/Ylva.h"
 #include "BossAIController.h"
 #include "Boss/MordathAnimInstance.h"
 #include "Components/CapsuleComponent.h"
@@ -1075,6 +1076,11 @@ void AMordath::ChooseAttack()
 		case LightAttack_1:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		{
+			SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+			FSM->PushState("Light Attack 1");
+		}
 		else
 			FSM->PushState("Light Attack 1");
 		break;
@@ -1082,6 +1088,11 @@ void AMordath::ChooseAttack()
 		case LightAttack_2:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		{
+			SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+			FSM->PushState("Light Attack 2");
+		}
 		else
 			FSM->PushState("Light Attack 2");
 		break;
@@ -1089,6 +1100,11 @@ void AMordath::ChooseAttack()
 		case LightAttack_3:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack && GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		{
+			SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+			FSM->PushState("Light Attack 3");
+		}
 		else
 			FSM->PushState("Light Attack 3");
 		break;
@@ -1096,6 +1112,11 @@ void AMordath::ChooseAttack()
 		case HeavyAttack_1:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		{
+			SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+			FSM->PushState("Heavy Attack 1");
+		}
 		else
 			FSM->PushState("Heavy Attack 1");
 		break;
@@ -1103,6 +1124,11 @@ void AMordath::ChooseAttack()
 		case HeavyAttack_2:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		{
+			SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+			BeginJumpAttack();
+		}
 		else
 			BeginJumpAttack();
 		break;
@@ -1110,6 +1136,11 @@ void AMordath::ChooseAttack()
 		case HeavyAttack_3:
 		if (ChosenCombo->GetCurrentAttackInfo()->bCanDashWithAttack)
 			BeginDash(ChosenCombo->GetCurrentAttackInfo()->DashType);
+		else if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		{
+			SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+			FSM->PushState("Heavy Attack 3");
+		}
 		else
 			FSM->PushState("Heavy Attack 3");
 		break;
@@ -1294,6 +1325,25 @@ void AMordath::FinishJumpAttack()
 bool AMordath::IsStunned()
 {
 	return FSM->GetActiveStateID() == 14;
+}
+
+FVector AMordath::FindLocationToTeleport(const FVector& Origin, const float Radius) const
+{
+	const float T = FMath::RandRange(PI, 2 * PI);
+
+	const FVector NewLocation{
+		Origin.X + Radius * FMath::Cos(T), 
+		Origin.Y + Radius * FMath::Sin(T), 
+		GetActorLocation().Z 
+	};
+
+	if (!GameInstance->PlayArea.IsInside(NewLocation))
+		return FindLocationToTeleport(Origin, Radius);
+
+	if (Debug.bShowTeleportedLocation)
+		DrawDebugSphere(GetWorld(), FVector(NewLocation.X, NewLocation.Y, Origin.Z), 20.0f, 20, FColor::Green, false, 2.0f, 0.0f, 3.0f);
+
+	return NewLocation;
 }
 
 void AMordath::BeginDash(const enum EDashType_Combo DashType)

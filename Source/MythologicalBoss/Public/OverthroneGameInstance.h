@@ -84,6 +84,8 @@ public:
 	void SetLockOnRotation(const FRotator& LockOnRotation) const;
 	void ToggleLockOnVisibility(bool bIsVisible) const;
 
+	FBox PlayArea{};
+
 	FPlayerInfo PlayerInfo;
 	FCharacterInfo BossInfo;
 

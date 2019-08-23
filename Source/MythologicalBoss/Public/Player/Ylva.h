@@ -17,6 +17,10 @@ struct FDebug_Ylva : public FCharacterDebug
 	// Log the camera's pitch rotation value to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogCurrentAnimTime : 1;
+
+	// Draw the teleport circle around the player
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bShowTeleportRadius : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -165,6 +169,10 @@ public:
 	// Returns the attack radius value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
+
+	// Returns the teleport radius value
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE float GetTeleportRadius() const { return TeleportRadius; }
 
 	// Returns true if we are light attacking
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -533,6 +541,10 @@ protected:
 	// Toggle God mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
 		uint8 bGodMode : 1;
+
+	// The radius the boss will use to teleport to a point on this circle
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 1.0f))
+		float TeleportRadius = 1000.0f;
 
 	// This timeline plays when we are regenerating stamina
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")

@@ -38,6 +38,7 @@
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
+#include "DrawDebugHelpers.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -267,6 +268,9 @@ void AYlva::Tick(const float DeltaTime)
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogCameraPitch)
 		ULog::Number(GetControlRotation().Pitch, "Pitch: ", true);
+
+	if (Debug.bShowTeleportRadius)
+		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation(), TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 #endif
 }
 
