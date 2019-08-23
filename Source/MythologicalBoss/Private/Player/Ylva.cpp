@@ -38,7 +38,6 @@
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
-#include "DrawDebugHelpers.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -271,6 +270,12 @@ void AYlva::Tick(const float DeltaTime)
 
 	if (Debug.bShowTeleportRadius)
 		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation(), TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+
+	if (Debug.bLogPlayerInputValues)
+	{
+		ULog::Number(InputZ, "Forward: ", true);
+		ULog::Number(InputX, "Right: ", true);
+	}
 #endif
 }
 
@@ -304,6 +309,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Heavy Attack", IE_Released, this, &AYlva::DisableControllerRotationYaw);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AYlva::Run);
+	PlayerInputComponent->BindAction("Run", IE_Repeat, this, &AYlva::UpdateIsRunHeld);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning);
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AYlva::Dash);
@@ -491,9 +497,6 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 
 void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
-	//FSM->PopState();
-	//FSM->PushState(LightAttackName);
-
 	AnimInstance->Montage_Play(AttackMontage);
 
 	if (!bGodMode)
@@ -510,9 +513,6 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
-	//FSM->PopState();
-	//FSM->PushState(HeavyAttackName);
-
 	AnimInstance->Montage_Play(AttackMontage);
 
 	if (!bGodMode)
@@ -574,7 +574,7 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
-	if (FSM->GetActiveStateName() == "Death")
+	if (FSM->GetActiveStateName() == "Death" || InputZ < 0.0f || InputX != 0.0f)
 		return;
 
 	// If we are moving and grounded
@@ -587,8 +587,15 @@ void AYlva::Run()
 	}
 }
 
+void AYlva::UpdateIsRunHeld()
+{
+	bIsRunKeyHeld = true;
+}
+
 void AYlva::StopRunning()
 {
+	bIsRunKeyHeld = false;
+
 	if (FSM->GetActiveStateName() == "Death" ||
 		FSM->GetActiveStateName() == "Light Attack 1" ||
 		FSM->GetActiveStateName() == "Light Attack 2" ||
@@ -725,6 +732,12 @@ void AYlva::UpdateWalkState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && InputZ > 0.0f && InputX == 0.0f && FSM->GetActiveStateID() != 2)
+	{
+		FSM->PushState("Run");
+		return;
+	}
+
 	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PopState();
 }
@@ -753,7 +766,10 @@ void AYlva::UpdateRunState()
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
 
-	if (GetVelocity().IsZero() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
+	if (GetVelocity().IsZero() || 
+		MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || 
+		StaminaComponent->IsStaminaEmpty() || 
+		InputZ < 0.0f || InputX != 0.0f)
 	{
 		StaminaComponent->DelayRegeneration();
 		FSM->PopState();

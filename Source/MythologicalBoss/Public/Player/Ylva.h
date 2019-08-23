@@ -21,6 +21,10 @@ struct FDebug_Ylva : public FCharacterDebug
 	// Draw the teleport circle around the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bShowTeleportRadius : 1;
+
+	// Log the player's input values to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogPlayerInputValues : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -350,6 +354,9 @@ protected:
 	UFUNCTION()
 		void FinishGainingCharge();
 
+	UFUNCTION()
+		void UpdateIsRunHeld();
+
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetGlobalTimeDilation();
@@ -608,6 +615,8 @@ protected:
 
 private:
 	float InputX = 0.0f, InputZ = 0.0f;
+
+	uint8 bIsRunKeyHeld : 1;
 
 	uint8 bWasLowStaminaEventTriggered : 1;
 
