@@ -36,6 +36,10 @@ struct FMovementSettings_Ylva : public FMovementSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float RunSpeed = 700.0f;
 
+	// The maximum movement speed while locking on to the boss
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
+		float LockOnWalkSpeed = 400.0f;
+
 	// The maximum movement speed while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
 		float DashForce = 2000.0f;

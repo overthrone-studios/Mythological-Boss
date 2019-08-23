@@ -432,6 +432,8 @@ void AYlva::ToggleLockOn()
 	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
 	PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
 	GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
+
+	MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
 }
 
 void AYlva::EnableLockOn()
@@ -443,6 +445,8 @@ void AYlva::EnableLockOn()
 	LockOnSettings.bShouldLockOnTarget = true;
 	PlayerController->SetIgnoreLookInput(true);
 	GameInstance->ToggleLockOnVisibility(true);
+
+	MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 }
 
 void AYlva::DisableLockOn()
@@ -450,6 +454,8 @@ void AYlva::DisableLockOn()
 	LockOnSettings.bShouldLockOnTarget = false;
 	PlayerController->SetIgnoreLookInput(false);
 	GameInstance->ToggleLockOnVisibility(false);
+
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 
 void AYlva::Block()
@@ -603,7 +609,10 @@ void AYlva::StopRunning()
 		FSM->GetActiveStateName() == "Heavy Attack 2")
 		return;
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	if (LockOnSettings.bShouldLockOnTarget)
+		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	else
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	// Delay stamina regeneration
 	if (FSM->GetActiveStateName() == "Run")
@@ -780,7 +789,10 @@ void AYlva::OnExitRunState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	if (LockOnSettings.bShouldLockOnTarget)
+		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	else
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 #pragma endregion
 
@@ -871,7 +883,6 @@ void AYlva::OnExitHeavyAttackState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
 #pragma endregion
@@ -911,7 +922,7 @@ void AYlva::OnEnterDamagedState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	if (MovementSettings.bStopMovingWhenAttacking)
+	if (MovementSettings.bStopMovingWhenDamaged)
 		MovementComponent->SetMovementMode(MOVE_None);
 
 	bIsHit = true;
