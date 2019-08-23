@@ -313,7 +313,22 @@ void AMordath::UpdateFollowState()
 
 	// Move towards the player
 	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f && !IsInvincible())
-		AddMovementInput(GetDirectionToPlayer());
+	{
+		if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		{
+			ULog::Info("Walking backwards", true);
+
+			MovementComponent->MaxWalkSpeed = GetWalkSpeed()/2.0f;
+
+			AddMovementInput(-GetDirectionToPlayer());
+		}
+		else
+		{
+			MovementComponent->MaxWalkSpeed = GetWalkSpeed();
+
+			AddMovementInput(GetDirectionToPlayer());
+		}
+	}
 
 	FacePlayer();
 
