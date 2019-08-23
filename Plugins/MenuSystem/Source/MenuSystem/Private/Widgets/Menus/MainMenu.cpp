@@ -59,13 +59,9 @@ void UMainMenu::GoForward()
 	{
 	case BTN_NEW_GAME:
 		MenuHUD->EnableGameInputMode();
-		if (!MapToOpen.ToString().IsEmpty())
-			UGameplayStatics::OpenLevel(GetWorld(), MapToOpen);
-		//MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
-		break;
+		UGameplayStatics::OpenLevel(GetWorld(), MapToOpen);
 
-	case BTN_CONTINUE:
-		MenuHUD->SlideMainMenu();
+		//MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
 		break;
 
 	case BTN_OPTIONS:
