@@ -492,13 +492,13 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 	AnimInstance->Montage_Play(AttackMontage);
 
-	if (Combat.bRotateToCameraLookDirection)
-		bUseControllerRotationYaw = true;
-
 	if (!bGodMode)
 	{
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
 	}
+
+	if (Combat.bRotateToCameraLookDirection)
+		bUseControllerRotationYaw = true;
 
 	if (MovementSettings.bStopMovingWhenAttacking)
 		MovementComponent->SetMovementMode(MOVE_None);
@@ -511,13 +511,13 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 
 	AnimInstance->Montage_Play(AttackMontage);
 
-	if (Combat.bRotateToCameraLookDirection)
-		bUseControllerRotationYaw = true;
-
 	if (!bGodMode)
 	{
 		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
 	}
+
+	if (Combat.bRotateToCameraLookDirection)
+		bUseControllerRotationYaw = true;
 
 	if (MovementSettings.bStopMovingWhenAttacking)
 		MovementComponent->SetMovementMode(MOVE_None);
@@ -700,8 +700,6 @@ void AYlva::OnEnterIdleState()
 void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	RegenerateStamina(StaminaComponent->GetRegenRate());
 
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
