@@ -212,6 +212,7 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.MaxCharge = ChargeAttackComponent->GetMaxCharge();
 	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
 	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
+	GameInstance->PlayerInfo.TeleportRadius = TeleportRadius;
 	GameInstance->Player = this;
 
 	// Bind events to our functions
