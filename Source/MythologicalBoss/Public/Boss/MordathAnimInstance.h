@@ -38,9 +38,6 @@ public:
 	int32 StateMachines[3];
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		int32 ActiveStateMachine = 0;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		TEnumAsByte<EBossStage> CurrentStage = Stage_1;
 
 protected:

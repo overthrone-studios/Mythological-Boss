@@ -374,10 +374,7 @@ void AMordath::UpdateLightAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
-
-	if (TimeRemaining <= 0.4f)
+	if (AnimInstance->AnimTimeRemaining <= 0.4f)
 	{
 		NextAttack();
 
@@ -408,10 +405,7 @@ void AMordath::UpdateLightAttack2State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
-
-	if (TimeRemaining <= 0.7f)
+	if (AnimInstance->AnimTimeRemaining <= 0.7f)
 	{
 		NextAttack();
 
@@ -442,10 +436,7 @@ void AMordath::UpdateLightAttack3State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
-
-	if (TimeRemaining <= 0.2f)
+	if (AnimInstance->AnimTimeRemaining <= 0.2f)
 	{
 		NextAttack();
 
@@ -476,10 +467,7 @@ void AMordath::UpdateHeavyAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
-
-	if (TimeRemaining <= 0.2f)
+	if (AnimInstance->AnimTimeRemaining <= 0.2f)
 	{
 		NextAttack();
 
@@ -508,10 +496,7 @@ void AMordath::UpdateHeavyAttack2State()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
-
-	if (TimeRemaining <= 0.4f)
+	if (AnimInstance->AnimTimeRemaining <= 0.4f)
 	{
 		NextAttack();
 
@@ -544,10 +529,7 @@ void AMordath::UpdateHeavyAttack3State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
-
-	if (TimeRemaining <= 0.3f)
+	if (AnimInstance->AnimTimeRemaining <= 0.3f)
 	{
 		NextAttack();
 

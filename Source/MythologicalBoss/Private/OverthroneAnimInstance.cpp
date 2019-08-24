@@ -1,8 +1,8 @@
 // Copyright Overthrone Studios 2019
 
 #include "OverthroneAnimInstance.h"
+#include "Animation/AnimNode_StateMachine.h"
 #include "Log.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void UOverthroneAnimInstance::NativeInitializeAnimation()
 {
@@ -17,7 +17,7 @@ void UOverthroneAnimInstance::NativeInitializeAnimation()
 		PawnMovementComponent = OwningPawn->GetMovementComponent();
 	}
 
-	GenericsMachineIndex = GetStateMachineIndex("Generics");
+	ActiveStateMachine = GetStateMachineIndex("Generics");
 }
 
 void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
@@ -36,6 +36,8 @@ void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	{
 		ULog::Number(MovementDirection, "Direction: ", true);
 	}
+
+	AnimTimeRemaining = GetAnimTimeRemaining();
 }
 
 void UOverthroneAnimInstance::LeaveAllStates()
@@ -48,4 +50,16 @@ void UOverthroneAnimInstance::LeaveAllStates()
 	bAcceptHeavyAttack = false;
 	bAcceptSecondHeavyAttack = false;
 	bAcceptThirdHeavyAttack = false;
+}
+
+float UOverthroneAnimInstance::GetAnimTimeRemaining()
+{
+	const auto StateMachine = GetStateMachineInstance(ActiveStateMachine);
+
+	if (!StateMachine)
+		return 0.0f;
+
+	const int32 StateIndex = StateMachine->GetCurrentState();
+
+	return GetRelevantAnimTimeRemaining(ActiveStateMachine, StateIndex);
 }

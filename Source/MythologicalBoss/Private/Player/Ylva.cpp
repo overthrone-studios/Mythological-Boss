@@ -31,7 +31,6 @@
 #include "GameFramework/PlayerController.h"
 
 #include "Animation/AnimInstance.h"
-#include "Animation/AnimNode_StateMachine.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -900,10 +899,7 @@ void AYlva::UpdateHeavyAttack2State()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 		FSM->PopState();
 }
 
@@ -934,10 +930,7 @@ void AYlva::UpdateDamagedState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If hit animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 		FSM->PopState();
 }
 
@@ -992,10 +985,7 @@ void AYlva::OnEnterShieldHitState()
 void AYlva::UpdateShieldHitState()
 {
 	// If shield impact animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
-
-	if (TimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 		FSM->PopState();
 }
 
