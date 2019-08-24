@@ -35,6 +35,12 @@ void UMenuBase::InitializeButtons()
 {
 	ParentBox = Cast<UPanelWidget>(WidgetTree->FindWidget("MenuOptions"));
 
+	if (!ParentBox)
+	{
+		ULog::Error("Could not find 'MenuOptions' panel widget in " + GetName() + ". Make sure you have a panel widget named 'MenuOptions' to initialize your buttons.", true);
+		return;
+	}
+
 	for (int32 i = 0; i < ParentBox->GetChildrenCount(); i++)
 	{
 		const auto Button = Cast<UButtonBase>(ParentBox->GetChildAt(i));
