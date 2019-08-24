@@ -11,6 +11,7 @@
 #include "NewGameMenu.h"
 #include "OptionsMenu.h"
 #include "Log.h"
+#include "LevelSelectMenu.h"
 
 void UMainMenu::Init()
 {
@@ -36,18 +37,6 @@ void UMainMenu::SlideOut()
 
 void UMainMenu::Forward(const EButtonType Button)
 {
-	if (Button == BTN_EXIT)
-	{
-		UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Quit);
-		return;
-	}
-
-	if (Button == BTN_CONTINUE)
-	{
-		MenuHUD->SlideMainMenu();
-		return;
-	}
-
 	MenuHUD->HideMenu(StaticClass());
 
 	Super::Forward(Button);
@@ -60,12 +49,18 @@ void UMainMenu::GoForward()
 	case BTN_NEW_GAME:
 		MenuHUD->EnableGameInputMode();
 		UGameplayStatics::OpenLevel(GetWorld(), MapToOpen);
+		break;
 
-		//MenuHUD->ShowMenu(UNewGameMenu::StaticClass());
+	case BTN_CONTINUE:
+		MenuHUD->ShowMenu(ULevelSelectMenu::StaticClass());
 		break;
 
 	case BTN_OPTIONS:
 		MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
+		break;
+
+	case BTN_EXIT:
+		UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Quit);
 		break;
 
 	default:
