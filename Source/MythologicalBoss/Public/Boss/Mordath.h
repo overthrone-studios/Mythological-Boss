@@ -34,10 +34,6 @@ struct FDebug_Mordath : public FCharacterDebug
 	// Log the hit count to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogHits : 1;
-
-	// Draw a sphere at the teleported location
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bShowTeleportedLocation : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -321,9 +317,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		bool IsStunned();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		FVector FindLocationToTeleport(const FVector& Origin, float Radius) const;
-
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
@@ -541,6 +534,9 @@ protected:
 	// Used for calculating the dash curve
 	UPROPERTY()
 		class UTimelineComponent* DashTimelineComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class UTeleportationComponent* TeleportationComponent;
 
 	// The radius in which the boss character will accept that it has arrived to the player's location
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f), DisplayName = "Close Range Radius")

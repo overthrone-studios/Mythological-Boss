@@ -1,27 +1,35 @@
 // Copyright Overthrone Studios 2019
 
 #include "Mordath.h"
-#include "Public/OverthroneGameInstance.h"
-#include "Public/OverthroneHUD.h"
-#include "Player/Ylva.h"
-#include "BossAIController.h"
-#include "Boss/MordathAnimInstance.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Components/HealthComponent.h"
-#include "Animation/AnimInstance.h"
-#include "Animation/AnimNode_StateMachine.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "ConstructorHelpers.h"
-#include "HUD/MasterHUD.h"
-#include "HUD/FSMVisualizerHUD.h"
-#include "TimerManager.h"
+
+#include "OverthroneGameInstance.h"
+#include "OverthroneHUD.h"
 #include "FSM.h"
 #include "Log.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "DrawDebugHelpers.h"
+
+#include "Boss/BossAIController.h"
+#include "Boss/MordathAnimInstance.h"
+
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/HealthComponent.h"
+#include "Components/TeleportationComponent.h"
+
+#include "Animation/AnimInstance.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+
+#include "HUD/MasterHUD.h"
+#include "HUD/FSMVisualizerHUD.h"
+
+#include "ConstructorHelpers.h"
+#include "TimerManager.h"
+#include "DrawDebugHelpers.h"
+
 
 AMordath::AMordath()
 {
@@ -186,6 +194,9 @@ AMordath::AMordath()
 	// Timeline components
 	JumpAttackTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Jump Attack Timeline"));
 	DashTimelineComponent = CreateDefaultSubobject<UTimelineComponent>(FName("Dash Timeline"));
+
+	// Teleportation component
+	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
 
 	// Configure bezier curves
 	Combat.AttackSettings.JumpAttack_Bezier.PlaybackSpeed = 2.0f;
@@ -772,7 +783,7 @@ void AMordath::OnEnterFarRange()
 		RangeFSM->PushState("Mid");
 
 	if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
-		SetActorLocation(FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->Player->GetTeleportRadius()));
+		SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->GetTeleportRadius(), GameInstance->PlayArea));
 }
 
 void AMordath::UpdateFarRange()
@@ -1302,30 +1313,6 @@ void AMordath::FinishJumpAttack()
 bool AMordath::IsStunned()
 {
 	return FSM->GetActiveStateID() == 14;
-}
-
-FVector AMordath::FindLocationToTeleport(const FVector& Origin, const float Radius) const
-{
-	const float T = FMath::RandRange(PI, 2 * PI);
-
-	FVector NewLocation
-	{
-		Origin.X + Radius * FMath::Cos(T), 
-		Origin.Y + Radius * FMath::Sin(T), 
-		GetActorLocation().Z
-	};
-
-	if (!GameInstance->PlayArea.IsInside(NewLocation))
-	{
-		NewLocation = FMath::RandPointInBox(GameInstance->PlayArea);
-
-		return FVector(NewLocation.X, NewLocation.Y, GetActorLocation().Z);
-	}
-
-	if (Debug.bShowTeleportedLocation)
-		DrawDebugSphere(GetWorld(), FVector(NewLocation.X, NewLocation.Y, Origin.Z), 20.0f, 20, FColor::Green, false, 2.0f, 0.0f, 3.0f);
-
-	return NewLocation;
 }
 
 void AMordath::BeginDash(const enum EDashType_Combo DashType)
