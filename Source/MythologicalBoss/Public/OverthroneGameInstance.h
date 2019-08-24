@@ -42,6 +42,8 @@ struct FPlayerInfo : public FCharacterInfo
 	float Charge = 0.0f;
 	float SmoothedCharge = 0.0f;
 
+	float TeleportRadius = 0.0f;
+
 	uint8 bParrySucceeded : 1;
 };
 
@@ -77,6 +79,9 @@ public:
 	// Switches input mode to Game only
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void SetInputModeGame() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		FORCEINLINE float GetTeleportRadius() const { return PlayerInfo.TeleportRadius; };
 
 	void InitInstance();
 
