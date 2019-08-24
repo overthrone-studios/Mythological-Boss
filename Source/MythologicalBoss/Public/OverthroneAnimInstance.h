@@ -16,6 +16,9 @@ class MYTHOLOGICALBOSS_API UOverthroneAnimInstance : public UAnimInstance
 public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Anim Instance")
 		virtual void LeaveAllStates();
+
+	//UFUNCTION(BlueprintCallable, Category = "Overthrone Anim Instance")
+	//	void GetTimeRemaining()
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float MovementSpeed = 0.0f;
@@ -50,7 +53,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Combat")
 		uint8 bLogDirection : 1;
 
-	// Used to get a reference to the anim state machine, and to query time remaining
+	// Used to get a reference to the anim state machines, and to query time remaining
 	int32 GenericsMachineIndex;
 
 protected:

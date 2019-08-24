@@ -316,8 +316,6 @@ void AMordath::UpdateFollowState()
 	{
 		if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 		{
-			ULog::Info("Walking backwards", true);
-
 			MovementComponent->MaxWalkSpeed = GetWalkSpeed()/2.0f;
 
 			AddMovementInput(-GetDirectionToPlayer());
@@ -376,8 +374,8 @@ void AMordath::UpdateLightAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
 
 	if (TimeRemaining <= 0.4f)
 	{
@@ -410,8 +408,8 @@ void AMordath::UpdateLightAttack2State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
 
 	if (TimeRemaining <= 0.7f)
 	{
@@ -444,8 +442,8 @@ void AMordath::UpdateLightAttack3State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
 
 	if (TimeRemaining <= 0.2f)
 	{
@@ -478,8 +476,8 @@ void AMordath::UpdateHeavyAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
 
 	if (TimeRemaining <= 0.2f)
 	{
@@ -510,8 +508,8 @@ void AMordath::UpdateHeavyAttack2State()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
 
 	if (TimeRemaining <= 0.4f)
 	{
@@ -546,8 +544,8 @@ void AMordath::UpdateHeavyAttack3State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
+	const int32 StateIndex = AnimInstance->GetStateMachineInstance(MordathAnimInstance->ActiveStateMachine)->GetCurrentState();
+	const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(MordathAnimInstance->ActiveStateMachine, StateIndex);
 
 	if (TimeRemaining <= 0.3f)
 	{
@@ -814,6 +812,9 @@ void AMordath::OnExitFarRange()
 void AMordath::OnEnterFirstStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->CurrentStage = Stage_1;
+	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[0];
 }
 
 void AMordath::UpdateFirstStage()
@@ -836,6 +837,9 @@ void AMordath::OnExitFirstStage()
 void AMordath::OnEnterSecondStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->CurrentStage = Stage_2;
+	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
 }
 
 void AMordath::UpdateSecondStage()
@@ -858,6 +862,9 @@ void AMordath::OnExitSecondStage()
 void AMordath::OnEnterThirdStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->CurrentStage = Stage_3;
+	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[2];
 }
 
 void AMordath::UpdateThirdStage()

@@ -6,6 +6,14 @@
 #include "OverthroneAnimInstance.h"
 #include "MordathAnimInstance.generated.h"
 
+UENUM(BlueprintType)
+enum EBossStage
+{
+	Stage_1,
+	Stage_2,
+	Stage_3
+};
+
 /**
  * The animation instance the boss character will use
  */
@@ -25,4 +33,16 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanLaugh : 1;
+
+	// Used to get a reference to the anim state machines, and to query time remaining
+	int32 StateMachines[3];
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		int32 ActiveStateMachine = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		TEnumAsByte<EBossStage> CurrentStage = Stage_1;
+
+protected:
+	void NativeInitializeAnimation() override;
 };
