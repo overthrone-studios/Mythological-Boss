@@ -43,9 +43,13 @@ void UMenuBase::InitializeButtons()
 
 	for (int32 i = 0; i < ParentBox->GetChildrenCount(); i++)
 	{
-		const auto Button = Cast<UButtonBase>(ParentBox->GetChildAt(i));
+		const auto Widget = ParentBox->GetChildAt(i);
+		const auto Button = Cast<UButtonBase>(Widget);
 
-		Cast<UButtonBase>(Button)->Init();
+		if (Button)
+			Button->Init();
+		else
+			ULog::Warning(Widget->GetName() + " is not a UButtonBase.", true);
 	}
 }
 
