@@ -20,6 +20,7 @@ void UMenuButton::OnButtonReleased()
 	if (IsMenuNull())
 		return;
 
-	Menu->Forward(ButtonType);
+	//Menu->Forward(ButtonType);
+	//Menu->Forward(MenuIndex);
 }
 
