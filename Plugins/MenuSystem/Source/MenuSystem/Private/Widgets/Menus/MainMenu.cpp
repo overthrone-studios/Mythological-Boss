@@ -56,7 +56,7 @@ void UMainMenu::GoForward()
 		break;
 
 	case BTN_FEATS:
-		//MenuHUD->ShowMenu(UFeatsMenu::StaticClass());
+		MenuHUD->ShowMenu(2);
 		break;
 
 	case BTN_OPTIONS:

@@ -63,6 +63,46 @@ void AMenuHUD::HideMenu(const TSubclassOf<class UMenuBase> MenuClass)
 	MasterMenu->GetMenu(MenuClass)->FadeOut();
 }
 
+void AMenuHUD::ShowMenu(const int32 Index)
+{
+	const auto Menu = MasterMenu->GetMenu(Index);
+
+	if (Menu)
+	{
+		MasterMenu->SwitchToMenu(Menu);
+		Menu->FadeIn();
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, FString("Cannot show menu because it does not exist within the master menu"), true);
+	}
+}
+
+void AMenuHUD::HideMenu(const int32 Index)
+{
+	MasterMenu->GetMenu(Index)->FadeOut();
+}
+
+void AMenuHUD::ShowMenu(const FString& MenuWidgetName)
+{
+	const auto Menu = MasterMenu->GetMenu(MenuWidgetName);
+
+	if (Menu)
+	{
+		MasterMenu->SwitchToMenu(Menu);
+		Menu->FadeIn();
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, FString("Cannot show menu because it does not exist within the master menu"), true);
+	}
+}
+
+void AMenuHUD::HideMenu(const FString& MenuWidgetName)
+{
+	MasterMenu->GetMenu(MenuWidgetName)->FadeOut();
+}
+
 void AMenuHUD::SlideMainMenu()
 {
 	const auto Menu = MasterMenu->GetMenu(UMainMenu::StaticClass());

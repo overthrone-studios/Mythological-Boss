@@ -26,6 +26,12 @@ public:
 	void ShowMenu(TSubclassOf<class UMenuBase> MenuClass);
 	void HideMenu(TSubclassOf<class UMenuBase> MenuClass);
 
+	void ShowMenu(int32 Index);
+	void HideMenu(int32 Index);
+
+	void ShowMenu(const FString& MenuWidgetName);
+	void HideMenu(const FString& MenuWidgetName);
+
 	void SlideMainMenu();
 
 protected:

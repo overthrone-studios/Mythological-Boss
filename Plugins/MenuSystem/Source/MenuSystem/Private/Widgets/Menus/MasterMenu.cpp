@@ -22,6 +22,28 @@ void UMasterMenu::Init()
 	}
 }
 
+UMenuBase* UMasterMenu::GetMenu(const int32 Index) const
+{
+	if (Index >= Menus.Num())
+	{
+		ULog::Error("Index " + FString::FromInt(Index) + " is out of bounds of the 'Menus' array", true);
+	}
+
+	return Menus[Index];
+}
+
+UMenuBase* UMasterMenu::GetMenu(const FString& MenuWidgetName) const
+{
+	for (auto Menu : Menus)
+	{
+		if (Menu->GetName() == MenuWidgetName)
+			return Menu;
+	}
+
+	ULog::Error("Could not find " + MenuWidgetName + " in " + GetName(), true);
+	return nullptr;
+}
+
 UMenuBase* UMasterMenu::GetMenu(const TSubclassOf<UMenuBase> MenuClass) const
 {
 	for (auto Menu : Menus)
