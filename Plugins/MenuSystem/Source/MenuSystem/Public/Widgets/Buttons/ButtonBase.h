@@ -80,7 +80,7 @@ protected:
 		uint8 bIsMenuSwitchButton : 1;
 
 	// The menu to go switch to
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button", meta = (EditCondition = "bIsMenuSwitchButton"))
 		int32 MenuIndex = 0;
 
 	class UTextBlock* TextWidget;
