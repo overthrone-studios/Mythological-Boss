@@ -39,6 +39,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void Forward(EButtonType Menu);
 
+		virtual void Forward(int32 MenuIndex);
+
 	UFUNCTION(BlueprintCallable)
 		virtual void Back();
 
@@ -70,6 +72,8 @@ protected:
 		FText MenuTooltipText;
 
 	EButtonType MenuSelected;
+
+	int32 SelectedMenuIndex;
 
 	UPanelWidget* ParentBox;
 

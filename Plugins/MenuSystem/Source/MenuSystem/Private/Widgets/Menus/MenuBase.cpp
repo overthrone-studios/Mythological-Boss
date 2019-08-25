@@ -120,6 +120,16 @@ void UMenuBase::Forward(const EButtonType Menu)
 		GoForward();
 }
 
+void UMenuBase::Forward(const int32 MenuIndex)
+{
+	SelectedMenuIndex = MenuIndex;
+
+	if (Animation)
+		GetWorld()->GetTimerManager().SetTimer(ForwardTimerHandle, this, &UMenuBase::GoForward, 1.0f, false, Animation->GetEndTime());
+	else
+		GoForward();
+}
+
 void UMenuBase::GoForward()
 {
 	GetWorld()->GetTimerManager().ClearTimer(ForwardTimerHandle);

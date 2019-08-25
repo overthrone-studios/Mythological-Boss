@@ -75,6 +75,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
 		USoundBase* HoveredSound;
 
+	// Is this a menu button that controls menu switching?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+		uint8 bIsMenuSwitchButton : 1;
+
+	// The menu to go switch to
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Menu Button")
+		int32 MenuIndex = 0;
+
 	class UTextBlock* TextWidget;
 
 	class AMenuHUD* MenuHUD;
