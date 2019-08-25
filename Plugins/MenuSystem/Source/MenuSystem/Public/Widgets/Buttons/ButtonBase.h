@@ -9,7 +9,8 @@ UENUM()
 enum EButtonType
 {
 	BTN_NEW_GAME	UMETA(DisplayName = "New game"),
-	BTN_CONTINUE	UMETA(DisplayName = "Continue"),
+	BTN_LVL_SELECT	UMETA(DisplayName = "Level Select"),
+	BTN_FEATS		UMETA(DisplayName = "Feats"),
 	BTN_OPTIONS		UMETA(DisplayName = "Options"),
 	BTN_CREDITS		UMETA(DisplayName = "Credits"),
 	BTN_VIDEO		UMETA(DisplayName = "Video"),

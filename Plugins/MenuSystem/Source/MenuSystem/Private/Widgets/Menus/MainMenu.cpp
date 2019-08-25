@@ -51,8 +51,12 @@ void UMainMenu::GoForward()
 		UGameplayStatics::OpenLevel(GetWorld(), MapToOpen);
 		break;
 
-	case BTN_CONTINUE:
+	case BTN_LVL_SELECT:
 		MenuHUD->ShowMenu(ULevelSelectMenu::StaticClass());
+		break;
+
+	case BTN_FEATS:
+		//MenuHUD->ShowMenu(UFeatsMenu::StaticClass());
 		break;
 
 	case BTN_OPTIONS:
