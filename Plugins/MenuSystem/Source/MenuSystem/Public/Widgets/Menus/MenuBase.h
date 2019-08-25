@@ -68,7 +68,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Animations")
 		UWidgetAnimation* Animation {};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Menu Base")
+	UPROPERTY(BlueprintReadWrite, Category = "Menu Base")
 		FText MenuTooltipText;
 
 	EButtonType MenuSelected;
@@ -77,7 +77,8 @@ protected:
 
 	UPanelWidget* ParentBox;
 
-	class AMenuHUD* MenuHUD{};
+	UPROPERTY(BlueprintReadOnly, Category = "Menu Base")
+		class AMenuHUD* MenuHUD{};
 
 	TArray<class UMenuSetting*> MenuSettings;
 

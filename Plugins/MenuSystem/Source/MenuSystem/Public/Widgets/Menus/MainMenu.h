@@ -27,7 +27,7 @@ protected:
 
 	void GoForward() override;
 
-	UPROPERTY(EditInstanceOnly, Category = "Main Menu")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Main Menu")
 		FName MapToOpen;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Animations")

@@ -26,7 +26,9 @@ public:
 	void ShowMenu(TSubclassOf<class UMenuBase> MenuClass);
 	void HideMenu(TSubclassOf<class UMenuBase> MenuClass);
 
+	UFUNCTION(BlueprintCallable, Category = "Menu HUD")
 	void ShowMenu(int32 Index);
+	UFUNCTION(BlueprintCallable, Category = "Menu HUD")
 	void HideMenu(int32 Index);
 
 	void ShowMenu(const FString& MenuWidgetName);
