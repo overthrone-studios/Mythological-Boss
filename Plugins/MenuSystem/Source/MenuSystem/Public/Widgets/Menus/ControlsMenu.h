@@ -47,5 +47,5 @@ protected:
 
 	UUserWidget* ResetWarningBox;
 	UUserWidget* DuplicateWarningBox;
-	UUserWidget* BackButton;
+	class UButton* BackButton;
 };

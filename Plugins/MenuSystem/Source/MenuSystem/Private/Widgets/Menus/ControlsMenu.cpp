@@ -9,6 +9,7 @@
 #include "GameFramework/InputSettings.h"
 #include "ConfigCacheIni.h"
 #include "InvertSetting.h"
+#include "Button.h"
 #include "Log.h"
 
 void UControlsMenu::Init()
@@ -17,7 +18,7 @@ void UControlsMenu::Init()
 
 	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
 	DuplicateWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DuplicateWarningBox")));
-	BackButton = Cast<UUserWidget>(WidgetTree->FindWidget(FName("Back")));
+	BackButton = Cast<UButton>(WidgetTree->FindWidget(FName("Back")));
 	MouseInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertX")));
 	MouseInvertYSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertY")));
 	GamepadInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("GamepadInvertX")));
@@ -265,7 +266,7 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		if (Control != ControlToCheck && Control->GetSelectedPrimaryKey() == InputToCheck)
 		{
 			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
-			BackButton->SetIsEnabled(false);
+			//BackButton->SetIsEnabled(false);
 
 			ULog::DebugMessage(INFO, Control->GetName() + FString(" is in conflict with ") + ControlToCheck->GetName(), true);
 
@@ -280,7 +281,7 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		}
 		
 		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
-		BackButton->SetIsEnabled(true);
+		//BackButton->SetIsEnabled(true);
 
 		//ControlToCheck->UnHighlightError();
 		//Control->UnHighlightError();
@@ -297,7 +298,7 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		if (Control != ControlToCheck && Control->GetCurrentGamepadInput() == InputToCheck)
 		{
 			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
-			BackButton->SetIsEnabled(false);
+			//BackButton->SetIsEnabled(false);
 			
 			//ControlToCheck->HighlightError();
 			//Control->HighlightError();
@@ -306,7 +307,7 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		}
 		
 		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
-		BackButton->SetIsEnabled(true);
+		//BackButton->SetIsEnabled(true);
 
 		//ControlToCheck->UnHighlightError();
 		//Control->UnHighlightError();
