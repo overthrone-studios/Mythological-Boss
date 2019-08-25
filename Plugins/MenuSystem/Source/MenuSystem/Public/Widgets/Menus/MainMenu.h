@@ -19,13 +19,9 @@ public:
 
 	void SlideOut();
 
-	void Forward(EButtonType Button) override;
-
 protected:
 	UFUNCTION()
 		void Remove();
-
-	void GoForward() override;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Main Menu")
 		FName MapToOpen;

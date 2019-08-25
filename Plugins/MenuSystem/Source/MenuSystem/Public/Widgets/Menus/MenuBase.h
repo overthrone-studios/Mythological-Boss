@@ -37,11 +37,6 @@ public:
 		virtual void Apply();
 
 	UFUNCTION(BlueprintCallable)
-		virtual void Forward(EButtonType Menu);
-
-		virtual void Forward(int32 MenuIndex);
-
-	UFUNCTION(BlueprintCallable)
 		virtual void Back();
 
 	UFUNCTION(BlueprintCallable)
@@ -53,7 +48,6 @@ public:
 
 protected:
 	virtual void InitializeSettings();
-	virtual void InitializeButtons();
 	virtual void GoForward();
 	virtual void GoBack();
 
@@ -83,6 +77,5 @@ protected:
 	TArray<class UMenuSetting*> MenuSettings;
 
 	FTimerHandle ForwardTimerHandle;
-	FTimerHandle BackTimerHandle;
-	
+	FTimerHandle BackTimerHandle;	
 };

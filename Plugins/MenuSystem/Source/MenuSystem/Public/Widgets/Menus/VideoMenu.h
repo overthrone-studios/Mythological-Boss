@@ -18,12 +18,11 @@ public:
 	void Back() override;
 	void Apply() override;
 
-	void InitializeButtons() override;
-
 	void ShowResetWarning();
 	void HideResetWarning();
 
-	void DiscardChanges();
+	UFUNCTION(BlueprintCallable, Category = "Video Menu")
+		void DiscardChanges();
 
 protected:
 	void GoBack() override;
@@ -35,8 +34,8 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Video Menu")
 		bool bApplyOnLaunch;
 
-	UUserWidget* ResetWarningBox;
-	UUserWidget* ConfirmationBox;
+	class UCanvasPanel* ResetWarningBox;
+	class UCanvasPanel* ConfirmationBox;
 
 	TArray<class UMenuSetting*> ChangedSettings;
 };

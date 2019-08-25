@@ -28,9 +28,6 @@ void UButtonBase::OnButtonReleased()
 	IsMenuHUDNull();
 
 	UGameplayStatics::PlaySound2D(GetWorld(), PressedSound);
-
-	if (bIsMenuSwitchButton)
-		Menu->Forward(MenuIndex);
 }
 
 void UButtonBase::OnButtonHovered()

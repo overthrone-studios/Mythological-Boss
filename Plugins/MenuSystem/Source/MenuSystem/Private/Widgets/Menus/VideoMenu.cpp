@@ -7,41 +7,21 @@
 #include "WidgetTree.h"
 #include "TextBlock.h"
 #include "VideoSetting.h"
+#include "CanvasPanel.h"
 #include "Log.h"
 
 void UVideoMenu::Init()
 {
 	Super::Init();
 
-	ConfirmationBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ConfirmationBox")));
-	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
+	ConfirmationBox = Cast<UCanvasPanel>(WidgetTree->FindWidget(FName("ConfirmationBox")));
+	ResetWarningBox = Cast<UCanvasPanel>(WidgetTree->FindWidget(FName("ResetWarningBox")));
 
 	InitializeSettings();
-
-	InitializeButtons();
 
 	HideWidgets();
 
 	Apply();
-}
-
-void UVideoMenu::InitializeButtons()
-{
-	Super::InitializeButtons();
-
-	// Initialise the buttons in the confirmation box
-	const auto ApplyButton = Cast<UButtonBase>(ConfirmationBox->WidgetTree->FindWidget(FName("ConfirmApply")));
-	const auto DiscardButton = Cast<UButtonBase>(ConfirmationBox->WidgetTree->FindWidget(FName("ConfirmDiscard")));
-	
-	ApplyButton->Init();
-	DiscardButton->Init();
-
-	// Initialise the buttons in the reset warning box
-	const auto YesButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("Yes")));
-	const auto NoButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("No")));
-	
-	YesButton->Init();
-	NoButton->Init();
 }
 
 void UVideoMenu::ShowResetWarning()
@@ -76,8 +56,8 @@ void UVideoMenu::Back()
 			NewMessage = FString("There is ") + FString::FromInt(Changes) + FString(" unsaved change. Do you want to apply this change?");
 
 		// Set the generated message
-		const auto MessageBox = Cast<UTextBlock>(ConfirmationBox->WidgetTree->FindWidget(FName("Message")));
-		MessageBox->SetText(FText::FromString(NewMessage));
+		//const auto MessageBox = Cast<UTextBlock>(ConfirmationBox->GetChildAt(4));
+		//MessageBox->SetText(FText::FromString(NewMessage));
 
 		// Back out, because we don't want to return to the options menu yet.
 		return;

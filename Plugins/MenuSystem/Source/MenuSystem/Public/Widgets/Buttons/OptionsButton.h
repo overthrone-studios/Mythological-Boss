@@ -16,10 +16,6 @@ class MENUSYSTEM_API UOptionsButton final : public UButtonBase
 public:
 	void Init() override;
 
-protected:
-	// For button functionality
-	void OnButtonReleased() override;
-
 private:
 	class UOptionsMenu* OptionsMenu;
 };

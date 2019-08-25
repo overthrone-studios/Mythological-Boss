@@ -9,8 +9,6 @@ void UAudioMenu::Init()
 	Super::Init();
 
 	InitializeSettings();
-
-	InitializeButtons();
 }
 
 void UAudioMenu::Back()

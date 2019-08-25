@@ -10,13 +10,14 @@
 #include "ConfigCacheIni.h"
 #include "InvertSetting.h"
 #include "Button.h"
+#include "CanvasPanel.h"
 #include "Log.h"
 
 void UControlsMenu::Init()
 {
 	Super::Init();
 
-	ResetWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("ResetWarningBox")));
+	ResetWarningBox = Cast<UCanvasPanel>(WidgetTree->FindWidget(FName("ResetWarningBox")));
 	DuplicateWarningBox = Cast<UUserWidget>(WidgetTree->FindWidget(FName("DuplicateWarningBox")));
 	BackButton = Cast<UButton>(WidgetTree->FindWidget(FName("Back")));
 	MouseInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("MouseInvertX")));
@@ -24,25 +25,11 @@ void UControlsMenu::Init()
 	GamepadInvertXSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("GamepadInvertX")));
 	GamepadInvertYSetting = Cast<UInvertSetting>(WidgetTree->FindWidget(FName("GamepadInvertY")));
 
-	InitializeButtons();
-
 	InitializeSettings();
 
 	InitializeControls();
 
 	HideWidgets();
-}
-
-void UControlsMenu::InitializeButtons()
-{
-	Super::InitializeButtons();
-
-	// Initialise the buttons in the reset warning box
-	const auto YesButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("Yes")));
-	const auto NoButton = Cast<UButtonBase>(ResetWarningBox->WidgetTree->FindWidget(FName("No")));
-	
-	YesButton->Init();
-	NoButton->Init();
 }
 
 void UControlsMenu::Back()
@@ -297,7 +284,7 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 	{
 		if (Control != ControlToCheck && Control->GetCurrentGamepadInput() == InputToCheck)
 		{
-			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
+			//DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
 			//BackButton->SetIsEnabled(false);
 			
 			//ControlToCheck->HighlightError();
@@ -306,7 +293,7 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 			return true;
 		}
 		
-		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
+		//DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
 		//BackButton->SetIsEnabled(true);
 
 		//ControlToCheck->UnHighlightError();

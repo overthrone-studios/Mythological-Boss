@@ -14,12 +14,8 @@ class MENUSYSTEM_API UOptionsMenu final : public UMenuBase
 	GENERATED_BODY()
 	
 public:
-	void Init() override;
-
-	void Forward(EButtonType Menu) override;
 	void Back() override;
 
 protected:
-	void GoForward() override;
 	void GoBack() override;
 };

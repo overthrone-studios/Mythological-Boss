@@ -15,9 +15,6 @@ class MENUSYSTEM_API ULevelSelectMenu final : public UMenuBase
 	GENERATED_BODY()
 	
 protected:
-	void Forward(EButtonType Menu) override;
-	void GoForward() override;
-
 	void Back() override;
 	void GoBack() override;
 };

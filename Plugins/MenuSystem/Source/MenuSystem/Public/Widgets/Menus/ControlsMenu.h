@@ -17,7 +17,6 @@ public:
 	void ResetKeyBindings();
 
 	void Init() override;
-	void InitializeButtons() override;
 	void InitializeControls();
 	void Reset() override;
 
@@ -45,7 +44,7 @@ protected:
 	class UInvertSetting* GamepadInvertXSetting;
 	class UInvertSetting* GamepadInvertYSetting;
 
-	UUserWidget* ResetWarningBox;
-	UUserWidget* DuplicateWarningBox;
+	class UCanvasPanel* ResetWarningBox;
+	class UUserWidget* DuplicateWarningBox;
 	class UButton* BackButton;
 };

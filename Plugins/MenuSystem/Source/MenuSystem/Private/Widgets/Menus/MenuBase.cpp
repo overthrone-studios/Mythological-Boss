@@ -31,28 +31,6 @@ void UMenuBase::InitializeSettings()
 	}
 }
 
-void UMenuBase::InitializeButtons()
-{
-	ParentBox = Cast<UPanelWidget>(WidgetTree->FindWidget("MenuOptions"));
-
-	if (!ParentBox)
-	{
-		ULog::Error("Could not find 'MenuOptions' panel widget in " + GetName() + ". Make sure you have a panel widget named 'MenuOptions' to initialize your buttons.", true);
-		return;
-	}
-
-	for (int32 i = 0; i < ParentBox->GetChildrenCount(); i++)
-	{
-		const auto Widget = ParentBox->GetChildAt(i);
-		const auto Button = Cast<UButtonBase>(Widget);
-
-		if (Button)
-			Button->Init();
-		else
-			ULog::Warning(Widget->GetName() + " is not a UButtonBase.", true);
-	}
-}
-
 void UMenuBase::AddSetting(UMenuSetting* Setting)
 {
 	MenuSettings.Add(Setting);
@@ -112,26 +90,6 @@ void UMenuBase::Apply()
 
 	GEngine->GetGameUserSettings()->ApplySettings(false);
 	GEngine->GetGameUserSettings()->SaveConfig();
-}
-
-void UMenuBase::Forward(const EButtonType Menu)
-{
-	MenuSelected = Menu;
-
-	if (Animation)
-		GetWorld()->GetTimerManager().SetTimer(ForwardTimerHandle, this, &UMenuBase::GoForward, 1.0f, false, Animation->GetEndTime());
-	else
-		GoForward();
-}
-
-void UMenuBase::Forward(const int32 MenuIndex)
-{
-	SelectedMenuIndex = MenuIndex;
-
-	if (Animation)
-		GetWorld()->GetTimerManager().SetTimer(ForwardTimerHandle, this, &UMenuBase::GoForward, 1.0f, false, Animation->GetEndTime());
-	else
-		GoForward();
 }
 
 void UMenuBase::GoForward()
