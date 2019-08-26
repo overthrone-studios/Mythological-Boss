@@ -14,6 +14,8 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 
 	if (PauseMenuWidget.Succeeded())
 		PauseMenuWidgetClass = PauseMenuWidget.Class;
+
+	bFirstLaunch = true;
 }
 
 void UOverthroneGameInstance::RestartGame()
@@ -22,8 +24,6 @@ void UOverthroneGameInstance::RestartGame()
 
 	const FString LevelName = UGameplayStatics::GetCurrentLevelName(this);
 	UGameplayStatics::OpenLevel(this, *LevelName);
-
-	bHasRestarted = true;
 }
 
 bool UOverthroneGameInstance::IsGamePaused()
@@ -94,13 +94,15 @@ void UOverthroneGameInstance::InitInstance()
 	PauseMenu->AddToViewport();
 	PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 
-	if (bHasRestarted)
+	if (!bFirstLaunch)
 		return;
 
 	for (auto Feat : Feats)
 	{
 		Feat->OnFeatAchieved.AddDynamic(this, &UOverthroneGameInstance::OnFeatAchieved);
 	}
+
+	bFirstLaunch = false;
 }
 
 void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) const

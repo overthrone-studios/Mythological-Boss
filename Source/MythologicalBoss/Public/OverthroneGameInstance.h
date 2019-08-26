@@ -117,7 +117,7 @@ public:
 	class UFeatData* AchievedFeat;
 
 private:
-	uint8 bHasRestarted : 1;
+	uint8 bFirstLaunch : 1;
 
 	class UUserWidget* PauseMenu{};
 	TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
