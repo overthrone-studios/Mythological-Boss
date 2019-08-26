@@ -125,5 +125,5 @@ void UOverthroneGameInstance::OnFeatAchieved()
 {
 	AchievedFeat->bIsComplete = true;
 
-	ULog::Success(AchievedFeat->Title.ToString() + " has been complete!", true);
+	ULog::Success(AchievedFeat->Title.ToString() + " feat has been completed!", true);
 }
