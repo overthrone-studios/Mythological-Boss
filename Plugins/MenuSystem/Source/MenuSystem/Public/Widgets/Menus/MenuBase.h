@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
-#include "Buttons/ButtonBase.h"
 #include "MenuBase.generated.h"
 
 UENUM()
@@ -68,8 +67,6 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Menu Base")
 		FText MenuTooltipText;
-
-	EButtonType MenuSelected;
 
 	int32 SelectedMenuIndex;
 
