@@ -76,16 +76,6 @@ UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
 	return nullptr;
 }
 
-bool UOverthroneGameInstance::AnyFeatsBoundToFunction()
-{
-	for (auto Feat : Feats)
-	{
-		return Feat->OnFeatAchieved.IsBound();
-	}
-
-	return false;
-}
-
 void UOverthroneGameInstance::InitInstance()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
