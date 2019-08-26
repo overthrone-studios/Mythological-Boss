@@ -66,6 +66,17 @@ UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
 	return nullptr;
 }
 
+bool UOverthroneGameInstance::AnyFeatsBoundToFunction()
+{
+	for (auto Feat : Feats)
+	{
+		if (Feat->OnFeatAchieved.IsBound())
+			return true;
+	}
+
+	return false;
+}
+
 void UOverthroneGameInstance::InitInstance()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -73,6 +84,9 @@ void UOverthroneGameInstance::InitInstance()
 	PauseMenu = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidgetClass, FName("Pause Menu"));
 	PauseMenu->AddToViewport();
 	PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+
+	if (AnyFeatsBoundToFunction())
+		return;
 
 	for (auto Feat : Feats)
 	{
