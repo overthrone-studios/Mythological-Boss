@@ -329,6 +329,12 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AYlva::ShowNoHUD);
 
 	PlayerInputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AYlva::ToggleGodMode);
+
+	PlayerInputComponent->BindKey(EKeys::Six, IE_Pressed, this, &AYlva::Debug_Die);
+	PlayerInputComponent->BindKey(EKeys::Seven, IE_Pressed, this, &AYlva::Debug_MaxHealth);
+	PlayerInputComponent->BindKey(EKeys::Eight, IE_Pressed, this, &AYlva::Debug_RefillStamina);
+	PlayerInputComponent->BindKey(EKeys::Nine, IE_Pressed, this, &AYlva::Debug_MaxCharge);
+	PlayerInputComponent->BindKey(EKeys::Zero, IE_Pressed, this, &AYlva::Debug_BuffSelf);
 #endif
 }
 
@@ -702,6 +708,47 @@ void AYlva::Die()
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
+}
+
+void AYlva::Debug_Die()
+{
+	HealthComponent->SetHealth(0.0f);
+
+	UpdateCharacterInfo();
+
+	Die();
+}
+
+void AYlva::Debug_MaxHealth()
+{
+	HealthComponent->ResetHealth();
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::Debug_RefillStamina()
+{
+	StaminaComponent->ResetStamina();
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::Debug_MaxCharge()
+{
+	ChargeAttackComponent->SetCharge(ChargeAttackComponent->GetMaxCharge());
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::Debug_BuffSelf()
+{
+	ULog::Info("Buffed!", true);
+
+	Combat.AttackSettings.LightAttackDamage *= 2;
+	Combat.AttackSettings.HeavyAttackDamage *= 2;
+	Combat.AttackSettings.AttackRadius *= 1.2;
+	Combat.BlockSettings.DamageBuffer = 1.0f;
+	Combat.ParrySettings.ParryWindowTime = 1.0f;
 }
 
 void AYlva::Respawn()
@@ -1387,12 +1434,28 @@ void AYlva::ApplyHitStop()
 
 bool AYlva::IsLightAttacking() const
 {
-	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8;
+	return AttackComboComponent->GetCurrentAttack() == Light;
+
+	//if (FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8)
+	//{
+	//	ULog::Info("Light Attacking...", true);
+	//	return true;
+	//}
+	//
+	//return false;
 }
 
 bool AYlva::IsHeavyAttacking() const
 {
-	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10;
+	return AttackComboComponent->GetCurrentAttack() == Heavy;
+
+	if (FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10)
+	{
+		ULog::Info("Heavy Attacking...", true);
+		return true;
+	}
+
+	return false;
 }
 
 void AYlva::PauseAnimsWithTimer()

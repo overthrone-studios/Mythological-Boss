@@ -246,6 +246,26 @@ protected:
 
 	void Die() override;
 
+	// Give the player full health
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Debug_Die();
+
+	// Give the player full health
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Debug_MaxHealth();
+
+	// Give the player full stamina
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Debug_RefillStamina();
+
+	// Give the player full charge
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Debug_MaxCharge();
+
+	// Buff overall player stats
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void Debug_BuffSelf();
+
 	// Called via input to toggle lock on mechanic
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ToggleLockOn();
