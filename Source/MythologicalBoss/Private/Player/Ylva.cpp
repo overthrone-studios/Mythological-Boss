@@ -223,6 +223,7 @@ void AYlva::BeginPlay()
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
 	DemigodFeat = GameInstance->GetFeat("Demi-god");
+	WarriorFeat = GameInstance->GetFeat("Warrior");
 
 	//AnimInstance->bLogDirection = true;
 
@@ -1187,6 +1188,12 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 void AYlva::OnBossDeath()
 {
 	DisableLockOn();
+
+	if (!HasUsedHealthPotion() && !WarriorFeat->bIsComplete)
+		OnWarriorFeatAchieved();
+
+	//if (!HasUsedHealthPotion() && !UntouchableFeat->bIsComplete)
+	//	WarriorFeat->OnFeatAchieved.Broadcast();
 }
 
 void AYlva::OnLowHealth()
@@ -1196,8 +1203,6 @@ void AYlva::OnLowHealth()
 
 void AYlva::OnLowStamina()
 {
-	ULog::Info("Low stamina!", true);
-
 	// Todo Implement function
 
 	MovementComponent->MaxWalkSpeed /= 2.0f;
@@ -1345,6 +1350,13 @@ void AYlva::OnDemigodFeatAchieved()
 	GameInstance->AchievedFeat = DemigodFeat;
 
 	DemigodFeat->OnFeatAchieved.Broadcast();
+}
+
+void AYlva::OnWarriorFeatAchieved()
+{
+	GameInstance->AchievedFeat = WarriorFeat;
+
+	WarriorFeat->OnFeatAchieved.Broadcast();
 }
 
 void AYlva::ResetGlobalTimeDilation()

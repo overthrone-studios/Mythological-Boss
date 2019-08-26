@@ -166,6 +166,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	// Returns true if we have used 1 or more health potions
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE bool HasUsedHealthPotion() const { return HealthPotionUses > 0; }
+
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
@@ -435,6 +439,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void OnDemigodFeatAchieved();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void OnWarriorFeatAchieved();
+
 	// Player states
 	#pragma region Idle
 	UFUNCTION()
@@ -646,6 +653,8 @@ private:
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;
 
+	uint8 HealthPotionUses = 0;
+
 	uint8 bWasLowStaminaEventTriggered : 1;
 
 	FRotator StartRightSwordRotation{};
@@ -662,4 +671,5 @@ private:
 	ACharacter* Boss;
 
 	class UFeatData* DemigodFeat;
+	class UFeatData* WarriorFeat;
 };
