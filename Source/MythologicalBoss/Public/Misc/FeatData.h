@@ -38,7 +38,9 @@ public:
 	
 	int32 CurrentCount = 0;
 
-	uint8 bIsComplete : 1;
+	// Have we completed/achieved this feat?
+	UPROPERTY(BlueprintReadOnly, Category = "Feat Information")
+		uint8 bIsComplete : 1;
 
 	UPROPERTY(BlueprintAssignable, Category = "Feat Information")
 		FOnFeatAchievedSignature OnFeatAchieved;
