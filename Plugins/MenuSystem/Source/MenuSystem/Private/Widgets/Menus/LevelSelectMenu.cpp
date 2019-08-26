@@ -1,4 +1,4 @@
-// Copyright Overthrone Studios 2019
+// Copyright Ali El Saleh 2019
 
 #include "LevelSelectMenu.h"
 #include "MenuHUD.h"
