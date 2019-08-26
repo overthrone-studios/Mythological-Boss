@@ -19,6 +19,7 @@ public:
 	UHUDBase* GetHUD(TSubclassOf<UHUDBase> HUDClass) const;
 	UHUDBase* GetHUD(const FString& HUDWidgetName) const;
 	TArray<UHUDBase*> GetAllHUDs() const;
+	void StoreAllDebugOptions(const UPanelWidget* ParentWidget);
 
 	UWidget* GetActiveHUDWidget() const;
 	int32 GetActiveHUDIndex() const;
@@ -45,6 +46,6 @@ protected:
 
 	TArray<UUserWidget*> Boxes;
 
-	UPanelWidget* HUDOptions;
+	UPanelWidget* DebugOptions;
 	class UTextBlock* Title;
 };

@@ -14,19 +14,18 @@ void UMasterHUD::Init()
 {
 	Super::Init();
 
-	HUDOptions = Cast<UPanelWidget>(WidgetTree->FindWidget(FName("HUDoptions")));
+	DebugOptions = Cast<UPanelWidget>(WidgetTree->FindWidget(FName("DebugOptions")));
 	Title = Cast<UTextBlock>(WidgetTree->FindWidget(FName("Title")));
 
-	// Get the boxes
-	Boxes.Reserve(HUDOptions->GetChildrenCount());
-	for (int32 i = 0; i < HUDOptions->GetChildrenCount(); i++)
+	// Store our debug boxes for un/highlighting
+	StoreAllDebugOptions(DebugOptions);
+
+	for (auto Box : Boxes)
 	{
-		const auto Widget = Cast<UUserWidget>(HUDOptions->GetChildAt(i));
-		if (Widget)
-			Boxes.Add(Widget);
-		else
-			ULog::DebugMessage(ERROR, HUDOptions->GetChildAt(i)->GetName() + " is not a user widget", true);
+		ULog::Info(Box->GetName(), true);
 	}
+
+	ULog::Number(Boxes.Num(), "Boxes: ", true);
 
 	// Get the widget switcher
 	WidgetSwitcher = Cast<UWidgetSwitcher>(WidgetTree->FindWidget(FName("HUDSwitcher")));
@@ -34,7 +33,7 @@ void UMasterHUD::Init()
 	// Get every HUD widget in this HUD
 	HUDs = GetAllChildHUDs();
 
-	// Initialize them all
+	// Initialize all our HUDs
 	for (auto HUD : HUDs)
 	{
 		HUD->Init();
@@ -83,12 +82,12 @@ void UMasterHUD::HideTitle()
 
 void UMasterHUD::ShowBoxes()
 {
-	HUDOptions->SetVisibility(ESlateVisibility::Visible);
+	DebugOptions->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMasterHUD::HideBoxes()
 {
-	HUDOptions->SetVisibility(ESlateVisibility::Hidden);
+	DebugOptions->SetVisibility(ESlateVisibility::Hidden);
 }
 
 UHUDBase* UMasterHUD::GetHUD(const TSubclassOf<UHUDBase> HUDClass) const
@@ -116,6 +115,19 @@ UHUDBase* UMasterHUD::GetHUD(const FString& HUDWidgetName) const
 TArray<UHUDBase*> UMasterHUD::GetAllHUDs() const
 {
 	return HUDs;
+}
+
+void UMasterHUD::StoreAllDebugOptions(const UPanelWidget* ParentWidget)
+{
+	for (int32 i = 0; i < ParentWidget->GetChildrenCount(); i++)
+	{
+		const auto Widget = ParentWidget->GetChildAt(i);
+
+		if (Widget->IsA(UPanelWidget::StaticClass()))
+			StoreAllDebugOptions(Cast<UPanelWidget>(Widget));
+		else
+			Boxes.Add(Cast<UUserWidget>(Widget));
+	}
 }
 
 UWidget* UMasterHUD::GetActiveHUDWidget() const
