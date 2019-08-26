@@ -28,9 +28,12 @@ class MENUSYSTEM_API UMenuBase : public UUserWidget
 	
 	
 public:
+	UFUNCTION(BlueprintCallable)
 	virtual void FadeIn();
+	UFUNCTION(BlueprintCallable)
 	virtual void FadeOut();
 
+	UFUNCTION(BlueprintCallable)
 	virtual void Init();
 
 	UFUNCTION(BlueprintCallable)
@@ -44,6 +47,7 @@ public:
 
 	virtual void SetMenuTooltipText(const FText& Text);
 
+	UFUNCTION(BlueprintCallable)
 	virtual bool AreAllSettingsDefault();
 
 protected:
