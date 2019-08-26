@@ -334,7 +334,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::Seven, IE_Pressed, this, &AYlva::Debug_MaxHealth);
 	PlayerInputComponent->BindKey(EKeys::Eight, IE_Pressed, this, &AYlva::Debug_RefillStamina);
 	PlayerInputComponent->BindKey(EKeys::Nine, IE_Pressed, this, &AYlva::Debug_MaxCharge);
-	PlayerInputComponent->BindKey(EKeys::Zero, IE_Pressed, this, &AYlva::Debug_BuffSelf);
+	PlayerInputComponent->BindKey(EKeys::Zero, IE_Pressed, this, &AYlva::Debug_ToggleBuff);
 #endif
 }
 
@@ -740,15 +740,26 @@ void AYlva::Debug_MaxCharge()
 	UpdateCharacterInfo();
 }
 
-void AYlva::Debug_BuffSelf()
+void AYlva::Debug_ToggleBuff()
 {
-	ULog::Info("Buffed!", true);
+	bIsBuffed = !bIsBuffed;
 
-	Combat.AttackSettings.LightAttackDamage *= 2;
-	Combat.AttackSettings.HeavyAttackDamage *= 2;
-	Combat.AttackSettings.AttackRadius *= 1.2;
-	Combat.BlockSettings.DamageBuffer = 1.0f;
-	Combat.ParrySettings.ParryWindowTime = 1.0f;
+	if (bIsBuffed)
+	{
+		OverthroneHUD->GetMasterHUD()->HighlightBox(9);
+		
+		Combat.AttackSettings.LightAttackDamage *= 2;
+		Combat.AttackSettings.HeavyAttackDamage *= 2;
+		Combat.AttackSettings.AttackRadius *= 2;
+	}
+	else
+	{
+		OverthroneHUD->GetMasterHUD()->UnhighlightBox(9);
+
+		Combat.AttackSettings.LightAttackDamage /= 2;
+		Combat.AttackSettings.HeavyAttackDamage /= 2;
+		Combat.AttackSettings.AttackRadius /= 2;
+	}
 }
 
 void AYlva::Respawn()

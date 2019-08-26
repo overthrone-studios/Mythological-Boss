@@ -264,7 +264,7 @@ protected:
 
 	// Buff overall player stats
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Debug_BuffSelf();
+		void Debug_ToggleBuff();
 
 	// Called via input to toggle lock on mechanic
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -644,6 +644,7 @@ private:
 	float InputX = 0.0f, InputZ = 0.0f;
 
 	uint8 bIsRunKeyHeld : 1;
+	uint8 bIsBuffed : 1;
 
 	uint8 bWasLowStaminaEventTriggered : 1;
 
