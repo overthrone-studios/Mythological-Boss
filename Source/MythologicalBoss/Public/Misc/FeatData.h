@@ -38,6 +38,8 @@ public:
 	
 	int32 CurrentCount = 0;
 
+	uint8 bIsComplete : 1;
+
 	UPROPERTY(BlueprintAssignable, Category = "Feat Information")
 		FOnFeatAchievedSignature OnFeatAchieved;
 };
