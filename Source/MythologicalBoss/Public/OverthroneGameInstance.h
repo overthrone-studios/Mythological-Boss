@@ -83,6 +83,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		FORCEINLINE float GetTeleportRadius() const { return PlayerInfo.TeleportRadius; };
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		class UFeatData* GetFeat(const FString& FeatName);
+
 	void InitInstance();
 
 	void SetLockOnLocation(const FVector& LockOnLocation) const;
@@ -98,6 +101,14 @@ public:
 
 	class AYlva* Player;
 	class AMordath* Boss;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Instance")
+		TArray<class UFeatData*> Feats;
+
+	UFUNCTION()
+		void OnFeatAchieved();
+
+	class UFeatData* AchievedFeat;
 
 private:
 	class UUserWidget* PauseMenu{};

@@ -3,8 +3,10 @@
 #include "OverthroneGameInstance.h"
 #include "UserWidget.h"
 #include "LockOn.h"
+#include "Misc/FeatData.h"
 #include "Kismet/GameplayStatics.h"
 #include "ConstructorHelpers.h"
+#include "Log.h"
 
 UOverthroneGameInstance::UOverthroneGameInstance()
 {
@@ -52,6 +54,18 @@ void UOverthroneGameInstance::SetInputModeGame() const
 	PlayerController->bShowMouseCursor = false;
 }
 
+UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
+{
+	for (auto Feat : Feats)
+	{
+		if (Feat->Title.ToString() == FeatName)
+			return Feat;
+	}
+
+	ULog::Warning("Could not find " + FeatName + ". You may have misspelled it. Make sure the Feat is added to the array in " + GetName(), true);
+	return nullptr;
+}
+
 void UOverthroneGameInstance::InitInstance()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -59,6 +73,11 @@ void UOverthroneGameInstance::InitInstance()
 	PauseMenu = CreateWidget<UUserWidget>(GetWorld(), PauseMenuWidgetClass, FName("Pause Menu"));
 	PauseMenu->AddToViewport();
 	PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+
+	for (auto Feat : Feats)
+	{
+		Feat->OnFeatAchieved.AddDynamic(this, &UOverthroneGameInstance::OnFeatAchieved);
+	}
 }
 
 void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) const
@@ -79,3 +98,9 @@ void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) cons
 		LockOn->SetActorHiddenInGame(!bIsVisible);
 }
 
+void UOverthroneGameInstance::OnFeatAchieved()
+{
+	AchievedFeat->bIsComplete = true;
+
+	ULog::Info(AchievedFeat->GetName() + " has been complete!", true);
+}
