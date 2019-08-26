@@ -64,6 +64,9 @@ public:
 	FOnThirdStageSignature OnThirdStage;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		void RestartGame();
+
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		bool IsGamePaused();
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
@@ -114,6 +117,8 @@ public:
 	class UFeatData* AchievedFeat;
 
 private:
+	uint8 bHasRestarted : 1;
+
 	class UUserWidget* PauseMenu{};
 	TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 

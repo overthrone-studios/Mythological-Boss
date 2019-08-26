@@ -16,6 +16,16 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 		PauseMenuWidgetClass = PauseMenuWidget.Class;
 }
 
+void UOverthroneGameInstance::RestartGame()
+{
+	UnPauseGame();
+
+	const FString LevelName = UGameplayStatics::GetCurrentLevelName(this);
+	UGameplayStatics::OpenLevel(this, *LevelName);
+
+	bHasRestarted = true;
+}
+
 bool UOverthroneGameInstance::IsGamePaused()
 {
 	return UGameplayStatics::IsGamePaused(this);
@@ -70,8 +80,7 @@ bool UOverthroneGameInstance::AnyFeatsBoundToFunction()
 {
 	for (auto Feat : Feats)
 	{
-		if (Feat->OnFeatAchieved.IsBound())
-			return true;
+		return Feat->OnFeatAchieved.IsBound();
 	}
 
 	return false;
@@ -85,7 +94,7 @@ void UOverthroneGameInstance::InitInstance()
 	PauseMenu->AddToViewport();
 	PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 
-	if (AnyFeatsBoundToFunction())
+	if (bHasRestarted)
 		return;
 
 	for (auto Feat : Feats)
@@ -116,5 +125,5 @@ void UOverthroneGameInstance::OnFeatAchieved()
 {
 	AchievedFeat->bIsComplete = true;
 
-	ULog::Info(AchievedFeat->GetName() + " has been complete!", true);
+	ULog::Success(AchievedFeat->Title.ToString() + " has been complete!", true);
 }
