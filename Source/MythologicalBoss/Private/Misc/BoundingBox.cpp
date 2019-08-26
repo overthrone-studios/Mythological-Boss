@@ -10,6 +10,7 @@ ABoundingBox::ABoundingBox()
 	PrimaryActorTick.bCanEverTick = false;
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(FName("BoundingBox"));
+	RootComponent = BoxComponent;
 }
 
 void ABoundingBox::BeginPlay()
