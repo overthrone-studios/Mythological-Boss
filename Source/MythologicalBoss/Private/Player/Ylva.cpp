@@ -712,7 +712,7 @@ void AYlva::Die()
 
 void AYlva::Debug_Die()
 {
-	HealthComponent->SetHealth(0.0f);
+	UpdateHealth(HealthComponent->GetCurrentHealth());
 
 	UpdateCharacterInfo();
 
