@@ -20,13 +20,6 @@ void UMasterHUD::Init()
 	// Store our debug boxes for un/highlighting
 	StoreAllDebugOptions(DebugOptions);
 
-	for (auto Box : Boxes)
-	{
-		ULog::Info(Box->GetName(), true);
-	}
-
-	ULog::Number(Boxes.Num(), "Boxes: ", true);
-
 	// Get the widget switcher
 	WidgetSwitcher = Cast<UWidgetSwitcher>(WidgetTree->FindWidget(FName("HUDSwitcher")));
 
