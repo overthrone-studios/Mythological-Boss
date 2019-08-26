@@ -412,6 +412,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetCharge();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void OnDemigodFeatAchieved();
+
 	// Player states
 	#pragma region Idle
 	UFUNCTION()
@@ -636,4 +639,6 @@ private:
 
 	class APlayerCameraManager* CameraManager;
 	ACharacter* Boss;
+
+	class UFeatData* DemigodFeat;
 };

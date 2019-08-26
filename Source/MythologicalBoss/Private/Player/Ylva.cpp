@@ -30,6 +30,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 
+#include "Misc/FeatData.h"
+
 #include "Animation/AnimInstance.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -220,6 +222,8 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
+	DemigodFeat = GameInstance->GetFeat("Demi-god");
+
 	//AnimInstance->bLogDirection = true;
 
 	// Begin the state machine
@@ -354,6 +358,8 @@ void AYlva::BroadcastLowStamina()
 {
 	GameInstance->PlayerInfo.OnLowStamina.Broadcast();
 	bWasLowStaminaEventTriggered = true;
+
+	OnDemigodFeatAchieved();
 }
 
 void AYlva::StartLosingHealth()
@@ -1274,6 +1280,13 @@ void AYlva::ResetCharge()
 	ChargeAttackComponent->ResetCharge();
 
 	UpdateCharacterInfo();
+}
+
+void AYlva::OnDemigodFeatAchieved()
+{
+	GameInstance->AchievedFeat = DemigodFeat;
+
+	DemigodFeat->OnFeatAchieved.Broadcast();
 }
 
 void AYlva::ResetGlobalTimeDilation()
