@@ -22,6 +22,8 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAtta
 {
 	UAnimMontage* AttackMontage = nullptr;
 
+	CurrentAttack = InAttackType;
+
 	switch (InAttackType)
 	{
 	case Light:

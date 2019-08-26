@@ -80,6 +80,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE TArray<TEnumAsByte<EAttackType>> GetComboChain() const { return PreviousCombo; }
 
+	// Returns the current attack type we are on
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE EAttackType GetCurrentAttack() const { return CurrentAttack; }
+
 protected:
 	void BeginPlay() override;
 
@@ -132,6 +136,8 @@ private:
 
 	void DelayAttack(const float& Delay);
 	void LogAttackChain(); // Tracks the attacks we've chained
+
+	EAttackType CurrentAttack;
 
 	// The attack chain history
 	TArray<TEnumAsByte<EAttackType>> Combo;
