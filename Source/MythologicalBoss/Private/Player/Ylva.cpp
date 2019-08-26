@@ -1435,27 +1435,11 @@ void AYlva::ApplyHitStop()
 bool AYlva::IsLightAttacking() const
 {
 	return AttackComboComponent->GetCurrentAttack() == Light;
-
-	//if (FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 8)
-	//{
-	//	ULog::Info("Light Attacking...", true);
-	//	return true;
-	//}
-	//
-	//return false;
 }
 
 bool AYlva::IsHeavyAttacking() const
 {
 	return AttackComboComponent->GetCurrentAttack() == Heavy;
-
-	if (FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10)
-	{
-		ULog::Info("Heavy Attacking...", true);
-		return true;
-	}
-
-	return false;
 }
 
 void AYlva::PauseAnimsWithTimer()
