@@ -85,6 +85,15 @@ void UOverthroneGameInstance::ResetFeats()
 	}
 }
 
+void UOverthroneGameInstance::InitFeats()
+{
+	for (auto Feat : Feats)
+	{
+		if (!Feat->OnFeatAchieved.IsBound())
+			Feat->OnFeatAchieved.AddDynamic(this, &UOverthroneGameInstance::OnFeatAchieved);
+	}
+}
+
 void UOverthroneGameInstance::InitInstance()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -96,10 +105,7 @@ void UOverthroneGameInstance::InitInstance()
 	if (!bFirstLaunch)
 		return;
 
-	for (auto Feat : Feats)
-	{
-		Feat->OnFeatAchieved.AddDynamic(this, &UOverthroneGameInstance::OnFeatAchieved);
-	}
+	InitFeats();
 
 	bFirstLaunch = false;
 }

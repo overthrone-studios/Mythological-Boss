@@ -92,6 +92,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void ResetFeats();
 
+	void InitFeats();
 	void InitInstance();
 
 	void SetLockOnLocation(const FVector& LockOnLocation) const;
