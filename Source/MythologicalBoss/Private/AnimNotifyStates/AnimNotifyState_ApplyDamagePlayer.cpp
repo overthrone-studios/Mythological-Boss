@@ -2,6 +2,7 @@
 
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamagePlayer.h"
 #include "DestructibleActor.h"
+#include "Components/HitboxComponent.h"
 #include "Ylva.h"
 #include "Log.h"
 
@@ -33,7 +34,10 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyEnd(USkeletalMeshComponent* MeshC
 void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 {
 	const auto HitActor = HitResult.GetActor();
+	const auto HitComp = HitResult.GetComponent();
 	const FDamageEvent DamageEvent;
+
+	float Multiplier = 1.0f;
 
 	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) || HitActor->IsA(ADestructibleActor::StaticClass())))
 	{
@@ -44,9 +48,13 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		// Give charge
 		Ylva->IncreaseCharge();
 
-		const auto HitComp = HitResult.GetComponent();
-		ULog::Info(HitComp->GetName(), true);
+		if (HitComp->IsA(UHitboxComponent::StaticClass()))
+		{
+			Multiplier = Cast<UHitboxComponent>(HitComp)->GetScalarValue();
+			
+			ULog::Info(HitComp->GetName(), true);
+		}
 
-		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
+		HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 	}
 }
