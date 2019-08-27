@@ -12,7 +12,7 @@ void UAnimNotify_PlayFootstepSound::Notify(USkeletalMeshComponent* MeshComp, UAn
 {
 	Character = UGameplayStatics::GetPlayerCharacter(MeshComp->GetOwner(), 0);
 	
-	if (bEnableFootsteps && Character)
+	if (bEnableFootsteps && Character && FootstepCollection)
 		PlayFootstepSound();
 }
 
