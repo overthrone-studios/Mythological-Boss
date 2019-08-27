@@ -447,9 +447,6 @@ protected:
 
 	// Feats
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void OnDemigodFeatAchieved();
-
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void OnWarriorFeatAchieved();
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -683,7 +680,6 @@ private:
 	class APlayerCameraManager* CameraManager;
 	ACharacter* Boss;
 
-	class UFeatData* DemigodFeat;
 	class UFeatData* WarriorFeat;
 	class UFeatData* UntouchableFeat;
 };

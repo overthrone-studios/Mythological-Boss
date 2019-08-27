@@ -225,7 +225,6 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
-	DemigodFeat = GameInstance->GetFeat("Demi-god");
 	WarriorFeat = GameInstance->GetFeat("Warrior");
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
@@ -1355,13 +1354,6 @@ void AYlva::ResetCharge()
 	ChargeAttackComponent->ResetCharge();
 
 	UpdateCharacterInfo();
-}
-
-void AYlva::OnDemigodFeatAchieved()
-{
-	GameInstance->AchievedFeat = DemigodFeat;
-
-	DemigodFeat->OnFeatAchieved.Broadcast();
 }
 
 void AYlva::OnWarriorFeatAchieved()
