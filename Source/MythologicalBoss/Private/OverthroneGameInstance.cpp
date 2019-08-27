@@ -78,11 +78,25 @@ UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
 
 void UOverthroneGameInstance::ResetFeats()
 {
+	// Check if we have any completed feats
+	int32 CompletedFeats = 0;
+	for (auto Feat : Feats)
+	{
+		if (Feat->bIsComplete)
+			CompletedFeats++;
+	}
+
+	if (CompletedFeats == 0)
+		return;
+
+	// Reset all feats
 	for (auto Feat : Feats)
 	{
 		Feat->CurrentCount = 0;
 		Feat->bIsComplete = false;
 	}
+
+	ULog::Success("All feats reset!", true);
 }
 
 void UOverthroneGameInstance::InitFeats()
