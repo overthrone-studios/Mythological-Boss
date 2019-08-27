@@ -214,6 +214,9 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Ylva")
 		FDebug_Ylva Debug;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Ylva")
+		int32 HealthPotionUses = 0;
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
@@ -652,8 +655,6 @@ private:
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;
-
-	uint8 HealthPotionUses = 0;
 
 	uint8 bWasLowStaminaEventTriggered : 1;
 
