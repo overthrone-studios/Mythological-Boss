@@ -7,7 +7,7 @@
 #include "ChargeAttackComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
 class MYTHOLOGICALBOSS_API UChargeAttackComponent final : public UActorComponent
 {
 	GENERATED_BODY()
