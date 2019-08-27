@@ -208,12 +208,15 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+
 	GameInstance->PlayerInfo.StartingStamina = StaminaComponent->GetDefaultStamina();
 	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
 	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetCurrentStamina();
+
 	GameInstance->PlayerInfo.MaxCharge = ChargeAttackComponent->GetMaxCharge();
 	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
 	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
+
 	GameInstance->PlayerInfo.TeleportRadius = TeleportRadius;
 	GameInstance->Player = this;
 
