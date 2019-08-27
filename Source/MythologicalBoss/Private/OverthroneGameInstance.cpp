@@ -72,7 +72,7 @@ UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
 			return Feat;
 	}
 
-	ULog::Warning("Could not find " + FeatName + ". You may have misspelled it. Make sure the Feat is added to the array in " + GetName(), true);
+	ULog::Warning("Could not find " + FeatName + ". You may have misspelled it. Make sure the " + FeatName + " Feat is added to the array in " + GetName(), true);
 	return nullptr;
 }
 
