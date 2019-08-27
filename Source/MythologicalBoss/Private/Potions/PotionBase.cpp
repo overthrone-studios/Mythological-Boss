@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/FloatingComponent.h"
+#include "Components/RotatingComponent.h"
 
 #include "Engine/StaticMesh.h"
 
@@ -17,6 +18,7 @@ APotionBase::APotionBase()
 	// Create components
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Static Mesh Component"));
 	FloatingComponent = CreateDefaultSubobject<UFloatingComponent>(FName("Floating Component"));
+	RotatingComponent = CreateDefaultSubobject<URotatingComponent>(FName("Rotating Component"));
 	SphereCollisionComponent = CreateDefaultSubobject<USphereComponent>(FName("Sphere Collision Component"));
 
 	RootComponent = StaticMeshComponent; // Set the mesh as the root

@@ -42,6 +42,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Potion")
 		class UFloatingComponent* FloatingComponent;
 
+	// A component that makes this actor rotate with a given rate
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Potion")
+		class URotatingComponent* RotatingComponent;
+
 	// The value of this potion
 	UPROPERTY(EditInstanceOnly, Category = "Potion", meta = (ClampMin = 0))
 		int32 Value = 10;
