@@ -76,6 +76,15 @@ UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
 	return nullptr;
 }
 
+void UOverthroneGameInstance::ResetFeats()
+{
+	for (auto Feat : Feats)
+	{
+		Feat->CurrentCount = 0;
+		Feat->bIsComplete = false;
+	}
+}
+
 void UOverthroneGameInstance::InitInstance()
 {
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);

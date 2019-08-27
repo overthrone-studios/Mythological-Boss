@@ -89,6 +89,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		class UFeatData* GetFeat(const FString& FeatName);
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+		void ResetFeats();
+
 	void InitInstance();
 
 	void SetLockOnLocation(const FVector& LockOnLocation) const;
