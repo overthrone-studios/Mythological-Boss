@@ -717,8 +717,6 @@ void AYlva::Die()
 void AYlva::Debug_ResetFeats()
 {
 	GameInstance->ResetFeats();
-
-	ULog::Success("All feats reset!", true);
 }
 
 void AYlva::Debug_Die()
