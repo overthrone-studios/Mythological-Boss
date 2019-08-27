@@ -170,6 +170,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE bool HasUsedHealthPotion() const { return HealthPotionUses > 0; }
 
+	// Returns true if we have taken 1 or more hits
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
+
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
@@ -252,6 +256,8 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	void Die() override;
+
+	void Debug_ResetFeats();
 
 	// Give the player full health
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -439,11 +445,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetCharge();
 
+	// Feats
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void OnDemigodFeatAchieved();
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void OnWarriorFeatAchieved();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void OnUntouchableFeatAchieved();
 
 	// Player states
 	#pragma region Idle
@@ -658,6 +668,8 @@ private:
 
 	uint8 bWasLowStaminaEventTriggered : 1;
 
+	uint8 HitCounter_Persistent = 0;
+
 	FRotator StartRightSwordRotation{};
 	FRotator StartLeftSwordRotation{};
 
@@ -673,4 +685,5 @@ private:
 
 	class UFeatData* DemigodFeat;
 	class UFeatData* WarriorFeat;
+	class UFeatData* UntouchableFeat;
 };

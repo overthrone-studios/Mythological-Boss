@@ -227,6 +227,7 @@ void AYlva::BeginPlay()
 
 	DemigodFeat = GameInstance->GetFeat("Demi-god");
 	WarriorFeat = GameInstance->GetFeat("Warrior");
+	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
 	//AnimInstance->bLogDirection = true;
 
@@ -339,6 +340,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::Eight, IE_Pressed, this, &AYlva::Debug_RefillStamina);
 	PlayerInputComponent->BindKey(EKeys::Nine, IE_Pressed, this, &AYlva::Debug_MaxCharge);
 	PlayerInputComponent->BindKey(EKeys::Zero, IE_Pressed, this, &AYlva::Debug_ToggleBuff);
+
+	PlayerInputComponent->BindKey(EKeys::L, IE_Pressed, this, &AYlva::Debug_ResetFeats);
 #endif
 }
 
@@ -710,6 +713,13 @@ void AYlva::Die()
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
+}
+
+void AYlva::Debug_ResetFeats()
+{
+	GameInstance->ResetFeats();
+
+	ULog::Success("All feats reset!", true);
 }
 
 void AYlva::Debug_Die()
@@ -1152,6 +1162,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 
 			default:
 				HitCounter++;
+				HitCounter_Persistent++;
 
 				// Enter damaged state
 				FSM->PushState("Damaged");
@@ -1193,8 +1204,8 @@ void AYlva::OnBossDeath()
 	if (!HasUsedHealthPotion() && !WarriorFeat->bIsComplete)
 		OnWarriorFeatAchieved();
 
-	//if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
-	//	WarriorFeat->OnFeatAchieved.Broadcast();
+	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
+		OnUntouchableFeatAchieved();
 }
 
 void AYlva::OnLowHealth()
@@ -1358,6 +1369,13 @@ void AYlva::OnWarriorFeatAchieved()
 	GameInstance->AchievedFeat = WarriorFeat;
 
 	WarriorFeat->OnFeatAchieved.Broadcast();
+}
+
+void AYlva::OnUntouchableFeatAchieved()
+{
+	GameInstance->AchievedFeat = UntouchableFeat;
+
+	UntouchableFeat->OnFeatAchieved.Broadcast();
 }
 
 void AYlva::ResetGlobalTimeDilation()
