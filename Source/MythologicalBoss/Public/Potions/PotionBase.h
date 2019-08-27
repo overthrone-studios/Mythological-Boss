@@ -47,11 +47,11 @@ protected:
 		class URotatingComponent* RotatingComponent;
 
 	// The value of this potion
-	UPROPERTY(EditInstanceOnly, Category = "Potion", meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, Category = "Potion", meta = (ClampMin = 0))
 		int32 Value = 10;
 
 	// The sound to play on potion pick up
-	UPROPERTY(EditInstanceOnly, Category = "Potion")
+	UPROPERTY(EditAnywhere, Category = "Potion")
 		class USoundBase* PickupSound;
 
 	// The mesh representing the potion
