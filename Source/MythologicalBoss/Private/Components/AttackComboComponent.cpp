@@ -16,6 +16,8 @@ void UAttackComboComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	Owner = GetOwner();
+
+	OriginalComboMultiplier = ComboMultiplier;
 }
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
@@ -80,6 +82,12 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 		Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
 		return nullptr;
 	}
+
+	// Increment the combo multipler after the first attack
+	if (TreeIndex > 0 && TreeIndex <= ComboMultiplierCount)
+		ComboMultiplier += MultiplierIncrementAmount;
+	else
+		ComboMultiplier = OriginalComboMultiplier;
 
 	// Start the combo reset timer
 	Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
@@ -181,6 +189,8 @@ void UAttackComboComponent::ResetCombo()
 	HeavyAttackIndex = 0;
 	SpecialAttackIndex = 0;
 
+	ComboMultiplier = OriginalComboMultiplier;
+
 	if (bLogAttackChain)
 		LogAttackChain();
 
@@ -193,6 +203,8 @@ void UAttackComboComponent::ResetCombo()
 	// Clear timers
 	Owner->GetWorldTimerManager().ClearTimer(ComboResetTimerHandle);
 	Owner->GetWorldTimerManager().ClearTimer(AttackDelayTimerHandle);
+
+	OnComboReset.Broadcast();
 
 	if (bLogTreeStatus)
 		ULog::Success("Combo reset!", true);

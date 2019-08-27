@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "AttackComboComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboTreeResetSignature);
+
 UENUM()
 enum EAttackType
 {
@@ -48,7 +50,9 @@ class MYTHOLOGICALBOSS_API UAttackComboComponent final : public UActorComponent
 public:	
 	UAttackComboComponent();
 
-	// Advances to the next attack in the combo tree (-1 means the tree failed to advance)
+	FOnComboTreeResetSignature OnComboReset;
+
+	// Advances to the next attack in the combo tree
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
 		class UAnimMontage* AdvanceCombo(enum EAttackType InAttackType);
 
@@ -84,6 +88,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE EAttackType GetCurrentAttack() const { return CurrentAttack; }
 
+	// Returns the damage multiplier value
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE float GetDamageMultiplier() const { return ComboMultiplier; }
+
+	// Returns the damage multiplier value
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE uint8 GetComboTreeDepth() const { return TreeIndex; }
+
 protected:
 	void BeginPlay() override;
 
@@ -105,6 +117,18 @@ protected:
 	// The list of attack chains to test against the current attack chain
 	UPROPERTY(EditInstanceOnly, Category = "Combo")
 		TArray<FAttackChain> AttackChains;
+
+	// The value to multiply the actor's base damage by (after the first attack) 
+	UPROPERTY(EditInstanceOnly, Category = "Combo", meta = (ClampMin = 1.0f))
+		float ComboMultiplier = 1.0f;
+
+	// The value to increment the combo multiplier amount by
+	UPROPERTY(EditInstanceOnly, Category = "Combo", meta = (ClampMin = 0.0f))
+		float MultiplierIncrementAmount = 0.2f;
+
+	// The amount of times we should add the multiplier to the actor's base damage (after the first attack)
+	UPROPERTY(EditInstanceOnly, Category = "Combo", meta = (ClampMin = 1))
+		uint8 ComboMultiplierCount = 2;
 
 	// How deep can the combo tree go?
 	UPROPERTY(EditInstanceOnly, Category = "Combo Tree", meta = (ClampMin = 1))
@@ -148,6 +172,8 @@ private:
 	int8 SpecialAttackIndex = 0;
 
 	int8 TreeIndex = 0;
+
+	float OriginalComboMultiplier = 1.0f;
 
 	FTimerHandle AttackDelayTimerHandle;
 	FTimerHandle ComboResetTimerHandle;

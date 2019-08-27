@@ -58,6 +58,9 @@ struct FAttackSettings
 {
 	GENERATED_BODY()
 
+	float OriginalLightAttackDamage = 50.0f;
+	float OriginalHeavyAttackDamage = 100.0f;
+
 	// The attack damage we deal when light attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float LightAttackDamage = 50.0f;

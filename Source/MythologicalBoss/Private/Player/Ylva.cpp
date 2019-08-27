@@ -177,6 +177,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 
 	// Attack combo component
 	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
+	AttackComboComponent->OnComboReset.AddDynamic(this, &AYlva::OnComboReset);
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -199,6 +200,9 @@ void AYlva::BeginPlay()
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
+
+	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
+	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
 
 	// Set pitch min max values
 	CameraManager->ViewPitchMin = 360.0f - CameraPitchMax;
@@ -521,6 +525,8 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
 	AnimInstance->Montage_Play(AttackMontage);
 
+	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
+
 	if (!bGodMode)
 	{
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
@@ -536,6 +542,8 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
 	AnimInstance->Montage_Play(AttackMontage);
+
+	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
 
 	if (!bGodMode)
 	{
@@ -1221,6 +1229,12 @@ void AYlva::OnLowStamina()
 	// Todo Implement function
 
 	MovementComponent->MaxWalkSpeed /= 2.0f;
+}
+
+void AYlva::OnComboReset()
+{
+	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
+	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
 
 void AYlva::SetStamina(const float NewStaminaAmount)
