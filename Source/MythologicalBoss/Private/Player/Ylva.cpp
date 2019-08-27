@@ -794,6 +794,8 @@ void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	PlayerController->ClientPlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
+
 	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
 }
@@ -813,6 +815,8 @@ void AYlva::OnEnterWalkState()
 void AYlva::UpdateWalkState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
 	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && InputZ > 0.0f && InputX == 0.0f && FSM->GetActiveStateID() != 2)
 	{
@@ -844,6 +848,8 @@ void AYlva::OnEnterRunState()
 void AYlva::UpdateRunState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	PlayerController->ClientPlayCameraShake(CameraShakes.Run.Shake, CameraShakes.Run.Intensity);
 
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);

@@ -79,6 +79,18 @@ struct FCameraShakes_Ylva : public FCameraShakes
 	// The camera shake to play when we are blocking the boss's attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData ShieldHit;
+
+	// The camera shake to play while idleling
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData Idle;
+
+	// The camera shake to play while walking
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData Walk;
+
+	// The camera shake to play while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData Run;
 };
 
 USTRUCT(BlueprintType)
