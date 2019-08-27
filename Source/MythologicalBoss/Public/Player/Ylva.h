@@ -25,6 +25,10 @@ struct FDebug_Ylva : public FCharacterDebug
 	// Log the player's input values to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogPlayerInputValues : 1;
+
+	// Log the hit component name to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogComponentHits : 1;
 };
 
 USTRUCT(BlueprintType)

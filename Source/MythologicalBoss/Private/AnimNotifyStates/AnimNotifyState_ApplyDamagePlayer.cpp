@@ -52,7 +52,8 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		{
 			Multiplier = Cast<UHitboxComponent>(HitComp)->GetScalarValue();
 			
-			ULog::Info(HitComp->GetName(), true);
+			if (Ylva->Debug.bLogComponentHits)
+				ULog::Info(HitComp->GetName(), true);
 		}
 
 		HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
