@@ -244,7 +244,7 @@ void AYlva::Tick(const float DeltaTime)
 
 	// Calculate direction
 	const auto DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
-	const auto NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(InputZ, -InputX, 0.0f)));
+	const auto NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
 	AnimInstance->MovementDirection = NewDirection.GetNormalized().Yaw;
 
 	GameInstance->PlayerInfo.Location = GetActorLocation();
@@ -285,8 +285,8 @@ void AYlva::Tick(const float DeltaTime)
 
 	if (Debug.bLogPlayerInputValues)
 	{
-		ULog::Number(InputZ, "Forward: ", true);
-		ULog::Number(InputX, "Right: ", true);
+		ULog::Number(ForwardInput, "Forward: ", true);
+		ULog::Number(RightInput, "Right: ", true);
 	}
 #endif
 }
@@ -397,7 +397,7 @@ void AYlva::LoseHealth()
 
 void AYlva::MoveForward(const float Value)
 {
-	InputZ = Value;
+	ForwardInput = Value;
 
 	if (Controller && Value != 0.0f)
 	{
@@ -415,7 +415,7 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	InputX = Value;
+	RightInput = Value;
 
 	if (Controller && Value != 0.0f)
 	{
@@ -604,7 +604,7 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
-	if (FSM->GetActiveStateName() == "Death" || InputZ < 0.0f || InputX != 0.0f)
+	if (FSM->GetActiveStateName() == "Death" || ForwardInput < 0.0f || RightInput != 0.0f)
 		return;
 
 	// If we are moving and grounded
@@ -654,6 +654,8 @@ void AYlva::Dash()
 	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && !GetWorldTimerManager().IsTimerActive(DashCooldownTimer))
 	{
 		// Do the dash
+		//if (In)
+
 		FVector VelocityNormalized = GetVelocity();
 		VelocityNormalized.Normalize();
 		VelocityNormalized.Z = 0;
@@ -826,7 +828,7 @@ void AYlva::UpdateWalkState()
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
-	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && InputZ > 0.0f && InputX == 0.0f && FSM->GetActiveStateID() != 2)
+	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && ForwardInput > 0.0f && RightInput == 0.0f && FSM->GetActiveStateID() != 2)
 	{
 		FSM->PushState("Run");
 		return;
@@ -865,7 +867,7 @@ void AYlva::UpdateRunState()
 	if (GetVelocity().IsZero() || 
 		MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || 
 		StaminaComponent->IsStaminaEmpty() || 
-		InputZ < 0.0f || InputX != 0.0f)
+		ForwardInput < 0.0f || RightInput != 0.0f)
 	{
 		StaminaComponent->DelayRegeneration();
 		FSM->PopState();

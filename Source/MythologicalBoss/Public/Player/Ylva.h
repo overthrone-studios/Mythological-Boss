@@ -677,7 +677,7 @@ protected:
 	UStaticMeshComponent* L_SwordMesh;
 
 private:
-	float InputX = 0.0f, InputZ = 0.0f;
+	float RightInput = 0.0f, ForwardInput = 0.0f;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;
