@@ -3,6 +3,7 @@
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamagePlayer.h"
 #include "DestructibleActor.h"
 #include "Ylva.h"
+#include "Log.h"
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
@@ -42,6 +43,9 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 		// Give charge
 		Ylva->IncreaseCharge();
+
+		const auto HitComp = HitResult.GetComponent();
+		ULog::Info(HitComp->GetName(), true);
 
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 	}
