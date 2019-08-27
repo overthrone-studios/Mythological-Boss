@@ -368,8 +368,6 @@ void AYlva::BroadcastLowStamina()
 {
 	GameInstance->PlayerInfo.OnLowStamina.Broadcast();
 	bWasLowStaminaEventTriggered = true;
-
-	OnDemigodFeatAchieved();
 }
 
 void AYlva::StartLosingHealth()
@@ -1195,7 +1193,7 @@ void AYlva::OnBossDeath()
 	if (!HasUsedHealthPotion() && !WarriorFeat->bIsComplete)
 		OnWarriorFeatAchieved();
 
-	//if (!HasUsedHealthPotion() && !UntouchableFeat->bIsComplete)
+	//if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
 	//	WarriorFeat->OnFeatAchieved.Broadcast();
 }
 
