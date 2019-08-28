@@ -12,6 +12,21 @@ UAttackComboComponent::UAttackComboComponent()
 	OnAttackEnd.AddDynamic(this, &UAttackComboComponent::ClearCurrentAttack);
 }
 
+bool UAttackComboComponent::IsDelaying() const
+{
+	return Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle);
+}
+
+bool UAttackComboComponent::IsWaitingForComboReset() const
+{
+	return Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle);
+}
+
+bool UAttackComboComponent::IsAtTreeEnd() const
+{
+	return TreeIndex >= ComboTreeDepth;
+}
+
 void UAttackComboComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -70,7 +85,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAtta
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)
 {
-	if (TreeIndex >= ComboTreeDepth && Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle))
+	if (IsAtTreeEnd() && IsWaitingForComboReset())
 	{
 		if (bLogTreeStatus)
 			ULog::Info("Reached the max tree depth, resetting...", true);
@@ -78,7 +93,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 		return nullptr;
 	}
 
-	if (TreeIndex >= ComboTreeDepth && !Owner->GetWorldTimerManager().IsTimerActive(ComboResetTimerHandle))
+	if (IsAtTreeEnd() && !IsWaitingForComboReset())
 	{
 		Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
 		return nullptr;
@@ -94,7 +109,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
 
 	// Get out if we are still delaying
-	if (Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle))
+	if (IsDelaying())
 		return nullptr;
 
 	UAnimMontage* MontageToReturn = nullptr;

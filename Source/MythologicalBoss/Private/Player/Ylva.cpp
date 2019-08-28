@@ -581,7 +581,7 @@ void AYlva::LightAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (StaminaComponent->HasEnoughForLightAttack())
+	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
 
@@ -601,7 +601,7 @@ void AYlva::HeavyAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (StaminaComponent->HasEnoughForHeavyAttack())
+	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
 		

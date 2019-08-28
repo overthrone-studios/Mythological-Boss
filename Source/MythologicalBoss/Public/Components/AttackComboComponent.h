@@ -98,6 +98,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE uint8 GetComboTreeDepth() const { return TreeIndex; }
 
+	// Returns true if the delay timer is active
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE bool IsDelaying() const;
+
+	// Returns true if the combo reset timer is inactive
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE bool IsWaitingForComboReset() const;
+
+	// Returns true if we are at the end of the tree
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE bool IsAtTreeEnd() const;
+
 protected:
 	void BeginPlay() override;
 
