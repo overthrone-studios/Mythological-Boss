@@ -44,6 +44,10 @@ struct FMovementSettings_Ylva : public FMovementSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float LockOnWalkSpeed = 400.0f;
 
+	// The lean weight
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float LeanOffset = 10.0f;
+
 	// Should the player stop moving when attacking?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bStopMovingWhenAttacking : 1;
@@ -731,6 +735,8 @@ protected:
 
 private:
 	float RightInput = 0.0f, ForwardInput = 0.0f;
+
+	float PlayerLeanAmount = 0.0f;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;

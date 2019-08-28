@@ -247,6 +247,8 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
+
 	// Calculate direction
 	const auto DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
 	const auto NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
@@ -406,6 +408,13 @@ void AYlva::MoveForward(const float Value)
 
 	if (Controller && Value != 0.0f)
 	{
+		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
+		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
+
+		PlayerLeanAmount = FMath::FInterpTo(PlayerLeanAmount, Turn, World->DeltaTimeSeconds, InterpSpeed);
+
+		YlvaAnimInstance->LeanAmount = PlayerLeanAmount * MovementSettings.LeanOffset;
+
 		// Find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -1570,7 +1579,7 @@ bool AYlva::IsMovingLeft() const
 
 bool AYlva::IsMovingInAnyDirection() const
 {
-	return IsMovingBackward() || IsMovingForward() || IsMovingRight() || IsMovingLeft();
+	return IsMovingBackward() || IsMovingForward() || IsMovingRight() || IsMovingLeft() || ForwardInput != 0.0f || RightInput != 0.0f;
 }
 
 float AYlva::GetMovementDirection() const

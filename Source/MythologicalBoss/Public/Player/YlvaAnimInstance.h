@@ -33,4 +33,10 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsBlocking : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsMoving : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		float LeanAmount = 0.0f;
 };
