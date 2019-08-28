@@ -385,7 +385,7 @@ void AMordath::UpdateLightAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.4f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -416,7 +416,7 @@ void AMordath::UpdateLightAttack2State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.7f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -447,7 +447,7 @@ void AMordath::UpdateLightAttack3State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.2f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -478,7 +478,7 @@ void AMordath::UpdateHeavyAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.2f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -507,7 +507,7 @@ void AMordath::UpdateHeavyAttack2State()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.4f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -540,7 +540,7 @@ void AMordath::UpdateHeavyAttack3State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.3f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
