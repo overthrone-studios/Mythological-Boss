@@ -301,6 +301,9 @@ protected:
 	void StartLosingHealth() override;
 	void LoseHealth() override;
 
+	float CalculateDirection() const;
+	void CalculateLean(float DeltaTime);
+
 	// Called for forwards/backward input
 	void MoveForward(float Value);
 

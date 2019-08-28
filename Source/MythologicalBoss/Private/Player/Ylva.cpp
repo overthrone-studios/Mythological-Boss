@@ -247,14 +247,13 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
+	GameInstance->PlayerInfo.Location = GetActorLocation();
 
 	// Calculate direction
-	const auto DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
-	const auto NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
-	AnimInstance->MovementDirection = NewDirection.GetNormalized().Yaw;
+	AnimInstance->MovementDirection = CalculateDirection();
+	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
 
-	GameInstance->PlayerInfo.Location = GetActorLocation();
+	CalculateLean(DeltaTime);
 
 	// Lock-on mechanic
 	if (LockOnSettings.bShouldLockOnTarget)
@@ -408,13 +407,6 @@ void AYlva::MoveForward(const float Value)
 
 	if (Controller && Value != 0.0f)
 	{
-		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
-		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
-
-		PlayerLeanAmount = FMath::FInterpTo(PlayerLeanAmount, Turn, World->DeltaTimeSeconds, InterpSpeed);
-
-		YlvaAnimInstance->LeanAmount = PlayerLeanAmount * MovementSettings.LeanOffset;
-
 		// Find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -1645,4 +1637,29 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 	#endif
 
 	return nullptr;
+}
+
+float AYlva::CalculateDirection() const
+{
+	const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
+	const FRotator NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
+
+	return NewDirection.GetNormalized().Yaw;
+}
+
+void AYlva::CalculateLean(const float DeltaTime)
+{
+	if (FSM->GetActiveStateID() != 0 /*Idle*/)
+	{
+		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
+		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
+
+		PlayerLeanAmount = FMath::FInterpTo(PlayerLeanAmount, Turn, DeltaTime, InterpSpeed);
+		YlvaAnimInstance->LeanAmount = PlayerLeanAmount * MovementSettings.LeanOffset;
+	}
+	else
+	{
+		PlayerLeanAmount = FMath::FInterpTo(PlayerLeanAmount, 0.0f, DeltaTime, 10.0f);
+		YlvaAnimInstance->LeanAmount = PlayerLeanAmount * MovementSettings.LeanOffset;
+	}
 }
