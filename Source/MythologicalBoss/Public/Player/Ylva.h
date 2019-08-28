@@ -221,19 +221,19 @@ public:
 		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
 
 	// Returns the light attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the attack radius value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Returns the teleport radius value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		FORCEINLINE float GetTeleportRadius() const { return TeleportRadius; }
 
 	// Returns true if we are light attacking
@@ -241,29 +241,33 @@ public:
 		bool IsLightAttacking() const;
 
 	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are doing any attack
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsAttacking() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	// Returns true if we are currently dashing
+	UFUNCTION(BlueprintPure, Category = "Ylva")
+		bool IsDashing() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsMovingForward() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsMovingBackward() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsMovingRight() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsMovingLeft() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsMovingInAnyDirection() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva")
 		float GetMovementDirection() const;
 
 	// Increases the charge meter

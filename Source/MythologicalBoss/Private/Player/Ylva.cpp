@@ -403,7 +403,7 @@ void AYlva::LoseHealth()
 
 void AYlva::MoveForward(const float Value)
 {
-	if (!IsAttacking())
+	if (!IsAttacking() && !IsDashing())
 		ForwardInput = Value;
 	else
 		ForwardInput = 0.0f;
@@ -424,7 +424,7 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	if (!IsAttacking())
+	if (!IsAttacking() && !IsDashing())
 		RightInput = Value;
 	else
 		RightInput = 0.0f;
@@ -1557,6 +1557,11 @@ bool AYlva::IsHeavyAttacking() const
 bool AYlva::IsAttacking() const
 {
 	return IsLightAttacking() || IsHeavyAttacking();
+}
+
+bool AYlva::IsDashing() const
+{
+	return FSM->GetActiveStateID() == 12;
 }
 
 bool AYlva::IsMovingForward() const
