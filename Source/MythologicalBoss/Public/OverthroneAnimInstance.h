@@ -16,6 +16,9 @@ class MYTHOLOGICALBOSS_API UOverthroneAnimInstance : public UAnimInstance
 public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Anim Instance")
 		virtual void LeaveAllStates();
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float BlendAlpha = 1.0f;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float AnimTimeRemaining = 0.0f;
@@ -61,7 +64,7 @@ protected:
 	void NativeInitializeAnimation() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Anim Instance")
+	UFUNCTION(BlueprintPure, Category = "Overthrone Anim Instance", meta = (BlueprintThreadSafe))
 		float GetAnimTimeRemaining();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Anim Instance")
