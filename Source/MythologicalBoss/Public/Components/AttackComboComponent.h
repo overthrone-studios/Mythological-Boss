@@ -7,6 +7,7 @@
 #include "AttackComboComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboTreeResetSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndSignature);
 
 UENUM()
 enum EAttackType
@@ -51,6 +52,7 @@ public:
 	UAttackComboComponent();
 
 	FOnComboTreeResetSignature OnComboReset;
+	FOnAttackEndSignature OnAttackEnd;
 
 	// Advances to the next attack in the combo tree
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
@@ -101,6 +103,9 @@ protected:
 
 	// Resets the combo tree
 	void ResetCombo();
+
+	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
+		void ClearCurrentAttack();
 
 	// The list of light attacks we can use
 	UPROPERTY(EditInstanceOnly, Category = "Combo")

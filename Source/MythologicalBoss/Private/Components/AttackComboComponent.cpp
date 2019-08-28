@@ -9,6 +9,7 @@ UAttackComboComponent::UAttackComboComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	OnAttackEnd.AddDynamic(this, &UAttackComboComponent::ClearCurrentAttack);
 }
 
 void UAttackComboComponent::BeginPlay()
@@ -83,7 +84,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 		return nullptr;
 	}
 
-	// Increment the combo multipler after the first attack
+	// Increment the combo multiplier after the first attack
 	if (TreeIndex > 0 && TreeIndex <= ComboMultiplierCount)
 		ComboMultiplier += MultiplierIncrementAmount;
 	else
@@ -194,6 +195,8 @@ void UAttackComboComponent::ResetCombo()
 	if (bLogAttackChain)
 		LogAttackChain();
 
+	CurrentAttack = None;
+
 	// Save our attack chain
 	PreviousCombo = Combo;
 
@@ -208,6 +211,11 @@ void UAttackComboComponent::ResetCombo()
 
 	if (bLogTreeStatus)
 		ULog::Success("Combo reset!", true);
+}
+
+void UAttackComboComponent::ClearCurrentAttack()
+{
+	CurrentAttack = None;
 }
 
 void UAttackComboComponent::LogAttackChain()
