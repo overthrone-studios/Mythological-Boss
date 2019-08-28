@@ -249,7 +249,6 @@ void AYlva::Tick(const float DeltaTime)
 
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 
-	// Calculate direction
 	AnimInstance->MovementDirection = CalculateDirection();
 	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
 
