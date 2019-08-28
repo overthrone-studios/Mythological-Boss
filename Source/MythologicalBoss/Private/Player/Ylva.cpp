@@ -238,6 +238,7 @@ void AYlva::BeginPlay()
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
 	//AnimInstance->bLogDirection = true;
+	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd);
 
 	// Begin the state machine
 	FSM->Start();
@@ -402,9 +403,12 @@ void AYlva::LoseHealth()
 
 void AYlva::MoveForward(const float Value)
 {
-	ForwardInput = Value;
+	if (!IsAttacking())
+		ForwardInput = Value;
+	else
+		ForwardInput = 0.0f;
 
-	if (Controller && Value != 0.0f)
+	if (Controller && ForwardInput != 0.0f)
 	{
 		// Find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -420,9 +424,12 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	RightInput = Value;
+	if (!IsAttacking())
+		RightInput = Value;
+	else
+		RightInput = 0.0f;
 
-	if (Controller && Value != 0.0f)
+	if (Controller && RightInput != 0.0f)
 	{
 		// Find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -528,7 +535,6 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 
 void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
-	AnimInstance->BlendAlpha = 1.0f;
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -547,7 +553,6 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
-	AnimInstance->BlendAlpha = 1.0f;
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -822,7 +827,6 @@ void AYlva::OnEnterIdleState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->BlendAlpha = 0.0f;
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 }
 
@@ -847,7 +851,6 @@ void AYlva::OnEnterWalkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->BlendAlpha = 0.0f;
 }
 
 void AYlva::UpdateWalkState()
@@ -876,8 +879,6 @@ void AYlva::OnExitWalkState()
 void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->BlendAlpha = 0.0f;
 
 	if (StaminaComponent->IsLowStamina())
 		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed/2.0f;
@@ -1291,6 +1292,11 @@ void AYlva::OnComboReset()
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
 
+void AYlva::OnAttackEnd(UAnimMontage* Montage, bool bInterrupted)
+{
+	AttackComboComponent->OnAttackEnd.Broadcast();
+}
+
 void AYlva::SetStamina(const float NewStaminaAmount)
 {
 	StaminaComponent->SetStamina(NewStaminaAmount);
@@ -1546,6 +1552,11 @@ bool AYlva::IsLightAttacking() const
 bool AYlva::IsHeavyAttacking() const
 {
 	return AttackComboComponent->GetCurrentAttack() == Heavy;
+}
+
+bool AYlva::IsAttacking() const
+{
+	return IsLightAttacking() || IsHeavyAttacking();
 }
 
 bool AYlva::IsMovingForward() const

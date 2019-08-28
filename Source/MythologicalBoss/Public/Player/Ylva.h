@@ -244,6 +244,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		bool IsHeavyAttacking() const;
 
+	// Returns true if we are doing any attack
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsAttacking() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		bool IsMovingForward() const;
 
@@ -650,6 +654,9 @@ protected:
 
 	UFUNCTION()
 		void OnComboReset();
+
+	UFUNCTION()
+		void OnAttackEnd(UAnimMontage* Montage, bool bInterrupted);
 
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
