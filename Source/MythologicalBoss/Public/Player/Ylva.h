@@ -44,14 +44,6 @@ struct FMovementSettings_Ylva : public FMovementSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 10.0f, ClampMax = 10000.0f))
 		float LockOnWalkSpeed = 400.0f;
 
-	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
-		float DashForce = 2000.0f;
-
-	// The amount of time (in seconds) until we can dash again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float DashCooldown = 1.0f;
-
 	// Should the player stop moving when attacking?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bStopMovingWhenAttacking : 1;
@@ -95,6 +87,36 @@ struct FCameraShakes_Ylva : public FCameraShakes
 	// The camera shake to play while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData Run;
+};
+
+USTRUCT(BlueprintType)
+struct FDashSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The maximum movement speed while running
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
+		float DashForce = 2000.0f;
+
+	// The amount of time (in seconds) until we can dash again
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+		float DashCooldown = 1.0f;
+
+	// The dash to play when moving forward
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* ForwardDash;
+
+	// The dash to play when moving backward
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* BackwardDash;
+
+	// The dash to play when strafing left
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* LeftDash;
+
+	// The dash to play when strafing right
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* RightDash;
 };
 
 USTRUCT(BlueprintType)
@@ -143,6 +165,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FAttackSettings AttackSettings;
+
+	// Settings that affect Ylva's dash behaviour
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FDashSettings_Ylva DashSettings;
 
 	// Settings that affect blocking values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -213,6 +239,24 @@ public:
 	// Returns true if we are heavy attacking
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		bool IsHeavyAttacking() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsMovingForward() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsMovingBackward() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsMovingRight() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsMovingLeft() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		bool IsMovingInAnyDirection() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		float GetMovementDirection() const;
 
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -568,6 +612,15 @@ protected:
 		void OnExitShieldHitState();
 	#pragma endregion 
 
+	#pragma region Dash
+	UFUNCTION()
+		void OnEnterDashState();
+	UFUNCTION()
+		void UpdateDashState();
+	UFUNCTION()
+		void OnExitDashState();
+	#pragma endregion 
+
 	#pragma region Parry
 	UFUNCTION()
 		void OnEnterParryState();
@@ -697,7 +750,9 @@ private:
 	FTimerHandle ChargeLossTimerHandle;
 
 	class APlayerCameraManager* CameraManager;
-	ACharacter* Boss;
+	class ACharacter* Boss;
+
+	class UAnimMontage* DashMontageToPlay;
 
 	class UFeatData* WarriorFeat;
 	class UFeatData* UntouchableFeat;

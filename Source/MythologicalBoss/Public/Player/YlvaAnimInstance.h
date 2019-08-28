@@ -17,6 +17,18 @@ public:
 	void LeaveAllStates() override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bCanDashForward : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bCanDashBackward : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bCanDashLeft : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bCanDashRight : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsShieldHit : 1;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")

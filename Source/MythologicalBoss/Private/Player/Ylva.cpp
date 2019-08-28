@@ -74,6 +74,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(8, "Light Attack 2");
 	FSM->AddState(9, "Heavy Attack 1");
 	FSM->AddState(10, "Heavy Attack 2");
+	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
 	FSM->AddState(22, "Parry");
@@ -114,6 +115,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttack2State);
 	FSM->GetState(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttack2State);
 	FSM->GetState(10)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttack2State);
+
+	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
+	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
+	FSM->GetState(12)->OnExitState.AddDynamic(this, &AYlva::OnExitDashState);
 
 	FSM->GetState(20)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDamagedState);
 	FSM->GetState(20)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDamagedState);
@@ -523,6 +528,7 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 
 void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
+	AnimInstance->BlendAlpha = 1.0f;
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -541,6 +547,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
+	AnimInstance->BlendAlpha = 1.0f;
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -651,28 +658,46 @@ void AYlva::Dash()
 		return;
 
 	// If we are moving and grounded
-	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && !GetWorldTimerManager().IsTimerActive(DashCooldownTimer))
+	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && !GetWorldTimerManager().IsTimerActive(DashCooldownTimer) && FSM->GetActiveStateID() != 12 /*Dash*/)
 	{
-		// Do the dash
-		//if (In)
-
-		FVector VelocityNormalized = GetVelocity();
-		VelocityNormalized.Normalize();
-		VelocityNormalized.Z = 0;
-
 		// Do we have enough stamina to dash?
-		if (!bGodMode && StaminaComponent->HasEnoughForDash())
+		if (StaminaComponent->HasEnoughForDash())
 		{
-			StartDashCooldown();
+			if (!bGodMode)
+			{
+				StartDashCooldown();
+				UpdateStamina(StaminaComponent->GetDashValue());
+			}
 
-			UpdateStamina(StaminaComponent->GetDashValue());
+			// Do the dash in the given direction
+			if (IsMovingForward())
+			{
+				ULog::Info("Forward Dash...", true);
+				DashMontageToPlay = Combat.DashSettings.ForwardDash;
+			}
+			else if (IsMovingBackward())
+			{
+				ULog::Info("Backward Dash...", true);
+				DashMontageToPlay = Combat.DashSettings.BackwardDash;
+			}
+			else if (IsMovingLeft())
+			{
+				ULog::Info("Left Dash...", true);
+				DashMontageToPlay = Combat.DashSettings.LeftDash;
+				YlvaAnimInstance->bCanDashLeft = true;
+			}
+			else if (IsMovingRight())
+			{
+				ULog::Info("Right Dash...", true);
+				DashMontageToPlay = Combat.DashSettings.RightDash;
+			}
 
-			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
+			FSM->PushState("Dash");
 		}
-		else if (bGodMode)
-		{
-			LaunchCharacter(VelocityNormalized * MovementSettings.DashForce, true, true);
-		}
+
+		//FVector VelocityNormalized = GetVelocity();
+		//VelocityNormalized.Normalize();
+		//VelocityNormalized.Z = 0;
 	}
 }
 
@@ -797,6 +822,7 @@ void AYlva::OnEnterIdleState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	AnimInstance->BlendAlpha = 0.0f;
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 }
 
@@ -806,7 +832,7 @@ void AYlva::UpdateIdleState()
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
 
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+	if (IsMovingInAnyDirection() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
 }
 
@@ -820,6 +846,8 @@ void AYlva::OnExitIdleState()
 void AYlva::OnEnterWalkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	AnimInstance->BlendAlpha = 0.0f;
 }
 
 void AYlva::UpdateWalkState()
@@ -834,7 +862,7 @@ void AYlva::UpdateWalkState()
 		return;
 	}
 
-	if (GetVelocity().IsZero() && MovementComponent->IsMovingOnGround())
+	if (!IsMovingInAnyDirection() && MovementComponent->IsMovingOnGround())
 		FSM->PopState();
 }
 
@@ -848,6 +876,8 @@ void AYlva::OnExitWalkState()
 void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	AnimInstance->BlendAlpha = 0.0f;
 
 	if (StaminaComponent->IsLowStamina())
 		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed/2.0f;
@@ -1083,6 +1113,28 @@ void AYlva::OnExitShieldHitState()
 {
 	YlvaAnimInstance->bIsShieldHit = false;
 	bIsHit = false;
+}
+#pragma endregion 
+
+#pragma region Dash
+void AYlva::OnEnterDashState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	AnimInstance->Montage_Play(DashMontageToPlay);
+}
+
+void AYlva::UpdateDashState()
+{
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
+}
+
+void AYlva::OnExitDashState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
 #pragma endregion 
 
@@ -1475,7 +1527,7 @@ bool AYlva::IsParrySuccessful()
 
 void AYlva::StartDashCooldown()
 {
-	GetWorldTimerManager().SetTimer(DashCooldownTimer, MovementSettings.DashCooldown, false);
+	GetWorldTimerManager().SetTimer(DashCooldownTimer, Combat.DashSettings.DashCooldown, false);
 }
 
 void AYlva::ApplyHitStop()
@@ -1494,6 +1546,36 @@ bool AYlva::IsLightAttacking() const
 bool AYlva::IsHeavyAttacking() const
 {
 	return AttackComboComponent->GetCurrentAttack() == Heavy;
+}
+
+bool AYlva::IsMovingForward() const
+{
+	return ForwardInput > 0.0f && RightInput == 0.0f;
+}
+
+bool AYlva::IsMovingBackward() const
+{
+	return ForwardInput < 0.0f && RightInput == 0.0f;
+}
+
+bool AYlva::IsMovingRight() const
+{
+	return ForwardInput == 0.0f && RightInput > 0.0f;
+}
+
+bool AYlva::IsMovingLeft() const
+{
+	return ForwardInput == 0.0f && RightInput < 0.0f;
+}
+
+bool AYlva::IsMovingInAnyDirection() const
+{
+	return IsMovingBackward() || IsMovingForward() || IsMovingRight() || IsMovingLeft();
+}
+
+float AYlva::GetMovementDirection() const
+{
+	return ForwardInput != 0.0f || RightInput != 0.0f;
 }
 
 void AYlva::PauseAnimsWithTimer()
