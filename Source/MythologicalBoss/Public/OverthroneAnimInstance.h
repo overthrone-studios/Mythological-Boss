@@ -33,6 +33,9 @@ public:
 		uint8 bIsHit : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsDashing : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsDead : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
