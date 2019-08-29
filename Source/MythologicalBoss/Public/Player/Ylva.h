@@ -72,6 +72,28 @@ struct FLockOnSettings
 };
 
 USTRUCT(BlueprintType)
+struct FAttackSettings_Ylva : public FAttackSettings
+{
+	GENERATED_BODY()
+
+	// The attack damage we deal when charge attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float ChargeAttackDamage = 200.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FChargeSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The camera animation to play when parry has succeeded
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UCameraAnim* ChargeCameraAnim;
+
+	class UCameraAnimInst* ChargeCameraAnimInst;
+};
+
+USTRUCT(BlueprintType)
 struct FCameraShakes_Ylva : public FCameraShakes
 {
 	GENERATED_BODY()
@@ -91,6 +113,14 @@ struct FCameraShakes_Ylva : public FCameraShakes
 	// The camera shake to play while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData Run;
+
+	// The camera shake to play while charging our attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData Charge;
+
+	// The camera shake to play when we release our charge attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData ChargeEnd;
 };
 
 USTRUCT(BlueprintType)
@@ -168,11 +198,15 @@ struct FCombatSettings_Ylva : public FCombatSettings
 
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FAttackSettings AttackSettings;
+		FAttackSettings_Ylva AttackSettings;
 
 	// Settings that affect Ylva's dash behaviour
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FDashSettings_Ylva DashSettings;
+
+	// Settings that affect Ylva's charge settings
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FChargeSettings_Ylva ChargeSettings;
 
 	// Settings that affect blocking values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -228,6 +262,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
+	// Returns the charge attack damage value
+	UFUNCTION(BlueprintPure, Category = "Ylva")
+		FORCEINLINE float GetChargeAttackDamage() const { return Combat.AttackSettings.ChargeAttackDamage; }
+
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Ylva")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
@@ -247,6 +285,10 @@ public:
 	// Returns true if we are doing any attack
 	UFUNCTION(BlueprintPure, Category = "Ylva")
 		bool IsAttacking() const;
+
+	// Returns true if we are charge attacking
+	UFUNCTION(BlueprintPure, Category = "Ylva")
+		bool IsChargeAttacking() const;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Ylva")
@@ -329,6 +371,12 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	// Called via input when holding down a key
+	void ChargeUpAttack();
+
+	// Called via input when releasing the charge attack key
+	void ReleaseChargeAttack();
 
 	void Die() override;
 
@@ -468,6 +516,8 @@ protected:
 
 	UFUNCTION()
 		void UpdateIsRunHeld();
+
+	void FinishChargeAttack();
 
 	// Resets global time dilation to 1
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
@@ -759,6 +809,8 @@ private:
 
 	uint8 HitCounter_Persistent = 0;
 
+	uint16 ChargeAttackHoldFrames = 0;
+
 	FRotator StartRightSwordRotation{};
 	FRotator StartLeftSwordRotation{};
 
@@ -767,6 +819,7 @@ private:
 
 	FTimerHandle SwordDetachmentExpiryTimer;
 
+	FTimerHandle ChargeAttackReleaseTimer;
 	FTimerHandle ChargeLossTimerHandle;
 
 	class APlayerCameraManager* CameraManager;

@@ -24,6 +24,8 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 		AttackDamage = Ylva->GetLightAttackDamage();
 	else if (Ylva->IsHeavyAttacking())
 		AttackDamage = Ylva->GetHeavyAttackDamage();
+	else if (Ylva->IsChargeAttacking())
+		AttackDamage = Ylva->GetChargeAttackDamage();
 }
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)

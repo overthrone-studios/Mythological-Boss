@@ -332,6 +332,9 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AYlva::Dash);
 
+	PlayerInputComponent->BindKey(EKeys::F, IE_Repeat, this, &AYlva::ChargeUpAttack);
+	PlayerInputComponent->BindKey(EKeys::F, IE_Released, this, &AYlva::ReleaseChargeAttack);
+
 	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
 
@@ -467,6 +470,55 @@ void AYlva::LookUpAtRate(const float Rate)
 	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
 }
 
+void AYlva::ChargeUpAttack()
+{
+	if (!ChargeAttackComponent->IsChargeFull())
+		return;
+
+	ChargeAttackHoldFrames++;
+
+	PlayerController->ClientPlayCameraShake(CameraShakes.Charge.Shake, CameraShakes.Charge.Intensity);
+
+	// Run once
+	if (ChargeAttackHoldFrames > 0 && ChargeAttackHoldFrames < 2)
+	{
+		MovementComponent->SetMovementMode(MOVE_None);
+		YlvaAnimInstance->bCanCharge = true;
+
+		if (!Combat.ChargeSettings.ChargeCameraAnimInst)
+		{
+			if (Combat.ChargeSettings.ChargeCameraAnim)
+				Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
+		}
+
+		const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, GetControlRotation().Roll);
+		GetController()->SetControlRotation(NewRotation);
+
+		PlayerController->SetIgnoreLookInput(true);
+	}
+
+	ULog::Number(ChargeAttackHoldFrames, "Charge Hold: ", true);
+}
+
+void AYlva::ReleaseChargeAttack()
+{
+	if (ChargeAttackComponent->IsChargeFull())
+	{
+		PlayerController->ClientPlayCameraShake(CameraShakes.ChargeEnd.Shake, CameraShakes.ChargeEnd.Intensity);
+		ResetCharge();
+	}
+
+	YlvaAnimInstance->bChargeReleased = true;
+
+	Combat.ChargeSettings.ChargeCameraAnimInst = nullptr;
+
+	PlayerController->SetIgnoreLookInput(false);
+
+	GetWorldTimerManager().SetTimer(ChargeAttackReleaseTimer, this, &AYlva::FinishChargeAttack, 0.2f);
+
+	MovementComponent->SetMovementMode(MOVE_Walking);
+}
+
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead
@@ -504,6 +556,9 @@ void AYlva::DisableLockOn()
 
 void AYlva::Block()
 {
+	if (IsChargeAttacking())
+		return;
+
 	if (FSM->GetActiveStateID() != 5 /*Death*/ &&
 		FSM->GetActiveStateID() != 20 /*Damaged*/ &&
 		FSM->GetActiveStateID() != 22 /*Parry*/)
@@ -521,8 +576,7 @@ void AYlva::StopBlocking()
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 	bUseControllerRotationYaw = false;
 
-	//if (Combat.ParrySettings.ParryCameraAnimInst && Combat.ParrySettings.ParryCameraAnimInst->bFinished)
-		FSM->PopState();
+	FSM->PopState();
 }
 
 void AYlva::UpdateStamina(const float StaminaToSubtract)
@@ -585,7 +639,8 @@ void AYlva::LightAttack()
 {
 	// Are we in any of these states?
 	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/)
+		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
+		IsChargeAttacking())
 		return;
 
 	FSM->PopState("Block");
@@ -605,7 +660,8 @@ void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
 	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/)
+		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
+		IsChargeAttacking())
 		return;
 
 	FSM->PopState("Block");
@@ -628,7 +684,7 @@ void AYlva::DisableControllerRotationYaw()
 
 void AYlva::Run()
 {
-	if (FSM->GetActiveStateName() == "Death" || ForwardInput < 0.0f || RightInput != 0.0f)
+	if (FSM->GetActiveStateName() == "Death" || ForwardInput < 0.0f || RightInput != 0.0f || IsChargeAttacking())
 		return;
 
 	// If we are moving and grounded
@@ -644,6 +700,14 @@ void AYlva::Run()
 void AYlva::UpdateIsRunHeld()
 {
 	bIsRunKeyHeld = true;
+}
+
+void AYlva::FinishChargeAttack()
+{
+	ChargeAttackHoldFrames = 0;
+
+	YlvaAnimInstance->bCanCharge = false;
+	YlvaAnimInstance->bChargeReleased = false;
 }
 
 void AYlva::StopRunning()
@@ -671,7 +735,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (FSM->GetActiveStateName() == "Death")
+	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking())
 		return;
 
 	// If we are moving and grounded
@@ -1565,7 +1629,12 @@ bool AYlva::IsHeavyAttacking() const
 
 bool AYlva::IsAttacking() const
 {
-	return IsLightAttacking() || IsHeavyAttacking();
+	return IsLightAttacking() || IsHeavyAttacking() || IsChargeAttacking();
+}
+
+bool AYlva::IsChargeAttacking() const
+{
+	return ChargeAttackHoldFrames > 1;
 }
 
 bool AYlva::IsDashing() const

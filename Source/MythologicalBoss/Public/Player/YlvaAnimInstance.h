@@ -44,5 +44,11 @@ public:
 		uint8 bIsMoving : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bCanCharge : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bChargeReleased : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		float LeanRollAmount = 0.0f;
 };
