@@ -472,6 +472,15 @@ protected:
 		void OnExitBeatenState();
 	#pragma endregion 
 
+	#pragma region Teleport
+	UFUNCTION()
+		void OnEnterTeleportState();
+	UFUNCTION()
+		void UpdateTeleportState();
+	UFUNCTION()
+		void OnExitTeleportState();
+	#pragma endregion 
+
 	// Boss ranges
 	#pragma region Close
 	UFUNCTION()

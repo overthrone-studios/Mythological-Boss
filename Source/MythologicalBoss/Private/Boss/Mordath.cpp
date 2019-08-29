@@ -75,6 +75,7 @@ AMordath::AMordath()
 	FSM->AddState(15, "Laugh");
 	FSM->AddState(16, "Dash");
 	FSM->AddState(17, "Beaten");
+	FSM->AddState(18, "Teleport");
 
 
 	// Bind state events to our functions
@@ -137,6 +138,10 @@ AMordath::AMordath()
 	FSM->GetState(17)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBeatenState);
 	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBeatenState);
 	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitBeatenState);
+
+	FSM->GetState(18)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTeleportState);
+	FSM->GetState(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
+	FSM->GetState(18)->OnExitState.AddDynamic(this, &AMordath::OnExitTeleportState);
 
 	FSM->InitState(2);
 
@@ -761,6 +766,31 @@ void AMordath::OnExitBeatenState()
 }
 #pragma endregion
 
+#pragma region Teleport
+void AMordath::OnEnterTeleportState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateTeleportState()
+{
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	if (FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
+	{
+		if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+			SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->GetTeleportRadius(), GameInstance->PlayArea));
+
+		FSM->PopState();
+	}
+}
+
+void AMordath::OnExitTeleportState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+}
+#pragma endregion
+
 // Range FSM
 #pragma region Close Range
 void AMordath::OnEnterCloseRange()
@@ -829,8 +859,11 @@ void AMordath::OnEnterFarRange()
 	if (GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
 
-	if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
-		SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->GetTeleportRadius(), GameInstance->PlayArea));
+	if (StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/)
+	{
+		FSM->PopState();
+		FSM->PushState("Teleport");
+	}
 }
 
 void AMordath::UpdateFarRange()
