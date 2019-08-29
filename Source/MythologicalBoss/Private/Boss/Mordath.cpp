@@ -770,6 +770,8 @@ void AMordath::OnExitBeatenState()
 void AMordath::OnEnterTeleportState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->bCanTeleport = true;
 }
 
 void AMordath::UpdateTeleportState()
@@ -788,6 +790,8 @@ void AMordath::UpdateTeleportState()
 void AMordath::OnExitTeleportState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->bCanTeleport = false;
 }
 #pragma endregion
 
@@ -859,7 +863,8 @@ void AMordath::OnEnterFarRange()
 	if (GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
 
-	if (StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/)
+	if ((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) && 
+		ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
 	{
 		FSM->PopState();
 		FSM->PushState("Teleport");
