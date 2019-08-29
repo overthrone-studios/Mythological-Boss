@@ -138,7 +138,7 @@ AMordath::AMordath()
 	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBeatenState);
 	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitBeatenState);
 
-	FSM->InitState(1);
+	FSM->InitState(2);
 
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
@@ -367,9 +367,52 @@ void AMordath::UpdateFollowState()
 	default:
 	break;
 	}
+
+	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	{
+		FSM->PopState();
+		FSM->PushState("Thinking");
+	}
 }
 
 void AMordath::OnExitFollowState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Think
+void AMordath::OnEnterThinkState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateThinkState()
+{
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	FacePlayer();
+
+	if (GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
+	{
+		AddMovementInput(GetDirectionToPlayer());
+	}
+	else
+	{
+		if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+			AddMovementInput(GetActorRightVector());
+		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+			AddMovementInput(-GetActorRightVector());
+
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		{
+			FSM->PopState();
+			FSM->PushState("Follow");
+		}
+	}
+}
+
+void AMordath::OnExitThinkState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
