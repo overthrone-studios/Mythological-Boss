@@ -16,6 +16,12 @@ class MYTHOLOGICALBOSS_API UYlvaAnimInstance final : public UOverthroneAnimInsta
 public:
 	void LeaveAllStates() override;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float ForwardInput = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float RightInput = 0.0f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bCanDashForward : 1;
 

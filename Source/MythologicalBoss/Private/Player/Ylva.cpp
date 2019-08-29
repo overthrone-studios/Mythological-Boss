@@ -403,10 +403,16 @@ void AYlva::LoseHealth()
 
 void AYlva::MoveForward(const float Value)
 {
-	if (!IsAttacking() && !IsDashing())
+	if (!IsAttacking())
+	{
 		ForwardInput = Value;
+		YlvaAnimInstance->ForwardInput = ForwardInput;
+	}
 	else
+	{
 		ForwardInput = 0.0f;
+		YlvaAnimInstance->ForwardInput = 0.0f;
+	}
 
 	if (Controller && ForwardInput != 0.0f)
 	{
@@ -424,10 +430,16 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	if (!IsAttacking() && !IsDashing())
+	if (!IsAttacking())
+	{
 		RightInput = Value;
+		YlvaAnimInstance->RightInput = RightInput;
+	}
 	else
+	{
 		RightInput = 0.0f;
+		YlvaAnimInstance->RightInput = 0.0f;
+	}
 
 	if (Controller && RightInput != 0.0f)
 	{
@@ -689,7 +701,6 @@ void AYlva::Dash()
 			{
 				ULog::Info("Left Dash...", true);
 				DashMontageToPlay = Combat.DashSettings.LeftDash;
-				YlvaAnimInstance->bCanDashLeft = true;
 			}
 			else if (IsMovingRight())
 			{
@@ -699,10 +710,6 @@ void AYlva::Dash()
 
 			FSM->PushState("Dash");
 		}
-
-		//FVector VelocityNormalized = GetVelocity();
-		//VelocityNormalized.Normalize();
-		//VelocityNormalized.Z = 0;
 	}
 }
 
@@ -1122,7 +1129,8 @@ void AYlva::OnEnterDashState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->Montage_Play(DashMontageToPlay);
+	AnimInstance->bIsDashing = true;
+	//AnimInstance->Montage_Play(DashMontageToPlay);
 }
 
 void AYlva::UpdateDashState()
@@ -1136,6 +1144,7 @@ void AYlva::UpdateDashState()
 void AYlva::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+	AnimInstance->bIsDashing = false;
 }
 #pragma endregion 
 
