@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		FName EndBone = "SwordEnd";
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		USoundBase* HitSound;
+
 	FHitResult HitResult;
 
 	float AttackDamage = 100.0f;

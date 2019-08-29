@@ -5,6 +5,8 @@
 #include "Components/HitboxComponent.h"
 #include "Ylva.h"
 #include "Log.h"
+#include "Animation/AnimSequenceBase.h"
+#include "Kismet/GameplayStatics.h"
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
@@ -26,6 +28,9 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 		AttackDamage = Ylva->GetHeavyAttackDamage();
 	else if (Ylva->IsChargeAttacking())
 		AttackDamage = Ylva->GetChargeAttackDamage();
+
+	if (!HitSound)
+		ULog::Warning("No hit sound specified in " + Animation->GetName() + " is empty!", true);
 }
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
@@ -59,5 +64,9 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		}
 
 		HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
+
+		// Play sound effect
+		if (HitSound)
+			UGameplayStatics::PlaySoundAtLocation(MeshComp, HitSound, HitResult.Location, FRotator(0.0f));
 	}
 }
