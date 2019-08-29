@@ -372,7 +372,7 @@ void AMordath::UpdateFollowState()
 	break;
 	}
 
-	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && (StageFSM->GetActiveStateID() == 1 /*Stage 2*/ || StageFSM->GetActiveStateID() == 2 /*Stage 3*/))
 	{
 		FSM->PopState();
 		FSM->PushState("Thinking");
