@@ -34,6 +34,7 @@ void UAttackComboComponent::BeginPlay()
 	Owner = GetOwner();
 
 	OriginalComboMultiplier = ComboMultiplier;
+	CurrentAttack = None;
 }
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
