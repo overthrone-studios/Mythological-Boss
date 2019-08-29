@@ -355,6 +355,15 @@ protected:
 		void OnExitFollowState();
 	#pragma endregion 
 
+	#pragma region Think
+	UFUNCTION()
+		void OnEnterThinkState();
+	UFUNCTION()
+		void UpdateThinkState();
+	UFUNCTION()
+		void OnExitThinkState();
+	#pragma endregion 
+
 	#pragma region Light Attack 1
 	UFUNCTION()
 		void OnEnterLightAttack1State();

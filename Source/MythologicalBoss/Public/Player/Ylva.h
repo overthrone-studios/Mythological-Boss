@@ -750,7 +750,7 @@ protected:
 private:
 	float RightInput = 0.0f, ForwardInput = 0.0f;
 
-	float PlayerLeanAmount = 0.0f;
+	float PlayerLeanRollAmount = 0.0f;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;

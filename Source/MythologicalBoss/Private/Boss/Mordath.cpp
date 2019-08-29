@@ -59,6 +59,7 @@ AMordath::AMordath()
 	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
 	FSM->AddState(0, "Idle");
 	FSM->AddState(1, "Follow");
+	FSM->AddState(2, "Thinking");
 	FSM->AddState(3, "Light Attack 1");
 	FSM->AddState(4, "Light Attack 2");
 	FSM->AddState(5, "Light Attack 3");
@@ -84,6 +85,10 @@ AMordath::AMordath()
 	FSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFollowState);
 	FSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFollowState);
 	FSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitFollowState);
+
+	FSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThinkState);
+	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThinkState);
+	FSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThinkState);
 
 	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack1State);
 	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack1State);
@@ -133,7 +138,7 @@ AMordath::AMordath()
 	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBeatenState);
 	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitBeatenState);
 
-	FSM->InitState(1);
+	FSM->InitState(2);
 
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
@@ -351,7 +356,6 @@ void AMordath::UpdateFollowState()
 	break;
 
 	case 1 /*Mid*/:
-		//BeginDash(Dash_Forward);
 	break;
 
 	case 2 /*Far*/:
@@ -362,9 +366,52 @@ void AMordath::UpdateFollowState()
 	default:
 	break;
 	}
+
+	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	{
+		FSM->PopState();
+		FSM->PushState("Thinking");
+	}
 }
 
 void AMordath::OnExitFollowState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Think
+void AMordath::OnEnterThinkState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateThinkState()
+{
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	FacePlayer();
+
+	if (GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
+	{
+		AddMovementInput(GetDirectionToPlayer());
+	}
+	else
+	{
+		if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+			AddMovementInput(GetActorRightVector());
+		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+			AddMovementInput(-GetActorRightVector());
+
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		{
+			FSM->PopState();
+			FSM->PushState("Follow");
+		}
+	}
+}
+
+void AMordath::OnExitThinkState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
