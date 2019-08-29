@@ -356,7 +356,6 @@ void AMordath::UpdateFollowState()
 	break;
 
 	case 1 /*Mid*/:
-		//BeginDash(Dash_Forward);
 	break;
 
 	case 2 /*Far*/:
