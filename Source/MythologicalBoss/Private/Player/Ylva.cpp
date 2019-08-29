@@ -480,7 +480,7 @@ void AYlva::ChargeUpAttack()
 	PlayerController->ClientPlayCameraShake(CameraShakes.Charge.Shake, CameraShakes.Charge.Intensity);
 
 	// Run once
-	if (ChargeAttackHoldFrames > 0 && ChargeAttackHoldFrames < 2)
+	if (IsChargeAttacking())
 	{
 		MovementComponent->SetMovementMode(MOVE_None);
 		YlvaAnimInstance->bCanCharge = true;
