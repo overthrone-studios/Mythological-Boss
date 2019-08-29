@@ -1669,12 +1669,12 @@ void AYlva::CalculateLean(const float DeltaTime)
 		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
 		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
 
-		PlayerLeanAmount = FMath::FInterpTo(PlayerLeanAmount, Turn, DeltaTime, InterpSpeed);
-		YlvaAnimInstance->LeanAmount = PlayerLeanAmount * MovementSettings.LeanOffset;
+		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, Turn, DeltaTime, InterpSpeed);
+		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanOffset;
 	}
 	else
 	{
-		PlayerLeanAmount = FMath::FInterpTo(PlayerLeanAmount, 0.0f, DeltaTime, 10.0f);
-		YlvaAnimInstance->LeanAmount = PlayerLeanAmount * MovementSettings.LeanOffset;
+		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, 0.0f, DeltaTime, 10.0f);
+		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanOffset;
 	}
 }

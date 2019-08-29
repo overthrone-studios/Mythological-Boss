@@ -38,5 +38,5 @@ public:
 		uint8 bIsMoving : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		float LeanAmount = 0.0f;
+		float LeanRollAmount = 0.0f;
 };
