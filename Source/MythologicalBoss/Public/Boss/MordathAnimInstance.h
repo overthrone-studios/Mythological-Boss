@@ -34,6 +34,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanLaugh : 1;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Misc")
+		uint8 bCanTeleport : 1;
+
 	// Used to get a reference to the anim state machines, and to query time remaining
 	int32 StateMachines[3];
 

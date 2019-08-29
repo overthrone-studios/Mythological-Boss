@@ -9,6 +9,7 @@ void UMordathAnimInstance::LeaveAllStates()
 	bCanLaugh = false;
 	bIsBeaten = false;
 	bIsStunned = false;
+	bCanTeleport = false;
 }
 
 void UMordathAnimInstance::NativeInitializeAnimation()
