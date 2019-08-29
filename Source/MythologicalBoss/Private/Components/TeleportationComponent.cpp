@@ -3,6 +3,7 @@
 #include "TeleportationComponent.h"
 #include "GameFramework/Actor.h"
 #include "DrawDebugHelpers.h"
+#include "Log.h"
 
 UTeleportationComponent::UTeleportationComponent()
 {
@@ -14,6 +15,18 @@ void UTeleportationComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Owner = GetOwner();
+}
+
+void UTeleportationComponent::GenerateTeleportTime()
+{
+	const float Min = TeleportTime - RandomDeviation;
+	const float Max = TeleportTime + RandomDeviation;
+	const float NewTime = FMath::FRandRange(Min, Max);
+
+	TeleportTime = NewTime;
+
+	if (bLogTeleportTime)
+		ULog::Number(TeleportTime, "Teleport time: ", true);
 }
 
 FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, const float Radius, const FBox& InBox) const

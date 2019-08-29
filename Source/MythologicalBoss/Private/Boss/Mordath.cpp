@@ -143,7 +143,7 @@ AMordath::AMordath()
 	FSM->GetState(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
 	FSM->GetState(18)->OnExitState.AddDynamic(this, &AMordath::OnExitTeleportState);
 
-	FSM->InitState(2);
+	FSM->InitState(1);
 
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
@@ -772,6 +772,8 @@ void AMordath::OnEnterTeleportState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MordathAnimInstance->bCanTeleport = true;
+
+	TeleportationComponent->GenerateTeleportTime();
 }
 
 void AMordath::UpdateTeleportState()
