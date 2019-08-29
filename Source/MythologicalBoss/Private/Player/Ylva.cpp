@@ -253,7 +253,8 @@ void AYlva::Tick(const float DeltaTime)
 	AnimInstance->MovementDirection = CalculateDirection();
 	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
 
-	CalculateLean(DeltaTime);
+	CalculateRollLean(DeltaTime);
+	CalculatePitchLean(DeltaTime);
 
 	// Lock-on mechanic
 	if (LockOnSettings.bShouldLockOnTarget)
@@ -1740,9 +1741,9 @@ float AYlva::CalculateDirection() const
 	return NewDirection.GetNormalized().Yaw;
 }
 
-void AYlva::CalculateLean(const float DeltaTime)
+void AYlva::CalculateRollLean(const float DeltaTime)
 {
-	if (FSM->GetActiveStateID() != 0 /*Idle*/)
+	if (FSM->GetActiveStateID() != 0 /*Idle*/ && FSM->GetActiveStateID() != 4 /*Block*/)
 	{
 		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
 		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
@@ -1756,3 +1757,18 @@ void AYlva::CalculateLean(const float DeltaTime)
 		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanOffset;
 	}
 }
+
+void AYlva::CalculatePitchLean(const float DeltaTime)
+{
+	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking())
+	{
+		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 5.0f);
+		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * 0.7f;
+	}
+	else
+	{
+		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
+		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
+	}
+}
+

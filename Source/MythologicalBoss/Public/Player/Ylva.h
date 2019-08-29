@@ -352,7 +352,9 @@ protected:
 	void LoseHealth() override;
 
 	float CalculateDirection() const;
-	void CalculateLean(float DeltaTime);
+
+	void CalculateRollLean(float DeltaTime);
+	void CalculatePitchLean(float DeltaTime);
 
 	// Called for forwards/backward input
 	void MoveForward(float Value);
@@ -801,6 +803,7 @@ private:
 	float RightInput = 0.0f, ForwardInput = 0.0f;
 
 	float PlayerLeanRollAmount = 0.0f;
+	float PlayerLeanPitchAmount = 0.0f;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;

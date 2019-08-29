@@ -51,4 +51,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		float LeanRollAmount = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		float LeanPitchAmount = 0.0f;
 };
