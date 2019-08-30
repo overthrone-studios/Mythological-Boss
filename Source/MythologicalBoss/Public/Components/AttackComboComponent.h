@@ -100,15 +100,15 @@ public:
 
 	// Returns true if the delay timer is active
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE bool IsDelaying() const;
+		bool IsDelaying() const;
 
 	// Returns true if the combo reset timer is inactive
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE bool IsWaitingForComboReset() const;
+		bool IsWaitingForComboReset() const;
 
 	// Returns true if we are at the end of the tree
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE bool IsAtTreeEnd() const;
+		bool IsAtTreeEnd() const;
 
 protected:
 	void BeginPlay() override;
