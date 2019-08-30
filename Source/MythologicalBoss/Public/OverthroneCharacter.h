@@ -203,19 +203,23 @@ protected:
 	TSet<UActorComponent*> Components;
 
 	// Cached player controller pointer
-	APlayerController* PlayerController{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		APlayerController* PlayerController{};
 
 	// Cached game instance pointer
-	class UOverthroneGameInstance* GameInstance{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class UOverthroneGameInstance* GameInstance{};
 
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
 	// Cached character's anim instance, to control and trigger animations
-	class UOverthroneAnimInstance* AnimInstance{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class UOverthroneAnimInstance* AnimInstance{};
 
 	// Cached Overthrone HUD reference, used to access menus
-	class AOverthroneHUD* OverthroneHUD{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class AOverthroneHUD* OverthroneHUD{};
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};

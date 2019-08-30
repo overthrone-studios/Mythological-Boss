@@ -83,14 +83,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void SetInputModeGame() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
 		FORCEINLINE float GetTeleportRadius() const { return PlayerInfo.TeleportRadius; };
 
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
 		class UFeatData* GetFeat(const FString& FeatName);
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void ResetFeats();
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
+		FORCEINLINE FVector GetBossLocation() const { return BossInfo.Location; }
 
 	void InitFeats();
 	void InitInstance();
