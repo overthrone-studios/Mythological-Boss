@@ -28,8 +28,8 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	else if (Mordath->IsSpecialAttacking())
 		AttackDamage = Mordath->GetSpecialAttackDamage();
 
-	if (!HitSound)
-		ULog::Warning("No hit sound specified in " + Animation->GetName() + " is empty!", true);
+	if (HitSounds.Num() == 0)
+		ULog::Warning("No hit sounds specified in " + Animation->GetName() + " is empty!", true);
 }
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
@@ -52,7 +52,6 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
 		// Play sound effect
-		if (HitSound)
-			UGameplayStatics::PlaySoundAtLocation(MeshComp, HitSound, HitResult.Location, FRotator(0.0f));
+		PlayHitSound(MeshComp);
 	}
 }

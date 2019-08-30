@@ -29,7 +29,7 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 	else if (Ylva->IsChargeAttacking())
 		AttackDamage = Ylva->GetChargeAttackDamage();
 
-	if (!HitSound)
+	if (HitSounds.Num() == 0)
 		ULog::Warning("No hit sound specified in " + Animation->GetName() + " is empty!", true);
 }
 
@@ -66,7 +66,6 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
 		// Play sound effect
-		if (HitSound)
-			UGameplayStatics::PlaySoundAtLocation(MeshComp, HitSound, HitResult.Location, FRotator(0.0f));
+		PlayHitSound(MeshComp);
 	}
 }

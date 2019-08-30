@@ -27,7 +27,15 @@ protected:
 		FName EndBone = "SwordEnd";
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		USoundBase* HitSound;
+		TArray<USoundBase*> HitSounds;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float Pitch = 1.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float RandomDeviation = 0.2f;
+
+	void PlayHitSound(UObject* WorldContextObject);
 
 	FHitResult HitResult;
 
