@@ -45,10 +45,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Get our anim blueprint class
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Player/Bot/Animations/AnimBP_Bot.AnimBP_Bot_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Ylva/Animation/AnimBP_Ylva.AnimBP_Ylva_C'"));
 
 	// Get the skeletal mesh to use
-	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Player/Bot/SKM_Bot.SKM_Bot'")));
+	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Ylva/SKM_Ylva.SKM_Ylva'")));
 
 	// Configure our mesh
 	if (SkeletalMesh)
@@ -1743,27 +1743,27 @@ float AYlva::CalculateDirection() const
 
 void AYlva::CalculateRollLean(const float DeltaTime)
 {
-	if (FSM->GetActiveStateID() != 0 /*Idle*/ && FSM->GetActiveStateID() != 4 /*Block*/)
+	if (FSM->GetActiveStateID() != 0 /*Idle*/ && FSM->GetActiveStateID() != 4 /*Block*/ && FSM->GetActiveStateID() != 5 /*Death*/)
 	{
 		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
 		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
 
 		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, Turn, DeltaTime, InterpSpeed);
-		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanOffset;
+		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanRollOffset;
 	}
 	else
 	{
 		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, 0.0f, DeltaTime, 10.0f);
-		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanOffset;
+		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanRollOffset;
 	}
 }
 
 void AYlva::CalculatePitchLean(const float DeltaTime)
 {
-	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking())
+	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking() && FSM->GetActiveStateID() != 5 /*Death*/)
 	{
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 5.0f);
-		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * 0.7f;
+		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
 	}
 	else
 	{
