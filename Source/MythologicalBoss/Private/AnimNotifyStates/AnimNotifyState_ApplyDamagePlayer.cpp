@@ -30,7 +30,7 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 		AttackDamage = Ylva->GetChargeAttackDamage();
 
 	if (HitSounds.Num() == 0)
-		ULog::Warning("No hit sound specified in " + Animation->GetName() + " is empty!", true);
+		ULog::Warning("No hit sound specified in " + Animation->GetName(), true);
 }
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
