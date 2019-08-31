@@ -29,5 +29,6 @@ public:
 protected:
 	void BeginPlay() override;
 
-	class UWidgetComponent* LockOnWidget;
+	class UWidgetComponent* LockOnWidgetComponent;
+	class ULockOnWidget* LockOnWidget;
 };

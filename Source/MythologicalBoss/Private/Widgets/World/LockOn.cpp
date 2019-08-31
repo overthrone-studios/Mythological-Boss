@@ -4,6 +4,8 @@
 
 #include "Public/OverthroneGameInstance.h"
 
+#include "Widgets/World/LockOnWidget.h"
+
 #include "Components/WidgetComponent.h"
 
 #include "Engine/World.h"
@@ -26,8 +28,11 @@ void ALockOn::BeginPlay()
 	{
 		if (Component->IsA(UWidgetComponent::StaticClass()))
 		{
-			LockOnWidget = Cast<UWidgetComponent>(Component);
-			Hide();
+			LockOnWidgetComponent = Cast<UWidgetComponent>(Component);
+			LockOnWidget = Cast<ULockOnWidget>(LockOnWidgetComponent->GetUserWidgetObject());
+
+			LockOnWidgetComponent->SetHiddenInGame(true);
+
 			break;
 		}
 	}
@@ -35,15 +40,16 @@ void ALockOn::BeginPlay()
 
 void ALockOn::Show()
 {
-	LockOnWidget->SetHiddenInGame(false);
+	LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Forward, 2.0f);
+	LockOnWidgetComponent->SetHiddenInGame(false);
 }
 
 void ALockOn::Hide()
 {
-	LockOnWidget->SetHiddenInGame(true);
+	LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Reverse, 2.0f);
 }
 
 void ALockOn::ToggleVisibility(const bool bVisibility)
 {
-	LockOnWidget->SetHiddenInGame(bVisibility);
+	bVisibility ? Hide() : Show();
 }
