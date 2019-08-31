@@ -2,6 +2,7 @@
 
 #include "OverthroneFunctionLibrary.h"
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneCharacter.h"
 #include "Public/OverthroneHUD.h"
 #include "Public/BossBattleGameMode.h"
 #include "ConfigCacheIni.h"
@@ -18,7 +19,7 @@ FString UOverthroneFunctionLibrary::GetProjectVersion()
 	return ProjectVersion;
 }
 
-ACharacter* UOverthroneFunctionLibrary::GetBossCharacter(UWorld* InWorld)
+AOverthroneCharacter* UOverthroneFunctionLibrary::GetBossCharacter(UWorld* InWorld)
 {
 	for (const TActorIterator<AMordath> ActorItr(InWorld); ActorItr;)
 	{

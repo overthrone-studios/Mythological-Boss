@@ -195,10 +195,6 @@ void AYlva::BeginPlay()
 	InitTimelineComponent(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
 	InitTimelineComponent(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
-	// Get the swords
-	R_SwordMesh = GetRightHandSword();
-	L_SwordMesh = GetLeftHandSword();
-
 	// Initialize our variables
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -234,7 +230,6 @@ void AYlva::BeginPlay()
 	GameInstance->PlayerInfo.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
-	WarriorFeat = GameInstance->GetFeat("Warrior");
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
 	//AnimInstance->bLogDirection = true;
@@ -421,6 +416,81 @@ void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
+}
+
+float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	// We don't want to be damaged when we're already dead
+	if (FSM->GetActiveStateName() == "Death")
+		return DamageAmount;
+
+	// Apply damage once
+	if (HealthComponent->GetCurrentHealth() > 0.0f && !bIsHit)
+	{
+		// Pop the active state that's not Idle or Block
+		if (FSM->GetActiveStateName() != "Idle" &&
+			FSM->GetActiveStateName() != "Block")
+		{
+			FSM->PopState();
+		}
+
+		if (IsParrySuccessful())
+		{
+			FSM->PushState("Parry");
+			return DamageAmount;
+		}
+
+		if (bGodMode)
+			return DamageAmount;
+
+		// Test against other states
+		switch (FSM->GetActiveStateID())
+		{
+			case 4 /*Block*/:
+				// Enter shield hit state
+				FSM->PopState();
+				FSM->PushState("Shield Hit");
+
+				// Shake the camera
+				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
+
+				// Update stats
+				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+				UpdateStamina(StaminaComponent->GetShieldHitValue());
+			break;
+
+			default:
+				HitCounter++;
+				HitCounter_Persistent++;
+
+				// Enter damaged state
+				FSM->PushState("Damaged");
+
+				// Shake the camera
+				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+
+				UpdateHealth(DamageAmount);
+
+				// Determine whether to reset the charge meter or not
+				if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
+				{
+					HitCounter = 0;
+					ResetCharge();
+				}
+				else
+				{
+					DecreaseCharge();
+				}
+			break;
+		}
+	}
+
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
+	{
+		Die();
+	}
+
+	return DamageAmount;
 }
 
 void AYlva::ChangeHitboxSize(const float NewRadius)
@@ -1016,6 +1086,40 @@ void AYlva::ResetStamina()
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 
+void AYlva::IncreaseCharge()
+{
+	if (ChargeAttackComponent->IsUsingSmoothBar())
+		StartGainingCharge(ChargeAttackComponent->GetChargeGain());
+	else
+		ChargeAttackComponent->IncreaseCharge(ChargeAttackComponent->GetChargeGain());
+
+	UpdateCharacterInfo();
+
+	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
+		ChargeAttackComponent->DelayChargeLoss();
+}
+
+void AYlva::DecreaseCharge()
+{
+	ChargeAttackComponent->DecreaseCharge(ChargeAttackComponent->GetChargeLoss());
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::DecreaseCharge(const float Amount)
+{
+	ChargeAttackComponent->DecreaseCharge(Amount);
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::ResetCharge()
+{
+	ChargeAttackComponent->ResetCharge();
+
+	UpdateCharacterInfo();
+}
+
 void AYlva::StartLosingStamina()
 {
 	StaminaRegenTimeline->PlayFromStart();
@@ -1100,6 +1204,38 @@ void AYlva::ToggleGodMode()
 	}
 }
 
+void AYlva::OnLowHealth()
+{
+	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
+}
+
+void AYlva::OnBossDeath()
+{
+	DisableLockOn();
+
+	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
+		OnUntouchableFeatAchieved();
+}
+
+void AYlva::OnLowStamina()
+{
+	// Todo Implement function
+
+	MovementComponent->MaxWalkSpeed /= 2.0f;
+}
+
+void AYlva::OnComboReset()
+{
+	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
+	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
+}
+
+void AYlva::OnAttackEnd(UAnimMontage* Montage, bool bInterrupted)
+{
+	AttackComboComponent->OnAttackEnd.Broadcast();
+}
+
+#pragma region Player States
 #pragma region Idle
 void AYlva::OnEnterIdleState()
 {
@@ -1464,162 +1600,7 @@ void AYlva::OnExitParryState()
 	GetWorldTimerManager().ClearTimer(ParryEventExpiryTimer);
 }
 #pragma endregion 
-
-float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	// We don't want to be damaged when we're already dead
-	if (FSM->GetActiveStateName() == "Death")
-		return DamageAmount;
-
-	// Apply damage once
-	if (HealthComponent->GetCurrentHealth() > 0.0f && !bIsHit)
-	{
-		// Pop the active state that's not Idle or Block
-		if (FSM->GetActiveStateName() != "Idle" &&
-			FSM->GetActiveStateName() != "Block")
-		{
-			FSM->PopState();
-		}
-
-		if (IsParrySuccessful())
-		{
-			FSM->PushState("Parry");
-			return DamageAmount;
-		}
-
-		if (bGodMode)
-			return DamageAmount;
-
-		// Test against other states
-		switch (FSM->GetActiveStateID())
-		{
-			case 4 /*Block*/:
-				// Enter shield hit state
-				FSM->PopState();
-				FSM->PushState("Shield Hit");
-
-				// Shake the camera
-				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
-
-				// Update stats
-				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-				UpdateStamina(StaminaComponent->GetShieldHitValue());
-			break;
-
-			default:
-				HitCounter++;
-				HitCounter_Persistent++;
-
-				// Enter damaged state
-				FSM->PushState("Damaged");
-
-				// Shake the camera
-				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
-
-				UpdateHealth(DamageAmount);
-
-				// Determine whether to reset the charge meter or not
-				if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
-				{
-					HitCounter = 0;
-					ResetCharge();
-				}
-				else
-				{
-					DecreaseCharge();
-				}
-			break;
-		}
-	}
-
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
-	{
-		Die();
-	}
-
-	return DamageAmount;
-}
-
-void AYlva::OnBossDeath()
-{
-	DisableLockOn();
-
-	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
-		OnUntouchableFeatAchieved();
-}
-
-void AYlva::OnLowHealth()
-{
-	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
-}
-
-void AYlva::OnLowStamina()
-{
-	// Todo Implement function
-
-	MovementComponent->MaxWalkSpeed /= 2.0f;
-}
-
-void AYlva::OnComboReset()
-{
-	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
-	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
-}
-
-void AYlva::OnAttackEnd(UAnimMontage* Montage, bool bInterrupted)
-{
-	AttackComboComponent->OnAttackEnd.Broadcast();
-}
-
-
-
-void AYlva::IncreaseCharge()
-{
-	if (ChargeAttackComponent->IsUsingSmoothBar())
-		StartGainingCharge(ChargeAttackComponent->GetChargeGain());
-	else
-		ChargeAttackComponent->IncreaseCharge(ChargeAttackComponent->GetChargeGain());
-
-	UpdateCharacterInfo();
-
-	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
-		ChargeAttackComponent->DelayChargeLoss();
-}
-
-void AYlva::DecreaseCharge()
-{
-	ChargeAttackComponent->DecreaseCharge(ChargeAttackComponent->GetChargeLoss());
-
-	UpdateCharacterInfo();
-}
-
-void AYlva::DecreaseCharge(const float Amount)
-{
-	ChargeAttackComponent->DecreaseCharge(Amount);
-
-	UpdateCharacterInfo();
-}
-
-void AYlva::ResetCharge()
-{
-	ChargeAttackComponent->ResetCharge();
-
-	UpdateCharacterInfo();
-}
-
-void AYlva::OnWarriorFeatAchieved()
-{
-	GameInstance->AchievedFeat = WarriorFeat;
-
-	WarriorFeat->OnFeatAchieved.Broadcast();
-}
-
-void AYlva::OnUntouchableFeatAchieved()
-{
-	GameInstance->AchievedFeat = UntouchableFeat;
-
-	UntouchableFeat->OnFeatAchieved.Broadcast();
-}
+#pragma endregion 
 
 void AYlva::ApplyHitStop()
 {
@@ -1699,7 +1680,7 @@ UStaticMeshComponent* AYlva::GetLeftHandSword()
 	{
 		if (Component->GetName() == "Sword_L" || Component->GetName() == "Sword")
 		{
-			StartLeftSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
+			OriginalLeftSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
 			return Cast<UStaticMeshComponent>(Component);
 		}
 	}
@@ -1726,7 +1707,7 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 	{
 		if (Component->GetName() == "Sword_R" || Component->GetName() == "Sword")
 		{
-			StartRightSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
+			OriginalRightSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
 			return Cast<UStaticMeshComponent>(Component);
 		}
 	}
@@ -1738,3 +1719,9 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 	return nullptr;
 }
 
+void AYlva::OnUntouchableFeatAchieved()
+{
+	GameInstance->AchievedFeat = UntouchableFeat;
+
+	UntouchableFeat->OnFeatAchieved.Broadcast();
+}

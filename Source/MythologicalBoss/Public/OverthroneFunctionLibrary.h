@@ -21,7 +21,7 @@ public:
 	
 	// Get the first boss character found in the level
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
-		static class ACharacter* GetBossCharacter(UWorld* InWorld);
+		static class AOverthroneCharacter* GetBossCharacter(UWorld* InWorld);
 
 	// Get our custom game instance
 	UFUNCTION(BlueprintPure, Category = "Overthrone")

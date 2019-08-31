@@ -331,7 +331,7 @@ public:
 		float LookUpRate;
 
 	// Ylva's debug options
-	UPROPERTY(EditInstanceOnly, Category = "Ylva | Debug")
+	UPROPERTY(EditInstanceOnly, Category = "Ylva Debug")
 		FDebug_Ylva Debug;
 
 protected:
@@ -359,6 +359,8 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	void ChangeHitboxSize(float NewRadius) override;
 
 	void UpdateCharacterInfo() override;
@@ -369,21 +371,24 @@ protected:
 	void LoseHealth() override;
 	void StartLosingHealth() override;
 
+	void Die() override;
+
 	float CalculateDirection() const;
 
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
 
+	#pragma region Combat
 	// Called via input to enter the light attacking state
 	void LightAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void BeginLightAttack(class UAnimMontage* AttackMontage);
-	
+
 	// Called via input to enter the heavy attacking state
 	void HeavyAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void BeginHeavyAttack(class UAnimMontage* AttackMontage);
 
 	// Called via input when holding down the charge attack key
@@ -396,44 +401,66 @@ protected:
 	void FinishChargeAttack();
 
 	// Triggers the parry event to start
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void StartParryEvent();
 
 	void FinishParryEvent();
 
 	// Called via input to enter the block state
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void Block();
 
 	// Called via input to exit the block state
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void StopBlocking();
+	#pragma endregion
 
+	#pragma region Movement
 	// Called via input to enter the running state
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Movement")
 		void Run();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Movement")
 		void UpdateIsRunHeld();
 
 	// Called via input to exit the running state
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Movement")
 		void StopRunning();
 
 	// Called via input to start dashing
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Movement")
 		void Dash();
 
 	// Set a timer to start the dash cooldown
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Movement")
 		void StartDashCooldown();
+	#pragma endregion
 
-	void Die() override;
+	#pragma region Controls
+	// Called via input to pause the game
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Controls")
+		void Pause();
 
-	// Called when the player is killed (Health <= 0)
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void Respawn();
+	// Disables the use of controller rotation for yaw axis
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Controls")
+		void DisableControllerRotationYaw();
+	#pragma endregion
 
+	#pragma region LockOn
+	// Called via input to toggle lock on mechanic
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Lock-On")
+		void ToggleLockOn();
+
+	// Utility function to enable lock on
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Lock-On")
+		void EnableLockOn();
+
+	// Utility function to disable lock on
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Lock-On")
+		void DisableLockOn();
+	#pragma endregion
+
+	#pragma region Debug
 	// Kill the player
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
 		void Debug_Die();
@@ -458,42 +485,24 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
 		void Debug_ToggleBuff();
 
-	// Called via input to pause the game
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Controls")
-		void Pause();
-
-	// Called via input to toggle lock on mechanic
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On")
-		void ToggleLockOn();
-
-	// Utility function to enable lock on
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On")
-		void EnableLockOn();
-
-	// Utility function to disable lock on
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On")
-		void DisableLockOn();
-
-	// Disables the use of controller rotation for yaw axis
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Controls")
-		void DisableControllerRotationYaw();
-
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
 		void ShowPlayerFSMVisualizer();
 
 	// Called via input to show the Boss FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
 		void ShowBossFSMVisualizer();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
 		void ShowMainHUD();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
 		void ShowNoHUD();
+	#pragma endregion
 
+	#pragma region Stamina
 	// Called every frame
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
 		void RegenerateStamina(float Rate);
@@ -525,38 +534,9 @@ protected:
 
 	UFUNCTION()
 		void FinishLosingStamina();
+	#pragma endregion 
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
-		void StartGainingCharge(float Amount);
-
-	UFUNCTION()
-		void GainCharge();
-
-	UFUNCTION()
-		void FinishGainingCharge();
-
-	// Resets global time dilation to 1
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void ResetGlobalTimeDilation();
-
-	// God mode functions
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void EnableGodMode();
-	
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void DisableGodMode();
-
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void ToggleGodMode();
-
-	// Returns the sword static mesh components attached to the left hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		UStaticMeshComponent* GetLeftHandSword();
-
-	// Returns the sword static mesh components attached to the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		UStaticMeshComponent* GetRightHandSword();
-
+	#pragma region Charge Attack
 	// Decreases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void DecreaseCharge();
@@ -568,148 +548,173 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void ResetCharge();
 
-	// Feats
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void OnWarriorFeatAchieved();
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
+		void StartGainingCharge(float Amount);
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION()
+		void GainCharge();
+
+	UFUNCTION()
+		void FinishGainingCharge();
+	#pragma endregion 
+
+	#pragma region God Mode
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
+		void EnableGodMode();
+	
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
+		void DisableGodMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
+		void ToggleGodMode();
+	#pragma endregion
+
+	#pragma region Feats
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Feats")
 		void OnUntouchableFeatAchieved();
-
-	// Player states
-	#pragma region Idle
-	UFUNCTION()
-		void OnEnterIdleState();
-	UFUNCTION()
-		void UpdateIdleState();
-	UFUNCTION()
-		void OnExitIdleState();
 	#pragma endregion 
 
-	#pragma region Walk
-	UFUNCTION()
-		void OnEnterWalkState();
-	UFUNCTION()
-		void UpdateWalkState();
-	UFUNCTION()
-		void OnExitWalkState();
-	#pragma endregion 
-
-	#pragma region Run
-	UFUNCTION()
-		void OnEnterRunState();
-	UFUNCTION()
-		void UpdateRunState();
-	UFUNCTION()
-		void OnExitRunState();
-	#pragma endregion 
-
-	#pragma region Shield Block
-	UFUNCTION()
-		void OnEnterBlockingState();
-	UFUNCTION()
-		void UpdateBlockingState();
-	UFUNCTION()
-		void OnExitBlockingState();
-	#pragma endregion 
-
-	#pragma region Light Attack 1
-	UFUNCTION()
-		void OnEnterLightAttackState();
-	UFUNCTION()
-		void UpdateLightAttackState();
-	UFUNCTION()
-		void OnExitLightAttackState();
-	#pragma endregion 
-
-	#pragma region Light Attack 2
-	UFUNCTION()
-		void OnEnterLightAttack2State();
-	UFUNCTION()
-		void UpdateLightAttack2State();
-	UFUNCTION()
-		void OnExitLightAttack2State();
-	#pragma endregion 
-
-	#pragma region Heavy Attack 1
-	UFUNCTION()
-		void OnEnterHeavyAttackState();
-	UFUNCTION()
-		void UpdateHeavyAttackState();
-	UFUNCTION()
-		void OnExitHeavyAttackState();
-	#pragma endregion 
-
-	#pragma region Heavy Attack 2
-	UFUNCTION()
-		void OnEnterHeavyAttack2State();
-	UFUNCTION()
-		void UpdateHeavyAttack2State();
-	UFUNCTION()
-		void OnExitHeavyAttack2State();
-	#pragma endregion 
-
-	#pragma region Damaged
-	UFUNCTION()
-		void OnEnterDamagedState();
-	UFUNCTION()
-		void UpdateDamagedState();
-	UFUNCTION()
-		void OnExitDamagedState();
-	#pragma endregion 
-
-	#pragma region Death
-	UFUNCTION()
-		void OnEnterDeathState();
-	UFUNCTION()
-		void UpdateDeathState();
-	UFUNCTION()
-		void OnExitDeathState();
-	#pragma endregion 
-
-	#pragma region Shield Hit
-	UFUNCTION()
-		void OnEnterShieldHitState();
-	UFUNCTION()
-		void UpdateShieldHitState();
-	UFUNCTION()
-		void OnExitShieldHitState();
-	#pragma endregion 
-
-	#pragma region Dash
-	UFUNCTION()
-		void OnEnterDashState();
-	UFUNCTION()
-		void UpdateDashState();
-	UFUNCTION()
-		void OnExitDashState();
-	#pragma endregion 
-
-	#pragma region Parry
-	UFUNCTION()
-		void OnEnterParryState();
-	UFUNCTION()
-		void UpdateParryState();
-	UFUNCTION()
-		void OnExitParryState();
-	#pragma endregion 
-
-	// Events
-	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	UFUNCTION()
-		void OnBossDeath(); // Called when the boss's health is less than or equal to zero
-
+	#pragma region Events
+	// Called when our health is below the given threshold
 	void OnLowHealth() override;
 
+	// Called when the boss's health is less than or equal to zero
+	UFUNCTION()
+		void OnBossDeath();
+
+	// Called when our stamina value is below the given threshold
 	UFUNCTION()
 		void OnLowStamina();
 
+	// Called when our combo tree has been reset
 	UFUNCTION()
 		void OnComboReset();
 
+	// Called when our anim montage attack animations have finished
 	UFUNCTION()
 		void OnAttackEnd(UAnimMontage* Montage, bool bInterrupted);
+	#pragma endregion
 
+	#pragma region Player States
+		#pragma region Idle
+		UFUNCTION()
+			void OnEnterIdleState();
+		UFUNCTION()
+			void UpdateIdleState();
+		UFUNCTION()
+			void OnExitIdleState();
+		#pragma endregion 
+
+		#pragma region Walk
+		UFUNCTION()
+			void OnEnterWalkState();
+		UFUNCTION()
+			void UpdateWalkState();
+		UFUNCTION()
+			void OnExitWalkState();
+		#pragma endregion 
+
+		#pragma region Run
+		UFUNCTION()
+			void OnEnterRunState();
+		UFUNCTION()
+			void UpdateRunState();
+		UFUNCTION()
+			void OnExitRunState();
+		#pragma endregion 
+
+		#pragma region Shield Block
+		UFUNCTION()
+			void OnEnterBlockingState();
+		UFUNCTION()
+			void UpdateBlockingState();
+		UFUNCTION()
+			void OnExitBlockingState();
+		#pragma endregion 
+
+		#pragma region Light Attack 1
+		UFUNCTION()
+			void OnEnterLightAttackState();
+		UFUNCTION()
+			void UpdateLightAttackState();
+		UFUNCTION()
+			void OnExitLightAttackState();
+		#pragma endregion 
+
+		#pragma region Light Attack 2
+		UFUNCTION()
+			void OnEnterLightAttack2State();
+		UFUNCTION()
+			void UpdateLightAttack2State();
+		UFUNCTION()
+			void OnExitLightAttack2State();
+		#pragma endregion 
+
+		#pragma region Heavy Attack 1
+		UFUNCTION()
+			void OnEnterHeavyAttackState();
+		UFUNCTION()
+			void UpdateHeavyAttackState();
+		UFUNCTION()
+			void OnExitHeavyAttackState();
+		#pragma endregion 
+
+		#pragma region Heavy Attack 2
+		UFUNCTION()
+			void OnEnterHeavyAttack2State();
+		UFUNCTION()
+			void UpdateHeavyAttack2State();
+		UFUNCTION()
+			void OnExitHeavyAttack2State();
+		#pragma endregion 
+
+		#pragma region Damaged
+		UFUNCTION()
+			void OnEnterDamagedState();
+		UFUNCTION()
+			void UpdateDamagedState();
+		UFUNCTION()
+			void OnExitDamagedState();
+		#pragma endregion 
+
+		#pragma region Death
+		UFUNCTION()
+			void OnEnterDeathState();
+		UFUNCTION()
+			void UpdateDeathState();
+		UFUNCTION()
+			void OnExitDeathState();
+		#pragma endregion 
+
+		#pragma region Shield Hit
+		UFUNCTION()
+			void OnEnterShieldHitState();
+		UFUNCTION()
+			void UpdateShieldHitState();
+		UFUNCTION()
+			void OnExitShieldHitState();
+		#pragma endregion 
+
+		#pragma region Dash
+		UFUNCTION()
+			void OnEnterDashState();
+		UFUNCTION()
+			void UpdateDashState();
+		UFUNCTION()
+			void OnExitDashState();
+		#pragma endregion 
+
+		#pragma region Parry
+		UFUNCTION()
+			void OnEnterParryState();
+		UFUNCTION()
+			void UpdateParryState();
+		UFUNCTION()
+			void OnExitParryState();
+		#pragma endregion 
+	#pragma endregion
+
+	#pragma region Components
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
@@ -727,79 +732,84 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UAttackComboComponent* AttackComboComponent;
 
-	// Toggle God mode?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
-		uint8 bGodMode : 1;
-
-	// The radius the boss will use to teleport to a point on this circle
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva", meta = (ClampMin = 1.0f))
-		float TeleportRadius = 1000.0f;
-
 	// This timeline plays when we are regenerating stamina
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")
 		class UTimelineComponent* StaminaRegenTimeline;
 
-	// The float curve to use when regenerating stamina
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
-		class UCurveFloat* StaminaRegenCurve;
-
 	// This timeline plays when we are building charge
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Charge Attack")
 		class UTimelineComponent* ChargeAttackTimeline;
+	#pragma endregion
 
-	// The float curve to use when building charge
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Charge Attack")
-		class UCurveFloat* ChargeAttackCurve;
+	#pragma region Misc
+	// Resets global time dilation to 1
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		void ResetGlobalTimeDilation();
+
+	// Called when the player is killed (Health <= 0)
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		void Respawn();
+
+	// Returns the sword static mesh components attached to the left hand bone
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		UStaticMeshComponent* GetLeftHandSword();
+
+	// Returns the sword static mesh components attached to the right hand bone
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		UStaticMeshComponent* GetRightHandSword();
+	#pragma endregion
+
+	// The radius the boss will use to teleport to a point on this circle
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Misc", meta = (ClampMin = 1.0f))
+		float TeleportRadius = 1000.0f;
 
 	// How long (in seconds) after the player's death, should we wait to respawn?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Misc", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float RespawnDelay = 1.8f;
 
+	// The float curve to use when regenerating stamina
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Stamina")
+		class UCurveFloat* StaminaRegenCurve;
+
+	// The float curve to use when building charge
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Charge Attack")
+		class UCurveFloat* ChargeAttackCurve;
+
 	// The minimum pitch rotation value (in degrees) the camera can rotate
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
 		float CameraPitchMin = 30.0f;
 
 	// The maximum pitch rotation value (in degrees) the camera can rotate
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
 		float CameraPitchMax = 50.0f;
 
 	// Ylva's movement settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva", DisplayName = "Movement")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
 
 	// Configure lock on settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva", DisplayName = "Lock-On")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Lock-On")
 		FLockOnSettings LockOnSettings;
 
 	// Ylva's camera shake settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera")
 		FCameraShakes_Ylva CameraShakes;
 
 	// Ylva's combat settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva Combat")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
 		FCombatSettings_Ylva Combat;
 
-	// Right hand sword socket name
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
-		FName R_SwordStartSocketName = "SwordSocket";
-
-	// Left hand sword socket name
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva")
-		FName L_SwordStartSocketName = "SwordSocket";
-
 	// Cached player's anim instance, to control and trigger animations
-	class UYlvaAnimInstance* YlvaAnimInstance{};
-
-	// The right hand sword mesh
-	UStaticMeshComponent* R_SwordMesh;
-	// The left hand sword mesh
-	UStaticMeshComponent* L_SwordMesh;
+	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
+		class UYlvaAnimInstance* YlvaAnimInstance{};
 
 private:
 	float RightInput = 0.0f, ForwardInput = 0.0f;
 
 	float PlayerLeanRollAmount = 0.0f;
 	float PlayerLeanPitchAmount = 0.0f;
+
+	uint8 bGodMode : 1;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;
@@ -810,22 +820,19 @@ private:
 
 	uint16 ChargeAttackHoldFrames = 0;
 
-	FRotator StartRightSwordRotation{};
-	FRotator StartLeftSwordRotation{};
+	FRotator OriginalRightSwordRotation{};
+	FRotator OriginalLeftSwordRotation{};
 
 	FTimerHandle DashCooldownTimer;
 	FTimerHandle ParryEventExpiryTimer;
-
-	FTimerHandle SwordDetachmentExpiryTimer;
 
 	FTimerHandle ChargeAttackReleaseTimer;
 	FTimerHandle ChargeLossTimerHandle;
 
 	class APlayerCameraManager* CameraManager;
-	class ACharacter* Boss;
+	class AOverthroneCharacter* Boss;
 
 	class UAnimMontage* DashMontageToPlay;
 
-	class UFeatData* WarriorFeat;
 	class UFeatData* UntouchableFeat;
 };
