@@ -528,6 +528,8 @@ void AYlva::ToggleLockOn()
 	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
 	PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
 	GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
+	MovementComponent->bUseControllerDesiredRotation = LockOnSettings.bShouldLockOnTarget ? true : false;
+	MovementComponent->bOrientRotationToMovement = LockOnSettings.bShouldLockOnTarget ? false : true;
 
 	MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
 }
@@ -541,6 +543,8 @@ void AYlva::EnableLockOn()
 	LockOnSettings.bShouldLockOnTarget = true;
 	PlayerController->SetIgnoreLookInput(true);
 	GameInstance->ToggleLockOnVisibility(true);
+	MovementComponent->bUseControllerDesiredRotation = true;
+	MovementComponent->bOrientRotationToMovement = false;
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 }
@@ -550,6 +554,8 @@ void AYlva::DisableLockOn()
 	LockOnSettings.bShouldLockOnTarget = false;
 	PlayerController->SetIgnoreLookInput(false);
 	GameInstance->ToggleLockOnVisibility(false);
+	MovementComponent->bUseControllerDesiredRotation = false;
+	MovementComponent->bOrientRotationToMovement = true;
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
