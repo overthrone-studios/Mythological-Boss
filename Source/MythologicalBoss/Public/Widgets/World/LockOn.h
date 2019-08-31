@@ -16,8 +16,4 @@ public:
 
 protected:
 	void BeginPlay() override;
-	void Tick(float DeltaTime) override;
-
-	// Cached game instance pointer
-	class UOverthroneGameInstance* GameInstance{};
 };

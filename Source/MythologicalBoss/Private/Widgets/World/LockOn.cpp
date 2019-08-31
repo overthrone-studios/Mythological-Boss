@@ -6,7 +6,7 @@
 
 ALockOn::ALockOn()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -14,13 +14,7 @@ void ALockOn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
+	class UOverthroneGameInstance* GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
+
 	GameInstance->LockOn = this;
 }
-
-void ALockOn::Tick(const float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
