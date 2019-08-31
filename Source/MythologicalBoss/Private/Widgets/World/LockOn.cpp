@@ -31,7 +31,7 @@ void ALockOn::BeginPlay()
 			LockOnWidgetComponent = Cast<UWidgetComponent>(Component);
 			LockOnWidget = Cast<ULockOnWidget>(LockOnWidgetComponent->GetUserWidgetObject());
 
-			LockOnWidgetComponent->SetHiddenInGame(true);
+			LockOnWidget->RenderOpacity = 0.0f;
 
 			break;
 		}
@@ -41,7 +41,6 @@ void ALockOn::BeginPlay()
 void ALockOn::Show()
 {
 	LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Forward, 2.0f);
-	LockOnWidgetComponent->SetHiddenInGame(false);
 }
 
 void ALockOn::Hide()
