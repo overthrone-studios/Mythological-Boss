@@ -147,8 +147,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Combo", meta = (ClampMin = 1))
 		uint8 ComboMultiplierCount = 2;
 
-	// How deep can the combo tree go?
+	// Should the tree be infinite?
 	UPROPERTY(EditInstanceOnly, Category = "Combo Tree", meta = (ClampMin = 1))
+		uint8 bUnlimited : 1;
+
+	// How deep can the combo tree go?
+	UPROPERTY(EditInstanceOnly, Category = "Combo Tree", meta = (ClampMin = 1, EditCondition = "!bUnlimited"))
 		uint8 ComboTreeDepth = 1;
 
 	// How long (in seconds) should we wait until we reset the combo? This value must be higher than the attack delays to create combos

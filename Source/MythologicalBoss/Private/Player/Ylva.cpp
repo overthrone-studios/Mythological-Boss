@@ -232,7 +232,6 @@ void AYlva::BeginPlay()
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
-	//AnimInstance->bLogDirection = true;
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd);
 
 	// Begin the state machine

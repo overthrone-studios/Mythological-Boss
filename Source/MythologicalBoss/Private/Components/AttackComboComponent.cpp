@@ -24,7 +24,7 @@ bool UAttackComboComponent::IsWaitingForComboReset() const
 
 bool UAttackComboComponent::IsAtTreeEnd() const
 {
-	return TreeIndex >= ComboTreeDepth;
+	return TreeIndex >= ComboTreeDepth && !bUnlimited;
 }
 
 void UAttackComboComponent::BeginPlay()
