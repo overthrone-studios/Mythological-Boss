@@ -469,6 +469,123 @@ void AYlva::StartLosingHealth()
 	}
 }
 
+float AYlva::CalculateDirection() const
+{
+	const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
+	const FRotator NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
+
+	return NewDirection.GetNormalized().Yaw;
+}
+
+void AYlva::CalculateRollLean(const float DeltaTime)
+{
+	if (FSM->GetActiveStateID() != 0 /*Idle*/ && FSM->GetActiveStateID() != 4 /*Block*/ && FSM->GetActiveStateID() != 5 /*Death*/)
+	{
+		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
+		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
+
+		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, Turn, DeltaTime, InterpSpeed);
+		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanRollOffset;
+	}
+	else
+	{
+		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, 0.0f, DeltaTime, 10.0f);
+		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanRollOffset;
+	}
+}
+
+void AYlva::CalculatePitchLean(const float DeltaTime)
+{
+	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking() && FSM->GetActiveStateID() != 5 /*Death*/)
+	{
+		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 5.0f);
+		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
+	}
+	else
+	{
+		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
+		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
+	}
+}
+
+void AYlva::LightAttack()
+{
+	// Are we in any of these states?
+	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
+		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
+		IsChargeAttacking())
+		return;
+
+	FSM->PopState("Block");
+
+	if (FSM->GetActiveStateID() == 22 /*Parry*/)
+		FinishParryEvent();
+
+	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
+	{
+		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
+
+		BeginLightAttack(AttackMontageToPlay);
+	}
+}
+
+void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
+{
+	AnimInstance->Montage_Play(AttackMontage);
+
+	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
+
+	if (!bGodMode)
+	{
+		UpdateStamina(StaminaComponent->GetLightAttackValue());
+	}
+
+	if (Combat.bRotateToCameraLookDirection)
+		bUseControllerRotationYaw = true;
+
+	if (MovementSettings.bStopMovingWhenAttacking)
+		MovementComponent->SetMovementMode(MOVE_None);
+}
+
+void AYlva::HeavyAttack()
+{
+	// Are we in any of these states?
+	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
+		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
+		IsChargeAttacking())
+		return;
+
+	FSM->PopState("Block");
+
+	if (FSM->GetActiveStateID() == 22 /*Parry*/)
+		FinishParryEvent();
+
+	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
+	{
+		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
+		
+		BeginHeavyAttack(AttackMontageToPlay);
+	}
+}
+
+void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
+{
+	AnimInstance->Montage_Play(AttackMontage);
+
+	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
+
+	if (!bGodMode)
+	{
+		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
+	}
+
+	if (Combat.bRotateToCameraLookDirection)
+		bUseControllerRotationYaw = true;
+
+	if (MovementSettings.bStopMovingWhenAttacking)
+		MovementComponent->SetMovementMode(MOVE_None);
+}
+
 void AYlva::ChargeUpAttack()
 {
 	if (!ChargeAttackComponent->IsChargeFull())
@@ -518,45 +635,28 @@ void AYlva::ReleaseChargeAttack()
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
 
-void AYlva::ToggleLockOn()
+void AYlva::FinishChargeAttack()
 {
-	// Don't lock on if boss is dead
-	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
-		return;
+	ChargeAttackHoldFrames = 0;
 
-	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
-	PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
-	GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
-	MovementComponent->bUseControllerDesiredRotation = LockOnSettings.bShouldLockOnTarget ? true : false;
-	MovementComponent->bOrientRotationToMovement = LockOnSettings.bShouldLockOnTarget ? false : true;
-
-	MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
+	YlvaAnimInstance->bCanCharge = false;
+	YlvaAnimInstance->bChargeReleased = false;
 }
 
-void AYlva::EnableLockOn()
+void AYlva::StartParryEvent()
 {
-	// Don't lock on if boss is dead
-	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
-		return;
+	GameInstance->PlayerInfo.bParrySucceeded = true;
 
-	LockOnSettings.bShouldLockOnTarget = true;
-	PlayerController->SetIgnoreLookInput(true);
-	GameInstance->ToggleLockOnVisibility(true);
-	MovementComponent->bUseControllerDesiredRotation = true;
-	MovementComponent->bOrientRotationToMovement = false;
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	if (!GetWorldTimerManager().IsTimerActive(ParryEventExpiryTimer))
+		GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 
-void AYlva::DisableLockOn()
+void AYlva::FinishParryEvent()
 {
-	LockOnSettings.bShouldLockOnTarget = false;
-	PlayerController->SetIgnoreLookInput(false);
-	GameInstance->ToggleLockOnVisibility(false);
-	MovementComponent->bUseControllerDesiredRotation = false;
-	MovementComponent->bOrientRotationToMovement = true;
-
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	FSM->PopState();
+	FSM->PopState("Block");
 }
 
 void AYlva::Block()
@@ -584,109 +684,6 @@ void AYlva::StopBlocking()
 	FSM->PopState();
 }
 
-void AYlva::UpdateStamina(const float StaminaToSubtract)
-{
-	StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
-
-	// Stop animating displayed stamina
-	if (StaminaRegenTimeline->IsPlaying())
-		StaminaRegenTimeline->Stop();
-
-	DecreaseStamina(StaminaToSubtract);
-
-	if (StaminaComponent->GetDecreaseDelay() > 0.0f)
-	{
-		GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
-	}
-	else
-		StartLosingStamina();
-
-	StaminaComponent->DelayRegeneration();
-}
-
-void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
-{
-	AnimInstance->Montage_Play(AttackMontage);
-
-	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
-
-	if (!bGodMode)
-	{
-		UpdateStamina(StaminaComponent->GetLightAttackValue());
-	}
-
-	if (Combat.bRotateToCameraLookDirection)
-		bUseControllerRotationYaw = true;
-
-	if (MovementSettings.bStopMovingWhenAttacking)
-		MovementComponent->SetMovementMode(MOVE_None);
-}
-
-void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
-{
-	AnimInstance->Montage_Play(AttackMontage);
-
-	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
-
-	if (!bGodMode)
-	{
-		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
-	}
-
-	if (Combat.bRotateToCameraLookDirection)
-		bUseControllerRotationYaw = true;
-
-	if (MovementSettings.bStopMovingWhenAttacking)
-		MovementComponent->SetMovementMode(MOVE_None);
-}
-
-void AYlva::LightAttack()
-{
-	// Are we in any of these states?
-	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
-		IsChargeAttacking())
-		return;
-
-	FSM->PopState("Block");
-
-	if (FSM->GetActiveStateID() == 22 /*Parry*/)
-		FinishParryEvent();
-
-	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
-	{
-		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
-
-		BeginLightAttack(AttackMontageToPlay);
-	}
-}
-
-void AYlva::HeavyAttack()
-{
-	// Are we in any of these states?
-	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
-		IsChargeAttacking())
-		return;
-
-	FSM->PopState("Block");
-
-	if (FSM->GetActiveStateID() == 22 /*Parry*/)
-		FinishParryEvent();
-
-	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
-	{
-		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
-		
-		BeginHeavyAttack(AttackMontageToPlay);
-	}
-}
-
-void AYlva::DisableControllerRotationYaw()
-{
-	bUseControllerRotationYaw = false;
-}
-
 void AYlva::Run()
 {
 	if (FSM->GetActiveStateName() == "Death" || ForwardInput < 0.0f || RightInput != 0.0f || IsChargeAttacking())
@@ -705,14 +702,6 @@ void AYlva::Run()
 void AYlva::UpdateIsRunHeld()
 {
 	bIsRunKeyHeld = true;
-}
-
-void AYlva::FinishChargeAttack()
-{
-	ChargeAttackHoldFrames = 0;
-
-	YlvaAnimInstance->bCanCharge = false;
-	YlvaAnimInstance->bChargeReleased = false;
 }
 
 void AYlva::StopRunning()
@@ -782,42 +771,9 @@ void AYlva::Dash()
 	}
 }
 
-void AYlva::ShowPlayerFSMVisualizer()
+void AYlva::StartDashCooldown()
 {
-	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(0);
-}
-
-void AYlva::ShowBossFSMVisualizer()
-{
-	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(1);
-}
-
-void AYlva::ShowMainHUD()
-{
-	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
-	OverthroneHUD->GetMasterHUD()->HideTitle();
-	OverthroneHUD->GetMasterHUD()->HideBoxes();
-}
-
-void AYlva::ShowNoHUD()
-{
-	OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Hidden);
-}
-
-void AYlva::Pause()
-{
-	if (GameInstance->IsGamePaused())
-		GameInstance->UnPauseGame();
-	else
-		GameInstance->PauseGame();
-}
-
-void AYlva::RegenerateStamina(const float Rate)
-{
-	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || !StaminaComponent->IsRegenFinished())
-		return;
-
-	IncreaseStamina(Rate * World->DeltaTimeSeconds);
+	GetWorldTimerManager().SetTimer(DashCooldownTimer, Combat.DashSettings.DashCooldown, false);
 }
 
 void AYlva::Die()
@@ -830,9 +786,15 @@ void AYlva::Die()
 	FSM->PushState("Death");
 }
 
-void AYlva::Debug_ResetFeats()
+void AYlva::Respawn()
 {
-	GameInstance->ResetFeats();
+	GetWorldTimerManager().ClearTimer(DeathExpiryTimerHandle);
+
+	FSM->PopState();
+
+	GameInstance->PlayerInfo.bIsDead = false;
+
+	UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
 }
 
 void AYlva::Debug_Die()
@@ -842,6 +804,11 @@ void AYlva::Debug_Die()
 	UpdateCharacterInfo();
 
 	Die();
+}
+
+void AYlva::Debug_ResetFeats()
+{
+	GameInstance->ResetFeats();
 }
 
 void AYlva::Debug_MaxHealth()
@@ -887,15 +854,250 @@ void AYlva::Debug_ToggleBuff()
 	}
 }
 
-void AYlva::Respawn()
+void AYlva::Pause()
 {
-	GetWorldTimerManager().ClearTimer(DeathExpiryTimerHandle);
+	if (GameInstance->IsGamePaused())
+		GameInstance->UnPauseGame();
+	else
+		GameInstance->PauseGame();
+}
 
-	FSM->PopState();
+void AYlva::ToggleLockOn()
+{
+	// Don't lock on if boss is dead
+	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
+		return;
 
-	GameInstance->PlayerInfo.bIsDead = false;
+	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
+	PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
+	GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
+	MovementComponent->bUseControllerDesiredRotation = LockOnSettings.bShouldLockOnTarget ? true : false;
+	MovementComponent->bOrientRotationToMovement = LockOnSettings.bShouldLockOnTarget ? false : true;
 
-	UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
+	MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
+}
+
+void AYlva::EnableLockOn()
+{
+	// Don't lock on if boss is dead
+	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
+		return;
+
+	LockOnSettings.bShouldLockOnTarget = true;
+	PlayerController->SetIgnoreLookInput(true);
+	GameInstance->ToggleLockOnVisibility(true);
+	MovementComponent->bUseControllerDesiredRotation = true;
+	MovementComponent->bOrientRotationToMovement = false;
+
+	MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+}
+
+void AYlva::DisableLockOn()
+{
+	LockOnSettings.bShouldLockOnTarget = false;
+	PlayerController->SetIgnoreLookInput(false);
+	GameInstance->ToggleLockOnVisibility(false);
+	MovementComponent->bUseControllerDesiredRotation = false;
+	MovementComponent->bOrientRotationToMovement = true;
+
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+}
+
+void AYlva::DisableControllerRotationYaw()
+{
+	bUseControllerRotationYaw = false;
+}
+
+void AYlva::ShowPlayerFSMVisualizer()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(0);
+}
+
+void AYlva::ShowBossFSMVisualizer()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(1);
+}
+
+void AYlva::ShowMainHUD()
+{
+	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
+	OverthroneHUD->GetMasterHUD()->HideTitle();
+	OverthroneHUD->GetMasterHUD()->HideBoxes();
+}
+
+void AYlva::ShowNoHUD()
+{
+	OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void AYlva::RegenerateStamina(const float Rate)
+{
+	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || !StaminaComponent->IsRegenFinished())
+		return;
+
+	IncreaseStamina(Rate * World->DeltaTimeSeconds);
+}
+
+void AYlva::UpdateStamina(const float StaminaToSubtract)
+{
+	StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
+
+	// Stop animating displayed stamina
+	if (StaminaRegenTimeline->IsPlaying())
+		StaminaRegenTimeline->Stop();
+
+	DecreaseStamina(StaminaToSubtract);
+
+	if (StaminaComponent->GetDecreaseDelay() > 0.0f)
+	{
+		GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
+	}
+	else
+		StartLosingStamina();
+
+	StaminaComponent->DelayRegeneration();
+}
+
+void AYlva::IncreaseStamina(const float Amount)
+{
+	StaminaComponent->IncreaseStamina(Amount);
+
+	UpdateCharacterInfo();
+
+	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+	{
+		// Todo update player values
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+		bWasLowStaminaEventTriggered = false;
+	}
+}
+
+void AYlva::DecreaseStamina(const float Amount)
+{
+	StaminaComponent->DecreaseStamina(Amount);
+
+	UpdateCharacterInfo();
+
+	// Are we on low stamina?
+	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
+	{
+		BroadcastLowStamina();
+	}
+}
+
+void AYlva::SetStamina(const float NewStaminaAmount)
+{
+	StaminaComponent->SetStamina(NewStaminaAmount);
+
+	UpdateCharacterInfo();
+
+	// Are we on low stamina?
+	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
+	{
+		BroadcastLowStamina();
+	}
+	else if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+	{
+		// Todo update player values
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+		bWasLowStaminaEventTriggered = false;
+	}
+}
+
+void AYlva::ResetStamina()
+{
+	StaminaComponent->ResetStamina();
+
+	UpdateCharacterInfo();
+
+	// Todo update player values
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+}
+
+void AYlva::StartLosingStamina()
+{
+	StaminaRegenTimeline->PlayFromStart();
+}
+
+void AYlva::LoseStamina()
+{
+	const float Time = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
+
+	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Time));
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::FinishLosingStamina()
+{
+	StaminaComponent->DelayRegeneration();
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::StartGainingCharge(const float Amount)
+{
+	ChargeAttackComponent->IncreaseCharge(Amount);
+
+	ChargeAttackTimeline->PlayFromStart();
+}
+
+void AYlva::GainCharge()
+{
+	const float Time = ChargeAttackCurve->GetFloatValue(ChargeAttackTimeline->GetPlaybackPosition());
+
+	ChargeAttackComponent->SetSmoothedCharge(FMath::Lerp(ChargeAttackComponent->GetPreviousCharge(), ChargeAttackComponent->GetCurrentCharge(), Time));
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::FinishGainingCharge()
+{
+	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
+		ChargeAttackComponent->DelayChargeLoss();
+
+	UpdateCharacterInfo();
+}
+
+void AYlva::ResetGlobalTimeDilation()
+{
+	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
+}
+
+void AYlva::EnableGodMode()
+{
+	bGodMode = true;
+
+	OverthroneHUD->GetMasterHUD()->HighlightBox(4 /*God mode box*/);
+
+	ResetHealth();
+	ResetStamina();
+}
+
+void AYlva::DisableGodMode()
+{
+	bGodMode = false;
+
+	OverthroneHUD->GetMasterHUD()->UnhighlightBox(4 /*God mode box*/);
+}
+
+void AYlva::ToggleGodMode()
+{
+	bGodMode = !bGodMode;
+
+	if (bGodMode)
+	{
+		OverthroneHUD->GetMasterHUD()->HighlightBox(4 /*God mode box*/);
+
+		ResetHealth();
+		ResetStamina();
+	}
+	else
+	{
+		OverthroneHUD->GetMasterHUD()->UnhighlightBox(4 /*God mode box*/);
+	}
 }
 
 #pragma region Idle
@@ -1369,108 +1571,7 @@ void AYlva::OnAttackEnd(UAnimMontage* Montage, bool bInterrupted)
 	AttackComboComponent->OnAttackEnd.Broadcast();
 }
 
-void AYlva::SetStamina(const float NewStaminaAmount)
-{
-	StaminaComponent->SetStamina(NewStaminaAmount);
 
-	UpdateCharacterInfo();
-
-	// Are we on low stamina?
-	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
-	{
-		BroadcastLowStamina();
-	}
-	else if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
-	{
-		// Todo update player values
-		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-
-		bWasLowStaminaEventTriggered = false;
-	}
-}
-
-void AYlva::DecreaseStamina(const float Amount)
-{
-	StaminaComponent->DecreaseStamina(Amount);
-
-	UpdateCharacterInfo();
-
-	// Are we on low stamina?
-	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
-	{
-		BroadcastLowStamina();
-	}
-}
-
-void AYlva::IncreaseStamina(const float Amount)
-{
-	StaminaComponent->IncreaseStamina(Amount);
-
-	UpdateCharacterInfo();
-
-	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
-	{
-		// Todo update player values
-		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-
-		bWasLowStaminaEventTriggered = false;
-	}
-}
-
-void AYlva::ResetStamina()
-{
-	StaminaComponent->ResetStamina();
-
-	UpdateCharacterInfo();
-
-	// Todo update player values
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-}
-
-void AYlva::StartLosingStamina()
-{
-	StaminaRegenTimeline->PlayFromStart();
-}
-
-void AYlva::LoseStamina()
-{
-	const float Time = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
-
-	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Time));
-
-	UpdateCharacterInfo();
-}
-
-void AYlva::FinishLosingStamina()
-{
-	StaminaComponent->DelayRegeneration();
-
-	UpdateCharacterInfo();
-}
-
-void AYlva::StartGainingCharge(const float Amount)
-{
-	ChargeAttackComponent->IncreaseCharge(Amount);
-
-	ChargeAttackTimeline->PlayFromStart();
-}
-
-void AYlva::GainCharge()
-{
-	const float Time = ChargeAttackCurve->GetFloatValue(ChargeAttackTimeline->GetPlaybackPosition());
-
-	ChargeAttackComponent->SetSmoothedCharge(FMath::Lerp(ChargeAttackComponent->GetPreviousCharge(), ChargeAttackComponent->GetCurrentCharge(), Time));
-
-	UpdateCharacterInfo();
-}
-
-void AYlva::FinishGainingCharge()
-{
-	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
-		ChargeAttackComponent->DelayChargeLoss();
-
-	UpdateCharacterInfo();
-}
 
 void AYlva::IncreaseCharge()
 {
@@ -1520,11 +1621,6 @@ void AYlva::OnUntouchableFeatAchieved()
 	UntouchableFeat->OnFeatAchieved.Broadcast();
 }
 
-void AYlva::ResetGlobalTimeDilation()
-{
-	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
-}
-
 void AYlva::AttachSword() const
 {
 	if (R_SwordMesh)
@@ -1546,66 +1642,6 @@ void AYlva::DetachSword()
 		R_SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
 	}
-}
-
-void AYlva::StartParryEvent()
-{
-	GameInstance->PlayerInfo.bParrySucceeded = true;
-
-	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
-
-	if (!GetWorldTimerManager().IsTimerActive(ParryEventExpiryTimer))
-		GetWorldTimerManager().SetTimer(ParryEventExpiryTimer, this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
-}
-
-void AYlva::FinishParryEvent()
-{
-	FSM->PopState();
-	FSM->PopState("Block");
-}
-
-void AYlva::EnableGodMode()
-{
-	bGodMode = true;
-
-	OverthroneHUD->GetMasterHUD()->HighlightBox(4 /*God mode box*/);
-
-	ResetHealth();
-	ResetStamina();
-}
-
-void AYlva::DisableGodMode()
-{
-	bGodMode = false;
-
-	OverthroneHUD->GetMasterHUD()->UnhighlightBox(4 /*God mode box*/);
-}
-
-void AYlva::ToggleGodMode()
-{
-	bGodMode = !bGodMode;
-
-	if (bGodMode)
-	{
-		OverthroneHUD->GetMasterHUD()->HighlightBox(4 /*God mode box*/);
-
-		ResetHealth();
-		ResetStamina();
-	}
-	else
-	{
-		OverthroneHUD->GetMasterHUD()->UnhighlightBox(4 /*God mode box*/);
-	}
-}
-
-bool AYlva::IsParrySuccessful()
-{
-	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
-}
-
-void AYlva::StartDashCooldown()
-{
-	GetWorldTimerManager().SetTimer(DashCooldownTimer, Combat.DashSettings.DashCooldown, false);
 }
 
 void AYlva::ApplyHitStop()
@@ -1636,6 +1672,11 @@ bool AYlva::IsChargeAttacking() const
 	return ChargeAttackHoldFrames > 1;
 }
 
+bool AYlva::IsParrySuccessful()
+{
+	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
+}
+
 bool AYlva::IsDashing() const
 {
 	return FSM->GetActiveStateID() == 12;
@@ -1664,11 +1705,6 @@ bool AYlva::IsMovingLeft() const
 bool AYlva::IsMovingInAnyDirection() const
 {
 	return IsMovingBackward() || IsMovingForward() || IsMovingRight() || IsMovingLeft() || ForwardInput != 0.0f || RightInput != 0.0f;
-}
-
-float AYlva::GetMovementDirection() const
-{
-	return ForwardInput != 0.0f || RightInput != 0.0f;
 }
 
 UStaticMeshComponent* AYlva::GetLeftHandSword()
@@ -1723,44 +1759,5 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 	#endif
 
 	return nullptr;
-}
-
-float AYlva::CalculateDirection() const
-{
-	const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
-	const FRotator NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
-
-	return NewDirection.GetNormalized().Yaw;
-}
-
-void AYlva::CalculateRollLean(const float DeltaTime)
-{
-	if (FSM->GetActiveStateID() != 0 /*Idle*/ && FSM->GetActiveStateID() != 4 /*Block*/ && FSM->GetActiveStateID() != 5 /*Death*/)
-	{
-		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
-		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
-
-		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, Turn, DeltaTime, InterpSpeed);
-		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanRollOffset;
-	}
-	else
-	{
-		PlayerLeanRollAmount = FMath::FInterpTo(PlayerLeanRollAmount, 0.0f, DeltaTime, 10.0f);
-		YlvaAnimInstance->LeanRollAmount = PlayerLeanRollAmount * MovementSettings.LeanRollOffset;
-	}
-}
-
-void AYlva::CalculatePitchLean(const float DeltaTime)
-{
-	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking() && FSM->GetActiveStateID() != 5 /*Death*/)
-	{
-		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 5.0f);
-		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
-	}
-	else
-	{
-		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
-		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
-	}
 }
 

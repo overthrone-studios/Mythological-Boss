@@ -230,7 +230,7 @@ struct FCombatSettings_Ylva : public FCombatSettings
 };
 
 /*
- * The player character you control
+ * The player character we control
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API AYlva final : public AOverthroneCharacter
@@ -243,77 +243,83 @@ public:
 	void ApplyHitStop() override;
 
 	// Returns CameraBoom component
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva } Components")
 		FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	// Returns FollowCamera component
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Components")
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	// Returns true if we have taken 1 or more hits
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
 		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
 
 	// Returns the light attack damage value
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the charge attack damage value
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE float GetChargeAttackDamage() const { return Combat.AttackSettings.ChargeAttackDamage; }
 
 	// Returns the attack radius value
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Returns the teleport radius value
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		FORCEINLINE float GetTeleportRadius() const { return TeleportRadius; }
 
 	// Returns true if we are light attacking
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
 		bool IsLightAttacking() const;
 
 	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are doing any attack
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsAttacking() const;
 
 	// Returns true if we are charge attacking
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsChargeAttacking() const;
 
+	// Did we successfully parry?
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+		bool IsParrySuccessful();
+
 	// Returns true if we are currently dashing
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsDashing() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	// Returns true if our forward input is > 0.0f AND our right input == 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingForward() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	// Returns true if our forward input is < 0.0f AND our right input == 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingBackward() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	// Returns true if our right input is > 0.0f AND our forward input == 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingRight() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	// Returns true if our right input is < 0.0f AND our forward input == 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingLeft() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva")
+	// Returns true if our forward input or right input != 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingInAnyDirection() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva")
-		float GetMovementDirection() const;
-
 	// Increases the charge meter
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
@@ -324,8 +330,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float LookUpRate;
 
-	// Ylva's debug settings
-	UPROPERTY(EditInstanceOnly, Category = "Ylva")
+	// Ylva's debug options
+	UPROPERTY(EditInstanceOnly, Category = "Ylva | Debug")
 		FDebug_Ylva Debug;
 
 protected:
@@ -368,131 +374,150 @@ protected:
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
 
-	// Called via input when holding down a key
+	// Called via input to enter the light attacking state
+	void LightAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+		void BeginLightAttack(class UAnimMontage* AttackMontage);
+	
+	// Called via input to enter the heavy attacking state
+	void HeavyAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+		void BeginHeavyAttack(class UAnimMontage* AttackMontage);
+
+	// Called via input when holding down the charge attack key
 	void ChargeUpAttack();
 
 	// Called via input when releasing the charge attack key
 	void ReleaseChargeAttack();
 
-	void Die() override;
+	// Called 0.2 seconds after ReleaseChargeAttack()
+	void FinishChargeAttack();
 
-	void Debug_ResetFeats();
+	// Triggers the parry event to start
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+		void StartParryEvent();
 
-	// Give the player full health
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Debug_Die();
-
-	// Give the player full health
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Debug_MaxHealth();
-
-	// Give the player full stamina
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Debug_RefillStamina();
-
-	// Give the player full charge
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Debug_MaxCharge();
-
-	// Buff overall player stats
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Debug_ToggleBuff();
-
-	// Called via input to toggle lock on mechanic
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ToggleLockOn();
-
-	// Utility function to enable lock on
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void EnableLockOn();
-	// Utility function to disable lock on
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DisableLockOn();
+	void FinishParryEvent();
 
 	// Called via input to enter the block state
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
 		void Block();
 
 	// Called via input to exit the block state
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
 		void StopBlocking();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void BeginLightAttack(class UAnimMontage* AttackMontage);
-	
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void BeginHeavyAttack(class UAnimMontage* AttackMontage);
-
-	// Called via input to enter the light attacking state
-	void LightAttack();
-
-	// Called via input to enter the heavy attacking state
-	void HeavyAttack();
-
-	// Called via input released to stop using controller rotation yaw
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DisableControllerRotationYaw();
-
 	// Called via input to enter the running state
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
 		void Run();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+		void UpdateIsRunHeld();
+
 	// Called via input to exit the running state
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
 		void StopRunning();
 
 	// Called via input to start dashing
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
 		void Dash();
 
+	// Set a timer to start the dash cooldown
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+		void StartDashCooldown();
+
+	void Die() override;
+
+	// Called when the player is killed (Health <= 0)
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
+		void Respawn();
+
+	// Kill the player
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
+		void Debug_Die();
+
+	// Reset the player's achievements
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
+		void Debug_ResetFeats();
+
+	// Give the player full health
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
+		void Debug_MaxHealth();
+
+	// Give the player full stamina
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
+		void Debug_RefillStamina();
+
+	// Give the player full charge
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
+		void Debug_MaxCharge();
+
+	// Buff overall player stats
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
+		void Debug_ToggleBuff();
+
+	// Called via input to pause the game
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Controls")
+		void Pause();
+
+	// Called via input to toggle lock on mechanic
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On")
+		void ToggleLockOn();
+
+	// Utility function to enable lock on
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On")
+		void EnableLockOn();
+
+	// Utility function to disable lock on
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On")
+		void DisableLockOn();
+
+	// Disables the use of controller rotation for yaw axis
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Controls")
+		void DisableControllerRotationYaw();
+
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
 		void ShowPlayerFSMVisualizer();
 
 	// Called via input to show the Boss FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
 		void ShowBossFSMVisualizer();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
 		void ShowMainHUD();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | HUD Controls")
 		void ShowNoHUD();
 
-	// Called via input to pause the game
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Pause();
-
 	// Called every frame
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
 		void RegenerateStamina(float Rate);
 
-	// Called when the player is killed (Health <= 0)
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void Respawn();
-
-	// Set a new stamina value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void SetStamina(float NewStaminaAmount);
-
-	// Subtract stamina value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void DecreaseStamina(float Amount);
-
-	// Add stamina value
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void IncreaseStamina(float Amount);
-
-	// Resets stamina back to default
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void ResetStamina();
-
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
 		void UpdateStamina(float StaminaToSubtract);
 
-	UFUNCTION()
+	// Add stamina value
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
+		void IncreaseStamina(float Amount);
+
+	// Subtract stamina value
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
+		void DecreaseStamina(float Amount);
+
+	// Set a new stamina value
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
+		void SetStamina(float NewStaminaAmount);
+
+	// Resets stamina back to default
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
+		void ResetStamina();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Stamina")
 		void StartLosingStamina();
 
 	UFUNCTION()
@@ -501,7 +526,7 @@ protected:
 	UFUNCTION()
 		void FinishLosingStamina();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void StartGainingCharge(float Amount);
 
 	UFUNCTION()
@@ -510,49 +535,34 @@ protected:
 	UFUNCTION()
 		void FinishGainingCharge();
 
-	UFUNCTION()
-		void UpdateIsRunHeld();
-
-	void FinishChargeAttack();
-
 	// Resets global time dilation to 1
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void ResetGlobalTimeDilation();
 
-	// Did we successfully parry?
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		bool IsParrySuccessful();
-
-	void StartParryEvent();
-	void FinishParryEvent();
-
 	// God mode functions
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void EnableGodMode();
 	
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void DisableGodMode();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void ToggleGodMode();
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void StartDashCooldown();
-
 	// Attach sword to the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void AttachSword() const;
 
 	// Detach from the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void DetachSword();
 
 	// Returns the sword static mesh components attached to the left hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		UStaticMeshComponent* GetLeftHandSword();
 
 	// Returns the sword static mesh components attached to the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		UStaticMeshComponent* GetRightHandSword();
 
 	// Decreases the charge meter
