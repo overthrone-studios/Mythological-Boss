@@ -714,6 +714,24 @@ protected:
 		#pragma endregion 
 	#pragma endregion
 
+	#pragma region Misc
+	// Resets global time dilation to 1
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		void ResetGlobalTimeDilation();
+
+	// Called when the player is killed (Health <= 0)
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		void Respawn();
+
+	// Returns the sword static mesh components attached to the left hand bone
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		UStaticMeshComponent* GetLeftHandSword();
+
+	// Returns the sword static mesh components attached to the right hand bone
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
+		UStaticMeshComponent* GetRightHandSword();
+	#pragma endregion
+
 	#pragma region Components
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -739,24 +757,6 @@ protected:
 	// This timeline plays when we are building charge
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Charge Attack")
 		class UTimelineComponent* ChargeAttackTimeline;
-	#pragma endregion
-
-	#pragma region Misc
-	// Resets global time dilation to 1
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
-		void ResetGlobalTimeDilation();
-
-	// Called when the player is killed (Health <= 0)
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
-		void Respawn();
-
-	// Returns the sword static mesh components attached to the left hand bone
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
-		UStaticMeshComponent* GetLeftHandSword();
-
-	// Returns the sword static mesh components attached to the right hand bone
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
-		UStaticMeshComponent* GetRightHandSword();
 	#pragma endregion
 
 	// The radius the boss will use to teleport to a point on this circle
