@@ -267,7 +267,6 @@ void AYlva::Tick(const float DeltaTime)
 		GetController()->SetControlRotation(NewRotation);
 
 		GameInstance->SetLockOnLocation(GameInstance->BossInfo.Location);
-		GameInstance->SetLockOnRotation(NewRotation - FRotator(0.0f, 180.0f, 0.0f));
 	}
 
 	// Stamina regen mechanic

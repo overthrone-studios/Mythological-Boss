@@ -99,7 +99,6 @@ public:
 	void InitInstance();
 
 	void SetLockOnLocation(const FVector& LockOnLocation) const;
-	void SetLockOnRotation(const FRotator& LockOnRotation) const;
 	void ToggleLockOnVisibility(bool bIsVisible) const;
 
 	FBox PlayArea{};

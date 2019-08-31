@@ -130,12 +130,6 @@ void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) c
 		LockOn->SetActorLocation(LockOnLocation);
 }
 
-void UOverthroneGameInstance::SetLockOnRotation(const FRotator& LockOnRotation) const
-{
-	if (LockOn)
-		LockOn->SetActorRotation(LockOnRotation);
-}
-
 void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
 {
 	if (LockOn)
