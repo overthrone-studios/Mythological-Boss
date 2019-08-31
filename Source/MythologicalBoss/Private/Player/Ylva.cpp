@@ -424,71 +424,15 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	if (FSM->GetActiveStateName() == "Death")
 		return DamageAmount;
 
+	BeginTakeDamage();
+
 	// Apply damage once
 	if (HealthComponent->GetCurrentHealth() > 0.0f && !bIsHit)
 	{
-		// Pop the active state that's not Idle or Block
-		if (FSM->GetActiveStateName() != "Idle" &&
-			FSM->GetActiveStateName() != "Block")
-		{
-			FSM->PopState();
-		}
-
-		if (IsParrySuccessful())
-		{
-			FSM->PushState("Parry");
-			return DamageAmount;
-		}
-
-		if (bGodMode)
-			return DamageAmount;
-
-		// Test against other states
-		switch (FSM->GetActiveStateID())
-		{
-			case 4 /*Block*/:
-				// Enter shield hit state
-				FSM->PopState();
-				FSM->PushState("Shield Hit");
-
-				// Shake the camera
-				PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
-
-				// Update stats
-				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
-				UpdateStamina(StaminaComponent->GetShieldHitValue());
-			break;
-
-			default:
-				HitCounter++;
-				HitCounter_Persistent++;
-
-				// Enter damaged state
-				FSM->PushState("Damaged");
-
-				// Shake the camera
-				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
-
-				UpdateHealth(DamageAmount);
-
-				// Determine whether to reset the charge meter or not
-				if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
-				{
-					HitCounter = 0;
-					ResetCharge();
-				}
-				else
-				{
-					DecreaseCharge();
-				}
-			break;
-		}
+		ApplyDamage(DamageAmount);
 	}
 
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
-	{
-		Die();
-	}
+	EndTakeDamage();
 
 	return DamageAmount;
 }
@@ -774,6 +718,78 @@ void AYlva::StopBlocking()
 	bUseControllerRotationYaw = false;
 
 	FSM->PopState();
+}
+
+void AYlva::BeginTakeDamage()
+{
+}
+
+void AYlva::ApplyDamage(const float DamageAmount)
+{
+	// Pop the active state that's not Idle or Block
+	if (FSM->GetActiveStateName() != "Idle" &&
+		FSM->GetActiveStateName() != "Block")
+	{
+		FSM->PopState();
+	}
+
+	if (IsParrySuccessful())
+	{
+		FSM->PushState("Parry");
+		return;
+	}
+
+	if (bGodMode)
+		return;
+
+	// Test against other states
+	switch (FSM->GetActiveStateID())
+	{
+		case 4 /*Block*/:
+			// Enter shield hit state
+			FSM->PopState();
+			FSM->PushState("Shield Hit");
+
+			// Shake the camera
+			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
+
+			// Update stats
+			UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+			UpdateStamina(StaminaComponent->GetShieldHitValue());
+		break;
+
+		default:
+			HitCounter++;
+			HitCounter_Persistent++;
+
+			// Enter damaged state
+			FSM->PushState("Damaged");
+
+			// Shake the camera
+			PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+
+			UpdateHealth(DamageAmount);
+
+			// Determine whether to reset the charge meter or not
+			if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
+			{
+				HitCounter = 0;
+				ResetCharge();
+			}
+			else
+			{
+				DecreaseCharge();
+			}
+		break;
+	}
+}
+
+void AYlva::EndTakeDamage()
+{
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
+	{
+		Die();
+	}
 }
 #pragma endregion
 

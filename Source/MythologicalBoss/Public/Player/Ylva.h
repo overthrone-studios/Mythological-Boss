@@ -413,6 +413,15 @@ protected:
 	// Called via input to exit the block state
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void StopBlocking();
+
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
+		void BeginTakeDamage();
+	
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
+		void ApplyDamage(float DamageAmount);
+	
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
+		void EndTakeDamage();
 	#pragma endregion
 
 	#pragma region Movement
