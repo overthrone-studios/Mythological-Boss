@@ -250,10 +250,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	// Returns true if we have used 1 or more health potions
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		FORCEINLINE bool HasUsedHealthPotion() const { return HealthPotionUses > 0; }
-
 	// Returns true if we have taken 1 or more hits
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
@@ -320,10 +316,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva")
 		void IncreaseCharge();
 
-	// Pause current animation, triggers a reset timer when called
-	UFUNCTION(BlueprintCallable, Category = "Ylva")
-		void PauseAnimsWithTimer();
-
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
@@ -336,9 +328,6 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Ylva")
 		FDebug_Ylva Debug;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Ylva")
-		int32 HealthPotionUses = 0;
-
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
@@ -347,13 +336,14 @@ protected:
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void ChangeHitboxSize(float NewRadius) override;
-	void UpdateCharacterInfo() override;
-	void BroadcastLowHealth() override;
 
+	void UpdateCharacterInfo() override;
+
+	void BroadcastLowHealth() override;
 	void BroadcastLowStamina();
 
-	void StartLosingHealth() override;
 	void LoseHealth() override;
+	void StartLosingHealth() override;
 
 	float CalculateDirection() const;
 

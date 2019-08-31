@@ -1311,9 +1311,6 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 				// Enter damaged state
 				FSM->PushState("Damaged");
 
-				// Apply hit stop
-				PauseAnimsWithTimer();
-
 				// Shake the camera
 				PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
@@ -1344,9 +1341,6 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 void AYlva::OnBossDeath()
 {
 	DisableLockOn();
-
-	if (!HasUsedHealthPotion() && !WarriorFeat->bIsComplete)
-		OnWarriorFeatAchieved();
 
 	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
 		OnUntouchableFeatAchieved();
@@ -1675,12 +1669,6 @@ bool AYlva::IsMovingInAnyDirection() const
 float AYlva::GetMovementDirection() const
 {
 	return ForwardInput != 0.0f || RightInput != 0.0f;
-}
-
-void AYlva::PauseAnimsWithTimer()
-{
-	PauseAnims();
-	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
 }
 
 UStaticMeshComponent* AYlva::GetLeftHandSword()
