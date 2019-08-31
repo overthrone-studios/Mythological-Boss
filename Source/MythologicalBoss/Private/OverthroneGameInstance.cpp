@@ -139,7 +139,7 @@ void UOverthroneGameInstance::SetLockOnRotation(const FRotator& LockOnRotation) 
 void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
 {
 	if (LockOn)
-		LockOn->SetActorHiddenInGame(!bIsVisible);
+		LockOn->ToggleVisibility(!bIsVisible);
 }
 
 void UOverthroneGameInstance::OnFeatAchieved()
