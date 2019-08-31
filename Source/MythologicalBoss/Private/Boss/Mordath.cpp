@@ -255,6 +255,8 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GameInstance->BossInfo.Location = GetActorLocation();
+
 	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
 		FSM->PopState();
@@ -1348,7 +1350,7 @@ void AMordath::SendInfo()
 {
 	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
-	GameInstance->BossInfo.Location = GetActorLocation();
+	//GameInstance->BossInfo.Location = GetActorLocation();
 }
 
 void AMordath::BeginJumpAttack()
