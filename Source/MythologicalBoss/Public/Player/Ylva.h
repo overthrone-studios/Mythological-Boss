@@ -243,7 +243,7 @@ public:
 	void ApplyHitStop() override;
 
 	// Returns CameraBoom component
-	UFUNCTION(BlueprintCallable, Category = "Ylva } Components")
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Components")
 		FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	// Returns FollowCamera component
