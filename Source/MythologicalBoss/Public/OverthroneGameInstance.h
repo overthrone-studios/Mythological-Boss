@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
 USTRUCT()
-struct FCharacterInfo
+struct FCharacterData
 {
 	GENERATED_BODY()
 
@@ -29,7 +29,7 @@ struct FCharacterInfo
 };
 
 USTRUCT()
-struct FPlayerInfo : public FCharacterInfo
+struct FPlayerData : public FCharacterData
 {
 	GENERATED_BODY()
 
@@ -103,8 +103,8 @@ public:
 
 	FBox PlayArea{};
 
-	FPlayerInfo PlayerInfo;
-	FCharacterInfo BossInfo;
+	FPlayerData PlayerInfo;
+	FCharacterData BossInfo;
 
 	class ALockOn* LockOn;
 
