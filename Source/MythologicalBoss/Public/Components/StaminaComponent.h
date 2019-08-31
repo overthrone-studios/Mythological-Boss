@@ -45,7 +45,7 @@ public:
 
 	// Return the actor's new stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
-		FORCEINLINE float GetSmoothedStamina() const { return NewStamina; }
+		FORCEINLINE float GetSmoothedStamina() const { return SmoothedStamina; }
 
 	// Returns true if smooth bar is enabled
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -151,16 +151,16 @@ protected:
 		float LowStaminaThreshold = 0.25f;
 
 	// The amount of time (in seconds) we should wait before decreasing stamina smoothly
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina", meta = (EditCondition = "bSmoothBar", ClampMin = 0.0f, ClampMax = 10.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina", meta = (ClampMin = 0.0f, ClampMax = 10.0f))
 		float Delay = 0.5f;
 
 	// The actor's previous health before being damaged
 	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
 		float PreviousStamina;
 
-	// The actor's updated health when bSmoothBar is enabled
+	// The actor's smoothed stamina
 	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
-		float NewStamina;
+		float SmoothedStamina;
 
 	// The rate of stamina regeneration (How fast do we replenish stamina)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))

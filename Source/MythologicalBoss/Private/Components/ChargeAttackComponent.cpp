@@ -28,12 +28,12 @@ void UChargeAttackComponent::SetCharge(const float NewChargeAmount)
 	PreviousCharge = Charge;
 
 	Charge = FMath::Clamp(NewChargeAmount, 0.0f, MaxCharge);
-	NewCharge = Charge;
+	SmoothedCharge = Charge;
 }
 
 void UChargeAttackComponent::SetSmoothedCharge(const float Value)
 {
-	NewCharge = Value;
+	SmoothedCharge = Value;
 }
 
 void UChargeAttackComponent::IncreaseCharge(const float Amount)
@@ -41,7 +41,7 @@ void UChargeAttackComponent::IncreaseCharge(const float Amount)
 	PreviousCharge = Charge;
 
 	Charge = FMath::Clamp(Charge + Amount, 0.0f, MaxCharge);
-	NewCharge = Charge;
+	SmoothedCharge = Charge;
 }
 
 void UChargeAttackComponent::DecreaseCharge(const float Amount)
@@ -49,7 +49,7 @@ void UChargeAttackComponent::DecreaseCharge(const float Amount)
 	PreviousCharge = Charge;
 
 	Charge = FMath::Clamp(Charge - Amount, 0.0f, MaxCharge);
-	NewCharge = Charge;
+	SmoothedCharge = Charge;
 }
 
 void UChargeAttackComponent::ResetCharge()
@@ -70,5 +70,5 @@ void UChargeAttackComponent::InitChargeAttack()
 {
 	Charge = 0.0f;
 	PreviousCharge = 0.0f;
-	NewCharge = 0.0f;
+	SmoothedCharge = 0.0f;
 }

@@ -1138,10 +1138,7 @@ void AYlva::FinishLosingStamina()
 #pragma region Charge Attack
 void AYlva::IncreaseCharge()
 {
-	if (ChargeAttackComponent->IsUsingSmoothBar())
-		StartGainingCharge(ChargeAttackComponent->GetChargeGain());
-	else
-		ChargeAttackComponent->IncreaseCharge(ChargeAttackComponent->GetChargeGain());
+	StartGainingCharge(ChargeAttackComponent->GetChargeGain());
 
 	UpdateCharacterInfo();
 
@@ -1714,7 +1711,6 @@ UStaticMeshComponent* AYlva::GetLeftHandSword()
 	{
 		if (Component->GetName() == "Sword_L" || Component->GetName() == "Sword")
 		{
-			OriginalLeftSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
 			return Cast<UStaticMeshComponent>(Component);
 		}
 	}
@@ -1741,7 +1737,6 @@ UStaticMeshComponent* AYlva::GetRightHandSword()
 	{
 		if (Component->GetName() == "Sword_R" || Component->GetName() == "Sword")
 		{
-			OriginalRightSwordRotation = Cast<UStaticMeshComponent>(Component)->RelativeRotation;
 			return Cast<UStaticMeshComponent>(Component);
 		}
 	}

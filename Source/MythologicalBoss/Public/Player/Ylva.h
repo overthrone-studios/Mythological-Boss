@@ -829,9 +829,6 @@ private:
 
 	uint16 ChargeAttackHoldFrames = 0;
 
-	FRotator OriginalRightSwordRotation{};
-	FRotator OriginalLeftSwordRotation{};
-
 	FTimerHandle DashCooldownTimer;
 	FTimerHandle ParryEventExpiryTimer;
 

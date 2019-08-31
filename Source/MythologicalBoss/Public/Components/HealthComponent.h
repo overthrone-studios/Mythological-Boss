@@ -37,16 +37,12 @@ public:
 
 	// Return the actor's new health value
 	UFUNCTION(BlueprintPure, Category = "Health")
-		FORCEINLINE float GetSmoothedHealth() const { return NewHealth; }
+		FORCEINLINE float GetSmoothedHealth() const { return SmoothedHealth; }
 
 	// Return the actor's low health threshold value as percentage
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE float GetLowHealthThreshold() const { return LowHealthThreshold; }
 	
-	// Returns true if smooth bar is enabled
-	UFUNCTION(BlueprintPure, Category = "Health")
-		FORCEINLINE bool IsUsingSmoothBar() const { return bSmoothBar; }
-
 	// Returns true if the actor's health is less than or equal to the low health threshold
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE bool IsLowHealth() const { return Health <= DefaultHealth * LowHealthThreshold; }
@@ -102,12 +98,8 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float LowHealthThreshold = 0.25f;
 
-	// Should we use a smooth health bar?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Health")
-		uint8 bSmoothBar : 1;
-
 	// The amount of time (in seconds) we should wait before decreasing health smoothly
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "bSmoothBar", ClampMin = 0.0f, ClampMax = 10.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 10.0f))
 		float Delay = 0.5f;
 
 	// The actor's previous health before being damaged
@@ -116,7 +108,7 @@ protected:
 
 	// The actor's updated health when bSmoothBar is enabled
 	UPROPERTY(BlueprintReadOnly, Category = "Health")
-		float NewHealth;
+		float SmoothedHealth;
 
 	// The actor that owns this component
 	UPROPERTY(BlueprintReadOnly)

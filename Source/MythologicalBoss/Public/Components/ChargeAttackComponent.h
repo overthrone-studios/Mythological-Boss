@@ -41,12 +41,8 @@ public:
 
 	// Return the actor's smoothed charge value
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
-		FORCEINLINE float GetSmoothedCharge() const { return NewCharge; }
+		FORCEINLINE float GetSmoothedCharge() const { return SmoothedCharge; }
 	
-	// Returns true if smooth bar is enabled
-	UFUNCTION(BlueprintPure, Category = "Charge Attack")
-		FORCEINLINE bool IsUsingSmoothBar() const { return bSmoothBar; }
-
 	// Returns true if our current charge value is >= to our maximum charge value
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
 		FORCEINLINE bool IsChargeFull() const { return Charge >= MaxCharge; }
@@ -138,17 +134,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f))
 		float ChargeLossRate = 30.0f;
 
-	// Should we use a smooth charge meter bar?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack")
-		uint8 bSmoothBar : 1;
-
 	// The actor's previous charge
 	UPROPERTY(BlueprintReadOnly, Category = "Charge Attack")
 		float PreviousCharge;
 
 	// The actor's smoothed charge
 	UPROPERTY(BlueprintReadOnly, Category = "Charge Attack")
-		float NewCharge;
+		float SmoothedCharge;
 
 	// The actor that owns this component
 	UPROPERTY(BlueprintReadOnly)
