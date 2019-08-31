@@ -1621,34 +1621,11 @@ void AYlva::OnUntouchableFeatAchieved()
 	UntouchableFeat->OnFeatAchieved.Broadcast();
 }
 
-void AYlva::AttachSword() const
-{
-	if (R_SwordMesh)
-	{
-		R_SwordMesh->SetWorldLocation(GetMesh()->GetSocketLocation(R_SwordStartSocketName));
-		R_SwordMesh->SetWorldRotation(GetMesh()->GetSocketRotation(R_SwordStartSocketName) + StartRightSwordRotation);
-		
-		R_SwordMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform, R_SwordStartSocketName);
-	}
-}
-
-void AYlva::DetachSword()
-{
-	if (Combat.SwordStickTime <= 0.0f)
-		return;
-
-	if (R_SwordMesh)
-	{
-		R_SwordMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		GetWorldTimerManager().SetTimer(SwordDetachmentExpiryTimer, this, &AYlva::AttachSword, Combat.SwordStickTime, false);
-	}
-}
-
 void AYlva::ApplyHitStop()
 {
 	if (Combat.bEnableHitStop)
 	{
-		DetachSword();
+		// Todo: Hit stop implementation
 	}
 }
 

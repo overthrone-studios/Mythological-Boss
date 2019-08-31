@@ -549,14 +549,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		void ToggleGodMode();
 
-	// Attach sword to the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void AttachSword() const;
-
-	// Detach from the right hand bone
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
-		void DetachSword();
-
 	// Returns the sword static mesh components attached to the left hand bone
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Misc")
 		UStaticMeshComponent* GetLeftHandSword();
