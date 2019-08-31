@@ -335,21 +335,6 @@ protected:
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void ChangeHitboxSize(float NewRadius) override;
-
-	void UpdateCharacterInfo() override;
-
-	void BroadcastLowHealth() override;
-	void BroadcastLowStamina();
-
-	void LoseHealth() override;
-	void StartLosingHealth() override;
-
-	float CalculateDirection() const;
-
-	void CalculateRollLean(float DeltaTime);
-	void CalculatePitchLean(float DeltaTime);
-
 	// Called for forwards/backward input
 	void MoveForward(float Value);
 
@@ -367,6 +352,21 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	void ChangeHitboxSize(float NewRadius) override;
+
+	void UpdateCharacterInfo() override;
+
+	void BroadcastLowHealth() override;
+	void BroadcastLowStamina();
+
+	void LoseHealth() override;
+	void StartLosingHealth() override;
+
+	float CalculateDirection() const;
+
+	void CalculateRollLean(float DeltaTime);
+	void CalculatePitchLean(float DeltaTime);
 
 	// Called via input when holding down a key
 	void ChargeUpAttack();

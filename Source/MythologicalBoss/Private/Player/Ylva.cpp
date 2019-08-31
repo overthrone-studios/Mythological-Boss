@@ -357,52 +357,6 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 #endif
 }
 
-void AYlva::ChangeHitboxSize(const float NewRadius)
-{
-	Combat.AttackSettings.AttackRadius = NewRadius;
-}
-
-void AYlva::UpdateCharacterInfo()
-{
-	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
-	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetSmoothedCharge();
-	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
-	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
-	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
-}
-
-void AYlva::BroadcastLowHealth()
-{
-	GameInstance->PlayerInfo.OnLowHealth.Broadcast();
-	bWasLowHealthEventTriggered = true;
-}
-
-void AYlva::BroadcastLowStamina()
-{
-	GameInstance->PlayerInfo.OnLowStamina.Broadcast();
-	bWasLowStaminaEventTriggered = true;
-}
-
-void AYlva::StartLosingHealth()
-{
-	Super::StartLosingHealth();
-
-	if (Debug.bLogHealthValues)
-	{
-		ULog::Number(HealthComponent->GetPreviousHealth(), "Previous Health: ", true);
-		ULog::Number(HealthComponent->GetCurrentHealth(), "Target Health: ", true);
-	}
-}
-
-void AYlva::LoseHealth()
-{
-	Super::LoseHealth();
-
-	if (Debug.bLogHealthValues)
-		ULog::Number(HealthComponent->GetSmoothedHealth(), "New Health: ", true);
-}
-
 void AYlva::MoveForward(const float Value)
 {
 	if (!IsAttacking())
@@ -467,6 +421,52 @@ void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
+}
+
+void AYlva::ChangeHitboxSize(const float NewRadius)
+{
+	Combat.AttackSettings.AttackRadius = NewRadius;
+}
+
+void AYlva::UpdateCharacterInfo()
+{
+	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
+	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetSmoothedCharge();
+	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
+	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
+}
+
+void AYlva::BroadcastLowHealth()
+{
+	GameInstance->PlayerInfo.OnLowHealth.Broadcast();
+	bWasLowHealthEventTriggered = true;
+}
+
+void AYlva::BroadcastLowStamina()
+{
+	GameInstance->PlayerInfo.OnLowStamina.Broadcast();
+	bWasLowStaminaEventTriggered = true;
+}
+
+void AYlva::LoseHealth()
+{
+	Super::LoseHealth();
+
+	if (Debug.bLogHealthValues)
+		ULog::Number(HealthComponent->GetSmoothedHealth(), "New Health: ", true);
+}
+
+void AYlva::StartLosingHealth()
+{
+	Super::StartLosingHealth();
+
+	if (Debug.bLogHealthValues)
+	{
+		ULog::Number(HealthComponent->GetPreviousHealth(), "Previous Health: ", true);
+		ULog::Number(HealthComponent->GetCurrentHealth(), "Target Health: ", true);
+	}
 }
 
 void AYlva::ChargeUpAttack()
