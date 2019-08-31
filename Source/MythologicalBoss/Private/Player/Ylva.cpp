@@ -370,7 +370,6 @@ void AYlva::UpdateCharacterInfo()
 	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
 	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
-	GameInstance->PlayerInfo.Location = GetActorLocation();
 }
 
 void AYlva::BroadcastLowHealth()
@@ -512,7 +511,7 @@ void AYlva::ReleaseChargeAttack()
 
 	Combat.ChargeSettings.ChargeCameraAnimInst = nullptr;
 
-	PlayerController->SetIgnoreLookInput(false);
+	PlayerController->ResetIgnoreLookInput();
 
 	GetWorldTimerManager().SetTimer(ChargeAttackReleaseTimer, this, &AYlva::FinishChargeAttack, 0.2f);
 
