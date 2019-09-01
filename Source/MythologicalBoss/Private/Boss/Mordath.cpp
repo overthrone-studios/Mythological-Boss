@@ -1118,7 +1118,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case HeavyAttack_2:
-			FSM->PushState("Heavy Attack 1");
+			FSM->PushState("Heavy Attack 2");
 		break;
 
 		case HeavyAttack_3:
