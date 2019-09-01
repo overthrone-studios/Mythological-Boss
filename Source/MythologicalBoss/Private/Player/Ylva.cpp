@@ -264,7 +264,7 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	// Stamina regen mechanic
-	if (!StaminaRegenTimeline->IsPlaying())
+	if (StaminaComponent->IsRegenFinished())
 		RegenerateStamina(StaminaComponent->GetRegenRate());
 
 	// Charge loss mechanic
@@ -1028,7 +1028,7 @@ void AYlva::ShowNoHUD()
 #pragma region Stamina
 void AYlva::RegenerateStamina(const float Rate)
 {
-	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/ || !StaminaComponent->IsRegenFinished())
+	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/)
 		return;
 
 	IncreaseStamina(Rate * World->DeltaTimeSeconds);
@@ -1036,7 +1036,7 @@ void AYlva::RegenerateStamina(const float Rate)
 
 void AYlva::UpdateStamina(const float StaminaToSubtract)
 {
-	StaminaComponent->SetSmoothedStamina(StaminaComponent->GetSmoothedStamina());
+	StaminaComponent->UpdatePreviousStamina();
 
 	// Stop animating displayed stamina
 	if (StaminaRegenTimeline->IsPlaying())
@@ -1119,16 +1119,16 @@ void AYlva::StartLosingStamina()
 
 void AYlva::LoseStamina()
 {
-	const float Time = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
+	const float Value = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
 
-	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Time));
+	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Value));
 
 	UpdateCharacterInfo();
 }
 
 void AYlva::FinishLosingStamina()
 {
-	StaminaComponent->DelayRegeneration();
+	StaminaComponent->UpdatePreviousStamina();
 
 	UpdateCharacterInfo();
 }

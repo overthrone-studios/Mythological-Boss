@@ -115,6 +115,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 		void SetSmoothedStamina(float Value);
 
+	// Set the previous stamina value
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+		void SetPreviousStamina(float Value);
+
+	// Update the previous stamina value to the smoothed stamina value
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+		void UpdatePreviousStamina();
+
 	// Add stamina by an amount
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 		void IncreaseStamina(float Amount);
