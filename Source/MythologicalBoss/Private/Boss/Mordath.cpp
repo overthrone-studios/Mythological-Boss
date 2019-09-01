@@ -1096,9 +1096,6 @@ void AMordath::ChooseAttack()
 	if (FSM->GetActiveStateName() == "Dash")
 		FSM->PopState();
 
-	// Disable movement when we are going to attack
-	MovementComponent->SetMovementMode(MOVE_None);
-
 	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
 		case LightAttack_1:
@@ -1249,7 +1246,6 @@ void AMordath::SendInfo()
 {
 	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
-	//GameInstance->BossInfo.Location = GetActorLocation();
 }
 
 bool AMordath::IsStunned()
