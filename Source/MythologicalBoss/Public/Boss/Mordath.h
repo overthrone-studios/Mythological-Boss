@@ -194,38 +194,38 @@ public:
 	AMordath();
 
 	// Returns the light attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the special attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		FORCEINLINE float GetSpecialAttackDamage() const { return Combat.AttackSettings.SpecialAttackDamage; }
 
 	// Returns the attack radius value
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Returns the recent damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		FORCEINLINE float GetRecentDamage() const { return Combat.RecentDamage; }
 
 	// Returns true if we are light attacking
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		bool IsLightAttacking() const;
 
 	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are special attacking
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		bool IsSpecialAttacking() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		float GetWalkSpeed() const;
 
 	// Pause current animation, triggers a reset timer when called
@@ -252,38 +252,38 @@ protected:
 
 	void FinishStun();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
 		FRotator FacePlayer();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseComboWithDelay();
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseCombo();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void NextAttack();
 
 	void Die() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void DestroySelf();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
 		float GetDistanceToPlayer() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FVector GetDirectionToPlayer() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void EnableInvincibility();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void DisableInvincibility();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsStunned();
 
 	#pragma region Events
@@ -562,7 +562,7 @@ protected:
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	// Our custom AI controller
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath")
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | AI")
 		class ABossAIController* BossAIController{};
 	
 	// Cached anim instance, to control and trigger animations

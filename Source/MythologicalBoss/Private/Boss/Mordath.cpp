@@ -258,7 +258,7 @@ void AMordath::PossessedBy(AController* NewController)
 	BossAIController = Cast<ABossAIController>(NewController);
 }
 
-// Main FSM
+#pragma region Boss States
 #pragma region Idle
 void AMordath::OnEnterIdleState()
 {
@@ -267,14 +267,14 @@ void AMordath::OnEnterIdleState()
 
 void AMordath::UpdateIdleState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
-	if (GameInstance->PlayerInfo.bIsDead)
+	if(GameInstance->PlayerInfo.bIsDead)
 		return;
 
 	FacePlayer();
 
-	if (ChosenCombo)
+	if(ChosenCombo)
 		FSM->PushState("Follow");
 }
 
@@ -291,15 +291,15 @@ void AMordath::OnEnterFollowState()
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
-	if (!ChosenCombo)
+	if(!ChosenCombo)
 	{
-		ULog::DebugMessage(ERROR, FString("There are no combos in the list. A crash will occur!"), true);
+		ULog::DebugMessage(ERROR,FString("There are no combos in the list. A crash will occur!"),true);
 		return;
 	}
 
-	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if(ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
-		if (ComboSettings.bDelayBetweenCombo)
+		if(ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
 			ChooseCombo();
@@ -308,26 +308,17 @@ void AMordath::OnEnterFollowState()
 
 void AMordath::UpdateFollowState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	// Check for destructible objects and destroy them
-	if (ShouldDestroyDestructibleObjects())
-	{
-		BossAIController->StopMovement();
-		FSM->PushState(3);
-		return;
-	}
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	// Move towards the player
-	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius/2.0f && !IsInvincible())
+	if(GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius / 2.0f && !IsInvincible())
 	{
-		if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		if(GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 		{
-			MovementComponent->MaxWalkSpeed = GetWalkSpeed()/2.0f;
+			MovementComponent->MaxWalkSpeed = GetWalkSpeed() / 2.0f;
 
 			AddMovementInput(-GetDirectionToPlayer());
-		}
-		else
+		} else
 		{
 			MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 
@@ -338,27 +329,27 @@ void AMordath::UpdateFollowState()
 	FacePlayer();
 
 	// Decide which attack to choose
-	switch (RangeFSM->GetActiveStateID())
+	switch(RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && 
-			!GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
-			ChooseAttack();
+	if(!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) &&
+		!GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
+		ChooseAttack();
 	break;
 
 	case 1 /*Mid*/:
 	break;
 
 	case 2 /*Far*/:
-		// Todo: Jump attack
-		//if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
+	// Todo: Jump attack
+	//if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
 	break;
 
 	default:
 	break;
 	}
 
-	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if(GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
 		FSM->PopState();
 		FSM->PushState("Thinking");
@@ -379,22 +370,21 @@ void AMordath::OnEnterThinkState()
 
 void AMordath::UpdateThinkState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
-	if (GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
+	if(GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
 	{
 		AddMovementInput(GetDirectionToPlayer());
-	}
-	else
+	} else
 	{
-		if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+		if(PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
 			AddMovementInput(GetActorRightVector());
-		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+		else if(PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
 			AddMovementInput(-GetActorRightVector());
 
-		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		if(!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 		{
 			FSM->PopState();
 			FSM->PushState("Follow");
@@ -418,12 +408,12 @@ void AMordath::OnEnterLightAttack1State()
 
 void AMordath::UpdateLightAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -449,12 +439,12 @@ void AMordath::OnEnterLightAttack2State()
 
 void AMordath::UpdateLightAttack2State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -480,12 +470,12 @@ void AMordath::OnEnterLightAttack3State()
 
 void AMordath::UpdateLightAttack3State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -511,12 +501,12 @@ void AMordath::OnEnterHeavyAttack1State()
 
 void AMordath::UpdateHeavyAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -542,10 +532,10 @@ void AMordath::OnEnterHeavyAttack2State()
 
 void AMordath::UpdateHeavyAttack2State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -559,7 +549,7 @@ void AMordath::OnExitHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
-	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, Combat.AttackSettings.JumpAttackCooldown, false);
+	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle,Combat.AttackSettings.JumpAttackCooldown,false);
 }
 #pragma endregion
 
@@ -573,12 +563,12 @@ void AMordath::OnEnterHeavyAttack3State()
 
 void AMordath::UpdateHeavyAttack3State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -605,9 +595,9 @@ void AMordath::OnEnterDamagedState()
 
 void AMordath::UpdateDamagedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
-	if (FSM->GetActiveStateUptime() > 0.3f)
+	if(FSM->GetActiveStateUptime() > 0.3f)
 		FSM->PopState();
 }
 
@@ -618,7 +608,7 @@ void AMordath::OnExitDamagedState()
 	bIsHit = false;
 	AnimInstance->bIsHit = false;
 
-	if (ChosenCombo)
+	if(ChosenCombo)
 		NextAttack();
 }
 #pragma endregion
@@ -634,12 +624,12 @@ void AMordath::OnEnterDeathState()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
+	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle,this,&AMordath::DestroySelf,DeathTime);
 }
 
 void AMordath::UpdateDeathState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 }
 
@@ -663,12 +653,12 @@ void AMordath::OnEnterStunnedState()
 
 	MordathAnimInstance->bIsStunned = true;
 
-	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle, this, &AMordath::FinishStun, Combat.StunSettings.Duration);
+	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle,this,&AMordath::FinishStun,Combat.StunSettings.Duration);
 }
 
 void AMordath::UpdateStunnedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 }
 
@@ -676,7 +666,7 @@ void AMordath::OnExitStunnedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	if (ChosenCombo)
+	if(ChosenCombo)
 		NextAttack();
 
 	GameInstance->PlayerInfo.bParrySucceeded = false;
@@ -694,7 +684,7 @@ void AMordath::OnEnterLaughState()
 
 void AMordath::UpdateLaughState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 }
 
@@ -717,7 +707,7 @@ void AMordath::OnEnterDashState()
 
 void AMordath::UpdateDashState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
 	FacePlayer();
 }
@@ -726,7 +716,7 @@ void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, Combat.DashSettings.DashCooldown, false);
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle,Combat.DashSettings.DashCooldown,false);
 }
 #pragma endregion
 
@@ -735,7 +725,7 @@ void AMordath::OnEnterBeatenState()
 {
 	MordathAnimInstance->bIsBeaten = true;
 
-	LaunchCharacter(-GetActorForwardVector() * 1000, true, true);
+	LaunchCharacter(-GetActorForwardVector() * 1000,true,true);
 }
 
 void AMordath::UpdateBeatenState()
@@ -760,12 +750,12 @@ void AMordath::OnEnterTeleportState()
 
 void AMordath::UpdateTeleportState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
-	if (FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
+	if(FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
 	{
-		if (ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
-			SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(), GameInstance->GetTeleportRadius(), GameInstance->PlayArea));
+		if(ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+			SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(),GameInstance->GetTeleportRadius(),GameInstance->PlayArea));
 
 		FSM->PopState();
 	}
@@ -777,9 +767,10 @@ void AMordath::OnExitTeleportState()
 
 	MordathAnimInstance->bCanTeleport = false;
 }
+#pragma endregion  
 #pragma endregion
 
-// Range FSM
+#pragma region Boss Ranges
 #pragma region Close Range
 void AMordath::OnEnterCloseRange()
 {
@@ -787,15 +778,15 @@ void AMordath::OnEnterCloseRange()
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
-	if (GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
+	if(GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
 		RangeFSM->PushState("Mid");
 }
 
 void AMordath::UpdateCloseRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
 
-	if (GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
+	if(GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
 		RangeFSM->PushState("Mid");
 }
 
@@ -812,24 +803,24 @@ void AMordath::OnEnterMidRange()
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed;
 
-	if (GetDistanceToPlayer() <= AcceptanceRadius)
+	if(GetDistanceToPlayer() <= AcceptanceRadius)
 	{
 		RangeFSM->PushState("Close");
 		return;
 	}
 
-	if (GetDistanceToPlayer() > MidRangeRadius)
+	if(GetDistanceToPlayer() > MidRangeRadius)
 		RangeFSM->PushState("Far");
 }
 
 void AMordath::UpdateMidRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
 
-	if (GetDistanceToPlayer() <= AcceptanceRadius)
+	if(GetDistanceToPlayer() <= AcceptanceRadius)
 		RangeFSM->PushState("Close");
 
-	if (GetDistanceToPlayer() > MidRangeRadius)
+	if(GetDistanceToPlayer() > MidRangeRadius)
 		RangeFSM->PushState("Far");
 }
 
@@ -844,10 +835,10 @@ void AMordath::OnEnterFarRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	if (GetDistanceToPlayer() < MidRangeRadius)
+	if(GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
 
-	if ((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) && 
+	if((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) &&
 		ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
 	{
 		FSM->PopState();
@@ -857,9 +848,9 @@ void AMordath::OnEnterFarRange()
 
 void AMordath::UpdateFarRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
 
-	if (GetDistanceToPlayer() < MidRangeRadius)
+	if(GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
 }
 
@@ -868,8 +859,9 @@ void AMordath::OnExitFarRange()
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
 }
 #pragma endregion 
+#pragma endregion
 
-// Stage FSM
+#pragma region Boss Stages
 #pragma region Stage 1
 void AMordath::OnEnterFirstStage()
 {
@@ -881,10 +873,10 @@ void AMordath::OnEnterFirstStage()
 
 void AMordath::UpdateFirstStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(),StageFSM->GetActiveStateUptime());
 
 	// Can we enter the second stage?
-	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth && 
+	if(HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth &&
 		HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
 		GameInstance->OnSecondStage.Broadcast();
 }
@@ -906,10 +898,10 @@ void AMordath::OnEnterSecondStage()
 
 void AMordath::UpdateSecondStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(),StageFSM->GetActiveStateUptime());
 
 	// Can we enter the third stage?
-	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth && 
+	if(HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth &&
 		HealthComponent->GetCurrentHealth() > 0.0f)
 		GameInstance->OnThirdStage.Broadcast();
 }
@@ -931,14 +923,21 @@ void AMordath::OnEnterThirdStage()
 
 void AMordath::UpdateThirdStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(),StageFSM->GetActiveStateUptime());
 }
 
 void AMordath::OnExitThirdStage()
 {
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 }
-#pragma endregion 
+#pragma endregion   
+#pragma endregion
+
+#pragma region Events
+void AMordath::OnLowHealth()
+{
+	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
+}
 
 void AMordath::OnPlayerDeath()
 {
@@ -966,6 +965,8 @@ void AMordath::OnThirdStageHealth()
 	CachedCombos.Empty();
 	ChooseCombo();
 }
+#pragma endregion
+
 
 void AMordath::DestroySelf()
 {
@@ -987,11 +988,6 @@ void AMordath::BroadcastLowHealth()
 {
 	GameInstance->BossInfo.OnLowHealth.Broadcast();
 	bWasLowHealthEventTriggered = true;
-}
-
-void AMordath::OnLowHealth()
-{
-	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
 void AMordath::FinishStun()
