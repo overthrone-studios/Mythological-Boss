@@ -1298,6 +1298,21 @@ bool AMordath::IsSpecialAttacking() const
 	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11;
 }
 
+bool AMordath::IsInFirstStage() const
+{
+	return StageFSM->GetActiveStateID() == 0;
+}
+
+bool AMordath::IsInSecondStage() const
+{
+	return StageFSM->GetActiveStateID() == 1;
+}
+
+bool AMordath::IsInThirdStage() const
+{
+	return StageFSM->GetActiveStateID() == 2;
+}
+
 float AMordath::GetWalkSpeed() const
 {
 	switch (RangeFSM->GetActiveStateID())

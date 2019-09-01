@@ -225,6 +225,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsSpecialAttacking() const;
 
+	// Returns true if we are in the first stage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsInFirstStage() const;
+
+	// Returns true if we are in the second stage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsInSecondStage() const;
+
+	// Returns true if we are in the third stage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsInThirdStage() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		float GetWalkSpeed() const;
 
