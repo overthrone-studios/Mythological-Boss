@@ -20,3 +20,15 @@ void UMordathAnimInstance::NativeInitializeAnimation()
 	StateMachines[1] = GetStateMachineIndex("Stage 2");
 	StateMachines[2] = GetStateMachineIndex("Stage 3");
 }
+
+void UMordathAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	if (!OwningPawn || !PawnMovementComponent)
+		return;
+
+	const FVector Velocity = OwningPawn->GetVelocity();
+
+	MovementDirection = CalculateDirection(Velocity, OwningPawn->GetControlRotation());
+}
