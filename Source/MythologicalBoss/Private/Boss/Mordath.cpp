@@ -1327,6 +1327,6 @@ float AMordath::GetWalkSpeed() const
 		return MovementSettings.MidRangeWalkSpeed;
 
 	default:
-		return MovementSettings.WalkSpeed;
+		return MovementSettings.MidRangeWalkSpeed;
 	}
 }
