@@ -59,6 +59,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		void SetSmoothedHealth(float Value);
 
+	// Update our previous health to our smoothed health
+	UFUNCTION(BlueprintCallable, Category = "Health")
+		void UpdatePreviousHealth();
+
 	// Add health by an amount
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		void IncreaseHealth(float Amount);

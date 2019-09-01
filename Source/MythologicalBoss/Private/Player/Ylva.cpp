@@ -1119,9 +1119,9 @@ void AYlva::StartLosingStamina()
 
 void AYlva::LoseStamina()
 {
-	const float Value = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
+	const float Alpha = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
 
-	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Value));
+	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Alpha));
 
 	UpdateCharacterInfo();
 }

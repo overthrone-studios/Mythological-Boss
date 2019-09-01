@@ -57,13 +57,15 @@ void UHealthComponent::SetHealth(const float NewHealthAmount)
 void UHealthComponent::SetSmoothedHealth(const float Value)
 {
 	SmoothedHealth = Value;
+}
+
+void UHealthComponent::UpdatePreviousHealth()
+{
 	PreviousHealth = SmoothedHealth;
 }
 
 void UHealthComponent::IncreaseHealth(const float Amount)
 {
-	PreviousHealth = Health;
-
 	Health = FMath::Clamp(Health + Amount, 0.0f, DefaultHealth);
 	SmoothedHealth = Health;
 }
@@ -74,7 +76,6 @@ void UHealthComponent::DecreaseHealth(const float Amount)
 		PreviousHealth = Health;
 
 	Health = FMath::Clamp(Health - Amount, 0.0f, DefaultHealth);
-	//NewHealth = Health;
 }
 
 void UHealthComponent::ResetHealth()

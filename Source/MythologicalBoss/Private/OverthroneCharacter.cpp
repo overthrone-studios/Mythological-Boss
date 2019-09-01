@@ -105,9 +105,9 @@ void AOverthroneCharacter::StartLosingHealth()
 
 void AOverthroneCharacter::LoseHealth()
 {
-	const float Time = HealthLossCurve->GetFloatValue(HealthLossTimeline->GetPlaybackPosition());
+	const float Alpha = HealthLossCurve->GetFloatValue(HealthLossTimeline->GetPlaybackPosition());
 
-	HealthComponent->SetSmoothedHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Time));
+	HealthComponent->SetSmoothedHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Alpha));
 
 	UpdateCharacterInfo();
 	
@@ -159,7 +159,7 @@ void AOverthroneCharacter::ResetHealth()
 
 void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 {
-	HealthComponent->SetSmoothedHealth(HealthComponent->GetSmoothedHealth());
+	HealthComponent->UpdatePreviousHealth();
 
 	// Stop animating displayed health
 	if (HealthLossTimeline->IsPlaying())
