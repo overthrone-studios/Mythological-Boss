@@ -2,6 +2,7 @@
 
 #include "Mordath.h"
 
+#include "OverthroneFunctionLibrary.h"
 #include "OverthroneGameInstance.h"
 #include "OverthroneHUD.h"
 #include "FSM.h"
@@ -28,7 +29,6 @@
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
-
 
 AMordath::AMordath()
 {
@@ -210,7 +210,7 @@ void AMordath::BeginPlay()
 
 	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 
-	PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
@@ -358,7 +358,7 @@ void AMordath::UpdateFollowState()
 	break;
 	}
 
-	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && (StageFSM->GetActiveStateID() == 1 /*Stage 2*/ || StageFSM->GetActiveStateID() == 2 /*Stage 3*/))
+	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
 		FSM->PopState();
 		FSM->PushState("Thinking");
@@ -559,7 +559,7 @@ void AMordath::OnExitHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
-	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.AttackSettings.JumpAttackCooldown);
+	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle, Combat.AttackSettings.JumpAttackCooldown, false);
 }
 #pragma endregion
 
@@ -606,10 +606,6 @@ void AMordath::OnEnterDamagedState()
 void AMordath::UpdateDamagedState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	// If damaged animation has finished, go back to previous state
-	//const int32 StateIndex = AnimInstance->GetStateMachineInstance(AnimInstance->GenericsMachineIndex)->GetCurrentState();
-	//const float TimeRemaining = AnimInstance->GetRelevantAnimTimeRemaining(AnimInstance->GenericsMachineIndex, StateIndex);
 
 	if (FSM->GetActiveStateUptime() > 0.3f)
 		FSM->PopState();
@@ -730,7 +726,7 @@ void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AMordath::FinishCooldown, Combat.DashSettings.DashCooldown);
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, Combat.DashSettings.DashCooldown, false);
 }
 #pragma endregion
 
@@ -978,11 +974,6 @@ void AMordath::DestroySelf()
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 
 	Destroy();
-}
-
-void AMordath::FinishCooldown()
-{
-	//ULog::DebugMessage(SUCCESS, "Cooldown finished", true);
 }
 
 void AMordath::UpdateCharacterInfo()

@@ -19,6 +19,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Project Information")
 		static FString GetProjectVersion();
 	
+	// Get the first player character found in the level
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
+		static class AOverthroneCharacter* GetPlayerCharacter(UObject* WorldContextObject);
+
 	// Get the first boss character found in the level
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class AOverthroneCharacter* GetBossCharacter(UWorld* InWorld);

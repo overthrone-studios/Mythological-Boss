@@ -193,9 +193,6 @@ class MYTHOLOGICALBOSS_API AMordath final : public AOverthroneCharacter
 public:
 	AMordath();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		class UFSM* GetFSM() const { return FSM; }
-
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
@@ -254,7 +251,6 @@ protected:
 	bool ShouldDestroyDestructibleObjects();
 
 	void FinishStun();
-	void FinishCooldown();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		FRotator FacePlayer();
@@ -305,180 +301,183 @@ protected:
 		void OnAfterTakeDamage();
 	#pragma endregion 
 
-	// Boss states
-	#pragma region Idle
-	UFUNCTION()
-		void OnEnterIdleState();
-	UFUNCTION()
-		void UpdateIdleState();
-	UFUNCTION()
-		void OnExitIdleState();
-	#pragma endregion 
+	#pragma region Boss States
+		#pragma region Idle
+		UFUNCTION()
+			void OnEnterIdleState();
+		UFUNCTION()
+			void UpdateIdleState();
+		UFUNCTION()
+			void OnExitIdleState();
+		#pragma endregion 
 
-	#pragma region Follow
-	UFUNCTION()
-		void OnEnterFollowState();
-	UFUNCTION()
-		void UpdateFollowState();
-	UFUNCTION()
-		void OnExitFollowState();
-	#pragma endregion 
+		#pragma region Follow
+		UFUNCTION()
+			void OnEnterFollowState();
+		UFUNCTION()
+			void UpdateFollowState();
+		UFUNCTION()
+			void OnExitFollowState();
+		#pragma endregion 
 
-	#pragma region Think
-	UFUNCTION()
-		void OnEnterThinkState();
-	UFUNCTION()
-		void UpdateThinkState();
-	UFUNCTION()
-		void OnExitThinkState();
-	#pragma endregion 
+		#pragma region Think
+		UFUNCTION()
+			void OnEnterThinkState();
+		UFUNCTION()
+			void UpdateThinkState();
+		UFUNCTION()
+			void OnExitThinkState();
+		#pragma endregion 
 
-	#pragma region Light Attack 1
-	UFUNCTION()
-		void OnEnterLightAttack1State();
-	UFUNCTION()
-		void UpdateLightAttack1State();
-	UFUNCTION()
-		void OnExitLightAttack1State();
-	#pragma endregion 
+		#pragma region Light Attack 1
+		UFUNCTION()
+			void OnEnterLightAttack1State();
+		UFUNCTION()
+			void UpdateLightAttack1State();
+		UFUNCTION()
+			void OnExitLightAttack1State();
+		#pragma endregion 
 
-	#pragma region Light Attack 2
-	UFUNCTION()
-		void OnEnterLightAttack2State();
-	UFUNCTION()
-		void UpdateLightAttack2State();
-	UFUNCTION()
-		void OnExitLightAttack2State();
-	#pragma endregion 
+		#pragma region Light Attack 2
+		UFUNCTION()
+			void OnEnterLightAttack2State();
+		UFUNCTION()
+			void UpdateLightAttack2State();
+		UFUNCTION()
+			void OnExitLightAttack2State();
+		#pragma endregion 
 
-	#pragma region Light Attack 3
-	UFUNCTION()
-		void OnEnterLightAttack3State();
-	UFUNCTION()
-		void UpdateLightAttack3State();
-	UFUNCTION()
-		void OnExitLightAttack3State();
-	#pragma endregion 
+		#pragma region Light Attack 3
+		UFUNCTION()
+			void OnEnterLightAttack3State();
+		UFUNCTION()
+			void UpdateLightAttack3State();
+		UFUNCTION()
+			void OnExitLightAttack3State();
+		#pragma endregion 
 
-	#pragma region Heavy Attack 1
-	UFUNCTION()
-		void OnEnterHeavyAttack1State();
-	UFUNCTION()
-		void UpdateHeavyAttack1State();
-	UFUNCTION()
-		void OnExitHeavyAttack1State();
-	#pragma endregion 
+		#pragma region Heavy Attack 1
+		UFUNCTION()
+			void OnEnterHeavyAttack1State();
+		UFUNCTION()
+			void UpdateHeavyAttack1State();
+		UFUNCTION()
+			void OnExitHeavyAttack1State();
+		#pragma endregion 
 
-	#pragma region Heavy Attack 2
-	UFUNCTION()
-		void OnEnterHeavyAttack2State();
-	UFUNCTION()
-		void UpdateHeavyAttack2State();
-	UFUNCTION()
-		void OnExitHeavyAttack2State();
-	#pragma endregion 
+		#pragma region Heavy Attack 2
+		UFUNCTION()
+			void OnEnterHeavyAttack2State();
+		UFUNCTION()
+			void UpdateHeavyAttack2State();
+		UFUNCTION()
+			void OnExitHeavyAttack2State();
+		#pragma endregion 
 
-	#pragma region Heavy Attack 3
-	UFUNCTION()
-		void OnEnterHeavyAttack3State();
-	UFUNCTION()
-		void UpdateHeavyAttack3State();
-	UFUNCTION()
-		void OnExitHeavyAttack3State();
-	#pragma endregion 
+		#pragma region Heavy Attack 3
+		UFUNCTION()
+			void OnEnterHeavyAttack3State();
+		UFUNCTION()
+			void UpdateHeavyAttack3State();
+		UFUNCTION()
+			void OnExitHeavyAttack3State();
+		#pragma endregion 
 
-	#pragma region Damaged
-	UFUNCTION()
-		void OnEnterDamagedState();
-	UFUNCTION()
-		void UpdateDamagedState();
-	UFUNCTION()
-		void OnExitDamagedState();
-	#pragma endregion 
+		#pragma region Damaged
+		UFUNCTION()
+			void OnEnterDamagedState();
+		UFUNCTION()
+			void UpdateDamagedState();
+		UFUNCTION()
+			void OnExitDamagedState();
+		#pragma endregion 
 
-	#pragma region Death
-	UFUNCTION()
-		void OnEnterDeathState();
-	UFUNCTION()
-		void UpdateDeathState();
-	UFUNCTION()
-		void OnExitDeathState();
-	#pragma endregion 
+		#pragma region Death
+		UFUNCTION()
+			void OnEnterDeathState();
+		UFUNCTION()
+			void UpdateDeathState();
+		UFUNCTION()
+			void OnExitDeathState();
+		#pragma endregion 
 
-	#pragma region Stunned
-	UFUNCTION()
-		void OnEnterStunnedState();
-	UFUNCTION()
-		void UpdateStunnedState();
-	UFUNCTION()
-		void OnExitStunnedState();
-	#pragma endregion 
+		#pragma region Stunned
+		UFUNCTION()
+			void OnEnterStunnedState();
+		UFUNCTION()
+			void UpdateStunnedState();
+		UFUNCTION()
+			void OnExitStunnedState();
+		#pragma endregion 
 
-	#pragma region Laugh
-	UFUNCTION()
-		void OnEnterLaughState();
-	UFUNCTION()
-		void UpdateLaughState();
-	UFUNCTION()
-		void OnExitLaughState();
-	#pragma endregion 
+		#pragma region Laugh
+		UFUNCTION()
+			void OnEnterLaughState();
+		UFUNCTION()
+			void UpdateLaughState();
+		UFUNCTION()
+			void OnExitLaughState();
+		#pragma endregion 
 
-	#pragma region Dash
-	UFUNCTION()
-		void OnEnterDashState();
-	UFUNCTION()
-		void UpdateDashState();
-	UFUNCTION()
-		void OnExitDashState();
-	#pragma endregion 
+		#pragma region Dash
+		UFUNCTION()
+			void OnEnterDashState();
+		UFUNCTION()
+			void UpdateDashState();
+		UFUNCTION()
+			void OnExitDashState();
+		#pragma endregion 
 
-	#pragma region Beaten
-	UFUNCTION()
-		void OnEnterBeatenState();
-	UFUNCTION()
-		void UpdateBeatenState();
-	UFUNCTION()
-		void OnExitBeatenState();
-	#pragma endregion 
+		#pragma region Beaten
+		UFUNCTION()
+			void OnEnterBeatenState();
+		UFUNCTION()
+			void UpdateBeatenState();
+		UFUNCTION()
+			void OnExitBeatenState();
+		#pragma endregion 
 
-	#pragma region Teleport
-	UFUNCTION()
-		void OnEnterTeleportState();
-	UFUNCTION()
-		void UpdateTeleportState();
-	UFUNCTION()
-		void OnExitTeleportState();
-	#pragma endregion 
+		#pragma region Teleport
+		UFUNCTION()
+			void OnEnterTeleportState();
+		UFUNCTION()
+			void UpdateTeleportState();
+		UFUNCTION()
+			void OnExitTeleportState();
+		#pragma endregion 
+	#pragma endregion
 
-	// Boss ranges
-	#pragma region Close
-	UFUNCTION()
-		void OnEnterCloseRange();
-	UFUNCTION()
-		void UpdateCloseRange();
-	UFUNCTION()
-		void OnExitCloseRange();
-	#pragma endregion 
+	#pragma region Range States
+		#pragma region Close
+		UFUNCTION()
+			void OnEnterCloseRange();
+		UFUNCTION()
+			void UpdateCloseRange();
+		UFUNCTION()
+			void OnExitCloseRange();
+		#pragma endregion 
 
-	#pragma region Mid
-	UFUNCTION()
-		void OnEnterMidRange();
-	UFUNCTION()
-		void UpdateMidRange();
-	UFUNCTION()
-		void OnExitMidRange();
-	#pragma endregion 
+		#pragma region Mid
+		UFUNCTION()
+			void OnEnterMidRange();
+		UFUNCTION()
+			void UpdateMidRange();
+		UFUNCTION()
+			void OnExitMidRange();
+		#pragma endregion 
 
-	#pragma region Far
-	UFUNCTION()
-		void OnEnterFarRange();
-	UFUNCTION()
-		void UpdateFarRange();
-	UFUNCTION()
-		void OnExitFarRange();
-	#pragma endregion 
+		#pragma region Far
+		UFUNCTION()
+			void OnEnterFarRange();
+		UFUNCTION()
+			void UpdateFarRange();
+		UFUNCTION()
+			void OnExitFarRange();
+		#pragma endregion 
+	#pragma endregion
 
-	// Boss stages
+	#pragma region Boss Stages
+
 	#pragma region Stage 1
 	UFUNCTION()
 		void OnEnterFirstStage();
@@ -505,17 +504,20 @@ protected:
 	UFUNCTION()
 		void OnExitThirdStage();
 	#pragma endregion 
+	#pragma endregion 
 
+	#pragma region Components
 	// The boss's range Finite State Machine
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Mordath")
 		class UFSM* RangeFSM;
 
 	// The boss's stage Finite State Machine
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Mordath")
 		class UFSM* StageFSM;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Mordath")
 		class UTeleportationComponent* TeleportationComponent;
+	#pragma endregion
 
 	// The radius in which the boss character will accept that it has arrived to the player's location
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f), DisplayName = "Close Range Radius")
@@ -560,16 +562,20 @@ protected:
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	// Our custom AI controller
-	class ABossAIController* BossAIController{};
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath")
+		class ABossAIController* BossAIController{};
 	
 	// Cached anim instance, to control and trigger animations
-	class UMordathAnimInstance* MordathAnimInstance{};
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Animation")
+		class UMordathAnimInstance* MordathAnimInstance{};
 
 	// The combo we are using
-	UComboData* ChosenCombo;
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
+		UComboData* ChosenCombo;
 
 	// Used to iterate, select or remove a combo, this to avoid touching the actual combos list
-	TArray<UComboData*> CachedCombos;
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
+		TArray<UComboData*> CachedCombos;
 
 private:
 	FTimerHandle UpdateInfoTimerHandle;
@@ -583,5 +589,5 @@ private:
 	FTimerHandle InvincibilityTimerHandle;
 
 	// Access to player information
-	ACharacter* PlayerCharacter;
+	AOverthroneCharacter* PlayerCharacter;
 };

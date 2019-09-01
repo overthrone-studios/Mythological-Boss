@@ -19,6 +19,11 @@ FString UOverthroneFunctionLibrary::GetProjectVersion()
 	return ProjectVersion;
 }
 
+AOverthroneCharacter* UOverthroneFunctionLibrary::GetPlayerCharacter(UObject* WorldContextObject)
+{
+	return Cast<AOverthroneCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
+}
+
 AOverthroneCharacter* UOverthroneFunctionLibrary::GetBossCharacter(UWorld* InWorld)
 {
 	for (const TActorIterator<AMordath> ActorItr(InWorld); ActorItr;)

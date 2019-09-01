@@ -107,6 +107,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ApplyHitStop();
 
+	UFUNCTION(BlueprintPure, Category = "Mordath")
+		class UFSM* GetFSM() const { return FSM; }
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
