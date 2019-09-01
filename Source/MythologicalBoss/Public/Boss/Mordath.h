@@ -194,35 +194,35 @@ public:
 	AMordath();
 
 	// Returns the light attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the special attack damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FORCEINLINE float GetSpecialAttackDamage() const { return Combat.AttackSettings.SpecialAttackDamage; }
 
 	// Returns the attack radius value
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
 
 	// Returns the recent damage value
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FORCEINLINE float GetRecentDamage() const { return Combat.RecentDamage; }
 
 	// Returns true if we are light attacking
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsLightAttacking() const;
 
 	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are special attacking
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsSpecialAttacking() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
