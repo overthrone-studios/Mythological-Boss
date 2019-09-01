@@ -132,10 +132,6 @@ struct FAttackSettings_Mordath : public FAttackSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float SpecialAttackDamage = 250.0f;
 
-	// Properties of the jump attack curve
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Jump Attack Curve")
-		FBezier JumpAttack_Bezier;
-
 	// The amount of time (in seconds) that the boss can be allowed to jump attack again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float JumpAttackCooldown = 2.0f;
@@ -146,17 +142,9 @@ struct FDashSettings_Mordath
 {
 	GENERATED_BODY()
 
-	// Properties of the dash curve
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Dash Curve")
-		FBezier Dash_Bezier;
-
 	// The amount of time (in seconds) that the boss can be allowed to dash attack again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float DashCooldown = 5.0f;
-	
-	// The distance of how far we can dash in a given direction
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float DashDistance = 1000.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -300,31 +288,12 @@ protected:
 		void DisableInvincibility();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void BeginJumpAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void BeginDash(enum EDashType_Combo DashType);
-	
-	UFUNCTION()
-		void DoDash();
-	
-	UFUNCTION()
-		void DoJumpAttack();
-
-	UFUNCTION()
-		void FinishJumpAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		bool IsStunned();
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		void OnPlayerDeath();
-
-	// Called when the dash timeline component has finished
-	UFUNCTION()
-		void OnDashFinished();
 
 	UFUNCTION()
 		void OnSecondStageHealth();
@@ -545,14 +514,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* StageFSM;
 
-	// Used for calculating the jump curve
-	UPROPERTY()
-		class UTimelineComponent* JumpAttackTimelineComponent;
-
-	// Used for calculating the dash curve
-	UPROPERTY()
-		class UTimelineComponent* DashTimelineComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UTeleportationComponent* TeleportationComponent;
 
@@ -611,9 +572,6 @@ protected:
 	TArray<UComboData*> CachedCombos;
 
 private:
-	FBezier& JumpAttack_Bezier = Combat.AttackSettings.JumpAttack_Bezier;
-	FBezier& Dash_Bezier = Combat.DashSettings.Dash_Bezier;
-
 	FTimerHandle UpdateInfoTimerHandle;
 
 	FTimerHandle StunExpiryTimerHandle;
