@@ -248,7 +248,6 @@ protected:
 	void OnLowHealth() override;
 
 	void SendInfo();
-	bool ShouldDestroyDestructibleObjects();
 
 	void FinishStun();
 

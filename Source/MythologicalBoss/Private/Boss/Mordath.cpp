@@ -995,21 +995,6 @@ void AMordath::FinishStun()
 	FSM->PopState();
 }
 
-bool AMordath::ShouldDestroyDestructibleObjects()
-{
-	FHitResult HitResult;
-	FCollisionObjectQueryParams CollisionObjectQueryParams;
-	CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Destructible);
-
-	const FVector Start = GetActorLocation() - FVector(0.0f, 0.0f, 100);
-	FVector End = GetActorLocation() + GetActorForwardVector() * BoxDetectionDistance;
-	End.Z = Start.Z;
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, -1, 0, 3.0f);
-
-	return GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, CollisionObjectQueryParams);
-}
-
 void AMordath::ChooseCombo()
 {
 	if (ComboSettings.bChooseRandomCombo)
