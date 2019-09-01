@@ -534,6 +534,8 @@ void AMordath::UpdateHeavyAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
 
+	FacePlayer();
+
 	// If attack animation has finished, go back to previous state
 	if(AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
