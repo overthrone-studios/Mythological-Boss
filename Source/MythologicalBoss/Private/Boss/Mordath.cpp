@@ -308,7 +308,7 @@ void AMordath::OnEnterFollowState()
 
 void AMordath::UpdateFollowState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// Move towards the player
 	if(GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius / 2.0f && !IsInvincible())
@@ -332,7 +332,7 @@ void AMordath::UpdateFollowState()
 	switch(RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-	if(!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) &&
+	if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) &&
 		!GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
 		ChooseAttack();
 	break;
@@ -349,7 +349,7 @@ void AMordath::UpdateFollowState()
 	break;
 	}
 
-	if(GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
 		FSM->PopState();
 		FSM->PushState("Thinking");
@@ -408,7 +408,7 @@ void AMordath::OnEnterLightAttack1State()
 
 void AMordath::UpdateLightAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -439,7 +439,7 @@ void AMordath::OnEnterLightAttack2State()
 
 void AMordath::UpdateLightAttack2State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 
@@ -918,7 +918,7 @@ void AMordath::OnEnterThirdStage()
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
 
 	MordathAnimInstance->CurrentStage = Stage_3;
-	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[2];
+	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
 }
 
 void AMordath::UpdateThirdStage()

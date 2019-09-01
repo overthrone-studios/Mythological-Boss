@@ -18,7 +18,6 @@ void UMordathAnimInstance::NativeInitializeAnimation()
 
 	StateMachines[0] = GetStateMachineIndex("Stage 1");
 	StateMachines[1] = GetStateMachineIndex("Stage 2");
-	StateMachines[2] = GetStateMachineIndex("Stage 3");
 }
 
 void UMordathAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
