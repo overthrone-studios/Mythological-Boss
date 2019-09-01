@@ -983,7 +983,6 @@ void AMordath::UpdateCharacterInfo()
 {
 	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
-	GameInstance->BossInfo.Location = GetActorLocation();
 }
 
 void AMordath::BroadcastLowHealth()
