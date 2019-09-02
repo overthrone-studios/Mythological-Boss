@@ -257,6 +257,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsWaitingForNewCombo() const;
 
+	// Returns true if we want to move towards our right vector
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool WantsMoveRight() const;
+
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetWalkSpeed() const;
 
@@ -320,6 +324,9 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsStunned();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
+		void ChooseMovementDirection();
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
@@ -626,6 +633,8 @@ protected:
 		TArray<UComboData*> CachedCombos;
 
 private:
+	uint8 MoveDirection = 0;
+
 	FTimerHandle UpdateInfoTimerHandle;
 
 	FTimerHandle StunExpiryTimerHandle;

@@ -351,7 +351,7 @@ void AMordath::UpdateFollowState()
 	break;
 	}
 
-	if (IsWaitingForNewCombo())
+	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < MidRangeRadius)
 	{
 		FSM->PopState();
 		FSM->PushState("Thinking");
@@ -369,7 +369,7 @@ void AMordath::OnEnterRetreatState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = GetWalkSpeed() / 2.0f;
+	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed / 2.0f;
 }
 
 void AMordath::UpdateRetreatState()
@@ -380,12 +380,11 @@ void AMordath::UpdateRetreatState()
 
 	FacePlayer();
 
-	if ((IsWaitingForNewCombo() || GetDistanceToPlayer() < MidRangeRadius) && Uptime <= RetreatTime)
+	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius || Uptime <= RetreatTime)
 		AddMovementInput(-GetDirectionToPlayer());
 	else
 	{
 		FSM->PopState();
-		FSM->PopState("Follow");
 	}
 }
 
@@ -399,6 +398,10 @@ void AMordath::OnExitRetreatState()
 void AMordath::OnEnterThinkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed / 2.0f;
+
+	ChooseMovementDirection();
 }
 
 void AMordath::UpdateThinkState()
@@ -414,7 +417,7 @@ void AMordath::UpdateThinkState()
 	{
 		AddMovementInput(GetDirectionToPlayer());
 	}
-	else if (GetDistanceToPlayer() < AcceptanceRadius && IsWaitingForNewCombo())
+	else if (GetDistanceToPlayer() < MidRangeRadius && IsWaitingForNewCombo())
 	{
 		FSM->PushState("Retreat");
 	}
@@ -424,6 +427,13 @@ void AMordath::UpdateThinkState()
 			AddMovementInput(GetActorRightVector());
 		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
 			AddMovementInput(-GetActorRightVector());
+		else
+		{
+			if (WantsMoveRight())
+				AddMovementInput(GetActorRightVector());
+			else
+				AddMovementInput(-GetActorRightVector());
+		}
 
 		if (!IsWaitingForNewCombo() && Uptime >= ThinkTime)
 		{
@@ -829,8 +839,6 @@ void AMordath::OnEnterCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-
 	if(GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
 		RangeFSM->PushState("Mid");
 }
@@ -853,8 +861,6 @@ void AMordath::OnExitCloseRange()
 void AMordath::OnEnterMidRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed;
 
 	if(GetDistanceToPlayer() <= AcceptanceRadius)
 	{
@@ -1305,6 +1311,11 @@ bool AMordath::IsStunned()
 	return FSM->GetActiveStateID() == 14;
 }
 
+void AMordath::ChooseMovementDirection()
+{
+	MoveDirection = FMath::RandRange(0, 1);
+}
+
 float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
@@ -1404,6 +1415,11 @@ bool AMordath::InInvincibleState() const
 bool AMordath::IsWaitingForNewCombo() const
 {
 	return GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle);
+}
+
+bool AMordath::WantsMoveRight() const
+{
+	return MoveDirection == 1;
 }
 
 float AMordath::GetWalkSpeed() const
