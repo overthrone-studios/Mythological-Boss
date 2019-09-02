@@ -406,7 +406,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
-	if (HealthComponent->GetCurrentHealth() > 0.0f && !bIsHit)
+	if (HealthComponent->GetCurrentHealth() > 0.0f && (!AnimInstance->bIsHit || !YlvaAnimInstance->bIsShieldHit))
 	{
 		ApplyDamage(DamageAmount);
 	}
@@ -1370,7 +1370,6 @@ void AYlva::OnEnterDamagedState()
 	if (MovementSettings.bStopMovingWhenDamaged)
 		MovementComponent->SetMovementMode(MOVE_None);
 
-	bIsHit = true;
 	AnimInstance->bIsHit = true;
 }
 
@@ -1389,7 +1388,6 @@ void AYlva::OnExitDamagedState()
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
-	bIsHit = false;
 	AnimInstance->bIsHit = false;
 }
 #pragma endregion 
@@ -1426,7 +1424,6 @@ void AYlva::OnExitDeathState()
 void AYlva::OnEnterShieldHitState()
 {
 	YlvaAnimInstance->bIsShieldHit = true;
-	bIsHit = true;
 
 	StaminaComponent->DelayRegeneration();
 }
@@ -1441,7 +1438,6 @@ void AYlva::UpdateShieldHitState()
 void AYlva::OnExitShieldHitState()
 {
 	YlvaAnimInstance->bIsShieldHit = false;
-	bIsHit = false;
 }
 #pragma endregion 
 

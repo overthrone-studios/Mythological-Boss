@@ -202,9 +202,6 @@ protected:
 	// The skeletal mesh representing the character
 	USkeletalMesh* SkeletalMesh;
 
-	// True when we have been damaged
-	uint8 bIsHit : 1;
-
 	// Tracks the amount of hits we've taken
 	uint8 HitCounter = 0;
 

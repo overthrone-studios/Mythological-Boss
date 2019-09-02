@@ -659,7 +659,6 @@ void AMordath::OnEnterDamagedState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	bIsHit = true;
 	AnimInstance->bIsHit = true;
 }
 
@@ -675,7 +674,6 @@ void AMordath::OnExitDamagedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	bIsHit = false;
 	AnimInstance->bIsHit = false;
 
 	if (ChosenCombo)
@@ -1284,7 +1282,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
-	if (!bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (!AnimInstance->bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		ApplyDamage(DamageAmount);
 	}
