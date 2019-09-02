@@ -59,6 +59,9 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Combat")
 		uint8 bLogDirection : 1;
 
+	// Used to get a reference to the anim state machines, and to query time remaining
+	int32 StateMachines[2];
+
 	// Used to get a reference to the active anim state machine, and to query time remaining
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		int32 ActiveStateMachine = 0;

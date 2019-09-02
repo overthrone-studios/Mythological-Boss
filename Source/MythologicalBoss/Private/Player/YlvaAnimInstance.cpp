@@ -9,3 +9,13 @@ void UYlvaAnimInstance::LeaveAllStates()
 	bIsBlocking = false;
 	bIsShieldHit = false;
 }
+
+void UYlvaAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+	StateMachines[0] = GetStateMachineIndex("Generics");
+	StateMachines[1] = GetStateMachineIndex("Dash");
+
+	ActiveStateMachine = StateMachines[0];
+}
