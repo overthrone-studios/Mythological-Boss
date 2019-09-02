@@ -15,10 +15,12 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 	if (!Ylva)
 		return;
 
+#if !UE_BUILD_SHIPPING
 	if (Ylva->Debug.bShowRaycasts)
 		DebugTrace = EDrawDebugTrace::ForDuration;
 	else
 		DebugTrace = EDrawDebugTrace::None;
+#endif
 
 	AttackRadius = Ylva->GetAttackRadius();
 
@@ -29,8 +31,10 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 	else if (Ylva->IsChargeAttacking())
 		AttackDamage = Ylva->GetChargeAttackDamage();
 
+#if !UE_BUILD_SHIPPING
 	if (HitSounds.Num() == 0)
 		ULog::Warning("No hit sound specified in " + Animation->GetName(), true);
+#endif
 }
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
@@ -59,8 +63,10 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		{
 			Multiplier = Cast<UHitboxComponent>(HitComp)->GetScalarValue();
 			
+			#if !UE_BUILD_SHIPPING
 			if (Ylva->Debug.bLogComponentHits)
 				ULog::Info(HitComp->GetName(), true);
+			#endif
 		}
 
 		HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());

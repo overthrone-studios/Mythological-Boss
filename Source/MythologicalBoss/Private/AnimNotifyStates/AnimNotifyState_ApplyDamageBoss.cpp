@@ -14,10 +14,12 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	if (!Mordath)
 		return;
 
+#if !UE_BUILD_SHIPPING
 	if (Mordath->Debug.bShowRaycasts)
 		DebugTrace = EDrawDebugTrace::ForDuration;
 	else
 		DebugTrace = EDrawDebugTrace::None;
+#endif
 
 	AttackRadius = Mordath->GetAttackRadius();
 
@@ -28,8 +30,10 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	else if (Mordath->IsSpecialAttacking())
 		AttackDamage = Mordath->GetSpecialAttackDamage();
 
+#if !UE_BUILD_SHIPPING
 	if (HitSounds.Num() == 0)
 		ULog::Warning("No hit sounds specified in " + Animation->GetName(), true);
+#endif
 }
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
