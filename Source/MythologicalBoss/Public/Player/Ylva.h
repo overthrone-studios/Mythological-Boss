@@ -132,10 +132,6 @@ struct FDashSettings_Ylva
 {
 	GENERATED_BODY()
 
-	// The maximum movement speed while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 1000.0f, ClampMax = 10000.0f))
-		float DashForce = 2000.0f;
-
 	// The amount of time (in seconds) until we can dash again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float DashCooldown = 1.0f;
