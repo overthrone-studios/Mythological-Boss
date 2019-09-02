@@ -298,7 +298,10 @@ void AMordath::OnEnterFollowState()
 
 	if (!ChosenCombo)
 	{
+		#if !UE_BUILD_SHIPPING
 		ULog::DebugMessage(ERROR,FString("There are no combos in the list. A crash will occur!"),true);
+		#endif
+
 		return;
 	}
 
@@ -1079,8 +1082,10 @@ void AMordath::ApplyDamage(const float DamageAmount)
 {
 	HitCounter++;
 
+#if !UE_BUILD_SHIPPING
 	if (Debug.bLogHits)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
+#endif
 
 	if (FSM->GetActiveStateName() != "Stunned" && !InInvincibleState())
 	{
@@ -1119,8 +1124,10 @@ void AMordath::ChooseCombo()
 		{
 			ChosenCombo = CachedCombos[ComboIndex];
 
+			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentCombo)
 				ULog::DebugMessage(SUCCESS, "Combo " + ChosenCombo->GetName() + " chosen", true);
+			#endif
 
 			ChosenCombo->Init();
 
@@ -1128,7 +1135,9 @@ void AMordath::ChooseCombo()
 		}
 		else
 		{
+			#if !UE_BUILD_SHIPPING
 			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
+			#endif
 		}
 
 		MovementComponent->MaxWalkSpeed = GetWalkSpeed();
@@ -1140,22 +1149,28 @@ void AMordath::ChooseCombo()
 		switch (StageFSM->GetActiveStateID())
 		{
 		case 0:
+			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentStageCombo)
 				ULog::Info("Using stage 1 combos", true);
+			#endif
 
 			CachedCombos = ComboSettings.FirstStageCombos;
 		break;
 
 		case 1:
+			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentStageCombo)
 				ULog::Info("Using stage 2 combos", true);
+			#endif
 
 			CachedCombos = ComboSettings.SecondStageCombos;
 		break;
 
 		case 2:
+			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentStageCombo)
 				ULog::Info("Using stage 3 combos", true);
+			#endif
 
 			CachedCombos = ComboSettings.ThirdStageCombos;
 		break;
@@ -1182,8 +1197,10 @@ void AMordath::ChooseComboWithDelay()
 				
 	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
 
+	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogComboDelayTime)
 		ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
+	#endif
 
 	MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 }
@@ -1334,8 +1351,10 @@ float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
 
+	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDistance)
 		ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
+	#endif
 
 	return Distance;
 }
@@ -1345,8 +1364,10 @@ FVector AMordath::GetDirectionToPlayer() const
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
 
+	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDirection)
 		ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
+	#endif
 
 	return Direction;
 }
