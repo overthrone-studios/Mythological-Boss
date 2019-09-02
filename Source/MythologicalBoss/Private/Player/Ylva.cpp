@@ -25,6 +25,7 @@
 #include "Components/StaminaComponent.h"
 #include "Components/ChargeAttackComponent.h"
 #include "Components/AttackComboComponent.h"
+#include "Components/DashComponent.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -163,6 +164,9 @@ AYlva::AYlva() : AOverthroneCharacter()
 	// Attack combo component
 	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
 	AttackComboComponent->OnComboReset.AddDynamic(this, &AYlva::OnComboReset);
+
+	// Dash component
+	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash component"));
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -826,7 +830,7 @@ void AYlva::Dash()
 		return;
 
 	// If we are moving and grounded
-	if (GetVelocity().Size() > 0.0f && MovementComponent->IsMovingOnGround() && !GetWorldTimerManager().IsTimerActive(DashCooldownTimer) && FSM->GetActiveStateID() != 12 /*Dash*/)
+	if (IsMovingInAnyDirection() && !DashComponent->IsCooldownActive() && FSM->GetActiveStateID() != 12 /*Dash*/)
 	{
 		// Do we have enough stamina to dash?
 		if (StaminaComponent->HasEnoughForDash())
@@ -837,28 +841,6 @@ void AYlva::Dash()
 				UpdateStamina(StaminaComponent->GetDashValue());
 			}
 
-			// Do the dash in the given direction
-			if (IsMovingForward())
-			{
-				ULog::Info("Forward Dash...", true);
-				DashMontageToPlay = Combat.DashSettings.ForwardDash;
-			}
-			else if (IsMovingBackward())
-			{
-				ULog::Info("Backward Dash...", true);
-				DashMontageToPlay = Combat.DashSettings.BackwardDash;
-			}
-			else if (IsMovingLeft())
-			{
-				ULog::Info("Left Dash...", true);
-				DashMontageToPlay = Combat.DashSettings.LeftDash;
-			}
-			else if (IsMovingRight())
-			{
-				ULog::Info("Right Dash...", true);
-				DashMontageToPlay = Combat.DashSettings.RightDash;
-			}
-
 			FSM->PushState("Dash");
 		}
 	}
@@ -866,7 +848,7 @@ void AYlva::Dash()
 
 void AYlva::StartDashCooldown()
 {
-	GetWorldTimerManager().SetTimer(DashCooldownTimer,Combat.DashSettings.DashCooldown,false);
+	DashComponent->StartCooldown();
 }
 #pragma endregion
 
@@ -1447,7 +1429,7 @@ void AYlva::OnEnterDashState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bIsDashing = true;
-	//AnimInstance->Montage_Play(DashMontageToPlay);
+	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[1];
 }
 
 void AYlva::UpdateDashState()
@@ -1455,13 +1437,17 @@ void AYlva::UpdateDashState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	{
 		FSM->PopState();
+	}
 }
 
 void AYlva::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
 	AnimInstance->bIsDashing = false;
+	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[0];
 }
 #pragma endregion 
 
