@@ -275,6 +275,10 @@ protected:
 
 	void FinishStun();
 
+	void BeginTakeDamage(float DamageAmount) override;
+	void ApplyDamage(float DamageAmount) override;
+	void EndTakeDamage() override;
+
 	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
 		FRotator FacePlayer();
 

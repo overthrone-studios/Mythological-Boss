@@ -118,6 +118,15 @@ protected:
 
 	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void BeginTakeDamage(float DamageAmount);
+	
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void ApplyDamage(float DamageAmount);
+	
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void EndTakeDamage();
+
 	// Set a new health value
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void SetHealth(float NewHealthAmount);

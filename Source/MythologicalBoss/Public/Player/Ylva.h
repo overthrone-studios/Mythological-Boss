@@ -414,14 +414,11 @@ protected:
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void StopBlocking();
 
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
-		void BeginTakeDamage();
-	
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
-		void ApplyDamage(float DamageAmount);
-	
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
-		void EndTakeDamage();
+	void BeginTakeDamage(float DamageAmount) override;
+
+	void ApplyDamage(float DamageAmount) override;
+
+	void EndTakeDamage() override;
 	#pragma endregion
 
 	#pragma region Movement

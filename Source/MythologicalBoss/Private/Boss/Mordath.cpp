@@ -996,6 +996,46 @@ void AMordath::FinishStun()
 	FSM->PopState();
 }
 
+void AMordath::BeginTakeDamage(const float DamageAmount)
+{
+	Combat.RecentDamage = DamageAmount;
+
+	// Shake the camera
+	PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+}
+
+void AMordath::ApplyDamage(const float DamageAmount)
+{
+	HitCounter++;
+
+	if (Debug.bLogHits)
+		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
+
+	if (FSM->GetActiveStateName() != "Stunned")
+	{
+		// Cancel current animation and enter the damaged state
+		FSM->PopState();
+		FSM->PushState("Damaged");
+	}
+
+	// Apply hit stop
+	PauseAnimsWithTimer();
+
+	UpdateHealth(DamageAmount);
+
+	// Handled in blueprints
+	OnAfterTakeDamage();
+}
+
+void AMordath::EndTakeDamage()
+{
+	// Are we dead?
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
+	{
+		Die();
+	}
+}
+
 void AMordath::ChooseCombo()
 {
 	if (ComboSettings.bChooseRandomCombo)
@@ -1153,33 +1193,12 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	if (FSM->GetActiveStateName() == "Death")
 		return DamageAmount;
 
-	Combat.RecentDamage = DamageAmount;
-
-	// Shake the camera
-	PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
 	if (!bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
-		HitCounter++;
-
-		if (Debug.bLogHits)
-			ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
-
-		if (FSM->GetActiveStateName() != "Stunned")
-		{
-			// Cancel current animation and enter the damaged state
-			FSM->PopState();
-			FSM->PushState("Damaged");
-		}
-
-		// Apply hit stop
-		PauseAnimsWithTimer();
-
-		UpdateHealth(DamageAmount);
-
-		// Handled in blueprints
-		OnAfterTakeDamage();
+		ApplyDamage(DamageAmount);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
@@ -1202,11 +1221,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		OnAfterTakeDamage();
 	}
 
-	// Are we dead?
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
-	{
-		Die();
-	}
+	EndTakeDamage();
 
 	return DamageAmount;
 }

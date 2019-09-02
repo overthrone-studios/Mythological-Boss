@@ -84,6 +84,21 @@ void AOverthroneCharacter::InitTimelineComponent(UTimelineComponent* InTimelineC
 	}
 }
 
+void AOverthroneCharacter::ApplyDamage(float DamageAmount)
+{
+	check(0 && "You must implement ApplyDamage()");
+}
+
+void AOverthroneCharacter::BeginTakeDamage(float DamageAmount)
+{
+	check(0 && "You must implement BeginTakeDamage()");
+}
+
+void AOverthroneCharacter::EndTakeDamage()
+{
+	check(0 && "You must implement EndTakeDamage()");
+}
+
 void AOverthroneCharacter::ApplyHitStop()
 {
 

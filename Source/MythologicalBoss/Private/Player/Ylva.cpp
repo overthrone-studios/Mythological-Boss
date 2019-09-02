@@ -423,7 +423,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	if (FSM->GetActiveStateName() == "Death")
 		return DamageAmount;
 
-	BeginTakeDamage();
+	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
 	if (HealthComponent->GetCurrentHealth() > 0.0f && !bIsHit)
@@ -719,7 +719,7 @@ void AYlva::StopBlocking()
 	FSM->PopState();
 }
 
-void AYlva::BeginTakeDamage()
+void AYlva::BeginTakeDamage(float DamageAmount)
 {
 }
 
