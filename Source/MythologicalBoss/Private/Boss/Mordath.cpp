@@ -434,7 +434,7 @@ void AMordath::UpdateThinkState()
 	{
 		AddMovementInput(GetDirectionToPlayer());
 	}
-	else if (GetDistanceToPlayer() < MidRangeRadius && IsWaitingForNewCombo())
+	else if (GetDistanceToPlayer() < AcceptanceRadius && IsWaitingForNewCombo())
 	{
 		FSM->PushState("Retreat");
 	}
