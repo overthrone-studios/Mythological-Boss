@@ -472,6 +472,15 @@ protected:
 		UFUNCTION()
 			void OnExitTeleportState();
 		#pragma endregion 
+
+		#pragma region Retreat
+		UFUNCTION()
+			void OnEnterRetreatState();
+		UFUNCTION()
+			void UpdateRetreatState();
+		UFUNCTION()
+			void OnExitRetreatState();
+		#pragma endregion 
 	#pragma endregion
 
 	#pragma region Range States
@@ -558,9 +567,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float DeathTime = 2.0f;
 
-	// The distance to ray cast from the boss's location (for destructible actor detection)
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 1000.0f))
-		float BoxDetectionDistance = 130.0f;
+	// How long (in seconds) should the boss think for, before initiating an attack?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f, ClampMax = 60.0f))
+		float ThinkTime = 2.0f;
+
+	// How long (in seconds) should the boss move away from you (walk backwards)?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f, ClampMax = 60.0f))
+		float RetreatTime = 1.0f;
 
 	// The health value where we enter the second stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))

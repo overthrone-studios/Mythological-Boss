@@ -28,7 +28,6 @@
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
-#include "DrawDebugHelpers.h"
 
 AMordath::AMordath()
 {
@@ -75,6 +74,7 @@ AMordath::AMordath()
 	FSM->AddState(16, "Dash");
 	FSM->AddState(17, "Beaten");
 	FSM->AddState(18, "Teleport");
+	FSM->AddState(19, "Retreat");
 
 
 	// Bind state events to our functions
@@ -142,7 +142,11 @@ AMordath::AMordath()
 	FSM->GetState(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
 	FSM->GetState(18)->OnExitState.AddDynamic(this, &AMordath::OnExitTeleportState);
 
-	FSM->InitState(1);
+	FSM->GetState(19)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRetreatState);
+	FSM->GetState(19)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRetreatState);
+	FSM->GetState(19)->OnExitState.AddDynamic(this, &AMordath::OnExitRetreatState);
+
+	FSM->InitState(2);
 
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
@@ -290,16 +294,17 @@ void AMordath::OnEnterFollowState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
+	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
 
-	if(!ChosenCombo)
+	if (!ChosenCombo)
 	{
 		ULog::DebugMessage(ERROR,FString("There are no combos in the list. A crash will occur!"),true);
 		return;
 	}
 
-	if(ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 	{
-		if(ComboSettings.bDelayBetweenCombo)
+		if (ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
 			ChooseCombo();
@@ -311,19 +316,16 @@ void AMordath::UpdateFollowState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	// Move towards the player
-	if(GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius / 2.0f && !IsInvincible())
+	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius / 2.0f && !IsInvincible())
 	{
-		if(GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
 		{
-			MovementComponent->MaxWalkSpeed = GetWalkSpeed() / 2.0f;
-
-			AddMovementInput(-GetDirectionToPlayer());
-		} else
-		{
-			MovementComponent->MaxWalkSpeed = GetWalkSpeed();
-
-			AddMovementInput(GetDirectionToPlayer());
+			FSM->PopState();
+			FSM->PushState("Retreat");
+			return;
 		}
+
+		AddMovementInput(GetDirectionToPlayer());
 	}
 
 	FacePlayer();
@@ -360,7 +362,38 @@ void AMordath::OnExitFollowState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 }
-#pragma endregion 
+#pragma endregion
+
+#pragma region Retreat
+void AMordath::OnEnterRetreatState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	MovementComponent->MaxWalkSpeed = GetWalkSpeed() / 2.0f;
+}
+
+void AMordath::UpdateRetreatState()
+{
+	const float Uptime = FSM->GetActiveStateUptime();
+
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
+
+	FacePlayer();
+
+	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && Uptime <= RetreatTime)
+		AddMovementInput(-GetDirectionToPlayer());
+	else
+	{
+		FSM->PopState();
+		FSM->PopState("Follow");
+	}
+}
+
+void AMordath::OnExitRetreatState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+}
+#pragma endregion  
 
 #pragma region Think
 void AMordath::OnEnterThinkState()
@@ -370,21 +403,24 @@ void AMordath::OnEnterThinkState()
 
 void AMordath::UpdateThinkState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	const float Uptime = FSM->GetActiveStateUptime();
+
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	FacePlayer();
 
-	if(GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
+	if (GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
 	{
 		AddMovementInput(GetDirectionToPlayer());
-	} else
+	}
+	else
 	{
-		if(PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+		if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
 			AddMovementInput(GetActorRightVector());
-		else if(PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
 			AddMovementInput(-GetActorRightVector());
 
-		if(!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && Uptime >= ThinkTime)
 		{
 			FSM->PopState();
 			FSM->PushState("Follow");
