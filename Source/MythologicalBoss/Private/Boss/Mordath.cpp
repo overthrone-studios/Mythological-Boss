@@ -5,6 +5,7 @@
 #include "OverthroneFunctionLibrary.h"
 #include "OverthroneGameInstance.h"
 #include "OverthroneHUD.h"
+
 #include "FSM.h"
 #include "Log.h"
 
@@ -75,7 +76,6 @@ AMordath::AMordath()
 	FSM->AddState(17, "Beaten");
 	FSM->AddState(18, "Teleport");
 	FSM->AddState(19, "Retreat");
-
 
 	// Bind state events to our functions
 	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -302,7 +302,7 @@ void AMordath::OnEnterFollowState()
 		return;
 	}
 
-	if (ChosenCombo->IsAtLastAttack() && !GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
 		if (ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
@@ -318,7 +318,7 @@ void AMordath::UpdateFollowState()
 	// Move towards the player
 	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius / 2.0f && !IsInvincible())
 	{
-		if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+		if (IsWaitingForNewCombo())
 		{
 			FSM->PopState();
 			FSM->PushState("Retreat");
@@ -334,7 +334,7 @@ void AMordath::UpdateFollowState()
 	switch(RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-	if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) &&
+	if (!IsWaitingForNewCombo() &&
 		!GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
 		ChooseAttack();
 	break;
@@ -351,7 +351,7 @@ void AMordath::UpdateFollowState()
 	break;
 	}
 
-	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle))
+	if (IsWaitingForNewCombo())
 	{
 		FSM->PopState();
 		FSM->PushState("Thinking");
@@ -380,7 +380,7 @@ void AMordath::UpdateRetreatState()
 
 	FacePlayer();
 
-	if (GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && Uptime <= RetreatTime)
+	if ((IsWaitingForNewCombo() || GetDistanceToPlayer() < MidRangeRadius) && Uptime <= RetreatTime)
 		AddMovementInput(-GetDirectionToPlayer());
 	else
 	{
@@ -409,9 +409,14 @@ void AMordath::UpdateThinkState()
 
 	FacePlayer();
 
+	// Is far from player?
 	if (GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
 	{
 		AddMovementInput(GetDirectionToPlayer());
+	}
+	else if (GetDistanceToPlayer() < AcceptanceRadius && IsWaitingForNewCombo())
+	{
+		FSM->PushState("Retreat");
 	}
 	else
 	{
@@ -420,7 +425,7 @@ void AMordath::UpdateThinkState()
 		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
 			AddMovementInput(-GetActorRightVector());
 
-		if (!GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle) && Uptime >= ThinkTime)
+		if (!IsWaitingForNewCombo() && Uptime >= ThinkTime)
 		{
 			FSM->PopState();
 			FSM->PushState("Follow");
@@ -633,9 +638,9 @@ void AMordath::OnEnterDamagedState()
 
 void AMordath::UpdateDamagedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if(FSM->GetActiveStateUptime() > 0.3f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 		FSM->PopState();
 }
 
@@ -646,7 +651,7 @@ void AMordath::OnExitDamagedState()
 	bIsHit = false;
 	AnimInstance->bIsHit = false;
 
-	if(ChosenCombo)
+	if (ChosenCombo)
 		NextAttack();
 }
 #pragma endregion
@@ -1057,7 +1062,7 @@ void AMordath::ApplyDamage(const float DamageAmount)
 	if (Debug.bLogHits)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 
-	if (FSM->GetActiveStateName() != "Stunned")
+	if (FSM->GetActiveStateName() != "Stunned" && !InInvincibleState())
 	{
 		// Cancel current animation and enter the damaged state
 		FSM->PopState();
@@ -1387,6 +1392,18 @@ bool AMordath::IsMidRange() const
 bool AMordath::IsFarRange() const
 {
 	return RangeFSM->GetActiveStateID() == 2;
+}
+
+bool AMordath::InInvincibleState() const
+{
+	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5 || 
+		   FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8 ||
+		   FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11;
+}
+
+bool AMordath::IsWaitingForNewCombo() const
+{
+	return GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle);
 }
 
 float AMordath::GetWalkSpeed() const

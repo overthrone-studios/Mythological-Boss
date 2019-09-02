@@ -249,7 +249,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsFarRange() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
+	// Returns true if we are in a state that is immune to damage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool InInvincibleState() const;
+
+	// Returns true if we the combo delay timer is active
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsWaitingForNewCombo() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetWalkSpeed() const;
 
 	// Pause current animation, triggers a reset timer when called
