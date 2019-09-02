@@ -666,10 +666,10 @@ void AYlva::StartParryEvent()
 {
 	GameInstance->PlayerInfo.bParrySucceeded = true;
 
-	UGameplayStatics::SetGlobalTimeDilation(this,Combat.ParrySettings.TimeDilationOnSuccessfulParry);
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
 	if (!GetWorldTimerManager().IsTimerActive(ParryEventExpiryTimer))
-		GetWorldTimerManager().SetTimer(ParryEventExpiryTimer,this,&AYlva::FinishParryEvent,Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
+		GetWorldTimerManager().SetTimer(ParryEventExpiryTimer,this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 
 void AYlva::FinishParryEvent()
@@ -1481,7 +1481,7 @@ void AYlva::OnEnterParryState()
 
 	PlayerController->SetIgnoreLookInput(true);
 
-	YlvaAnimInstance->bIsShieldHit = true;
+	AnimInstance->Montage_Play(Combat.ParrySettings.ParryMontage);
 
 	StartParryEvent();
 }
@@ -1502,7 +1502,6 @@ void AYlva::OnExitParryState()
 
 	PlayerController->SetIgnoreLookInput(false);
 
-	YlvaAnimInstance->bIsShieldHit = false;
 	GameInstance->PlayerInfo.bParrySucceeded = false;
 
 	ResetGlobalTimeDilation();

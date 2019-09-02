@@ -175,6 +175,10 @@ USTRUCT(BlueprintType)
 struct FParrySettings_Ylva
 {
 	GENERATED_BODY()
+	
+	// The parry anim montage to play
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* ParryMontage;
 
 	// The camera animation to play when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
