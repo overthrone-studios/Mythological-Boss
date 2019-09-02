@@ -132,25 +132,7 @@ struct FDashSettings_Ylva
 {
 	GENERATED_BODY()
 
-	// The amount of time (in seconds) until we can dash again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float DashCooldown = 1.0f;
 
-	// The dash to play when moving forward
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* ForwardDash;
-
-	// The dash to play when moving backward
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* BackwardDash;
-
-	// The dash to play when strafing left
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* LeftDash;
-
-	// The dash to play when strafing right
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* RightDash;
 };
 
 USTRUCT(BlueprintType)
@@ -720,6 +702,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UAttackComboComponent* AttackComboComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UDashComponent* DashComponent;
+
 	// This timeline plays when we are regenerating stamina
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")
 		class UTimelineComponent* StaminaRegenTimeline;
@@ -790,7 +775,6 @@ private:
 
 	uint16 ChargeAttackHoldFrames = 0;
 
-	FTimerHandle DashCooldownTimer;
 	FTimerHandle ParryEventExpiryTimer;
 
 	FTimerHandle ChargeAttackReleaseTimer;

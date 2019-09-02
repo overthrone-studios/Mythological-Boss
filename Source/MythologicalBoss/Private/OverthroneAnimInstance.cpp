@@ -16,8 +16,6 @@ void UOverthroneAnimInstance::NativeInitializeAnimation()
 	{
 		PawnMovementComponent = OwningPawn->GetMovementComponent();
 	}
-
-	ActiveStateMachine = GetStateMachineIndex("Generics");
 }
 
 void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)

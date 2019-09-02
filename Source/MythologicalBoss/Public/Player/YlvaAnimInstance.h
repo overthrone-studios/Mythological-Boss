@@ -45,4 +45,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		float LeanPitchAmount = 0.0f;
+
+protected:
+	void NativeInitializeAnimation() override;
 };
