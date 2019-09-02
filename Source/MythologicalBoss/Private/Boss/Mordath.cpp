@@ -725,17 +725,27 @@ void AMordath::OnExitDashState()
 #pragma region Beaten
 void AMordath::OnEnterBeatenState()
 {
-	MordathAnimInstance->bIsBeaten = true;
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	LaunchCharacter(-GetActorForwardVector() * 1000,true,true);
+	MordathAnimInstance->bIsBeaten = true;
 }
 
 void AMordath::UpdateBeatenState()
 {
+	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
+
+	// If the recover time has finished, go back to previous state
+	if (Uptime >= Combat.InvincibilityTimeAfterDamage)
+	{
+		FSM->PopState();
+	}
 }
 
 void AMordath::OnExitBeatenState()
 {
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
 	MordathAnimInstance->bIsBeaten = false;
 }
 #pragma endregion
