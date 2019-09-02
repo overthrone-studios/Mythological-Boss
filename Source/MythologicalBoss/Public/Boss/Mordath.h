@@ -236,6 +236,18 @@ public:
 	// Returns true if we are in the third stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsInThirdStage() const;
+	
+	// Returns true if we are in close distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsCloseRange() const;
+
+	// Returns true if we are in mid distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsMidRange() const;
+
+	// Returns true if we are in far distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsFarRange() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		float GetWalkSpeed() const;

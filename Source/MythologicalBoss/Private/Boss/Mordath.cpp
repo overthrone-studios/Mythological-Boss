@@ -1313,6 +1313,21 @@ bool AMordath::IsInThirdStage() const
 	return StageFSM->GetActiveStateID() == 2;
 }
 
+bool AMordath::IsCloseRange() const
+{
+	return RangeFSM->GetActiveStateID() == 0;
+}
+
+bool AMordath::IsMidRange() const
+{
+	return RangeFSM->GetActiveStateID() == 1;
+}
+
+bool AMordath::IsFarRange() const
+{
+	return RangeFSM->GetActiveStateID() == 2;
+}
+
 float AMordath::GetWalkSpeed() const
 {
 	switch (RangeFSM->GetActiveStateID())
