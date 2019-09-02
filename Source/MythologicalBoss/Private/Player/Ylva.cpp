@@ -306,8 +306,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AYlva::Dash);
 
-	PlayerInputComponent->BindKey(EKeys::F, IE_Repeat, this, &AYlva::ChargeUpAttack);
-	PlayerInputComponent->BindKey(EKeys::F, IE_Released, this, &AYlva::ReleaseChargeAttack);
+	PlayerInputComponent->BindAction("Charge Attack", IE_Repeat, this, &AYlva::ChargeUpAttack);
+	PlayerInputComponent->BindAction("Charge Attack", IE_Released, this, &AYlva::ReleaseChargeAttack);
 
 	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
 	PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
