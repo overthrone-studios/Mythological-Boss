@@ -370,6 +370,13 @@ void AMordath::OnEnterRetreatState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed / 2.0f;
+
+	RetreatStateData.CalculateRetreatTime();
+
+#if !UE_BUILD_SHIPPING
+	if (Debug.bLogRetreatTime)
+		ULog::Number(RetreatStateData.RetreatTime, "Retreat Time: ", true);
+#endif
 }
 
 void AMordath::UpdateRetreatState()
@@ -380,7 +387,7 @@ void AMordath::UpdateRetreatState()
 
 	FacePlayer();
 
-	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius || Uptime <= RetreatTime)
+	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
 		AddMovementInput(-GetDirectionToPlayer());
 	else
 	{
@@ -402,6 +409,13 @@ void AMordath::OnEnterThinkState()
 	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed / 2.0f;
 
 	ChooseMovementDirection();
+
+	ThinkStateData.CalculateThinkTime();
+	
+#if !UE_BUILD_SHIPPING
+	if (Debug.bLogThinkTime)
+		ULog::Number(ThinkStateData.ThinkTime, "Think Time: ", true);
+#endif
 }
 
 void AMordath::UpdateThinkState()
@@ -435,7 +449,7 @@ void AMordath::UpdateThinkState()
 				AddMovementInput(-GetActorRightVector());
 		}
 
-		if (!IsWaitingForNewCombo() && Uptime >= ThinkTime)
+		if (!IsWaitingForNewCombo() && Uptime >= ThinkStateData.ThinkTime)
 		{
 			FSM->PopState();
 			FSM->PushState("Follow");
@@ -1435,4 +1449,20 @@ float AMordath::GetWalkSpeed() const
 	default:
 		return MovementSettings.MidRangeWalkSpeed;
 	}
+}
+
+void FThinkStateData::CalculateThinkTime()
+{
+	const float Min = ThinkTime - RandomDeviation;
+	const float Max = ThinkTime + RandomDeviation;
+
+	ThinkTime = FMath::Clamp(FMath::FRandRange(Min, Max), 0.0f, Max);
+}
+
+void FRetreatStateData::CalculateRetreatTime()
+{
+	const float Min = RetreatTime - RandomDeviation;
+	const float Max = RetreatTime + RandomDeviation;
+
+	RetreatTime = FMath::Clamp(FMath::FRandRange(Min, Max), 0.0f, Max);
 }

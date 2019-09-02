@@ -34,6 +34,14 @@ struct FDebug_Mordath : public FCharacterDebug
 	// Log the hit count to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogHits : 1;
+
+	// Log the think time to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogThinkTime : 1;
+	
+	// Log the retreat time to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogRetreatTime : 1;
 };
 
 USTRUCT(BlueprintType)
@@ -63,6 +71,40 @@ struct FBezier
 
 	// Points on bezier
 	FVector A, B, C;
+};
+
+USTRUCT(BlueprintType)
+struct FThinkStateData
+{
+	GENERATED_BODY()
+
+	// Calculates a new think time using RandomDeviation
+	void CalculateThinkTime();
+
+	// How long (in seconds) should the boss think for, before initiating an attack?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
+		float ThinkTime = 2.0f;
+
+	// Adds a random range to ThinkTime
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float RandomDeviation = 0.3f;
+};
+
+USTRUCT(BlueprintType)
+struct FRetreatStateData
+{
+	GENERATED_BODY()
+
+	// Calculates a new retreat time using RandomDeviation
+	void CalculateRetreatTime();
+		
+	// How long (in seconds) should the boss move away from you (walk backwards)?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
+		float RetreatTime = 1.0f;
+
+	// Adds a random range to RetreatTime
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float RandomDeviation = 0.3f;
 };
 
 USTRUCT(BlueprintType)
@@ -582,13 +624,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float DeathTime = 2.0f;
 
-	// How long (in seconds) should the boss think for, before initiating an attack?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f, ClampMax = 60.0f))
-		float ThinkTime = 2.0f;
-
-	// How long (in seconds) should the boss move away from you (walk backwards)?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f, ClampMax = 60.0f))
-		float RetreatTime = 1.0f;
+	// Holds the data relating to the 'Think' state
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		FThinkStateData ThinkStateData;
+	
+	// Holds the data relating to the 'Retreat' state (i.e Walking backwards)
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		FRetreatStateData RetreatStateData;
 
 	// The health value where we enter the second stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
