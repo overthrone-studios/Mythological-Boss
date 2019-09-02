@@ -638,42 +638,6 @@ protected:
 			void OnExitBlockingState();
 		#pragma endregion 
 
-		#pragma region Light Attack 1
-		UFUNCTION()
-			void OnEnterLightAttackState();
-		UFUNCTION()
-			void UpdateLightAttackState();
-		UFUNCTION()
-			void OnExitLightAttackState();
-		#pragma endregion 
-
-		#pragma region Light Attack 2
-		UFUNCTION()
-			void OnEnterLightAttack2State();
-		UFUNCTION()
-			void UpdateLightAttack2State();
-		UFUNCTION()
-			void OnExitLightAttack2State();
-		#pragma endregion 
-
-		#pragma region Heavy Attack 1
-		UFUNCTION()
-			void OnEnterHeavyAttackState();
-		UFUNCTION()
-			void UpdateHeavyAttackState();
-		UFUNCTION()
-			void OnExitHeavyAttackState();
-		#pragma endregion 
-
-		#pragma region Heavy Attack 2
-		UFUNCTION()
-			void OnEnterHeavyAttack2State();
-		UFUNCTION()
-			void UpdateHeavyAttack2State();
-		UFUNCTION()
-			void OnExitHeavyAttack2State();
-		#pragma endregion 
-
 		#pragma region Damaged
 		UFUNCTION()
 			void OnEnterDamagedState();

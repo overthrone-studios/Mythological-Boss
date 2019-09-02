@@ -68,12 +68,8 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(0, "Idle");
 	FSM->AddState(1, "Walk");
 	FSM->AddState(2, "Run");
-	FSM->AddState(3, "Light Attack 1");
 	FSM->AddState(4, "Block");
 	FSM->AddState(5, "Death");
-	FSM->AddState(8, "Light Attack 2");
-	FSM->AddState(9, "Heavy Attack 1");
-	FSM->AddState(10, "Heavy Attack 2");
 	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
@@ -92,10 +88,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AYlva::UpdateRunState);
 	FSM->GetState(2)->OnExitState.AddDynamic(this, &AYlva::OnExitRunState);
 
-	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AYlva::OnEnterLightAttackState);
-	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AYlva::UpdateLightAttackState);
-	FSM->GetState(3)->OnExitState.AddDynamic(this, &AYlva::OnExitLightAttackState);
-
 	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AYlva::OnEnterBlockingState);
 	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AYlva::UpdateBlockingState);
 	FSM->GetState(4)->OnExitState.AddDynamic(this, &AYlva::OnExitBlockingState);
@@ -103,18 +95,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDeathState);
 	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDeathState);
 	FSM->GetState(5)->OnExitState.AddDynamic(this, &AYlva::OnExitDeathState);
-
-	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterLightAttack2State);
-	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateLightAttack2State);
-	FSM->GetState(8)->OnExitState.AddDynamic(this, &AYlva::OnExitLightAttack2State);
-
-	FSM->GetState(9)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttackState);
-	FSM->GetState(9)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttackState);
-	FSM->GetState(9)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttackState);
-
-	FSM->GetState(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterHeavyAttack2State);
-	FSM->GetState(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdateHeavyAttack2State);
-	FSM->GetState(10)->OnExitState.AddDynamic(this, &AYlva::OnExitHeavyAttack2State);
 
 	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
 	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
@@ -1377,101 +1357,6 @@ void AYlva::OnExitBlockingState()
 	bUseControllerRotationYaw = false;
 }
 #pragma endregion
-
-#pragma region Light Attack 1
-void AYlva::OnEnterLightAttackState()
-{
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->Montage_Play(AttackComboComponent->GetCurrentLightAttackAnim());
-}
-
-void AYlva::UpdateLightAttackState()
-{
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-}
-
-void AYlva::OnExitLightAttackState()
-{
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	MovementComponent->SetMovementMode(MOVE_Walking);
-}
-#pragma endregion
-
-#pragma region Light Attack 2
-void AYlva::OnEnterLightAttack2State()
-{
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->Montage_Play(AttackComboComponent->GetCurrentLightAttackAnim());
-}
-
-void AYlva::UpdateLightAttack2State()
-{
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-}
-
-void AYlva::OnExitLightAttack2State()
-{
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-
-	MovementComponent->SetMovementMode(MOVE_Walking);
-}
-#pragma endregion
-
-#pragma region Heavy Attack 1
-void AYlva::OnEnterHeavyAttackState()
-{
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->Montage_Play(AttackComboComponent->GetCurrentHeavyAttackAnim());
-}
-
-void AYlva::UpdateHeavyAttackState()
-{
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	//if (!AnimInstance->Montage_IsPlaying(Combat.AttackSettings.HeavyAttack1))
-	//	FSM->PopState();
-}
-
-void AYlva::OnExitHeavyAttackState()
-{
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	MovementComponent->SetMovementMode(MOVE_Walking);
-}
-#pragma endregion
-
-#pragma region Heavy Attack 2
-void AYlva::OnEnterHeavyAttack2State()
-{
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptSecondHeavyAttack = true;
-}
-
-void AYlva::UpdateHeavyAttack2State()
-{
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
-		FSM->PopState();
-}
-
-void AYlva::OnExitHeavyAttack2State()
-{
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	MovementComponent->SetMovementMode(MOVE_Walking);
-
-	AnimInstance->bAcceptSecondHeavyAttack = false;
-}
-#pragma endregion 
 
 #pragma region Damaged
 void AYlva::OnEnterDamagedState()
