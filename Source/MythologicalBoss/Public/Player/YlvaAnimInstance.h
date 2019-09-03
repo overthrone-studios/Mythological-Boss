@@ -41,6 +41,9 @@ public:
 		uint8 bCanParry : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsLockedOn: 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		float LeanRollAmount = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
