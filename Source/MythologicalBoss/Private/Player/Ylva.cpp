@@ -148,7 +148,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 700.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -545,7 +545,7 @@ void AYlva::LightAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
+	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
 
@@ -566,9 +566,6 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 	if (Combat.bRotateToCameraLookDirection)
 		bUseControllerRotationYaw = true;
-
-	if (MovementSettings.bStopMovingWhenAttacking)
-		MovementComponent->SetMovementMode(MOVE_None);
 }
 
 void AYlva::HeavyAttack()
@@ -584,7 +581,7 @@ void AYlva::HeavyAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd())
+	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
 
@@ -605,9 +602,6 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 
 	if (Combat.bRotateToCameraLookDirection)
 		bUseControllerRotationYaw = true;
-
-	if (MovementSettings.bStopMovingWhenAttacking)
-		MovementComponent->SetMovementMode(MOVE_None);
 }
 
 void AYlva::ChargeUpAttack()

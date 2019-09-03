@@ -109,10 +109,6 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	// Start the combo reset timer
 	Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 
 
-	// Get out if we are still delaying
-	if (IsDelaying())
-		return nullptr;
-
 	UAnimMontage* MontageToReturn = nullptr;
 
 	// Choose the attack
@@ -157,7 +153,6 @@ int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class 
 	if (AttackIndex >= AttackList.Num())
 	{
 		AttackIndex = 0;
-		return AttackIndex;
 	}
 
 	Combo.Add(InAttackType);
@@ -194,7 +189,7 @@ int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class 
 
 void UAttackComboComponent::DelayAttack(const float& Delay)
 {
-	if (!Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle))
+	if (!IsDelaying())
 		Owner->GetWorldTimerManager().SetTimer(AttackDelayTimerHandle, Delay, false);
 }
 
@@ -221,7 +216,6 @@ void UAttackComboComponent::ResetCombo()
 
 	// Clear timers
 	Owner->GetWorldTimerManager().ClearTimer(ComboResetTimerHandle);
-	Owner->GetWorldTimerManager().ClearTimer(AttackDelayTimerHandle);
 
 	OnComboReset.Broadcast();
 
