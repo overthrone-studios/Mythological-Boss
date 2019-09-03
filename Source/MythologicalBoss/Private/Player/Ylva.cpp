@@ -451,6 +451,7 @@ void AYlva::UpdateCharacterInfo()
 	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
 	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetSmoothedCharge();
+
 	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
 	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
