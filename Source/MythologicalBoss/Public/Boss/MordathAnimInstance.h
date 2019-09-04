@@ -37,6 +37,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanTeleport : 1;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Misc")
+		uint8 bIsThinking : 1;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		TEnumAsByte<EBossStage> CurrentStage = Stage_1;
 
