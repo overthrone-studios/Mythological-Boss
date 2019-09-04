@@ -55,6 +55,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void AddState(int32 ID, const FName& StateName);
 
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void AddSubState(int32 ParentStateID, int32 SubStateID, const FName& SubStateName);
+
 	void PopState();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
@@ -71,6 +74,12 @@ public:
 		void PopState(int32 StateID);
 		void PopState(const FName& StateName);
 
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void EnterSubState(int32 SubStateID);
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void ExitSubState();
+
 	FORCEINLINE TArray<FState> GetAllStates() const { return States; }
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
@@ -85,7 +94,12 @@ public:
 	FState* GetStateInStack(const FName& StateName);
 
 	FState* GetActiveState() const;
-	
+
+	FState* GetSubState(int32 SubStateID) const;
+	FState* GetSubState(int32 ParentStateID, int32 SubStateID) const;
+
+	FState* GetParentState(int32 SubStateID) const;
+
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		int32 GetActiveStateID() const;
 	UFUNCTION(BlueprintPure, Category = "FSM")
@@ -111,6 +125,7 @@ protected:
 	TArray<FState*> Stack;
 
 	TArray<FState> States;
+	TArray<TPair<FState*, FState*>> SubStates;
 
 	uint8 bHasFSMInitialized : 1;
 	uint8 bIsRunning : 1;
