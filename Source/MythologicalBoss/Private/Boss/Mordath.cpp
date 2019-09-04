@@ -312,6 +312,8 @@ void AMordath::OnEnterFollowState()
 		else
 			ChooseCombo();
 	}
+
+	ChooseMovementDirection();
 }
 
 void AMordath::UpdateFollowState()
@@ -328,7 +330,22 @@ void AMordath::UpdateFollowState()
 			return;
 		}
 
-		AddMovementInput(GetDirectionToPlayer());
+		if (!IsDelayingAttack())
+			AddMovementInput(GetDirectionToPlayer());
+		else
+		{
+			if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+				AddMovementInput(GetActorRightVector());
+			else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+				AddMovementInput(-GetActorRightVector());
+			else
+			{
+				if (WantsMoveRight())
+					AddMovementInput(GetActorRightVector());
+				else
+					AddMovementInput(-GetActorRightVector());
+			}
+		}
 	}
 
 	FacePlayer();
@@ -338,16 +355,8 @@ void AMordath::UpdateFollowState()
 	{
 	case 0 /*Close*/:
 	if (!IsWaitingForNewCombo() &&
-		!GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
+		!IsDelayingAttack())
 		ChooseAttack();
-	break;
-
-	case 1 /*Mid*/:
-	break;
-
-	case 2 /*Far*/:
-	// Todo: Jump attack
-	//if (!GetWorldTimerManager().IsTimerActive(JumpAttackCooldownTimerHandle))
 	break;
 
 	default:
@@ -1259,15 +1268,15 @@ void AMordath::ChooseAttack()
 
 void AMordath::NextAttack()
 {
-	if (ChosenCombo->IsDelayEnabled() && !GetWorldTimerManager().IsTimerActive(ChosenCombo->GetDelayTimer()))
+	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAttack())
 	{
-		const float Min = FMath::Clamp(ChosenCombo->GetDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
-		const float Max = FMath::Clamp(ChosenCombo->GetDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
+		const float Min = FMath::Clamp(ChosenCombo->GetAttackDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
+		const float Max = FMath::Clamp(ChosenCombo->GetAttackDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
 		const float NewDelay = FMath::RandRange(Min, Max);
 
 		if (NewDelay > 0.0f)
 		{
-			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetDelayTimer(), this, &AMordath::NextAttack, NewDelay);
+			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetAttackDelayTimer(), this, &AMordath::NextAttack, NewDelay);
 			MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 		}
 		else
@@ -1467,6 +1476,11 @@ bool AMordath::InInvincibleState() const
 bool AMordath::IsWaitingForNewCombo() const
 {
 	return GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle);
+}
+
+bool AMordath::IsDelayingAttack()
+{
+	return GetWorldTimerManager().IsTimerActive(ChosenCombo->GetAttackDelayTimer());
 }
 
 bool AMordath::WantsMoveRight() const

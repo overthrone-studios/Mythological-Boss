@@ -398,7 +398,8 @@ protected:
 		#pragma region Follow
 		UFUNCTION()
 			void OnEnterFollowState();
-		UFUNCTION()
+	bool IsDelayingAttack();
+	UFUNCTION()
 			void UpdateFollowState();
 		UFUNCTION()
 			void OnExitFollowState();
