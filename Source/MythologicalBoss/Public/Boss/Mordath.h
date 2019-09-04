@@ -303,6 +303,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool WantsMoveRight() const;
 
+	// Returns true if we are in the recovering state/animation
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsRecovering() const;
+
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetWalkSpeed() const;
 
@@ -369,6 +373,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void ChooseMovementDirection();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
+		void EncirclePlayer();
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0

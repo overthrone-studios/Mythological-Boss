@@ -146,7 +146,7 @@ AMordath::AMordath()
 	FSM->GetState(19)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRetreatState);
 	FSM->GetState(19)->OnExitState.AddDynamic(this, &AMordath::OnExitRetreatState);
 
-	FSM->InitState(2);
+	FSM->InitState(0);
 
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
@@ -243,6 +243,11 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GameInstance->PlayerInfo.bIsDead)
+	{
+		return;
+	}
+
 	GameInstance->BossInfo.Location = GetActorLocation();
 
 	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
@@ -271,15 +276,14 @@ void AMordath::OnEnterIdleState()
 
 void AMordath::UpdateIdleState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if(GameInstance->PlayerInfo.bIsDead)
+	if (GameInstance->PlayerInfo.bIsDead)
 		return;
 
 	FacePlayer();
 
-	if(ChosenCombo)
-		FSM->PushState("Follow");
+	FSM->PushState("Thinking");
 }
 
 void AMordath::OnExitIdleState()
@@ -320,53 +324,29 @@ void AMordath::UpdateFollowState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	// Move towards the player
-	if (GetDistanceToPlayer() > AcceptanceRadius - AcceptanceRadius / 2.0f && !IsInvincible())
-	{
-		if (IsWaitingForNewCombo())
-		{
-			FSM->PopState();
-			FSM->PushState("Retreat");
-			return;
-		}
-
-		if (!IsDelayingAttack())
-			AddMovementInput(GetDirectionToPlayer());
-		else
-		{
-			if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
-				AddMovementInput(GetActorRightVector());
-			else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
-				AddMovementInput(-GetActorRightVector());
-			else
-			{
-				if (WantsMoveRight())
-					AddMovementInput(GetActorRightVector());
-				else
-					AddMovementInput(-GetActorRightVector());
-			}
-		}
-	}
-
 	FacePlayer();
 
-	// Decide which attack to choose
-	switch(RangeFSM->GetActiveStateID())
+	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius)
 	{
-	case 0 /*Close*/:
-	if (!IsWaitingForNewCombo() &&
-		!IsDelayingAttack())
-		ChooseAttack();
-	break;
-
-	default:
-	break;
+		FSM->PushState("Retreat");
+		return;
 	}
 
 	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < MidRangeRadius)
 	{
-		FSM->PopState();
 		FSM->PushState("Thinking");
+		return;
+	}
+
+	// Move towards the player
+	if (GetDistanceToPlayer() > AcceptanceRadius)
+	{
+		if (!IsDelayingAttack())
+			AddMovementInput(GetDirectionToPlayer());
+		else
+		{
+			EncirclePlayer();
+		}
 	}
 }
 
@@ -398,6 +378,9 @@ void AMordath::UpdateRetreatState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	FacePlayer();
+
+	if (GetDistanceToPlayer() > MidRangeRadius)
+		FSM->PopState();
 
 	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
 		AddMovementInput(-GetDirectionToPlayer());
@@ -433,8 +416,13 @@ void AMordath::OnEnterThinkState()
 void AMordath::UpdateThinkState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
-
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
+
+	if (!IsWaitingForNewCombo() && Uptime >= ThinkStateData.ThinkTime)
+	{
+		FSM->PopState();
+		FSM->PushState("Follow");
+	}
 
 	FacePlayer();
 
@@ -443,29 +431,9 @@ void AMordath::UpdateThinkState()
 	{
 		AddMovementInput(GetDirectionToPlayer());
 	}
-	else if (GetDistanceToPlayer() < AcceptanceRadius && IsWaitingForNewCombo())
-	{
-		FSM->PushState("Retreat");
-	}
 	else
 	{
-		if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
-			AddMovementInput(GetActorRightVector());
-		else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
-			AddMovementInput(-GetActorRightVector());
-		else
-		{
-			if (WantsMoveRight())
-				AddMovementInput(GetActorRightVector());
-			else
-				AddMovementInput(-GetActorRightVector());
-		}
-
-		if (!IsWaitingForNewCombo() && Uptime >= ThinkStateData.ThinkTime)
-		{
-			FSM->PopState();
-			FSM->PushState("Follow");
-		}
+		EncirclePlayer();
 	}
 }
 
@@ -880,16 +848,13 @@ void AMordath::OnExitTeleportState()
 void AMordath::OnEnterCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	if(GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
-		RangeFSM->PushState("Mid");
 }
 
 void AMordath::UpdateCloseRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if(GetDistanceToPlayer() > AcceptanceRadius + 200.0f)
+	if (GetDistanceToPlayer() > AcceptanceRadius)
 		RangeFSM->PushState("Mid");
 }
 
@@ -903,25 +868,16 @@ void AMordath::OnExitCloseRange()
 void AMordath::OnEnterMidRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	if(GetDistanceToPlayer() <= AcceptanceRadius)
-	{
-		RangeFSM->PushState("Close");
-		return;
-	}
-
-	if(GetDistanceToPlayer() > MidRangeRadius)
-		RangeFSM->PushState("Far");
 }
 
 void AMordath::UpdateMidRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
 
-	if(GetDistanceToPlayer() <= AcceptanceRadius)
+	if (GetDistanceToPlayer() < AcceptanceRadius)
 		RangeFSM->PushState("Close");
 
-	if(GetDistanceToPlayer() > MidRangeRadius)
+	if (GetDistanceToPlayer() > MidRangeRadius)
 		RangeFSM->PushState("Far");
 }
 
@@ -936,10 +892,7 @@ void AMordath::OnEnterFarRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	if(GetDistanceToPlayer() < MidRangeRadius)
-		RangeFSM->PushState("Mid");
-
-	if((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) &&
+	if ((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) &&
 		ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
 	{
 		FSM->PopState();
@@ -949,9 +902,9 @@ void AMordath::OnEnterFarRange()
 
 void AMordath::UpdateFarRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if(GetDistanceToPlayer() < MidRangeRadius)
+	if (GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
 }
 
@@ -974,12 +927,22 @@ void AMordath::OnEnterFirstStage()
 
 void AMordath::UpdateFirstStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(),StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 
 	// Can we enter the second stage?
 	if(HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth &&
 		HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
+	{
 		GameInstance->OnSecondStage.Broadcast();
+		return;
+	}
+
+	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/ && !IsRecovering())
+	{
+		// Decide which attack to choose
+		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
+			ChooseAttack();
+	}
 }
 
 void AMordath::OnExitFirstStage()
@@ -999,12 +962,22 @@ void AMordath::OnEnterSecondStage()
 
 void AMordath::UpdateSecondStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(),StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 
 	// Can we enter the third stage?
-	if(HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth &&
+	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth &&
 		HealthComponent->GetCurrentHealth() > 0.0f)
+	{
 		GameInstance->OnThirdStage.Broadcast();
+		return;
+	}
+
+	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/ && !IsRecovering())
+	{
+		// Decide which attack to choose
+		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
+			ChooseAttack();
+	}
 }
 
 void AMordath::OnExitSecondStage()
@@ -1024,7 +997,14 @@ void AMordath::OnEnterThirdStage()
 
 void AMordath::UpdateThirdStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(),StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+
+	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/)
+	{
+		// Decide which attack to choose
+		if (!IsWaitingForNewCombo() && !IsDelayingAttack() && !IsRecovering())
+			ChooseAttack();
+	}
 }
 
 void AMordath::OnExitThirdStage()
@@ -1046,6 +1026,10 @@ void AMordath::OnPlayerDeath()
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Laugh");
+
+	FSM->Stop();
+	RangeFSM->Stop();
+	StageFSM->Stop();
 }
 
 void AMordath::OnSecondStageHealth()
@@ -1325,7 +1309,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, Combat.InvincibilityTimeAfterDamage);
 
 		// Cancel our current animation and enter the downed state
-		FSM->PopState();
 		FSM->PushState("Beaten");
 
 		UpdateHealth(DamageAmount);
@@ -1370,6 +1353,21 @@ bool AMordath::IsStunned()
 void AMordath::ChooseMovementDirection()
 {
 	MoveDirection = FMath::RandRange(0, 1);
+}
+
+void AMordath::EncirclePlayer()
+{
+	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+		AddMovementInput(GetActorRightVector());
+	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+		AddMovementInput(-GetActorRightVector());
+	else
+	{
+		if (WantsMoveRight())
+			AddMovementInput(GetActorRightVector());
+		else
+			AddMovementInput(-GetActorRightVector());
+	}
 }
 
 float AMordath::GetDistanceToPlayer() const
@@ -1486,6 +1484,11 @@ bool AMordath::IsDelayingAttack()
 bool AMordath::WantsMoveRight() const
 {
 	return MoveDirection == 1;
+}
+
+bool AMordath::IsRecovering() const
+{
+	return FSM->GetActiveStateID() == 17;
 }
 
 float AMordath::GetWalkSpeed() const
