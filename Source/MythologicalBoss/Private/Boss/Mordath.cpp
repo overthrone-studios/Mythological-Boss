@@ -350,7 +350,7 @@ void AMordath::UpdateFollowState()
 			AddMovementInput(GetDirectionToPlayer());
 		else
 		{
-			EncirclePlayer();
+			FSM->PushState("Thinking");
 		}
 	}
 }
@@ -406,7 +406,7 @@ void AMordath::OnEnterThinkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed / 2.0f;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	ChooseMovementDirection();
 
@@ -423,22 +423,21 @@ void AMordath::UpdateThinkState()
 	const float Uptime = FSM->GetActiveStateUptime();
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
+	FacePlayer();
+
+	EncirclePlayer();
+
 	if (!IsWaitingForNewCombo() && Uptime >= ThinkStateData.ThinkTime)
 	{
 		FSM->PopState();
 		FSM->PushState("Follow");
+		return;
 	}
 
-	FacePlayer();
-
-	// Is far from player?
-	if (GetDistanceToPlayer() > GameInstance->GetTeleportRadius())
+	if (IsFarRange())
 	{
-		AddMovementInput(GetDirectionToPlayer());
-	}
-	else
-	{
-		EncirclePlayer();
+		FSM->PopState();
+		FSM->PushState("Follow");
 	}
 }
 
@@ -1362,6 +1361,8 @@ void AMordath::ChooseMovementDirection()
 
 void AMordath::EncirclePlayer()
 {
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
 		AddMovementInput(GetActorRightVector());
 	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
