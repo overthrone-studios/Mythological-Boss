@@ -32,7 +32,7 @@ bool UComboData::IsDelayEnabled()
 	return bDelayBetweenAttacks;
 }
 
-float UComboData::GetDelayTime()
+float UComboData::GetAttackDelayTime()
 {
 	return Delay;
 }
@@ -42,7 +42,7 @@ float UComboData::GetDeviation()
 	return RandomDeviation;
 }
 
-FTimerHandle& UComboData::GetDelayTimer()
+FTimerHandle& UComboData::GetAttackDelayTimer()
 {
-	return DelayTimerHandle;
+	return AttackDelayTimerHandle;
 }

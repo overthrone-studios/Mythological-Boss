@@ -23,25 +23,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combo Data")
 		void NextAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		bool IsAtLastAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		bool IsDelayEnabled();
 	
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
-		float GetDelayTime();
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
+		float GetAttackDelayTime();
 
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		float GetDeviation();
 
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
-		FTimerHandle& GetDelayTimer();
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
+		FTimerHandle& GetAttackDelayTimer();
 
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		int32 GetCurrentAttackIndex() const { return AttackIndex; }
 
-	UFUNCTION(BlueprintCallable, Category = "Combo Data")
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		UAttackData* GetCurrentAttackInfo() const { return CurrentAttack; }
 
 protected:
@@ -66,5 +66,5 @@ protected:
 private:
 	int32 AttackIndex = 0;
 
-	FTimerHandle DelayTimerHandle;
+	FTimerHandle AttackDelayTimerHandle;
 };
