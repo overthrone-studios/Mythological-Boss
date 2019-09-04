@@ -46,6 +46,9 @@ public:
 		void Start();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void Stop();
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void InitState(int32 StateID);
 		void InitState(const FName& StateName);
 
@@ -70,10 +73,10 @@ public:
 
 	FORCEINLINE TArray<FState> GetAllStates() const { return States; }
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		FORCEINLINE int32 GetStateCount() const { return States.Num(); }
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		FORCEINLINE int32 GetStateCountInStack() const { return Stack.Num(); }
 
 	FState* GetState(int32 StateID);
@@ -83,18 +86,18 @@ public:
 
 	FState* GetActiveState() const;
 	
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		int32 GetActiveStateID() const;
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		FName GetActiveStateName() const;
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		float GetActiveStateUptime() const;
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		bool DoesStateExistInStack(int32 StateID);
 		bool DoesStateExistInStack(const FName& StateName);
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
 		bool IsStackEmpty() const;
 
 	// Enable debug mode?
@@ -109,5 +112,6 @@ protected:
 
 	TArray<FState> States;
 
-	bool bHasFSMInitialized{};
+	uint8 bHasFSMInitialized : 1;
+	uint8 bIsRunning : 1;
 };
