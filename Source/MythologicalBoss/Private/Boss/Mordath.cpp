@@ -1368,15 +1368,27 @@ void AMordath::EncirclePlayer()
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+	{
 		AddMovementInput(GetActorRightVector());
+		MordathAnimInstance->MovementDirection = 1;
+	}
 	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+	{
 		AddMovementInput(-GetActorRightVector());
+		MordathAnimInstance->MovementDirection = -1;
+	}
 	else
 	{
 		if (WantsMoveRight())
+		{
 			AddMovementInput(GetActorRightVector());
+			MordathAnimInstance->MovementDirection = 1;
+		}
 		else
+		{
 			AddMovementInput(-GetActorRightVector());
+			MordathAnimInstance->MovementDirection = -1;
+		}
 	}
 }
 
