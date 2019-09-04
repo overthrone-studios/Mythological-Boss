@@ -1304,6 +1304,9 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	if (!AnimInstance->bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
 	{
 		ApplyDamage(DamageAmount);
+
+		GetMesh()->SetWorldScale3D(FVector(1.35f));
+		GetWorldTimerManager().SetTimer(HitReactionTimerHandle, this, &AMordath::ResetMeshScale, 0.1f);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
@@ -1390,6 +1393,11 @@ void AMordath::EncirclePlayer()
 			MordathAnimInstance->MovementDirection = -1;
 		}
 	}
+}
+
+void AMordath::ResetMeshScale()
+{
+	GetMesh()->SetWorldScale3D(FVector(1.3f));
 }
 
 float AMordath::GetDistanceToPlayer() const

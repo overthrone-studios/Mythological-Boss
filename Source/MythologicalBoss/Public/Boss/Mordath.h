@@ -377,6 +377,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void EncirclePlayer();
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void ResetMeshScale();
+
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
@@ -686,6 +689,8 @@ private:
 	uint8 MoveDirection = 0;
 
 	FTimerHandle UpdateInfoTimerHandle;
+
+	FTimerHandle HitReactionTimerHandle;
 
 	FTimerHandle StunExpiryTimerHandle;
 
