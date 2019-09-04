@@ -300,6 +300,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingInAnyDirection() const;
 
+	// Returns true if we are currently locked on to the boss
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
+		bool IsLockedOn() const;
+
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();

@@ -781,17 +781,21 @@ void AYlva::EndTakeDamage()
 #pragma region Movement
 void AYlva::Run()
 {
-	if (FSM->GetActiveStateName() == "Death" || ForwardInput < 0.0f || RightInput != 0.0f || IsChargeAttacking())
+	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking())
 		return;
 
-	// If we are moving and grounded
-	if (!GetVelocity().IsZero() && MovementComponent->IsMovingOnGround() && StaminaComponent->HasStamina())
+	if (IsLockedOn() && IsMovingForward() && StaminaComponent->HasStamina() || !IsLockedOn() && IsMovingInAnyDirection())
 	{
-		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
-
 		FSM->PopState();
 		FSM->PushState("Run");
+		//return;
 	}
+
+	//if (!IsLockedOn() && IsMovingInAnyDirection() && StaminaComponent->HasStamina())
+	//{
+	//	FSM->PopState();
+	//	FSM->PushState("Run");
+	//}
 }
 
 void AYlva::UpdateIsRunHeld()
@@ -1265,13 +1269,13 @@ void AYlva::UpdateWalkState()
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
-	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && ForwardInput > 0.0f && RightInput == 0.0f && FSM->GetActiveStateID() != 2)
+	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && GetVelocity().Size() > MovementSettings.WalkSpeed)
 	{
 		FSM->PushState("Run");
 		return;
 	}
 
-	if (!IsMovingInAnyDirection() && MovementComponent->IsMovingOnGround())
+	if (!IsMovingInAnyDirection())
 		FSM->PopState();
 }
 
@@ -1301,10 +1305,15 @@ void AYlva::UpdateRunState()
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
 
-	if (GetVelocity().IsZero() || 
-		MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || 
-		StaminaComponent->IsStaminaEmpty() || 
-		ForwardInput < 0.0f || RightInput != 0.0f)
+	if (GetVelocity().Size() < MovementSettings.WalkSpeed || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
+	{
+		StaminaComponent->DelayRegeneration();
+		FSM->PopState();
+		return;
+	}
+
+	// If we are locked on AND trying to run in a direction other than forward
+	if ((ForwardInput < 0.0f || RightInput != 0.0f) && IsLockedOn())
 	{
 		StaminaComponent->DelayRegeneration();
 		FSM->PopState();
@@ -1559,6 +1568,11 @@ bool AYlva::IsMovingLeft() const
 bool AYlva::IsMovingInAnyDirection() const
 {
 	return IsMovingBackward() || IsMovingForward() || IsMovingRight() || IsMovingLeft() || ForwardInput != 0.0f || RightInput != 0.0f;
+}
+
+bool AYlva::IsLockedOn() const
+{
+	return LockOnSettings.bShouldLockOnTarget;
 }
 
 void AYlva::ResetGlobalTimeDilation()
