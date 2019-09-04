@@ -411,7 +411,9 @@ void AMordath::OnEnterThinkState()
 	ChooseMovementDirection();
 
 	ThinkStateData.CalculateThinkTime();
-	
+
+	MordathAnimInstance->bIsThinking = true;
+
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogThinkTime)
 		ULog::Number(ThinkStateData.ThinkTime, "Think Time: ", true);
@@ -444,6 +446,8 @@ void AMordath::UpdateThinkState()
 void AMordath::OnExitThinkState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->bIsThinking = false;
 }
 #pragma endregion 
 
