@@ -258,6 +258,11 @@ void AMordath::Tick(const float DeltaTime)
 		// Shake the camera
 		PlayerController->ClientPlayCameraShake(CameraShakes.Stun.Shake, CameraShakes.Stun.Intensity);
 	}
+
+#if !UE_BUILD_SHIPPING
+	if (Debug.bLogMovementSpeed)
+		ULog::Number(MovementComponent->MaxWalkSpeed, "Movement Speed: ", true);
+#endif
 }
 
 void AMordath::PossessedBy(AController* NewController)

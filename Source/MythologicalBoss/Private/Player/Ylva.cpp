@@ -272,6 +272,9 @@ void AYlva::Tick(const float DeltaTime)
 		ULog::Number(ForwardInput, "Forward: ", true);
 		ULog::Number(RightInput, "Right: ", true);
 	}
+
+	if (Debug.bLogMovementSpeed)
+		ULog::Number(MovementComponent->MaxWalkSpeed, "Movement Speed: ", true);
 #endif
 }
 
