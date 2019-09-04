@@ -45,5 +45,4 @@ public:
 
 protected:
 	void NativeInitializeAnimation() override;
-	void NativeUpdateAnimation(float DeltaSeconds) override;
 };
