@@ -382,10 +382,10 @@ protected:
 	UFUNCTION()
 		void OnPlayerDeath();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnSecondStageHealth();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnThirdStageHealth();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Mordath")
