@@ -1,17 +1,24 @@
 // Copyright Overthrone Studios 2019
 
 #include "OverthroneCharacter.h"
+
 #include "Public/OverthroneGameInstance.h"
 #include "Public/OverthroneAnimInstance.h"
 #include "Public/OverthroneHUD.h"
+
+#include "Log.h"
+
 #include "HUD/FSMVisualizerHUD.h"
+
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Log.h"
 #include "Components/TimelineComponent.h"
 #include "Components/HealthComponent.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
+
+#include "Kismet/GameplayStatics.h"
+
 #include "TimerManager.h"
 
 AOverthroneCharacter::AOverthroneCharacter()
@@ -49,6 +56,16 @@ void AOverthroneCharacter::BeginPlay()
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+}
+
+void AOverthroneCharacter::Tick(const float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (IsMovingInAnyDirection() && !IsAttacking())
+		CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
+	else
+		CurrentMovementSpeed = 0.0f;
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()
@@ -220,4 +237,14 @@ void AOverthroneCharacter::UnPauseAnims() const
 bool AOverthroneCharacter::IsInvincible() const
 {
 	return !bCanBeDamaged;
+}
+
+bool AOverthroneCharacter::IsAttacking() const
+{
+	return false;
+}
+
+bool AOverthroneCharacter::IsMovingInAnyDirection() const
+{
+	return !GetVelocity().IsZero();
 }

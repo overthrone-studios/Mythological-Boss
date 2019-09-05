@@ -265,8 +265,7 @@ public:
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are doing any attack
-	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
-		bool IsAttacking() const;
+	bool IsAttacking() const override;
 
 	// Returns true if we are charge attacking
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
@@ -274,7 +273,7 @@ public:
 
 	// Did we successfully parry?
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
-		bool IsParrySuccessful();
+		bool IsParrySuccessful() const;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
@@ -297,8 +296,7 @@ public:
 		bool IsMovingLeft() const;
 
 	// Returns true if our forward input or right input != 0.0f
-	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
-		bool IsMovingInAnyDirection() const;
+	bool IsMovingInAnyDirection() const override;
 
 	// Returns true if we are currently locked on to the boss
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
