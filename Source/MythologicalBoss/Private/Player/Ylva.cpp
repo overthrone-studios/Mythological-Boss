@@ -228,7 +228,7 @@ void AYlva::Tick(const float DeltaTime)
 
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 
-	AnimInstance->MovementSpeed = GetVelocity().Size();
+	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->MovementDirection = CalculateDirection();
 
 	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
