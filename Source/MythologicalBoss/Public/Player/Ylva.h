@@ -265,8 +265,7 @@ public:
 		bool IsHeavyAttacking() const;
 
 	// Returns true if we are doing any attack
-	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
-		bool IsAttacking() const;
+	bool IsAttacking() const override;
 
 	// Returns true if we are charge attacking
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")

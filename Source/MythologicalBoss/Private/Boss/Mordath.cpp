@@ -351,10 +351,10 @@ void AMordath::UpdateFollowState()
 		if (!IsDelayingAttack())
 			AddMovementInput(GetDirectionToPlayer());
 		else
-		{
 			FSM->PushState("Thinking");
-		}
 	}
+	else
+		MovementComponent->MaxWalkSpeed = 0.0f;
 }
 
 void AMordath::OnExitFollowState()
@@ -1448,6 +1448,11 @@ void AMordath::PauseAnimsWithTimer()
 		PauseAnims();
 		GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
 	}
+}
+
+bool AMordath::IsAttacking() const
+{
+	return IsLightAttacking() || IsHeavyAttacking() || IsSpecialAttacking();
 }
 
 bool AMordath::IsLightAttacking() const

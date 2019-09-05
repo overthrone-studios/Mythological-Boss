@@ -115,6 +115,9 @@ public:
 		class UFSM* GetFSM() const { return FSM; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		virtual bool IsAttacking() const;
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		virtual bool IsMovingInAnyDirection() const;
 
 protected:

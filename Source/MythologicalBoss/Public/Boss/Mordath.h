@@ -255,6 +255,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FORCEINLINE float GetRecentDamage() const { return Combat.RecentDamage; }
 
+	bool IsAttacking() const override;
+
 	// Returns true if we are light attacking
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsLightAttacking() const;
