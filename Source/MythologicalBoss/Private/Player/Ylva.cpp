@@ -1537,7 +1537,7 @@ bool AYlva::IsChargeAttacking() const
 	return ChargeAttackHoldFrames > 1;
 }
 
-bool AYlva::IsParrySuccessful()
+bool AYlva::IsParrySuccessful() const
 {
 	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
 }

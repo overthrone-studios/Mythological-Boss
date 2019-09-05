@@ -273,7 +273,7 @@ public:
 
 	// Did we successfully parry?
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
-		bool IsParrySuccessful();
+		bool IsParrySuccessful() const;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
