@@ -1300,7 +1300,7 @@ void AYlva::UpdateRunState()
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
 
-	if (GetVelocity().Size() < MovementSettings.WalkSpeed || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
+	if (!IsMovingInAnyDirection() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
 	{
 		StaminaComponent->DelayRegeneration();
 		FSM->PopState();
