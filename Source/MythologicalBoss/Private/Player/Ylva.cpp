@@ -1393,6 +1393,8 @@ void AYlva::OnEnterDeathState()
 
 	AnimInstance->bIsDead = true;
 
+	DisableLockOn();
+
 	MovementComponent->DisableMovement();
 
 	GameInstance->PlayerInfo.bIsDead = true;
