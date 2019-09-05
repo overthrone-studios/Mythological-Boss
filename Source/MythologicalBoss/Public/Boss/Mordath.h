@@ -308,7 +308,7 @@ public:
 		bool IsRecovering() const;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		float GetWalkSpeed() const;
+		float GetWalkSpeed() const override;
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();

@@ -25,17 +25,10 @@ void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	if (!OwningPawn || !PawnMovementComponent)
 		return;
 
-	const FVector Velocity = OwningPawn->GetVelocity();
-
-	// Update movement speed and direction for use in the locomotion blendspace
-	MovementSpeed = Velocity.Size();
+	AnimTimeRemaining = GetAnimTimeRemaining();
 
 	if (bLogDirection)
-	{
 		ULog::Number(MovementDirection, "Direction: ", true);
-	}
-
-	AnimTimeRemaining = GetAnimTimeRemaining();
 }
 
 void UOverthroneAnimInstance::LeaveAllStates()

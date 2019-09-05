@@ -250,6 +250,8 @@ void AMordath::Tick(const float DeltaTime)
 
 	GameInstance->BossInfo.Location = GetActorLocation();
 
+	AnimInstance->MovementSpeed = MovementComponent->MaxWalkSpeed;
+
 	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
 		FSM->PopState();
@@ -1532,7 +1534,7 @@ float AMordath::GetWalkSpeed() const
 		return MovementSettings.MidRangeWalkSpeed;
 
 	default:
-		return MovementSettings.MidRangeWalkSpeed;
+		return MovementSettings.WalkSpeed;
 	}
 }
 

@@ -120,6 +120,8 @@ protected:
 
 	virtual void UpdateCharacterInfo();
 
+	virtual float GetWalkSpeed() const;
+
 	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")

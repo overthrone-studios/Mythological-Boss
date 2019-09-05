@@ -260,6 +260,8 @@ void AYlva::Tick(const float DeltaTime)
 		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
 	}
 
+	AnimInstance->MovementSpeed = GetVelocity().Size();
+
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogCameraPitch)
 		ULog::Number(GetControlRotation().Pitch, "Pitch: ", true);
@@ -351,6 +353,8 @@ void AYlva::MoveForward(const float Value)
 		YlvaAnimInstance->ForwardInput = 0.0f;
 	}
 
+	//AnimInstance->MovementSpeed = ForwardInput * MovementComponent->MaxWalkSpeed;
+
 	if (Controller && ForwardInput != 0.0f)
 	{
 		// Find out which way is forward
@@ -371,6 +375,7 @@ void AYlva::MoveRight(const float Value)
 	{
 		RightInput = Value;
 		YlvaAnimInstance->RightInput = RightInput;
+		//AnimInstance->MovementSpeed = RightInput * MovementComponent->MaxWalkSpeed;
 	}
 	else
 	{

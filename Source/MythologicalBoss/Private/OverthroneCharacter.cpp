@@ -56,6 +56,11 @@ void AOverthroneCharacter::UpdateCharacterInfo()
 	check(0 && "You must implement UpdateCharacterInfo()");
 }
 
+float AOverthroneCharacter::GetWalkSpeed() const
+{
+	return MovementComponent->MaxWalkSpeed;
+}
+
 void AOverthroneCharacter::InitTimelineComponent(UTimelineComponent* InTimelineComponent, UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
 {
 	// Timeline Initialization
