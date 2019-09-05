@@ -30,6 +30,11 @@ AOverthroneCharacter::AOverthroneCharacter()
 	bCanBeDamaged = true;
 }
 
+bool AOverthroneCharacter::IsMovingInAnyDirection() const
+{
+	return !GetVelocity().IsZero();
+}
+
 void AOverthroneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -49,6 +54,16 @@ void AOverthroneCharacter::BeginPlay()
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+}
+
+void AOverthroneCharacter::Tick(const float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (IsMovingInAnyDirection())
+		CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
+	else
+		CurrentMovementSpeed = 0.0f;
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()

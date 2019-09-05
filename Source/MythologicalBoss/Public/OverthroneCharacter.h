@@ -111,12 +111,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ApplyHitStop();
 
-	UFUNCTION(BlueprintPure, Category = "Mordath")
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		class UFSM* GetFSM() const { return FSM; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		virtual bool IsMovingInAnyDirection() const;
 
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
+	void Tick(float DeltaSeconds) override;
 
 	virtual void UpdateCharacterInfo();
 
@@ -243,4 +247,6 @@ protected:
 	FTimerHandle HitStopTimerHandle;
 
 	uint8 bWasLowHealthEventTriggered : 1;
+
+	float CurrentMovementSpeed = 0.0f;
 };
