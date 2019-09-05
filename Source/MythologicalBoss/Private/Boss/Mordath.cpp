@@ -245,12 +245,14 @@ void AMordath::Tick(const float DeltaTime)
 
 	if (GameInstance->PlayerInfo.bIsDead)
 	{
+		AnimInstance->MovementSpeed = 0.0f;
 		return;
 	}
+	
+	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 
 	GameInstance->BossInfo.Location = GetActorLocation();
 
-	AnimInstance->MovementSpeed = MovementComponent->MaxWalkSpeed;
 
 	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
