@@ -1334,6 +1334,8 @@ void AYlva::OnEnterBlockingState()
 	bUseControllerRotationYaw = true;
 
 	AnimInstance->Montage_Play(Combat.BlockSettings.BlockIdle);
+
+	YlvaAnimInstance->bIsBlocking = true;
 }
 
 void AYlva::UpdateBlockingState()
@@ -1346,6 +1348,8 @@ void AYlva::OnExitBlockingState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	bUseControllerRotationYaw = false;
+
+	YlvaAnimInstance->bIsBlocking = false;
 }
 #pragma endregion
 
