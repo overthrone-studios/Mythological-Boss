@@ -790,14 +790,7 @@ void AYlva::Run()
 	{
 		FSM->PopState();
 		FSM->PushState("Run");
-		//return;
 	}
-
-	//if (!IsLockedOn() && IsMovingInAnyDirection() && StaminaComponent->HasStamina())
-	//{
-	//	FSM->PopState();
-	//	FSM->PushState("Run");
-	//}
 }
 
 void AYlva::UpdateIsRunHeld()
