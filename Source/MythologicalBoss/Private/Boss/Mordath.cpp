@@ -1299,7 +1299,7 @@ void AMordath::DisableInvincibility()
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead
-	if (FSM->GetActiveStateName() == "Death")
+	if (FSM->GetActiveStateName() == "Death" || AnimInstance->bIsHit)
 		return DamageAmount;
 
 	BeginTakeDamage(DamageAmount);
