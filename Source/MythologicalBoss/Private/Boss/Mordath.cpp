@@ -253,7 +253,6 @@ void AMordath::Tick(const float DeltaTime)
 
 	GameInstance->BossInfo.Location = GetActorLocation();
 
-
 	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
 		FSM->PopState();
@@ -724,28 +723,26 @@ void AMordath::OnEnterStunnedState()
 	// Reset hit count
 	HitCounter = 0;
 
-	BossAIController->StopMovement();
-
 	MordathAnimInstance->bIsStunned = true;
-
-	GetWorldTimerManager().SetTimer(StunExpiryTimerHandle,this,&AMordath::FinishStun,Combat.StunSettings.Duration);
 }
 
 void AMordath::UpdateStunnedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
 }
 
 void AMordath::OnExitStunnedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	if(ChosenCombo)
-		NextAttack();
-
 	GameInstance->PlayerInfo.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
+
+	if (ChosenCombo)
+		NextAttack();
 }
 #pragma endregion
 
@@ -1088,7 +1085,7 @@ void AMordath::BroadcastLowHealth()
 
 void AMordath::FinishStun()
 {
-	FSM->PopState();
+	FSM->PopState("Stunned");
 }
 
 void AMordath::BeginTakeDamage(const float DamageAmount)
