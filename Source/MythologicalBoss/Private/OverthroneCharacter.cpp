@@ -126,6 +126,16 @@ void AOverthroneCharacter::ApplyHitStop()
 
 }
 
+void AOverthroneCharacter::EnableInvincibility()
+{
+	bCanBeDamaged = false;
+}
+
+void AOverthroneCharacter::DisableInvincibility()
+{
+	bCanBeDamaged = true;
+}
+
 void AOverthroneCharacter::ChangeHitboxSize(float NewRadius)
 {
 	check(0 && "You must implement ChangeHitboxSize()");

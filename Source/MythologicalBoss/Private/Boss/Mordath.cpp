@@ -788,7 +788,6 @@ void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle,Combat.DashSettings.DashCooldown,false);
 }
 #pragma endregion
 
@@ -1281,16 +1280,6 @@ void AMordath::NextAttack()
 	}
 
 	ChosenCombo->NextAttack();
-}
-
-void AMordath::EnableInvincibility()
-{
-	bCanBeDamaged = false;
-}
-
-void AMordath::DisableInvincibility()
-{
-	bCanBeDamaged = true;
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

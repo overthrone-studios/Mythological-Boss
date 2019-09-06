@@ -111,6 +111,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ApplyHitStop();
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		void EnableInvincibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		void DisableInvincibility();
+
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		class UFSM* GetFSM() const { return FSM; }
 

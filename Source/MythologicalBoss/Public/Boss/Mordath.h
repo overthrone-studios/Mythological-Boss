@@ -180,16 +180,6 @@ struct FAttackSettings_Mordath : public FAttackSettings
 };
 
 USTRUCT(BlueprintType)
-struct FDashSettings_Mordath
-{
-	GENERATED_BODY()
-
-	// The amount of time (in seconds) that the boss can be allowed to dash attack again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float DashCooldown = 5.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FStunSettings_Mordath
 {
 	GENERATED_BODY()
@@ -207,10 +197,6 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	// Settings that affect Mordath's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Attack")
 		FAttackSettings_Mordath AttackSettings;
-
-	// Settings that affect Mordath's dash values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Dash")
-		FDashSettings_Mordath DashSettings;
 
 	// Settings that affect Mordath's stun values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
@@ -363,12 +349,6 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FVector GetDirectionToPlayer() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void EnableInvincibility();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void DisableInvincibility();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsStunned();
