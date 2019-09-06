@@ -1439,6 +1439,8 @@ void AYlva::OnEnterDashState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	EnableInvincibility();
+
 	AnimInstance->bIsDashing = true;
 	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[1];
 }
@@ -1456,6 +1458,8 @@ void AYlva::UpdateDashState()
 void AYlva::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	DisableInvincibility();
 
 	AnimInstance->bIsDashing = false;
 	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[0];
