@@ -176,6 +176,8 @@ void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerController->SetInputMode(FInputModeGameOnly());
+
 	InitTimelineComponent(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
 	InitTimelineComponent(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
