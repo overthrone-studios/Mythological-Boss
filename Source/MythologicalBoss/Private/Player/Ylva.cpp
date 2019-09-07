@@ -155,11 +155,9 @@ AYlva::AYlva() : AOverthroneCharacter()
 
 	// Stamina component
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(FName("Stamina Component"));
-	StaminaRegenTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Stamina Regen Timeline"));
 
 	// Charge attack component
 	ChargeAttackComponent = CreateDefaultSubobject<UChargeAttackComponent>(FName("Charge Attack Component"));
-	ChargeAttackTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Charge Attack Timeline"));
 
 	// Attack combo component
 	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
@@ -178,8 +176,8 @@ void AYlva::BeginPlay()
 
 	PlayerController->SetInputMode(FInputModeGameOnly());
 
-	InitTimelineComponent(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
-	InitTimelineComponent(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
+	InitTimeline(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
+	InitTimeline(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
 	// Initialize our variables
 	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
@@ -227,6 +225,9 @@ void AYlva::BeginPlay()
 void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	StaminaRegenTimeline.TickTimeline(DeltaTime);
+	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
 	GameInstance->PlayerInfo.Location = GetActorLocation();
 
@@ -1007,8 +1008,8 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 	StaminaComponent->UpdatePreviousStamina();
 
 	// Stop animating displayed stamina
-	if (StaminaRegenTimeline->IsPlaying())
-		StaminaRegenTimeline->Stop();
+	if (StaminaRegenTimeline.IsPlaying())
+		StaminaRegenTimeline.Stop();
 
 	DecreaseStamina(StaminaToSubtract);
 
@@ -1082,12 +1083,12 @@ void AYlva::ResetStamina()
 
 void AYlva::StartLosingStamina()
 {
-	StaminaRegenTimeline->PlayFromStart();
+	StaminaRegenTimeline.PlayFromStart();
 }
 
 void AYlva::LoseStamina()
 {
-	const float Alpha = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline->GetPlaybackPosition());
+	const float Alpha = StaminaRegenCurve->GetFloatValue(StaminaRegenTimeline.GetPlaybackPosition());
 
 	StaminaComponent->SetSmoothedStamina(FMath::Lerp(StaminaComponent->GetPreviousStamina(), StaminaComponent->GetCurrentStamina(), Alpha));
 
@@ -1138,12 +1139,12 @@ void AYlva::StartGainingCharge(const float Amount)
 {
 	ChargeAttackComponent->IncreaseCharge(Amount);
 
-	ChargeAttackTimeline->PlayFromStart();
+	ChargeAttackTimeline.PlayFromStart();
 }
 
 void AYlva::GainCharge()
 {
-	const float Time = ChargeAttackCurve->GetFloatValue(ChargeAttackTimeline->GetPlaybackPosition());
+	const float Time = ChargeAttackCurve->GetFloatValue(ChargeAttackTimeline.GetPlaybackPosition());
 
 	ChargeAttackComponent->SetSmoothedCharge(FMath::Lerp(ChargeAttackComponent->GetPreviousCharge(), ChargeAttackComponent->GetCurrentCharge(), Time));
 

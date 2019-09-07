@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "Components/TimelineComponent.h"
 #include "OverthroneCharacter.generated.h"
 
 USTRUCT(BlueprintType)
@@ -135,7 +136,7 @@ protected:
 
 	virtual float GetWalkSpeed() const;
 
-	void InitTimelineComponent(class UTimelineComponent* InTimelineComponent, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
+	void InitTimeline(struct FTimeline& InTimeline, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void BeginTakeDamage(float DamageAmount);
@@ -211,8 +212,7 @@ protected:
 		class UHealthComponent* HealthComponent;
 
 	// This timeline plays when we have taken damage
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-		class UTimelineComponent* HealthLossTimeline;
+	FTimeline HealthLossTimeline;
 
 	// The float curve to use when taking damage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health")

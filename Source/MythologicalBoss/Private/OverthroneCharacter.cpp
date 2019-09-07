@@ -28,9 +28,6 @@ AOverthroneCharacter::AOverthroneCharacter()
 	// Health component
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(FName("Health Component"));
 
-	// Take damage timeline component
-	HealthLossTimeline = CreateDefaultSubobject<UTimelineComponent>(FName("Take Damage Timeline"));
-
 	GetCapsuleComponent()->bReturnMaterialOnMove = true;
 
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
@@ -41,7 +38,7 @@ void AOverthroneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InitTimelineComponent(HealthLossTimeline, HealthLossCurve, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
+	InitTimeline(HealthLossTimeline, HealthLossCurve, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
 
 	// Store all our child components
 	Components = GetComponents();
@@ -62,6 +59,8 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	HealthLossTimeline.TickTimeline(DeltaSeconds);
+
 	if (IsMovingInAnyDirection() && !IsAttacking())
 		CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
 	else
@@ -78,7 +77,7 @@ float AOverthroneCharacter::GetWalkSpeed() const
 	return MovementComponent->MaxWalkSpeed;
 }
 
-void AOverthroneCharacter::InitTimelineComponent(UTimelineComponent* InTimelineComponent, UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
+void AOverthroneCharacter::InitTimeline(FTimeline& InTimeline, UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
 {
 	// Timeline Initialization
 	FOnTimelineFloat TimelineCallback;
@@ -88,21 +87,16 @@ void AOverthroneCharacter::InitTimelineComponent(UTimelineComponent* InTimelineC
 
 	if (InCurveFloat)
 	{
-		InTimelineComponent = NewObject<UTimelineComponent>(this, InTimelineComponent->GetFName());
-		InTimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-		InTimelineComponent->SetPropertySetObject(this);
-		InTimelineComponent->SetLooping(false);
-		InTimelineComponent->SetPlaybackPosition(0.0f, false, false);
-		InTimelineComponent->SetPlayRate(InPlaybackSpeed);
-		InTimelineComponent->AddInterpFloat(InCurveFloat, TimelineCallback);
-		InTimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
-		InTimelineComponent->SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
-		InTimelineComponent->SetTimelineLengthMode(TL_TimelineLength);
-		InTimelineComponent->RegisterComponent();
+		InTimeline.SetLooping(false);
+		InTimeline.SetPlayRate(InPlaybackSpeed);
+		InTimeline.AddInterpFloat(InCurveFloat, TimelineCallback);
+		InTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
+		InTimeline.SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
+		InTimeline.SetTimelineLengthMode(TL_TimelineLength);
 	}
 	else
 	{
-		ULog::DebugMessage(ERROR, "Failed to initialize the " + InTimelineComponent->GetName() + ". A curve float asset is missing!", true);
+		ULog::DebugMessage(ERROR, FString("Failed to initialize timeline. A curve float asset is missing!"), true);
 	}
 }
 
@@ -147,12 +141,12 @@ void AOverthroneCharacter::OnLowHealth()
 
 void AOverthroneCharacter::StartLosingHealth()
 {
-	HealthLossTimeline->PlayFromStart();
+	HealthLossTimeline.PlayFromStart();
 }
 
 void AOverthroneCharacter::LoseHealth()
 {
-	const float Alpha = HealthLossCurve->GetFloatValue(HealthLossTimeline->GetPlaybackPosition());
+	const float Alpha = HealthLossCurve->GetFloatValue(HealthLossTimeline.GetPlaybackPosition());
 
 	HealthComponent->SetSmoothedHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Alpha));
 
@@ -209,8 +203,8 @@ void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 	HealthComponent->UpdatePreviousHealth();
 
 	// Stop animating displayed health
-	if (HealthLossTimeline->IsPlaying())
-		HealthLossTimeline->Stop();
+	if (HealthLossTimeline.IsPlaying())
+		HealthLossTimeline.Stop();
 
 	DecreaseHealth(HealthToSubtract);
 

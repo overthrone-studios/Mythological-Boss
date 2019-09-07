@@ -708,12 +708,10 @@ protected:
 		class UDashComponent* DashComponent;
 
 	// This timeline plays when we are regenerating stamina
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina")
-		class UTimelineComponent* StaminaRegenTimeline;
+	FTimeline StaminaRegenTimeline;
 
 	// This timeline plays when we are building charge
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Charge Attack")
-		class UTimelineComponent* ChargeAttackTimeline;
+	FTimeline ChargeAttackTimeline;
 	#pragma endregion
 
 	// The radius the boss will use to teleport to a point on this circle
