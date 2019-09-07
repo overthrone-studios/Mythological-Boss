@@ -325,8 +325,8 @@ protected:
 	void ApplyDamage(float DamageAmount) override;
 	void EndTakeDamage() override;
 
-	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
-		FRotator FacePlayer();
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
+		void FacePlayer();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseComboWithDelay();

@@ -1328,16 +1328,12 @@ void AMordath::ChangeHitboxSize(const float NewRadius)
 	Combat.AttackSettings.AttackRadius = NewRadius;
 }
 
-FRotator AMordath::FacePlayer()
+void AMordath::FacePlayer()
 {
-	const FVector Target = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), PlayerCharacter->GetActorLocation());
-	const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target.Rotation(), World->DeltaTimeSeconds, 20.0f);
-
-	const FRotator NewRotation = FRotator(GetControlRotation().Pitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
-
-	SetActorRotation(NewRotation);
-
-	return Target.Rotation();
+	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
+	Direction.Normalize();
+	
+	SetActorRotation(Direction.Rotation());
 }
 
 void AMordath::SendInfo()
