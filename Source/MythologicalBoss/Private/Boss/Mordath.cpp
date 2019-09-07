@@ -236,6 +236,12 @@ void AMordath::BeginPlay()
 	FSM->Start();
 	RangeFSM->Start();
 	StageFSM->Start();
+
+#if !UE_BUILD_SHIPPING
+	GetCapsuleComponent()->bHiddenInGame = false;
+#else
+	GetCapsuleComponent()->bHiddenInGame = true;
+#endif
 }
 
 void AMordath::Tick(const float DeltaTime)

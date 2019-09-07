@@ -219,6 +219,12 @@ void AYlva::BeginPlay()
 
 	// Begin the state machine
 	FSM->Start();
+
+#if !UE_BUILD_SHIPPING
+	GetCapsuleComponent()->bHiddenInGame = false;
+#else
+	GetCapsuleComponent()->bHiddenInGame = true;
+#endif
 }
 
 void AYlva::Tick(const float DeltaTime)
