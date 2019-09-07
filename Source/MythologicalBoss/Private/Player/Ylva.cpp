@@ -180,7 +180,6 @@ void AYlva::BeginPlay()
 	InitTimeline(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
 	// Initialize our variables
-	Boss = UOverthroneFunctionLibrary::GetBossCharacter(World);
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
@@ -345,6 +344,9 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AYlva::MoveForward(const float Value)
 {
+	if (IsDashing())
+		return;
+
 	if (!IsAttacking())
 	{
 		ForwardInput = Value;
@@ -372,6 +374,9 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
+	if (IsDashing())
+		return;
+
 	if (!IsAttacking())
 	{
 		RightInput = Value;
@@ -1446,11 +1451,17 @@ void AYlva::OnEnterDashState()
 
 	AnimInstance->bIsDashing = true;
 	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[1];
+
+	LockedForwardInput = ForwardInput;
+	LockedRightInput = RightInput;
 }
 
 void AYlva::UpdateDashState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	ForwardInput = LockedForwardInput;
+	RightInput = LockedRightInput;
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
