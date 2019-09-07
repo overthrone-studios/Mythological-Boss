@@ -1333,7 +1333,7 @@ void AMordath::FacePlayer()
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
 	
-	SetActorRotation(Direction.Rotation());
+	SetActorRotation(FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll));
 }
 
 void AMordath::SendInfo()
