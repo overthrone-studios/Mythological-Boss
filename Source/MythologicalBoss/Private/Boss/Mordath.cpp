@@ -695,10 +695,6 @@ void AMordath::OnEnterDeathState()
 
 	GameInstance->OnBossDeath.Broadcast();
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	MovementComponent->SetMovementMode(MOVE_None);
-
 	RangeFSM->Stop();
 	StageFSM->Stop();
 
@@ -1426,6 +1422,8 @@ void AMordath::Die()
 	BossAIController->StopMovement();
 	MovementComponent->SetMovementMode(MOVE_None);
 	MovementComponent->DisableMovement();
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
