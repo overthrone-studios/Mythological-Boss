@@ -697,13 +697,20 @@ void AMordath::OnEnterDeathState()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle,this,&AMordath::DestroySelf,DeathTime);
+	MovementComponent->SetMovementMode(MOVE_None);
+
+	RangeFSM->Stop();
+	StageFSM->Stop();
+
+	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
 }
 
 void AMordath::UpdateDeathState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->Stop();
 }
 
 void AMordath::OnExitDeathState()
