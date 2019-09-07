@@ -40,12 +40,14 @@ void ALockOn::BeginPlay()
 
 void ALockOn::Show()
 {
-	LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Forward, 2.0f);
+	if (LockOnWidget && LockOnWidget->Fade)
+		LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Forward, 2.0f);
 }
 
 void ALockOn::Hide()
 {
-	LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Reverse, 2.0f);
+	if (LockOnWidget && LockOnWidget->Fade)
+		LockOnWidget->PlayAnimation(LockOnWidget->Fade, 0.0f, 1, EUMGSequencePlayMode::Reverse, 2.0f);
 }
 
 void ALockOn::ToggleVisibility(const bool bVisibility)
