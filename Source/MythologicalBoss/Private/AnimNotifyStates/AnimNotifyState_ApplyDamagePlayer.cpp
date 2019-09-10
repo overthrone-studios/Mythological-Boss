@@ -7,6 +7,7 @@
 #include "Log.h"
 #include "Animation/AnimSequenceBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
@@ -65,7 +66,7 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 			
 			#if !UE_BUILD_SHIPPING
 			if (Ylva->Debug.bLogComponentHits)
-				ULog::Info(HitComp->GetName(), true);
+				DrawDebugString(MeshComp->GetOwner()->GetWorld(), HitResult.Location, HitComp->GetName(), nullptr, FColor::White, 1.0f);
 			#endif
 		}
 

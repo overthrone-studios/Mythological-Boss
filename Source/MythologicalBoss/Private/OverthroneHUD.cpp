@@ -7,6 +7,7 @@
 #include "UserWidget.h"
 #include "ConstructorHelpers.h"
 #include "Log.h"
+#include "Engine/Engine.h"
 
 AOverthroneHUD::AOverthroneHUD()
 {
@@ -18,6 +19,8 @@ AOverthroneHUD::AOverthroneHUD()
 
 void AOverthroneHUD::Init()
 {
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+
 	CreateWidgets();
 
 	if (MasterHUD)
@@ -28,6 +31,32 @@ void AOverthroneHUD::Init()
 	else
 	{
 		ULog::DebugMessage(ERROR, FString("Failed to create the MasterHUD widget!"), true);
+	}
+}
+
+void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLinearColor Color, const float XOffset, const float YOffset)
+{
+	FDebugData DebugData;
+
+	DebugData.Message = Message;
+	DebugData.Color = Color;
+	DebugData.XOffset = XOffset;
+	DebugData.YOffset = YOffset;
+
+	DebugMessages.Add(DebugData);
+}
+
+void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString& Message)
+{
+	if (DebugMessages.IsValidIndex(Index))
+		DebugMessages[Index].Message = Message;
+}
+
+void AOverthroneHUD::DrawHUD()
+{
+	for (const FDebugData& Debug : DebugMessages)
+	{
+		DrawText(Debug.Message, Debug.Color, ViewportSize.X - Debug.XOffset, Debug.YOffset);
 	}
 }
 

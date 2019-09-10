@@ -5,6 +5,19 @@
 #include "GameFramework/HUD.h"
 #include "OverthroneHUD.generated.h"
 
+USTRUCT()
+struct FDebugData
+{
+	GENERATED_BODY()
+
+	FString Message;
+
+	FLinearColor Color;
+
+	float XOffset;
+	float YOffset;
+};
+
 /**
  * The main HUD the player will use when playing the game
  */
@@ -20,11 +33,21 @@ public:
 
 	FORCEINLINE class UMasterHUD* GetMasterHUD() const { return MasterHUD; }
 
+	void AddOnScreenDebugMessage(const FString& Message, FLinearColor Color, float XOffset, float YOffset);
+	void UpdateOnScreenDebugMessage(int32 Index, const FString& Message);
+
 protected:
+	void DrawHUD() override;
+
 	void CreateWidgets();
 	void AddWidgetsToScreen();
 	void InitWidgets();
 
+	TArray<FDebugData> DebugMessages;
+
 	class UMasterHUD* MasterHUD{};
 	TSubclassOf<class UHUDBase> HUDWidgetClass;
+
+private:
+	FVector2D ViewportSize;
 };

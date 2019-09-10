@@ -222,6 +222,11 @@ void AYlva::BeginPlay()
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
+	
+	OverthroneHUD->AddOnScreenDebugMessage("Pitch: ", FColor::Orange, 200.0f, 30.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green, 200.0f, 45.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green, 200.0f, 60.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, 200.0f, 75.0f);
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
@@ -271,20 +276,14 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
-	if (Debug.bLogCameraPitch)
-		ULog::Number(GetControlRotation().Pitch, "Pitch: ", true);
-
 	if (Debug.bShowTeleportRadius)
 		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation(), TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-	if (Debug.bLogPlayerInputValues)
-	{
-		ULog::Number(ForwardInput, "Forward: ", true);
-		ULog::Number(RightInput, "Right: ", true);
-	}
+	OverthroneHUD->UpdateOnScreenDebugMessage(0, "Camera Pitch: " + FString::SanitizeFloat(GetControlRotation().Pitch));
+	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 
-	if (Debug.bLogMovementSpeed)
-		ULog::Number(CurrentMovementSpeed, "Movement Speed: ", true);
+	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 #endif
 }
 
