@@ -371,12 +371,12 @@ void AYlva::MoveForward(const float Value)
 	if (!IsAttacking())
 	{
 		ForwardInput = Value;
-		YlvaAnimInstance->ForwardInput = ForwardInput;
+		AnimInstance->ForwardInput = ForwardInput;
 	}
 	else
 	{
 		ForwardInput = 0.0f;
-		YlvaAnimInstance->ForwardInput = 0.0f;
+		AnimInstance->ForwardInput = 0.0f;
 	}
 
 	if (Controller && ForwardInput != 0.0f)
@@ -403,12 +403,12 @@ void AYlva::MoveRight(const float Value)
 	if (!IsAttacking())
 	{
 		RightInput = Value;
-		YlvaAnimInstance->RightInput = RightInput;
+		AnimInstance->RightInput = RightInput;
 	}
 	else
 	{
 		RightInput = 0.0f;
-		YlvaAnimInstance->RightInput = 0.0f;
+		AnimInstance->RightInput = 0.0f;
 	}
 
 	if (Controller && RightInput != 0.0f)

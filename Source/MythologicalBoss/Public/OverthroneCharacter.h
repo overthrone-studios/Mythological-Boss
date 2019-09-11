@@ -265,5 +265,7 @@ protected:
 
 	uint8 bWasLowHealthEventTriggered : 1;
 
+	float RightInput = 0.0f, ForwardInput = 0.0f;
+
 	float CurrentMovementSpeed = 0.0f;
 };

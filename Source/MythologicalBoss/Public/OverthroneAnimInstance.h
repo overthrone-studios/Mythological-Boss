@@ -18,6 +18,12 @@ public:
 		virtual void LeaveAllStates();
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float ForwardInput = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+		float RightInput = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float BlendAlpha = 1.0f;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")

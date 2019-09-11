@@ -747,7 +747,6 @@ protected:
 		class UYlvaAnimInstance* YlvaAnimInstance{};
 
 private:
-	float RightInput = 0.0f, ForwardInput = 0.0f;
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
 
 	float PlayerLeanRollAmount = 0.0f;
