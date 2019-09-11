@@ -50,7 +50,7 @@ float UOverthroneAnimInstance::GetAnimTimeRemaining()
 	if (!StateMachine)
 		return 0.0f;
 
-	const int32 StateIndex = StateMachine->GetCurrentState();
+	ActiveStateIndex = StateMachine->GetCurrentState();
 
-	return GetRelevantAnimTimeRemaining(ActiveStateMachine, StateIndex);
+	return GetRelevantAnimTimeRemaining(ActiveStateMachine, ActiveStateIndex);
 }

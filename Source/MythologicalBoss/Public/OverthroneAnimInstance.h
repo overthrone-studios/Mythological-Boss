@@ -62,8 +62,11 @@ public:
 	// Used to get a reference to the anim state machines, and to query time remaining
 	int32 StateMachines[2];
 
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
+		int32 ActiveStateIndex = 0;
+
 	// Used to get a reference to the active anim state machine, and to query time remaining
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Animation")
 		int32 ActiveStateMachine = 0;
 
 protected:
