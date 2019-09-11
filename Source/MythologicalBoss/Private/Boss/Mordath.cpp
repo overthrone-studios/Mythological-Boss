@@ -1410,14 +1410,12 @@ void AMordath::EncirclePlayer()
 		AddMovementInput(GetActorRightVector());
 		ForwardInput = 0.0f;
 		RightInput = 1.0f;
-		MordathAnimInstance->MovementDirection = RightInput;
 	}
 	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
 	{
 		AddMovementInput(-GetActorRightVector());
 		ForwardInput = 0.0f;
 		RightInput = -1.0f;
-		MordathAnimInstance->MovementDirection = RightInput;
 	}
 	else
 	{
@@ -1426,7 +1424,6 @@ void AMordath::EncirclePlayer()
 			AddMovementInput(GetActorRightVector());
 			ForwardInput = 0.0f;
 			RightInput = 1.0f;
-			MordathAnimInstance->MovementDirection = RightInput;
 		}
 		else
 		{
