@@ -1,10 +1,14 @@
 // Copyright Overthrone Studios 2019
 
 #include "Public/OverthroneHUD.h"
+
 #include "Widgets/HUD/MasterHUD.h"
+#include "Widgets/HUD/MainPlayerHUD.h"
+
 #include "Widget.h"
 #include "WidgetTree.h"
 #include "UserWidget.h"
+
 #include "ConstructorHelpers.h"
 #include "Log.h"
 #include "Engine/Engine.h"
@@ -30,6 +34,11 @@ void AOverthroneHUD::Init()
 	{
 		ULog::DebugMessage(ERROR, FString("Failed to create the MasterHUD widget!"), true);
 	}
+}
+
+UMainPlayerHUD* AOverthroneHUD::GetMainHUD() const
+{
+	return Cast <UMainPlayerHUD>(MasterHUD->GetHUD("MainHUD"));
 }
 
 void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLinearColor Color, const float XOffset, const float YOffset)

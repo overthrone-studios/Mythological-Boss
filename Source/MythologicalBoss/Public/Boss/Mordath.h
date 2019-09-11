@@ -336,6 +336,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void NextAttack();
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
+		void UpdateDamageValueInMainHUD(float DamageAmount) const;
+
 	void Die() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")

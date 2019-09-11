@@ -249,6 +249,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		class AOverthroneHUD* OverthroneHUD{};
 
+	// To access the main HUD
+	class UMainPlayerHUD* MainHUD{};
+
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 

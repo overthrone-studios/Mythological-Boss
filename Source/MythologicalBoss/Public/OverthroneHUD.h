@@ -32,6 +32,7 @@ public:
 	void Init();
 
 	FORCEINLINE class UMasterHUD* GetMasterHUD() const { return MasterHUD; }
+	class UMainPlayerHUD* GetMainHUD() const;
 
 	void AddOnScreenDebugMessage(const FString& Message, FLinearColor Color, float XOffset, float YOffset);
 	void UpdateOnScreenDebugMessage(int32 Index, const FString& Message);

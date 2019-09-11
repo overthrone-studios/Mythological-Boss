@@ -24,6 +24,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "HUD/MasterHUD.h"
+#include "HUD/MainPlayerHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
 
 #include "ConstructorHelpers.h"
@@ -1119,6 +1120,8 @@ void AMordath::ApplyDamage(const float DamageAmount)
 		FSM->PushState("Damaged");
 	}
 
+	UpdateDamageValueInMainHUD(DamageAmount);
+
 	// Apply hit stop
 	PauseAnimsWithTimer();
 
@@ -1290,6 +1293,13 @@ void AMordath::NextAttack()
 	ChosenCombo->NextAttack();
 }
 
+void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
+{
+	MainHUD->FadeInDamageValue();
+	MainHUD->UpdateDamageValue(DamageAmount);
+	//MainHUD->SetOffTimer_DamageValueFadeOut(3.0f);
+}
+
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead
@@ -1319,6 +1329,8 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 
 		// Cancel our current animation and enter the downed state
 		FSM->PushState("Beaten");
+
+		UpdateDamageValueInMainHUD(DamageAmount);
 
 		UpdateHealth(DamageAmount);
 

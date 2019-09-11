@@ -17,6 +17,18 @@ class MYTHOLOGICALBOSS_API UMainPlayerHUD final : public UHUDBase
 public:
 	void Init() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void UpdateDamageValue(float DamageAmount) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void FadeInDamageValue();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void FadeOutDamageValue();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void SetOffTimer_DamageValueFadeOut(float InSeconds);
+
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
 		float GetPlayerHealthAsPercentage() const;
 
@@ -44,8 +56,20 @@ public:
 protected:
 	class UOverthroneGameInstance* GameInstance;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Animation")
+		class UWidgetAnimation* DamageValueFade;
+
+	void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
+
 private:
 	class UProgressBar* PlayerHealthBar;
 	class UProgressBar* PlayerStaminaBar;
 	class UProgressBar* BossHealthBar;
+	class UTextBlock* DamageValueText;
+
+	FTimerHandle DamageValueFadeTimer;
+
+	uint8 bIsAnimationFinished : 1;
+	uint8 bWantsFadeIn : 1;
+	uint8 bIsFadingOut : 1;
 };

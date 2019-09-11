@@ -299,7 +299,7 @@ void AYlva::Tick(const float DeltaTime)
 void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	
 	// Crash if we don't have a valid Input component
 	check(PlayerInputComponent);
 
