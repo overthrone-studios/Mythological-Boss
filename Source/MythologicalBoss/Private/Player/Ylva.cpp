@@ -225,10 +225,13 @@ void AYlva::BeginPlay()
 
 	const float BaseXOffset = 200.0f;
 	
-	OverthroneHUD->AddOnScreenDebugMessage("Pitch: ", FColor::Orange, BaseXOffset + 20.0f, 30.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green, BaseXOffset + 20.0f, 45.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green, BaseXOffset + 20.0f, 60.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, BaseXOffset + 20.0f, 75.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Pitch: ", FColor::Orange, BaseXOffset, 30.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green, BaseXOffset, 45.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green, BaseXOffset, 60.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, BaseXOffset, 75.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow, BaseXOffset, 90.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow, BaseXOffset, 105.0f);
+
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
@@ -287,6 +290,9 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(4, "Player Health: " + FString::FromInt(HealthComponent->GetCurrentHealth()));
+	OverthroneHUD->UpdateOnScreenDebugMessage(5, "Player Stamina: " + FString::FromInt(StaminaComponent->GetCurrentStamina()));
 #endif
 }
 
