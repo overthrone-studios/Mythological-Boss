@@ -69,7 +69,6 @@ private:
 
 	FTimerHandle DamageValueFadeTimer;
 
-	uint8 bIsAnimationFinished : 1;
-	uint8 bWantsFadeIn : 1;
-	uint8 bIsFadingOut : 1;
+	uint8 bDamageValueAnimWantsFadeIn : 1;
+	uint8 bIsDamageValueAnimFadingOut : 1;
 };

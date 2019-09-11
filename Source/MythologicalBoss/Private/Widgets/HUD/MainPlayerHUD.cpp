@@ -33,9 +33,9 @@ void UMainPlayerHUD::UpdateDamageValue(const float DamageAmount) const
 
 void UMainPlayerHUD::FadeInDamageValue()
 {
-	bWantsFadeIn = true;
+	bDamageValueAnimWantsFadeIn = true;
 
-	if (!IsAnimationPlaying(DamageValueFade) && DamageValueText->RenderOpacity < 1.0f || bIsFadingOut)
+	if (!IsAnimationPlaying(DamageValueFade) && DamageValueText->RenderOpacity < 1.0f || bIsDamageValueAnimFadingOut)
 		PlayAnimation(DamageValueFade);
 	else
 		SetOffTimer_DamageValueFadeOut(2.0f);
@@ -43,19 +43,19 @@ void UMainPlayerHUD::FadeInDamageValue()
 
 void UMainPlayerHUD::FadeOutDamageValue()
 {
-	if (bWantsFadeIn)
+	if (bDamageValueAnimWantsFadeIn)
 		FadeInDamageValue();
 	else
 	{
-		bIsFadingOut = true;
+		bIsDamageValueAnimFadingOut = true;
 		PlayAnimation(DamageValueFade, 0, 1, EUMGSequencePlayMode::Reverse);
 	}
 }
 
 void UMainPlayerHUD::SetOffTimer_DamageValueFadeOut(const float InSeconds)
 {
-	bWantsFadeIn = false;
-	bIsFadingOut = false;
+	bDamageValueAnimWantsFadeIn = false;
+	bIsDamageValueAnimFadingOut = false;
 
 	GetWorld()->GetTimerManager().SetTimer(DamageValueFadeTimer, this, &UMainPlayerHUD::FadeOutDamageValue, InSeconds);
 }
@@ -102,6 +102,5 @@ float UMainPlayerHUD::GetBossSmoothedHealthAsPercentage() const
 
 void UMainPlayerHUD::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)
 {
-	bIsAnimationFinished = true;
-	bIsFadingOut = false;
+	bIsDamageValueAnimFadingOut = false;
 }
