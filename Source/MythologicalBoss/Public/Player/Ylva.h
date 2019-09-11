@@ -10,21 +10,9 @@ struct FDebug_Ylva : public FCharacterDebug
 {
 	GENERATED_BODY()
 
-	// Log the camera's pitch rotation value to the viewport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogCameraPitch : 1;
-
-	// Log the camera's pitch rotation value to the viewport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogCurrentAnimTime : 1;
-
 	// Draw the teleport circle around the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bShowTeleportRadius : 1;
-
-	// Log the player's input values to the viewport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogPlayerInputValues : 1;
 
 	// Log the hit component name to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
