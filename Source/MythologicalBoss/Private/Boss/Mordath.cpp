@@ -377,8 +377,6 @@ void AMordath::UpdateFollowState()
 		else
 			FSM->PushState("Thinking");
 	}
-	else
-		MovementComponent->MaxWalkSpeed = 0.0f;
 }
 
 void AMordath::OnExitFollowState()
@@ -534,7 +532,7 @@ void AMordath::UpdateLightAttack2State()
 		FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if(AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -984,6 +982,17 @@ void AMordath::UpdateFirstStage()
 		return;
 	}
 
+	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
+	{
+		if (ComboSettings.bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+		{
+			ChooseCombo();
+			return;
+		}
+	}
+
 	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/ && !IsRecovering())
 	{
 		// Decide which attack to choose
@@ -1265,9 +1274,6 @@ void AMordath::ChooseComboWithDelay()
 
 void AMordath::ChooseAttack()
 {
-	if (FSM->GetActiveStateName() == "Dash")
-		FSM->PopState();
-
 	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
 	{
 		case LightAttack_1:
