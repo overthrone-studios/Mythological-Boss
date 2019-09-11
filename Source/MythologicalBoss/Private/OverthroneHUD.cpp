@@ -19,8 +19,6 @@ AOverthroneHUD::AOverthroneHUD()
 
 void AOverthroneHUD::Init()
 {
-	GEngine->GameViewport->GetViewportSize(ViewportSize);
-
 	CreateWidgets();
 
 	if (MasterHUD)
@@ -54,6 +52,8 @@ void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString
 
 void AOverthroneHUD::DrawHUD()
 {
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+
 	for (const FDebugData& Debug : DebugMessages)
 	{
 		DrawText(Debug.Message, Debug.Color, ViewportSize.X - Debug.XOffset, Debug.YOffset);
