@@ -240,6 +240,11 @@ void AMordath::BeginPlay()
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
+
+	const float BaseXOffset = 200.0f;
+
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, BaseXOffset, 165.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, BaseXOffset, 180.0f);
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
@@ -255,9 +260,11 @@ void AMordath::Tick(const float DeltaTime)
 		return;
 	}
 	
-	AnimInstance->MovementSpeed = CurrentMovementSpeed;
-
 	GameInstance->BossInfo.Location = GetActorLocation();
+
+	AnimInstance->MovementSpeed = CurrentMovementSpeed;
+	AnimInstance->ForwardInput = ForwardInput;
+	AnimInstance->RightInput = RightInput;
 
 	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
@@ -271,6 +278,9 @@ void AMordath::Tick(const float DeltaTime)
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogMovementSpeed)
 		ULog::Number(MovementComponent->MaxWalkSpeed, "Movement Speed: ", true);
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(9, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
 #endif
 }
 
@@ -296,6 +306,9 @@ void AMordath::UpdateIdleState()
 		return;
 
 	FacePlayer();
+
+	ForwardInput = 0.0f;
+	RightInput = 0.0f;
 
 	FSM->PushState("Thinking");
 }
@@ -356,7 +369,11 @@ void AMordath::UpdateFollowState()
 	if (GetDistanceToPlayer() > AcceptanceRadius)
 	{
 		if (!IsDelayingAttack())
+		{
 			AddMovementInput(GetDirectionToPlayer());
+			ForwardInput = 1.0f;
+			RightInput = 0.0f;
+		}
 		else
 			FSM->PushState("Thinking");
 	}
@@ -397,7 +414,12 @@ void AMordath::UpdateRetreatState()
 		FSM->PopState();
 
 	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
+	{
+		ForwardInput = -1.0f;
+		RightInput = 0.0f;
+
 		AddMovementInput(-GetDirectionToPlayer());
+	}
 	else
 	{
 		FSM->PopState();
@@ -1386,24 +1408,31 @@ void AMordath::EncirclePlayer()
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
 	{
 		AddMovementInput(GetActorRightVector());
-		MordathAnimInstance->MovementDirection = 1;
+		ForwardInput = 0.0f;
+		RightInput = 1.0f;
+		MordathAnimInstance->MovementDirection = RightInput;
 	}
 	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
 	{
 		AddMovementInput(-GetActorRightVector());
-		MordathAnimInstance->MovementDirection = -1;
+		ForwardInput = 0.0f;
+		RightInput = -1.0f;
+		MordathAnimInstance->MovementDirection = RightInput;
 	}
 	else
 	{
 		if (WantsMoveRight())
 		{
 			AddMovementInput(GetActorRightVector());
-			MordathAnimInstance->MovementDirection = 1;
+			ForwardInput = 0.0f;
+			RightInput = 1.0f;
+			MordathAnimInstance->MovementDirection = RightInput;
 		}
 		else
 		{
 			AddMovementInput(-GetActorRightVector());
-			MordathAnimInstance->MovementDirection = -1;
+			ForwardInput = 0.0f;
+			RightInput = -1.0f;
 		}
 	}
 }
