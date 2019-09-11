@@ -788,7 +788,7 @@ void AMordath::OnEnterDashState()
 
 void AMordath::UpdateDashState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer();
 }
