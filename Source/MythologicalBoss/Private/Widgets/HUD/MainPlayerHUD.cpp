@@ -12,6 +12,7 @@
 #include "WidgetAnimation.h"
 
 #include "TimerManager.h"
+#include "Log.h"
 
 void UMainPlayerHUD::Init()
 {
@@ -37,8 +38,8 @@ void UMainPlayerHUD::FadeInDamageValue()
 
 	if (!IsAnimationPlaying(DamageValueFade) && DamageValueText->RenderOpacity < 1.0f || bIsDamageValueAnimFadingOut)
 		PlayAnimation(DamageValueFade);
-	else
-		SetOffTimer_DamageValueFadeOut(2.0f);
+
+	SetOffTimer_DamageValueFadeOut(2.0f);
 }
 
 void UMainPlayerHUD::FadeOutDamageValue()
