@@ -887,13 +887,19 @@ void AYlva::ToggleLockOn()
 		return;
 
 	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
-	PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
-	GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
-	MovementComponent->bUseControllerDesiredRotation = LockOnSettings.bShouldLockOnTarget ? true : false;
-	MovementComponent->bOrientRotationToMovement = LockOnSettings.bShouldLockOnTarget ? false : true;
-	YlvaAnimInstance->bIsLockedOn = LockOnSettings.bShouldLockOnTarget ? true : false;
 
-	MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
+	if (LockOnSettings.bShouldLockOnTarget)
+		EnableLockOn();
+	else
+		DisableLockOn();
+
+	//PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
+	//GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
+	//MovementComponent->bUseControllerDesiredRotation = LockOnSettings.bShouldLockOnTarget ? true : false;
+	//MovementComponent->bOrientRotationToMovement = LockOnSettings.bShouldLockOnTarget ? false : true;
+	//YlvaAnimInstance->bIsLockedOn = LockOnSettings.bShouldLockOnTarget ? true : false;
+
+	//MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
 }
 
 void AYlva::EnableLockOn()
@@ -908,6 +914,7 @@ void AYlva::EnableLockOn()
 	MovementComponent->bUseControllerDesiredRotation = true;
 	MovementComponent->bOrientRotationToMovement = false;
 	YlvaAnimInstance->bIsLockedOn = true;
+	CameraBoom->CameraRotationLagSpeed *= 4;
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 }
@@ -920,6 +927,7 @@ void AYlva::DisableLockOn()
 	MovementComponent->bUseControllerDesiredRotation = false;
 	MovementComponent->bOrientRotationToMovement = true;
 	YlvaAnimInstance->bIsLockedOn = false;
+	CameraBoom->CameraRotationLagSpeed = 20.0f;
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
