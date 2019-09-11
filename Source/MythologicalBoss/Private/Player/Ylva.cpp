@@ -244,6 +244,9 @@ void AYlva::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsDead)
+		return;
+
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
@@ -362,7 +365,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AYlva::MoveForward(const float Value)
 {
-	if (IsDashing())
+	if (IsDashing() || bIsDead)
 		return;
 
 	if (!IsAttacking())
@@ -892,14 +895,6 @@ void AYlva::ToggleLockOn()
 		EnableLockOn();
 	else
 		DisableLockOn();
-
-	//PlayerController->SetIgnoreLookInput(LockOnSettings.bShouldLockOnTarget);
-	//GameInstance->ToggleLockOnVisibility(LockOnSettings.bShouldLockOnTarget);
-	//MovementComponent->bUseControllerDesiredRotation = LockOnSettings.bShouldLockOnTarget ? true : false;
-	//MovementComponent->bOrientRotationToMovement = LockOnSettings.bShouldLockOnTarget ? false : true;
-	//YlvaAnimInstance->bIsLockedOn = LockOnSettings.bShouldLockOnTarget ? true : false;
-
-	//MovementComponent->MaxWalkSpeed = LockOnSettings.bShouldLockOnTarget ? MovementSettings.LockOnWalkSpeed : MovementSettings.WalkSpeed;
 }
 
 void AYlva::EnableLockOn()
@@ -1428,13 +1423,14 @@ void AYlva::OnEnterDeathState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	bIsDead = true;
+	GameInstance->PlayerInfo.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
 	DisableLockOn();
 
 	MovementComponent->DisableMovement();
 
-	GameInstance->PlayerInfo.bIsDead = true;
 	GameInstance->OnPlayerDeath.Broadcast();
 
 	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
@@ -1449,6 +1445,8 @@ void AYlva::OnExitDeathState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	bIsDead = false;
+	GameInstance->PlayerInfo.bIsDead = false;
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion 

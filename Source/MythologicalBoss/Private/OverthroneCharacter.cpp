@@ -253,3 +253,8 @@ bool AOverthroneCharacter::IsMovingInAnyDirection() const
 {
 	return !GetVelocity().IsZero();
 }
+
+bool AOverthroneCharacter::IsDead() const
+{
+	return bIsDead;
+}

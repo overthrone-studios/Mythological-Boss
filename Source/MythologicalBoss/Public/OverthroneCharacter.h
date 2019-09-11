@@ -127,6 +127,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		virtual bool IsMovingInAnyDirection() const;
 
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		bool IsDead() const;
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -223,6 +226,8 @@ protected:
 
 	// Tracks the amount of hits we've taken
 	uint8 HitCounter = 0;
+
+	uint8 bIsDead : 1;
 
 	// Cached world pointer
 	UWorld* World{};

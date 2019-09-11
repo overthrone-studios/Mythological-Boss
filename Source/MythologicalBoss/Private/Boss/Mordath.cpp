@@ -249,7 +249,7 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GameInstance->PlayerInfo.bIsDead)
+	if (bIsDead)
 	{
 		AnimInstance->MovementSpeed = 0.0f;
 		return;
@@ -698,6 +698,8 @@ void AMordath::OnEnterDeathState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	bIsDead = true;
+	GameInstance->BossInfo.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
 	GameInstance->OnBossDeath.Broadcast();
@@ -720,6 +722,8 @@ void AMordath::OnExitDeathState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	bIsDead = false;
+	GameInstance->BossInfo.bIsDead = false;
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion
