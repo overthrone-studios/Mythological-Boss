@@ -1482,7 +1482,6 @@ void AYlva::OnEnterDashState()
 	EnableInvincibility();
 
 	AnimInstance->bIsDashing = true;
-	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[1];
 
 	LockedForwardInput = ForwardInput;
 	LockedRightInput = RightInput;
@@ -1508,7 +1507,6 @@ void AYlva::OnExitDashState()
 	DisableInvincibility();
 
 	AnimInstance->bIsDashing = false;
-	AnimInstance->ActiveStateMachine = AnimInstance->StateMachines[0];
 }
 #pragma endregion 
 
