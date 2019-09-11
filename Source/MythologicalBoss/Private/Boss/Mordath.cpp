@@ -1297,7 +1297,6 @@ void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
 {
 	MainHUD->FadeInDamageValue();
 	MainHUD->UpdateDamageValue(DamageAmount);
-	//MainHUD->SetOffTimer_DamageValueFadeOut(3.0f);
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

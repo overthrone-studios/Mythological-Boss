@@ -24,9 +24,6 @@ void UMainPlayerHUD::Init()
 	BossHealthBar = Cast<UProgressBar>(WidgetTree->FindWidget("Boss_Health"));
 
 	DamageValueText = Cast<UTextBlock>(WidgetTree->FindWidget("DamageValue"));
-
-	//DamageValueFade->OnAnimationStarted.AddDynamic(this, &UMainPlayerHUD::OnDamageValueFadeAnimStarted);
-	//DamageValueFade->OnAnimationFinished.AddDynamic(this, &UMainPlayerHUD::OnDamageValueFadeAnimFinished);
 }
 
 void UMainPlayerHUD::UpdateDamageValue(const float DamageAmount) const
