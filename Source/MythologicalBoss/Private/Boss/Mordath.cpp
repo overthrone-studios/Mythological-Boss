@@ -212,7 +212,7 @@ void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
+	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
@@ -312,7 +312,7 @@ void AMordath::OnEnterFollowState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
-	MovementComponent->MaxWalkSpeed = GetWalkSpeed();
+	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 
 	if (!ChosenCombo)
 	{
@@ -375,7 +375,7 @@ void AMordath::OnEnterRetreatState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.MidRangeWalkSpeed / 2.0f;
+	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed / 2.0f;
 
 	RetreatStateData.CalculateRetreatTime();
 
@@ -885,6 +885,8 @@ void AMordath::OnExitCloseRange()
 void AMordath::OnEnterMidRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	CurrentMovementSpeed = GetMovementSpeed();
 }
 
 void AMordath::UpdateMidRange()
@@ -908,6 +910,8 @@ void AMordath::OnExitMidRange()
 void AMordath::OnEnterFarRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	CurrentMovementSpeed = GetMovementSpeed();
 
 	if ((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) &&
 		ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
@@ -947,7 +951,7 @@ void AMordath::UpdateFirstStage()
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 
 	// Can we enter the second stage?
-	if(HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth &&
+	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth &&
 		HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
 	{
 		GameInstance->OnSecondStage.Broadcast();
@@ -1168,7 +1172,7 @@ void AMordath::ChooseCombo()
 			#endif
 		}
 
-		MovementComponent->MaxWalkSpeed = GetWalkSpeed();
+		MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 	}
 	else
 	{
@@ -1533,7 +1537,7 @@ bool AMordath::IsRecovering() const
 	return FSM->GetActiveStateID() == 17;
 }
 
-float AMordath::GetWalkSpeed() const
+float AMordath::GetMovementSpeed() const
 {
 	switch (RangeFSM->GetActiveStateID())
 	{
@@ -1541,7 +1545,10 @@ float AMordath::GetWalkSpeed() const
 		return MovementSettings.WalkSpeed;
 
 	case 1 /*Mid*/:
-		return MovementSettings.MidRangeWalkSpeed;
+		return MovementSettings.RunSpeed;
+
+	case 2 /*Far*/:
+		return MovementSettings.RunSpeed;
 
 	default:
 		return MovementSettings.WalkSpeed;

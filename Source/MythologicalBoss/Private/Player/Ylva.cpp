@@ -233,7 +233,7 @@ void AYlva::BeginPlay()
 	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow, BaseXOffset, 105.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White, BaseXOffset, 120.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Yellow, BaseXOffset, 150.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan, BaseXOffset, 150.0f);
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;

@@ -134,7 +134,7 @@ protected:
 
 	virtual void UpdateCharacterInfo();
 
-	virtual float GetWalkSpeed() const;
+	virtual float GetMovementSpeed() const;
 
 	void InitTimeline(struct FTimeline& InTimeline, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
 

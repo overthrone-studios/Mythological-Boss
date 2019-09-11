@@ -114,7 +114,7 @@ struct FMovementSettings_Mordath : public FMovementSettings
 
 	// The movement speed of the boss when we're at mid range distance from the player
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 1000000.0f))
-		float MidRangeWalkSpeed = 800.0f;
+		float RunSpeed = 800.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -296,7 +296,7 @@ public:
 		bool IsRecovering() const;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		float GetWalkSpeed() const override;
+		float GetMovementSpeed() const override;
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();

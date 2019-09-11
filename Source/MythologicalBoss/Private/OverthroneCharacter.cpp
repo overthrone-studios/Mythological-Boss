@@ -73,7 +73,7 @@ void AOverthroneCharacter::UpdateCharacterInfo()
 	check(0 && "You must implement UpdateCharacterInfo()");
 }
 
-float AOverthroneCharacter::GetWalkSpeed() const
+float AOverthroneCharacter::GetMovementSpeed() const
 {
 	return MovementComponent->MaxWalkSpeed;
 }
