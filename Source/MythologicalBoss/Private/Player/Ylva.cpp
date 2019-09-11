@@ -1429,6 +1429,8 @@ void AYlva::OnEnterDeathState()
 
 	DisableLockOn();
 
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
 	MovementComponent->DisableMovement();
 
 	GameInstance->OnPlayerDeath.Broadcast();
