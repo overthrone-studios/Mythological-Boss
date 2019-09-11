@@ -232,6 +232,7 @@ void AYlva::BeginPlay()
 	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow, BaseXOffset, 90.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow, BaseXOffset, 105.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("God mode: ", FColor::White, BaseXOffset, 120.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
@@ -296,6 +297,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(5, "Player Stamina: " + FString::FromInt(StaminaComponent->GetCurrentStamina()));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(6, "God mode: " + FString(bGodMode ? "On" : "Off"));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(7, "Current Attack: " + AttackComboComponent->GetCurrentAttackAsString());
 #endif
 }
 
