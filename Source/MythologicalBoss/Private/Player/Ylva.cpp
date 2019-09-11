@@ -231,8 +231,9 @@ void AYlva::BeginPlay()
 	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, BaseXOffset, 75.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow, BaseXOffset, 90.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow, BaseXOffset, 105.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("God mode: ", FColor::White, BaseXOffset, 120.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White, BaseXOffset, 120.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Yellow, BaseXOffset, 150.0f);
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
@@ -288,17 +289,14 @@ void AYlva::Tick(const float DeltaTime)
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(0, "Camera Pitch: " + FString::SanitizeFloat(GetControlRotation().Pitch));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Right Input: " + FString::SanitizeFloat(RightInput));
-
 	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(4, "Player Health: " + FString::FromInt(HealthComponent->GetCurrentHealth()));
 	OverthroneHUD->UpdateOnScreenDebugMessage(5, "Player Stamina: " + FString::FromInt(StaminaComponent->GetCurrentStamina()));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(6, "God mode: " + FString(bGodMode ? "On" : "Off"));
-
 	OverthroneHUD->UpdateOnScreenDebugMessage(7, "Current Attack: " + AttackComboComponent->GetCurrentAttackAsString());
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(8, "Player Move Direction: " + FString::SanitizeFloat(AnimInstance->MovementDirection));
 #endif
 }
 
@@ -390,6 +388,8 @@ void AYlva::MoveForward(const float Value)
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
 }
 
 void AYlva::MoveRight(const float Value)
@@ -420,6 +420,8 @@ void AYlva::MoveRight(const float Value)
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 }
 
 void AYlva::TurnAtRate(const float Rate)
@@ -1218,6 +1220,8 @@ void AYlva::ToggleGodMode()
 	{
 		OverthroneHUD->GetMasterHUD()->UnhighlightBox(4 /*God mode box*/);
 	}
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(6, "God mode: " + FString(bGodMode ? "On" : "Off"));
 }
 #pragma endregion
 
