@@ -90,6 +90,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE EAttackType GetCurrentAttack() const { return CurrentAttack; }
 
+	// Returns the current attack type we are on as a string
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FString GetCurrentAttackAsString() const;
+
 	// Returns the damage multiplier value
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE float GetDamageMultiplier() const { return ComboMultiplier; }

@@ -12,6 +12,25 @@ UAttackComboComponent::UAttackComboComponent()
 	OnAttackEnd.AddDynamic(this, &UAttackComboComponent::ClearCurrentAttack);
 }
 
+
+FString UAttackComboComponent::GetCurrentAttackAsString() const
+{
+	switch (CurrentAttack)
+	{
+	case Light:
+		return FString("Light");
+
+	case Heavy:
+		return FString("Heavy");
+
+	case Special:
+		return FString("Special");
+
+	default:
+		return FString("None");
+	}
+}
+
 bool UAttackComboComponent::IsDelaying() const
 {
 	return Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle);
