@@ -596,8 +596,7 @@ void AMordath::UpdateHeavyAttack1State()
 
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
-	if (Uptime < 0.3f)
-		FacePlayer();
+	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
 	if(AnimInstance->AnimTimeRemaining <= 0.1f)
@@ -951,6 +950,13 @@ void AMordath::UpdateFarRange()
 
 	if (GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
+
+	if (!IsRecovering())
+	{
+		// Decide which attack to choose
+		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
+			FSM->PushState("Heavy Attack 1");
+	}
 }
 
 void AMordath::OnExitFarRange()
@@ -1289,7 +1295,10 @@ void AMordath::ChooseAttack()
 		break;
 
 		case HeavyAttack_1:
-			FSM->PushState("Heavy Attack 1");
+			if (RangeFSM->GetActiveStateID() == 1 /*Mid*/ || RangeFSM->GetActiveStateID() == 2 /*Far*/)
+				FSM->PushState("Heavy Attack 1");
+			else
+				NextAttack();
 		break;
 
 		case HeavyAttack_2:
