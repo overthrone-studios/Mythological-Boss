@@ -599,7 +599,7 @@ void AMordath::UpdateHeavyAttack1State()
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
-	if(AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 	{
 		NextAttack();
 
@@ -1295,7 +1295,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case HeavyAttack_1:
-			if (RangeFSM->GetActiveStateID() == 1 /*Mid*/ || RangeFSM->GetActiveStateID() == 2 /*Far*/)
+			if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
 				FSM->PushState("Heavy Attack 1");
 			else
 			{
@@ -1400,7 +1400,7 @@ void AMordath::FacePlayer()
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
 	
-	SetActorRotation(FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll));
+	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll), 10.0f * World->DeltaTimeSeconds));
 }
 
 void AMordath::SendInfo()
