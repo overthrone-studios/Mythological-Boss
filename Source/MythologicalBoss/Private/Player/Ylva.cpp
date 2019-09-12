@@ -46,7 +46,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Get our anim blueprint class
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Ylva/Animation/AnimBP_Ylva.AnimBP_Ylva_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Ylva/Animation/ABP_Ylva.ABP_Ylva_C'"));
 
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Ylva/SKM_Ylva.SKM_Ylva'")));

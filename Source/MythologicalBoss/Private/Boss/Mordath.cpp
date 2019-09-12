@@ -35,7 +35,7 @@ AMordath::AMordath()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Get our anim blueprint class
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Mordath/Animations/AnimBP_Mordath.AnimBP_Mordath_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Mordath/Animations/ABP_Mordath.ABP_Mordath_C'"));
 
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath.SKM_Mordath'")));
