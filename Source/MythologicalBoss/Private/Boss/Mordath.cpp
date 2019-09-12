@@ -1298,7 +1298,10 @@ void AMordath::ChooseAttack()
 			if (RangeFSM->GetActiveStateID() == 1 /*Mid*/ || RangeFSM->GetActiveStateID() == 2 /*Far*/)
 				FSM->PushState("Heavy Attack 1");
 			else
+			{
 				NextAttack();
+				ChooseAttack();
+			}
 		break;
 
 		case HeavyAttack_2:
