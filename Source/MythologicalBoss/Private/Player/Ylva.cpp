@@ -245,7 +245,11 @@ void AYlva::Tick(const float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (bIsDead)
+	{
+		FSM->RemoveAllStatesFromStack();
+		FSM->PushState("Death");
 		return;
+	}
 
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
