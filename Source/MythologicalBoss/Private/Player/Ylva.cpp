@@ -246,8 +246,6 @@ void AYlva::Tick(const float DeltaTime)
 
 	if (bIsDead)
 	{
-		FSM->RemoveAllStatesFromStack();
-		FSM->PushState("Death");
 		return;
 	}
 
