@@ -652,6 +652,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakes_Mordath CameraShakes;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
+		FName LockOnBoneName = "spine01_jnt";
+
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	// Our custom AI controller

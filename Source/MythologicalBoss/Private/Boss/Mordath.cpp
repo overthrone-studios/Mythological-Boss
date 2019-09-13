@@ -261,6 +261,7 @@ void AMordath::Tick(const float DeltaTime)
 	}
 	
 	GameInstance->BossData.Location = GetActorLocation();
+	GameInstance->BossData.MeshLocation = GetMesh()->GetSocketLocation(LockOnBoneName);
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->ForwardInput = ForwardInput;

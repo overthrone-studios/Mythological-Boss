@@ -52,7 +52,6 @@ struct FBossData : public FCharacterData
 {
 	GENERATED_BODY()
 
-	FTransform LocalTransform;
 	FVector MeshLocation;
 };
 
