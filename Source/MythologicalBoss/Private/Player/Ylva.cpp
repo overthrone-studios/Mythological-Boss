@@ -441,8 +441,8 @@ void AYlva::LookUpAtRate(const float Rate)
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	// We don't want to be damaged when we're already dead
-	if (FSM->GetActiveStateName() == "Death")
+	// We don't want to be damaged when we're already dead or while dashing
+	if (FSM->GetActiveStateName() == "Death" || FSM->GetActiveStateName() == "Dash")
 		return DamageAmount;
 
 	BeginTakeDamage(DamageAmount);
