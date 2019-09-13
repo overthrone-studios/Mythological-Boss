@@ -402,7 +402,7 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	if (IsDashing())
+	if (IsDashing() || bIsDead)
 		return;
 
 	if (!IsAttacking())
@@ -1260,9 +1260,10 @@ void AYlva::OnComboReset()
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
 
-void AYlva::OnAttackEnd(UAnimMontage* Montage, bool bInterrupted)
+void AYlva::OnAttackEnd(UAnimMontage* Montage, const bool bInterrupted)
 {
-	AttackComboComponent->OnAttackEnd.Broadcast();
+	if (!bInterrupted)
+		AttackComboComponent->OnAttackEnd.Broadcast();
 }
 #pragma endregion
 
