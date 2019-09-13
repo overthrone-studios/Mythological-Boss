@@ -12,7 +12,6 @@ UAttackComboComponent::UAttackComboComponent()
 	OnAttackEnd.AddDynamic(this, &UAttackComboComponent::ClearCurrentAttack);
 }
 
-
 FString UAttackComboComponent::GetCurrentAttackAsString() const
 {
 	switch (CurrentAttack)
