@@ -219,10 +219,10 @@ void AMordath::BeginPlay()
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
-	GameInstance->BossInfo.StartingHealth = HealthComponent->GetDefaultHealth();
-	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetCurrentHealth();
-	GameInstance->BossInfo.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
+	GameInstance->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
+	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->BossData.SmoothedHealth = HealthComponent->GetCurrentHealth();
+	GameInstance->BossData.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->OnSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameInstance->OnThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
@@ -260,13 +260,13 @@ void AMordath::Tick(const float DeltaTime)
 		return;
 	}
 	
-	GameInstance->BossInfo.Location = GetActorLocation();
+	GameInstance->BossData.Location = GetActorLocation();
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
 
-	if (GameInstance->PlayerInfo.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
+	if (GameInstance->PlayerData.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
 	{
 		FSM->PopState();
 		FSM->PushState("Stunned");
@@ -279,8 +279,8 @@ void AMordath::Tick(const float DeltaTime)
 	if (Debug.bLogMovementSpeed)
 		ULog::Number(MovementComponent->MaxWalkSpeed, "Movement Speed: ", true);
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(9, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
 #endif
 }
 
@@ -302,7 +302,7 @@ void AMordath::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (GameInstance->PlayerInfo.bIsDead)
+	if (GameInstance->PlayerData.bIsDead)
 		return;
 
 	FacePlayer();
@@ -713,7 +713,7 @@ void AMordath::OnEnterDeathState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	bIsDead = true;
-	GameInstance->BossInfo.bIsDead = true;
+	GameInstance->BossData.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
 	GameInstance->OnBossDeath.Broadcast();
@@ -737,7 +737,7 @@ void AMordath::OnExitDeathState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	bIsDead = false;
-	GameInstance->BossInfo.bIsDead = false;
+	GameInstance->BossData.bIsDead = false;
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion
@@ -765,7 +765,7 @@ void AMordath::OnExitStunnedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GameInstance->PlayerInfo.bParrySucceeded = false;
+	GameInstance->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
 
 	if (ChosenCombo)
@@ -1121,13 +1121,13 @@ void AMordath::DestroySelf()
 
 void AMordath::UpdateCharacterInfo()
 {
-	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 }
 
 void AMordath::BroadcastLowHealth()
 {
-	GameInstance->BossInfo.OnLowHealth.Broadcast();
+	GameInstance->BossData.OnLowHealth.Broadcast();
 	bWasLowHealthEventTriggered = true;
 }
 
@@ -1400,8 +1400,8 @@ void AMordath::FacePlayer()
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->BossInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 }
 
 bool AMordath::IsStunned()

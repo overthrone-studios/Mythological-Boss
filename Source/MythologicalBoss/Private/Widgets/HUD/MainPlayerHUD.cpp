@@ -63,42 +63,42 @@ void UMainPlayerHUD::SetOffTimer_DamageValueFadeOut(const float InSeconds)
 
 float UMainPlayerHUD::GetPlayerHealthAsPercentage() const
 {
-	return GameInstance->PlayerInfo.Health / GameInstance->PlayerInfo.StartingHealth;
+	return GameInstance->PlayerData.Health / GameInstance->PlayerData.StartingHealth;
 }
 
 float UMainPlayerHUD::GetPlayerSmoothedHealthAsPercentage() const
 {
-	return GameInstance->PlayerInfo.SmoothedHealth / GameInstance->PlayerInfo.StartingHealth;
+	return GameInstance->PlayerData.SmoothedHealth / GameInstance->PlayerData.StartingHealth;
 }
 
 float UMainPlayerHUD::GetPlayerStaminaAsPercentage() const
 {
-	return GameInstance->PlayerInfo.Stamina / GameInstance->PlayerInfo.StartingStamina;
+	return GameInstance->PlayerData.Stamina / GameInstance->PlayerData.StartingStamina;
 }
 
 float UMainPlayerHUD::GetPlayerSmoothedStaminaAsPercentage() const
 {
-	return GameInstance->PlayerInfo.SmoothedStamina / GameInstance->PlayerInfo.StartingStamina;
+	return GameInstance->PlayerData.SmoothedStamina / GameInstance->PlayerData.StartingStamina;
 }
 
 float UMainPlayerHUD::GetPlayerChargeAsPercentage() const
 {
-	return GameInstance->PlayerInfo.Charge / GameInstance->PlayerInfo.MaxCharge;
+	return GameInstance->PlayerData.Charge / GameInstance->PlayerData.MaxCharge;
 }
 
 float UMainPlayerHUD::GetPlayerSmoothedChargeAsPercentage() const
 {
-	return GameInstance->PlayerInfo.SmoothedCharge / GameInstance->PlayerInfo.MaxCharge;
+	return GameInstance->PlayerData.SmoothedCharge / GameInstance->PlayerData.MaxCharge;
 }
 
 float UMainPlayerHUD::GetBossHealthAsPercentage() const
 {
-	return GameInstance->BossInfo.Health / GameInstance->BossInfo.StartingHealth;
+	return GameInstance->BossData.Health / GameInstance->BossData.StartingHealth;
 }
 
 float UMainPlayerHUD::GetBossSmoothedHealthAsPercentage() const
 {
-	return GameInstance->BossInfo.SmoothedHealth / GameInstance->BossInfo.StartingHealth;
+	return GameInstance->BossData.SmoothedHealth / GameInstance->BossData.StartingHealth;
 }
 
 void UMainPlayerHUD::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)

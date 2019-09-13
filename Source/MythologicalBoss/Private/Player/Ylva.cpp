@@ -193,24 +193,24 @@ void AYlva::BeginPlay()
 	CameraManager->ViewPitchMax = CameraPitchMin;
 
 	// Initialize player info
-	GameInstance->PlayerInfo.StartingHealth = HealthComponent->GetDefaultHealth();
-	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameInstance->PlayerData.StartingHealth = HealthComponent->GetDefaultHealth();
+	GameInstance->PlayerData.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->PlayerData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 
-	GameInstance->PlayerInfo.StartingStamina = StaminaComponent->GetDefaultStamina();
-	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
-	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetCurrentStamina();
+	GameInstance->PlayerData.StartingStamina = StaminaComponent->GetDefaultStamina();
+	GameInstance->PlayerData.Stamina = StaminaComponent->GetCurrentStamina();
+	GameInstance->PlayerData.SmoothedStamina = StaminaComponent->GetCurrentStamina();
 
-	GameInstance->PlayerInfo.MaxCharge = ChargeAttackComponent->GetMaxCharge();
-	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetCurrentCharge();
-	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
+	GameInstance->PlayerData.MaxCharge = ChargeAttackComponent->GetMaxCharge();
+	GameInstance->PlayerData.Charge = ChargeAttackComponent->GetCurrentCharge();
+	GameInstance->PlayerData.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
 
-	GameInstance->PlayerInfo.TeleportRadius = TeleportRadius;
+	GameInstance->PlayerData.TeleportRadius = TeleportRadius;
 	GameInstance->Player = this;
 
 	// Bind events to our functions
-	GameInstance->PlayerInfo.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
-	GameInstance->PlayerInfo.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
+	GameInstance->PlayerData.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
+	GameInstance->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
@@ -234,6 +234,7 @@ void AYlva::BeginPlay()
 	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White, BaseXOffset, 120.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan, BaseXOffset, 150.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow, BaseXOffset, 195.0f); // Continued from Mordath BeginPlay()
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
@@ -252,7 +253,7 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
-	GameInstance->PlayerInfo.Location = GetActorLocation();
+	GameInstance->PlayerData.Location = GetActorLocation();
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->MovementDirection = CalculateDirection();
@@ -265,14 +266,14 @@ void AYlva::Tick(const float DeltaTime)
 	// Lock-on mechanic
 	if (LockOnSettings.bShouldLockOnTarget)
 	{
-		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossInfo.Location);
+		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossData.Location);
 		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
 
 		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 
-		GameInstance->SetLockOnLocation(GameInstance->BossInfo.Location);
+		GameInstance->SetLockOnLocation(GameInstance->BossData.Location);
 	}
 
 	// Stamina regen mechanic
@@ -302,6 +303,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(7, "Current Attack: " + AttackComboComponent->GetCurrentAttackAsString());
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(8, "Player Move Direction: " + FString::SanitizeFloat(AnimInstance->MovementDirection));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(9, "Player Displayed Health: " + FString::SanitizeFloat(HealthComponent->GetSmoothedHealth()));
 #endif
 }
 
@@ -476,7 +479,7 @@ void AYlva::Respawn()
 
 	FSM->PopState();
 
-	GameInstance->PlayerInfo.bIsDead = false;
+	GameInstance->PlayerData.bIsDead = false;
 
 	UGameplayStatics::OpenLevel(this, *UGameplayStatics::GetCurrentLevelName(this));
 }
@@ -488,24 +491,24 @@ void AYlva::ChangeHitboxSize(const float NewRadius)
 
 void AYlva::UpdateCharacterInfo()
 {
-	GameInstance->PlayerInfo.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->PlayerInfo.Stamina = StaminaComponent->GetCurrentStamina();
-	GameInstance->PlayerInfo.Charge = ChargeAttackComponent->GetSmoothedCharge();
+	GameInstance->PlayerData.Health = HealthComponent->GetCurrentHealth();
+	GameInstance->PlayerData.Stamina = StaminaComponent->GetCurrentStamina();
+	GameInstance->PlayerData.Charge = ChargeAttackComponent->GetSmoothedCharge();
 
-	GameInstance->PlayerInfo.SmoothedHealth = HealthComponent->GetSmoothedHealth();
-	GameInstance->PlayerInfo.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
-	GameInstance->PlayerInfo.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
+	GameInstance->PlayerData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameInstance->PlayerData.SmoothedStamina = StaminaComponent->GetSmoothedStamina();
+	GameInstance->PlayerData.SmoothedCharge = ChargeAttackComponent->GetSmoothedCharge();
 }
 
 void AYlva::BroadcastLowHealth()
 {
-	GameInstance->PlayerInfo.OnLowHealth.Broadcast();
+	GameInstance->PlayerData.OnLowHealth.Broadcast();
 	bWasLowHealthEventTriggered = true;
 }
 
 void AYlva::BroadcastLowStamina()
 {
-	GameInstance->PlayerInfo.OnLowStamina.Broadcast();
+	GameInstance->PlayerData.OnLowStamina.Broadcast();
 	bWasLowStaminaEventTriggered = true;
 }
 
@@ -703,7 +706,7 @@ void AYlva::FinishChargeAttack()
 
 void AYlva::StartParryEvent()
 {
-	GameInstance->PlayerInfo.bParrySucceeded = true;
+	GameInstance->PlayerData.bParrySucceeded = true;
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
@@ -888,7 +891,7 @@ void AYlva::StartDashCooldown()
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
+	if (GameInstance->BossData.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
 		return;
 
 	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
@@ -902,7 +905,7 @@ void AYlva::ToggleLockOn()
 void AYlva::EnableLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossInfo.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
+	if (GameInstance->BossData.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
 		return;
 
 	LockOnSettings.bShouldLockOnTarget = true;
@@ -1426,7 +1429,7 @@ void AYlva::OnEnterDeathState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	bIsDead = true;
-	GameInstance->PlayerInfo.bIsDead = true;
+	GameInstance->PlayerData.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
 	DisableLockOn();
@@ -1450,7 +1453,7 @@ void AYlva::OnExitDeathState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	bIsDead = false;
-	GameInstance->PlayerInfo.bIsDead = false;
+	GameInstance->PlayerData.bIsDead = false;
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion 
@@ -1549,7 +1552,7 @@ void AYlva::OnExitParryState()
 
 	PlayerController->SetIgnoreLookInput(false);
 
-	GameInstance->PlayerInfo.bParrySucceeded = false;
+	GameInstance->PlayerData.bParrySucceeded = false;
 
 	ResetGlobalTimeDilation();
 

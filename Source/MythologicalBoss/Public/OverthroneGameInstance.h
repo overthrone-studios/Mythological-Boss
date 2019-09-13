@@ -47,6 +47,15 @@ struct FPlayerData : public FCharacterData
 	uint8 bParrySucceeded : 1;
 };
 
+USTRUCT()
+struct FBossData : public FCharacterData
+{
+	GENERATED_BODY()
+
+	FTransform LocalTransform;
+	FVector MeshLocation;
+};
+
 /**
  * High-level manager object for Overthrone game
  */
@@ -84,7 +93,7 @@ public:
 		void SetInputModeGame() const;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
-		FORCEINLINE float GetTeleportRadius() const { return PlayerInfo.TeleportRadius; };
+		FORCEINLINE float GetTeleportRadius() const { return PlayerData.TeleportRadius; };
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
 		class UFeatData* GetFeat(const FString& FeatName);
@@ -93,7 +102,7 @@ public:
 		void ResetFeats();
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
-		FORCEINLINE FVector GetBossLocation() const { return BossInfo.Location; }
+		FORCEINLINE FVector GetBossLocation() const { return BossData.Location; }
 
 	void InitFeats();
 	void InitInstance();
@@ -103,8 +112,8 @@ public:
 
 	FBox PlayArea{};
 
-	FPlayerData PlayerInfo;
-	FCharacterData BossInfo;
+	FPlayerData PlayerData;
+	FBossData BossData;
 
 	class ALockOn* LockOn;
 
