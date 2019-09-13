@@ -402,7 +402,7 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	if (IsDashing())
+	if (IsDashing() || bIsDead)
 		return;
 
 	if (!IsAttacking())
