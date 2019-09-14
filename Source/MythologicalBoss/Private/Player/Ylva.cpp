@@ -1019,11 +1019,15 @@ void AYlva::Debug_ToggleBuff()
 void AYlva::ShowPlayerFSMVisualizer()
 {
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(0);
+
+	OverthroneHUD->bHideDebugText = false;
 }
 
 void AYlva::ShowBossFSMVisualizer()
 {
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(1);
+
+	OverthroneHUD->bHideDebugText = false;
 }
 
 void AYlva::ShowMainHUD()
@@ -1031,6 +1035,8 @@ void AYlva::ShowMainHUD()
 	OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 	OverthroneHUD->GetMasterHUD()->HideTitle();
 	OverthroneHUD->GetMasterHUD()->HideBoxes();
+
+	OverthroneHUD->bHideDebugText = false;
 }
 
 void AYlva::ShowNoHUD()
