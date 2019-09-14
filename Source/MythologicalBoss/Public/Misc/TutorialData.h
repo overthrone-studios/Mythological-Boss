@@ -32,7 +32,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")
 		uint8 bIsProgress : 1;
 
-	// The maximum value for this progression feat to be considered complete
+	// The maximum value for this progression tutorial to be considered complete
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information", meta = (EditCondition = "bIsProgress", ClampMin = 1))
 		int32 MaxCount = 1;
 	
