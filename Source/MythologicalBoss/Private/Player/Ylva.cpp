@@ -1035,11 +1035,11 @@ void AYlva::ShowNoHUD()
 	{
 	case ESlateVisibility::Visible:
 		OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Hidden);
-		break;
+	break;
 
 	case ESlateVisibility::Hidden:
 		OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Visible);
-		break;
+	break;
 
 	default:
 	break;
