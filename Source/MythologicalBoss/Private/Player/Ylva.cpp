@@ -170,6 +170,12 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+void AYlva::ResumeMovement()
+{
+	MovementComponent->SetMovementMode(MOVE_Walking);
+	PlayerController->ResetIgnoreMoveInput();
+}
+
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
@@ -370,7 +376,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AYlva::MoveForward(const float Value)
 {
-	if (IsDashing() || bIsDead)
+	if (IsDashing() || bIsDead || IsMoveInputIgnored())
 		return;
 
 	if (!IsAttacking())
@@ -402,7 +408,7 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	if (IsDashing() || bIsDead)
+	if (IsDashing() || bIsDead || IsMoveInputIgnored())
 		return;
 
 	if (!IsAttacking())
@@ -1568,6 +1574,19 @@ void AYlva::ApplyHitStop()
 	{
 		// Todo: Hit stop implementation
 	}
+}
+
+void AYlva::StopMovement()
+{
+	CurrentMovementSpeed = 0;
+	ForwardInput = 0.0f;
+	RightInput = 0.0f;
+
+	MovementComponent->DisableMovement();
+	PlayerController->SetIgnoreMoveInput(true);
+
+	AnimInstance->LeaveAllStates();
+	FSM->RemoveAllStatesFromStack();
 }
 
 bool AYlva::IsLightAttacking() const

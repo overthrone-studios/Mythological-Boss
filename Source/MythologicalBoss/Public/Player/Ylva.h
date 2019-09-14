@@ -220,6 +220,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Components")
 		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+		void StopMovement();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+		void ResumeMovement();
+
 	// Returns true if we have taken 1 or more hits
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
 		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
