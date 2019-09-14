@@ -26,7 +26,7 @@ public:
 
 	// The amount of time (in seconds) we wait after completing this tutorial
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")
-		float Delay;
+		float CompletionDelay;
 
 	// Does this tutorial have a progression?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")
