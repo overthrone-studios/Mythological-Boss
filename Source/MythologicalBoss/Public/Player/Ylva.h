@@ -571,12 +571,30 @@ protected:
 		void OnLowStamina();
 
 	// Called when our combo tree has been reset
-	UFUNCTION()
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnComboReset();
 
-	// Called when our anim montage attack animations have finished
 	UFUNCTION()
+		void OnComboReset_Implementation();
+
+	// Called when our anim montage attack animations have finished
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnAttackEnd(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+		void OnAttackEnd_Implementation(UAnimMontage* Montage, bool bInterrupted);
+
+	// Called when we are light attacking
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
+		void OnBeginLightAttack();
+	
+	// Called when we are heavy attacking
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
+		void OnBeginHeavyAttack();
+
+	// Called when we have successfully completed a light attack combo
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
+		void OnLightAttackComboCompleted();
 	#pragma endregion
 
 	#pragma region Player States

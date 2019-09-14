@@ -36,7 +36,8 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information", meta = (EditCondition = "bIsProgress", ClampMin = 1))
 		int32 MaxCount = 1;
 	
-	int32 CurrentCount = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Tutorial Information")
+		int32 CurrentCount = 0;
 
 	// Have we completed this tutorial?
 	UPROPERTY(BlueprintReadOnly, Category = "Tutorial Information")

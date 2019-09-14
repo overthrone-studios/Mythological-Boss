@@ -161,7 +161,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 
 	// Attack combo component
 	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
-	AttackComboComponent->OnComboReset.AddDynamic(this, &AYlva::OnComboReset);
+	AttackComboComponent->OnComboReset.AddDynamic(this, &AYlva::OnComboReset_Implementation);
 
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash component"));
@@ -221,7 +221,7 @@ void AYlva::BeginPlay()
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
-	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd);
+	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
 
 	// Begin the state machine
 	FSM->Start();
@@ -604,6 +604,8 @@ void AYlva::LightAttack()
 
 void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
+	OnBeginLightAttack(); // Handled in blueprints
+
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -640,6 +642,8 @@ void AYlva::HeavyAttack()
 
 void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
+	OnBeginHeavyAttack(); // Handled in blueprints
+
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -1274,14 +1278,18 @@ void AYlva::OnLowStamina()
 	MovementComponent->MaxWalkSpeed /= 2.0f;
 }
 
-void AYlva::OnComboReset()
+void AYlva::OnComboReset_Implementation()
 {
+	OnComboReset();
+
 	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
 
-void AYlva::OnAttackEnd(UAnimMontage* Montage, const bool bInterrupted)
+void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterrupted)
 {
+	OnAttackEnd(Montage, bInterrupted);
+
 	if (!bInterrupted)
 		AttackComboComponent->OnAttackEnd.Broadcast();
 }

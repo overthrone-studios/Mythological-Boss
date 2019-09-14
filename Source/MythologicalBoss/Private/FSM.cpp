@@ -14,18 +14,6 @@ void UFSM::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	if (!bHasFSMInitialized)
-	{
-		#if !UE_BUILD_SHIPPING
-		ULog::DebugMessage(ERROR, FString(GetOwner()->GetName() + "'s FSM has not been initialized! Initialize its FSM component in the owner's BeginPlay function."));
-		#endif
-
-		UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Background);
-		return;
-	}
-
-
 #if !UE_BUILD_SHIPPING
 	if (bDebug)
 	{
