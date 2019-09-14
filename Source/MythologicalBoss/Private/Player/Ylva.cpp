@@ -1031,7 +1031,21 @@ void AYlva::ShowMainHUD()
 
 void AYlva::ShowNoHUD()
 {
-	OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Hidden);
+	switch (OverthroneHUD->GetMasterHUD()->GetVisibility())
+	{
+	case ESlateVisibility::Visible:
+		OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Hidden);
+		break;
+
+	case ESlateVisibility::Hidden:
+		OverthroneHUD->GetMasterHUD()->SetVisibility(ESlateVisibility::Visible);
+		break;
+
+	default:
+	break;
+	}
+
+	OverthroneHUD->bHideDebugText = !OverthroneHUD->bHideDebugText;
 }
 #pragma endregion
 

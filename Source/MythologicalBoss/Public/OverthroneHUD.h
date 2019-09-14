@@ -37,6 +37,8 @@ public:
 	void AddOnScreenDebugMessage(const FString& Message, FLinearColor Color, float XOffset, float YOffset);
 	void UpdateOnScreenDebugMessage(int32 Index, const FString& Message);
 
+	uint8 bHideDebugText : 1;
+
 protected:
 	void DrawHUD() override;
 

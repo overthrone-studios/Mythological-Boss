@@ -61,6 +61,9 @@ void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString
 
 void AOverthroneHUD::DrawHUD()
 {
+	if (bHideDebugText)
+		return;
+
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
 
 	for (const FDebugData& Debug : DebugMessages)
