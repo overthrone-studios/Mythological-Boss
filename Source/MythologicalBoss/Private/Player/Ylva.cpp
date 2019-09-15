@@ -241,7 +241,6 @@ void AYlva::BeginPlay()
 	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan, BaseXOffset, 150.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow, BaseXOffset, 195.0f); // Continued from Mordath BeginPlay()
-	OverthroneHUD->AddOnScreenDebugMessage("Attack Combo: ", FColor::Yellow, BaseXOffset, 210.0f);
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
