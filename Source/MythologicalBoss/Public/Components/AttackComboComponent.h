@@ -90,6 +90,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE EAttackType GetCurrentAttack() const { return CurrentAttack; }
 
+	// Returns the current attack animation montage we are on
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		class UAnimMontage* GetCurrentAttackAnim() const;
+
 	// Returns the current attack type we are on as a string
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FString GetCurrentAttackAsString() const;
@@ -187,6 +191,8 @@ private:
 	void LogAttackChain(); // Tracks the attacks we've chained
 
 	EAttackType CurrentAttack;
+
+	class UAnimMontage* CurrentAttackAnim;
 
 	// The attack chain history
 	TArray<TEnumAsByte<EAttackType>> Combo;

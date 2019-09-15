@@ -12,6 +12,11 @@ UAttackComboComponent::UAttackComboComponent()
 	OnAttackEnd.AddDynamic(this, &UAttackComboComponent::ClearCurrentAttack);
 }
 
+UAnimMontage* UAttackComboComponent::GetCurrentAttackAnim() const
+{
+	return CurrentAttackAnim;
+}
+
 FString UAttackComboComponent::GetCurrentAttackAsString() const
 {
 	switch (CurrentAttack)
@@ -57,8 +62,6 @@ void UAttackComboComponent::BeginPlay()
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
 {
-	UAnimMontage* AttackMontage = nullptr;
-
 	CurrentAttack = InAttackType;
 
 	switch (InAttackType)
@@ -67,39 +70,38 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAtta
 		if (LightAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Light Attacks list", true);
-			return AttackMontage;
+			return nullptr;
 		}
 
-		AttackMontage = AdvanceCombo_Internal(Light);
+		CurrentAttackAnim = AdvanceCombo_Internal(Light);
 	break;
 
 	case Heavy:
 		if (HeavyAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Heavy Attacks list", true);
-			return AttackMontage;
+			return nullptr;
 		}
 
-		AttackMontage = AdvanceCombo_Internal(Heavy);
-
+		CurrentAttackAnim = AdvanceCombo_Internal(Heavy);
 	break;
 
 	case Special:
 		if (SpecialAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Special Attacks list", true);
-			return AttackMontage;
+			return nullptr;
 		}
 
-		AttackMontage = AdvanceCombo_Internal(Special);
+		CurrentAttackAnim = AdvanceCombo_Internal(Special);
 	break;
 
 	case None:
-		AttackMontage = nullptr;
+		CurrentAttackAnim = nullptr;
 	break;
 	}
 
-	return AttackMontage;
+	return CurrentAttackAnim;
 }
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)

@@ -241,6 +241,7 @@ void AYlva::BeginPlay()
 	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan, BaseXOffset, 150.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow, BaseXOffset, 195.0f); // Continued from Mordath BeginPlay()
+	OverthroneHUD->AddOnScreenDebugMessage("Attack Combo: ", FColor::Yellow, BaseXOffset, 210.0f);
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
@@ -594,7 +595,22 @@ void AYlva::LightAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing())
+	if (IsAttacking() && AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackSettings.LightAttackQueueTriggerTime && AttackQueue.IsEmpty())
+	{
+		AttackQueue.Pop();
+		AttackQueue.Enqueue(Light);
+
+		if (!GetWorldTimerManager().IsTimerActive(AttackQueueExpiryTimerHandle))
+			GetWorldTimerManager().SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+		
+		GetWorldTimerManager().SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
+
+		ULog::Info(CUR_FUNC + ": Queueing attack...", true);
+
+		return;
+	}
+
+	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
 
@@ -632,7 +648,22 @@ void AYlva::HeavyAttack()
 	if (FSM->GetActiveStateID() == 22 /*Parry*/)
 		FinishParryEvent();
 
-	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing())
+	if (IsAttacking() && AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackSettings.HeavyAttackQueueTriggerTime && AttackQueue.IsEmpty())
+	{
+		AttackQueue.Pop();
+		AttackQueue.Enqueue(Heavy);
+		
+		if (!GetWorldTimerManager().IsTimerActive(AttackQueueExpiryTimerHandle))
+			GetWorldTimerManager().SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+	
+		GetWorldTimerManager().SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
+
+		ULog::Info(CUR_FUNC + ": Queueing attack...", true);
+	
+		return;
+	}
+
+	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
 
@@ -655,6 +686,34 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 
 	if (Combat.bRotateToCameraLookDirection)
 		bUseControllerRotationYaw = true;
+}
+
+void AYlva::Attack_Queued()
+{
+	EAttackType AttackType;
+	
+	AttackQueue.Peek(AttackType);
+	AttackQueue.Pop();
+	
+	switch (AttackType)
+	{
+	case Light:
+		LightAttack();
+	break;
+
+	case Heavy:
+		HeavyAttack();
+	break;
+
+	default:
+	break;
+	}
+}
+
+void AYlva::ClearAttackQueue()
+{
+	AttackQueue.Pop();
+	ULog::Info("Attack Queue cleared!", true);
 }
 
 void AYlva::ChargeUpAttack()
@@ -1297,7 +1356,9 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 	OnAttackEnd(Montage, bInterrupted);
 
 	if (!bInterrupted)
+	{
 		AttackComboComponent->OnAttackEnd.Broadcast();
+	}
 }
 #pragma endregion
 

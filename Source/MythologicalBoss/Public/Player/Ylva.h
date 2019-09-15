@@ -3,6 +3,7 @@
 #pragma once
 
 #include "OverthroneCharacter.h"
+#include "Queue.h"
 #include "Ylva.generated.h"
 
 USTRUCT(BlueprintType)
@@ -71,6 +72,18 @@ struct FAttackSettings_Ylva : public FAttackSettings
 	// The attack damage we deal when charge attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 		float ChargeAttackDamage = 200.0f;
+
+	// The point in time of the heavy attack animation where the attack queueing system would queue the next attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
+		float LightAttackQueueTriggerTime = 0.3f;
+
+	// The point in time of the light attack animation where the attack queueing system would queue the next attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
+		float HeavyAttackQueueTriggerTime = 0.6f;
+
+	// The amount of time (in seconds) the attack queue will clear itself. If the queue takes longer than the specified time (in seconds), clear the queue.
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
+		float AttackQueueExpiryTime = 0.5f;
 };
 
 USTRUCT(BlueprintType)
@@ -368,6 +381,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void BeginHeavyAttack(class UAnimMontage* AttackMontage);
+
+	void Attack_Queued();
+
+	void ClearAttackQueue();
 
 	// Called via input when holding down the charge attack key
 	void ChargeUpAttack();
@@ -769,8 +786,9 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
 		class UYlvaAnimInstance* YlvaAnimInstance{};
-
 private:
+	TQueue<enum EAttackType> AttackQueue;
+
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
 
 	float PlayerLeanRollAmount = 0.0f;
@@ -791,10 +809,11 @@ private:
 
 	FTimerHandle ChargeAttackReleaseTimer;
 	FTimerHandle ChargeLossTimerHandle;
+	
+	FTimerHandle AttackQueueTimerHandle;
+	FTimerHandle AttackQueueExpiryTimerHandle;
 
 	class APlayerCameraManager* CameraManager;
-
-	class UAnimMontage* DashMontageToPlay;
 
 	class UFeatData* UntouchableFeat;
 };
