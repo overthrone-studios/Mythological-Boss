@@ -40,7 +40,7 @@ public:
 		int32 CurrentCount = 0;
 
 	// Have we completed this tutorial?
-	UPROPERTY(BlueprintReadOnly, Category = "Tutorial Information")
+	UPROPERTY(BlueprintReadWrite, Category = "Tutorial Information")
 		uint8 bIsComplete : 1;
 
 	UPROPERTY(BlueprintAssignable, Category = "Tutorial Information")

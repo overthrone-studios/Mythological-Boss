@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Tutorial HUD")
 		void OnTutorialCompleted();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Tutorial HUD")
+		class UTutorialData* CurrentTutorial;
+
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Tutorial HUD | Animations")
 		UWidgetAnimation* SlideAnim;
