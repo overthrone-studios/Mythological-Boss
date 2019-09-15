@@ -435,6 +435,9 @@ protected:
 	// Set a timer to start the dash cooldown
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Movement")
 		void StartDashCooldown();
+
+	void Dash_Queued();
+
 	#pragma endregion
 
 	#pragma region Controls
@@ -788,6 +791,7 @@ protected:
 		class UYlvaAnimInstance* YlvaAnimInstance{};
 private:
 	TQueue<enum EAttackType> AttackQueue;
+	TQueue<uint8> DashQueue;
 
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
 
@@ -812,6 +816,8 @@ private:
 	
 	FTimerHandle AttackQueueTimerHandle;
 	FTimerHandle AttackQueueExpiryTimerHandle;
+
+	FTimerHandle DashQueueTimerHandle;
 
 	class APlayerCameraManager* CameraManager;
 

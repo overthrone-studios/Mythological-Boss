@@ -933,8 +933,16 @@ void AYlva::Dash()
 	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking())
 		return;
 
-	// If we are moving and grounded
-	if (!DashComponent->IsCooldownActive() && FSM->GetActiveStateID() != 12 /*Dash*/)
+	if (IsDashing() && DashQueue.IsEmpty())
+	{
+		DashQueue.Enqueue(1);
+
+		ULog::Info("Queuing dash...", true);
+
+		return;
+	}
+
+	if (!DashComponent->IsCooldownActive() && !IsDashing())
 	{
 		// Do we have enough stamina to dash?
 		if (StaminaComponent->HasEnoughForDash())
@@ -953,6 +961,13 @@ void AYlva::Dash()
 void AYlva::StartDashCooldown()
 {
 	DashComponent->StartCooldown();
+}
+
+void AYlva::Dash_Queued()
+{
+	DashQueue.Pop();
+
+	Dash();
 }
 #pragma endregion
 
@@ -1608,6 +1623,11 @@ void AYlva::OnExitDashState()
 	DisableInvincibility();
 
 	AnimInstance->bIsDashing = false;
+
+	if (!DashQueue.IsEmpty())
+	{
+		GetWorldTimerManager().SetTimer(DashQueueTimerHandle, this, &AYlva::Dash_Queued, 0.2f);
+	}
 }
 #pragma endregion 
 
