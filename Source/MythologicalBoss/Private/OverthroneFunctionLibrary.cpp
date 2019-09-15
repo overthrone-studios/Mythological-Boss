@@ -9,6 +9,7 @@
 #include "Mordath.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "SlateApplication.h"
 
 FString UOverthroneFunctionLibrary::GetProjectVersion()
 {
@@ -52,4 +53,9 @@ UMasterHUD* UOverthroneFunctionLibrary::GetMasterHUD(APlayerController* InPlayer
 ABossBattleGameMode* UOverthroneFunctionLibrary::GetGameMode(const UObject* WorldContext)
 {
 	return Cast<ABossBattleGameMode>(UGameplayStatics::GetGameMode(WorldContext));
+}
+
+bool UOverthroneFunctionLibrary::IsGamepadConnected()
+{
+	return FSlateApplication::Get().GetPlatformApplication().Get()->IsGamepadAttached();
 }

@@ -42,4 +42,8 @@ public:
 	// Get our custom game mode
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class ABossBattleGameMode* GetGameMode(const UObject* WorldContext);
+
+	// Check if gamepad is connected at runtime
+	UFUNCTION(BlueprintPure, Category = "System Information")
+		static bool IsGamepadConnected();
 };
