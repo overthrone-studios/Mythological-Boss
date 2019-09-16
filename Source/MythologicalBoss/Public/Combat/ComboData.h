@@ -42,7 +42,7 @@ public:
 		int32 GetCurrentAttackIndex() const { return AttackIndex; }
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		UAttackData* GetCurrentAttackInfo() const { return CurrentAttack; }
+		UAttackData* GetCurrentAttackData() const { return CurrentAttack; }
 
 protected:
 	// Should we wait between attacks?

@@ -18,12 +18,12 @@ enum EDashType_Combo
 UENUM()
 enum EAttackType_Combo
 {
-	LightAttack_1,
-	LightAttack_2,
-	LightAttack_3,
-	HeavyAttack_1,
-	HeavyAttack_2,
-	HeavyAttack_3,
+	ShortAttack_1,
+	ShortAttack_2,
+	ShortAttack_3,
+	LongAttack_1,
+	LongAttack_2,
+	LongAttack_3,
 	SpecialAttack_1,
 	SpecialAttack_2,
 	SpecialAttack_3
@@ -41,6 +41,18 @@ public:
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EAttackType_Combo> Attack;
+
+	UPROPERTY(EditInstanceOnly)
+		class UAnimMontage* AttackMontage;
+	
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float AnticipationRotationSpeed = 10.0f;
+
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float ContactRotationSpeed = 5.0f;
+
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float RecoveryRotationSpeed = 3.0f;
 
 	// Can we dash before we attack?
 	UPROPERTY(EditInstanceOnly)

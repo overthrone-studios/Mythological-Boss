@@ -241,10 +241,11 @@ void AMordath::BeginPlay()
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
 
-	const float BaseXOffset = 200.0f;
+	const float BaseXOffset = 220.0f;
 
 	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, BaseXOffset, 165.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, BaseXOffset, 180.0f);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Green, BaseXOffset, 210.0f); // Continued from Ylva BeginPlay()
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
@@ -282,6 +283,7 @@ void AMordath::Tick(const float DeltaTime)
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
 	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Current Montage Section: " + CurrentMontageSection.ToString());
 #endif
 }
 
@@ -306,7 +308,7 @@ void AMordath::UpdateIdleState()
 	if (GameInstance->PlayerData.bIsDead)
 		return;
 
-	FacePlayer();
+	FacePlayer(DefaultRotationSpeed);
 
 	ForwardInput = 0.0f;
 	RightInput = 0.0f;
@@ -352,7 +354,7 @@ void AMordath::UpdateFollowState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayer();
+	FacePlayer(DefaultRotationSpeed);
 
 	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius)
 	{
@@ -407,7 +409,7 @@ void AMordath::UpdateRetreatState()
 
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
-	FacePlayer();
+	FacePlayer(DefaultRotationSpeed);
 
 	if (GetDistanceToPlayer() > MidRangeRadius)
 		FSM->PopState();
@@ -455,7 +457,7 @@ void AMordath::UpdateThinkState()
 	const float Uptime = FSM->GetActiveStateUptime();
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
-	FacePlayer();
+	FacePlayer(DefaultRotationSpeed);
 
 	EncirclePlayer();
 
@@ -486,19 +488,17 @@ void AMordath::OnEnterLightAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptLightAttack = true;
+	PlayAttackMontage();
 }
 
 void AMordath::UpdateLightAttack1State()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
-
-	FacePlayer();
-
+	FacePlayerBasedOnMontageSection();
+	
 	// If attack animation has finished, go back to previous state
-	if(AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (HasFinishedAttack())
 	{
 		NextAttack();
 
@@ -511,6 +511,9 @@ void AMordath::OnExitLightAttack1State()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptLightAttack = false;
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAttackMontage();
 }
 #pragma endregion
 
@@ -519,19 +522,17 @@ void AMordath::OnEnterLightAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptSecondLightAttack = true;
+	PlayAttackMontage();
 }
 
 void AMordath::UpdateLightAttack2State()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
-
-	FacePlayer();
+	FacePlayerBasedOnMontageSection();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (HasFinishedAttack())
 	{
 		NextAttack();
 
@@ -544,6 +545,9 @@ void AMordath::OnExitLightAttack2State()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptSecondLightAttack = false;
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAttackMontage();
 }
 #pragma endregion
 
@@ -552,19 +556,17 @@ void AMordath::OnEnterLightAttack3State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptThirdLightAttack = true;
+	PlayAttackMontage();
 }
 
 void AMordath::UpdateLightAttack3State()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
-
-	FacePlayer();
+	FacePlayerBasedOnMontageSection();
 
 	// If attack animation has finished, go back to previous state
-	if(AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (HasFinishedAttack())
 	{
 		NextAttack();
 
@@ -577,6 +579,9 @@ void AMordath::OnExitLightAttack3State()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptThirdLightAttack = false;
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAttackMontage();
 }
 #pragma endregion 
 
@@ -585,19 +590,17 @@ void AMordath::OnEnterHeavyAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptHeavyAttack = true;
+	PlayAttackMontage();
 }
 
 void AMordath::UpdateHeavyAttack1State()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
-
-	FacePlayer();
+	FacePlayerBasedOnMontageSection();
 
 	// If attack animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (HasFinishedAttack())
 	{
 		NextAttack();
 
@@ -610,6 +613,9 @@ void AMordath::OnExitHeavyAttack1State()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptHeavyAttack = false;
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAttackMontage();
 }
 #pragma endregion
 
@@ -618,7 +624,7 @@ void AMordath::OnEnterHeavyAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptSecondHeavyAttack = true;
+	PlayAttackMontage();
 }
 
 void AMordath::UpdateHeavyAttack2State()
@@ -627,10 +633,10 @@ void AMordath::UpdateHeavyAttack2State()
 
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
-	FacePlayer();
+	FacePlayerBasedOnMontageSection();
 
 	// If attack animation has finished, go back to previous state
-	if(AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (HasFinishedAttack())
 	{
 		NextAttack();
 
@@ -644,7 +650,8 @@ void AMordath::OnExitHeavyAttack2State()
 
 	AnimInstance->bAcceptSecondHeavyAttack = false;
 
-	GetWorldTimerManager().SetTimer(JumpAttackCooldownTimerHandle,Combat.AttackSettings.JumpAttackCooldown,false);
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAttackMontage();
 }
 #pragma endregion
 
@@ -653,19 +660,17 @@ void AMordath::OnEnterHeavyAttack3State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	AnimInstance->bAcceptThirdHeavyAttack = true;
+	PlayAttackMontage();
 }
 
 void AMordath::UpdateHeavyAttack3State()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
-
-	FacePlayer();
+	FacePlayerBasedOnMontageSection();
 
 	// If attack animation has finished, go back to previous state
-	if(AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (HasFinishedAttack())
 	{
 		NextAttack();
 
@@ -678,6 +683,9 @@ void AMordath::OnExitHeavyAttack3State()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bAcceptThirdHeavyAttack = false;
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAttackMontage();
 }
 #pragma endregion
 
@@ -809,7 +817,7 @@ void AMordath::UpdateDashState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayer();
+	FacePlayer(DefaultRotationSpeed);
 }
 
 void AMordath::OnExitDashState()
@@ -863,7 +871,7 @@ void AMordath::UpdateTeleportState()
 
 	if(FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
 	{
-		if(ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		if(ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
 			SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(),GameInstance->GetTeleportRadius(),GameInstance->PlayArea));
 
 		FSM->PopState();
@@ -933,7 +941,7 @@ void AMordath::OnEnterFarRange()
 	CurrentMovementSpeed = GetMovementSpeed();
 
 	if ((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) &&
-		ChosenCombo->GetCurrentAttackInfo()->bCanTeleportWithAttack)
+		ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
 	{
 		FSM->PopState();
 		FSM->PushState("Teleport");
@@ -1120,6 +1128,21 @@ void AMordath::DestroySelf()
 	Destroy();
 }
 
+void AMordath::PlayAttackMontage()
+{
+	CurrentAttackData = ChosenCombo->GetCurrentAttackData();
+
+	PlayAnimMontage(CurrentAttackData->AttackMontage, 1.0f, FName("Anticipation"));
+}
+
+void AMordath::StopAttackMontage()
+{
+	if (!HasFinishedAttack())
+		StopAnimMontage(CurrentAttackData->AttackMontage);
+
+	CurrentMontageSection = "None";
+}
+
 void AMordath::UpdateCharacterInfo()
 {
 	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
@@ -1276,21 +1299,21 @@ void AMordath::ChooseComboWithDelay()
 
 void AMordath::ChooseAttack()
 {
-	switch (ChosenCombo->GetCurrentAttackInfo()->Attack)
+	switch (ChosenCombo->GetCurrentAttackData()->Attack)
 	{
-		case LightAttack_1:
+		case ShortAttack_1:
 			FSM->PushState("Light Attack 1");
 		break;
 
-		case LightAttack_2:
+		case ShortAttack_2:
 			FSM->PushState("Light Attack 2");
 		break;
 
-		case LightAttack_3:
+		case ShortAttack_3:
 			FSM->PushState("Light Attack 3");
 		break;
 
-		case HeavyAttack_1:
+		case LongAttack_1:
 			if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
 				FSM->PushState("Heavy Attack 1");
 			else
@@ -1300,11 +1323,11 @@ void AMordath::ChooseAttack()
 			}
 		break;
 
-		case HeavyAttack_2:
+		case LongAttack_2:
 			FSM->PushState("Heavy Attack 2");
 		break;
 
-		case HeavyAttack_3:
+		case LongAttack_3:
 			FSM->PushState("Heavy Attack 3");
 		break;
 
@@ -1334,7 +1357,10 @@ void AMordath::NextAttack()
 		return;
 	}
 
-	ChosenCombo->NextAttack();
+	if (ChosenCombo->IsAtLastAttack())
+		ChooseCombo();
+	else
+		ChosenCombo->NextAttack();
 }
 
 void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
@@ -1391,12 +1417,32 @@ void AMordath::ChangeHitboxSize(const float NewRadius)
 	Combat.AttackSettings.AttackRadius = NewRadius;
 }
 
-void AMordath::FacePlayer()
+void AMordath::FacePlayer(const float RotationSpeed)
 {
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
 	
-	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll), 10.0f * World->DeltaTimeSeconds));
+	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
+}
+
+void AMordath::FacePlayerBasedOnMontageSection()
+{
+	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttackData->AttackMontage);
+
+	if (CurrentMontageSection == "Anticipation")
+	{
+		FacePlayer(CurrentAttackData->AnticipationRotationSpeed);
+	}
+	else if (CurrentMontageSection == "Contact")
+	{
+		FacePlayer(CurrentAttackData->ContactRotationSpeed);
+	}
+	else if (CurrentMontageSection == "Recovery")
+	{
+		FacePlayer(CurrentAttackData->RecoveryRotationSpeed);
+	}
+	else
+		FacePlayer(DefaultRotationSpeed);
 }
 
 void AMordath::SendInfo()
@@ -1579,6 +1625,11 @@ bool AMordath::WantsMoveRight() const
 bool AMordath::IsRecovering() const
 {
 	return FSM->GetActiveStateID() == 17;
+}
+
+bool AMordath::HasFinishedAttack()
+{
+	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->AttackMontage);
 }
 
 float AMordath::GetMovementSpeed() const

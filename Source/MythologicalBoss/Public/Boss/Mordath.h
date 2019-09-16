@@ -295,6 +295,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsRecovering() const;
 
+	// Returns true if we are our current attack
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsDelayingAttack();
+
+	// Returns true if we have finished playing our current attack montage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool HasFinishedAttack();
+
+	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
 
@@ -326,7 +335,10 @@ protected:
 	void EndTakeDamage() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
-		void FacePlayer();
+		void FacePlayer(float RotationSpeed);
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
+		void FacePlayerBasedOnMontageSection();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseComboWithDelay();
@@ -343,6 +355,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void DestroySelf();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void PlayAttackMontage();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void StopAttackMontage();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseAttack();
@@ -393,8 +411,7 @@ protected:
 		#pragma region Follow
 		UFUNCTION()
 			void OnEnterFollowState();
-	bool IsDelayingAttack();
-	UFUNCTION()
+		UFUNCTION()
 			void UpdateFollowState();
 		UFUNCTION()
 			void OnExitFollowState();
@@ -674,6 +691,12 @@ protected:
 		TArray<UComboData*> CachedCombos;
 
 private:
+	float DefaultRotationSpeed = 10.0f;
+
+	UAttackData* CurrentAttackData;
+
+	FName CurrentMontageSection = "None";
+
 	uint8 MoveDirection = 0;
 
 	FTimerHandle UpdateInfoTimerHandle;

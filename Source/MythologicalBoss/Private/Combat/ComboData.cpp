@@ -2,7 +2,6 @@
 
 #include "Combat/ComboData.h"
 
-
 void UComboData::Init()
 {
 	AttackIndex = 0;
