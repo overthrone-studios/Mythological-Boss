@@ -45,15 +45,15 @@ public:
 	UPROPERTY(EditInstanceOnly)
 		class UAnimMontage* AttackMontage;
 	
-	// How fast do we rotate while in the anticipation section of the anim montage above?
+	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float AnticipationRotationSpeed = 10.0f;
 
-	// How fast do we rotate while in the contact section of the anim montage above?
+	// How fast do we rotate while in the contact section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float ContactRotationSpeed = 5.0f;
 
-	// How fast do we rotate while in the recovery section of the anim montage above?
+	// How fast do we rotate while in the recovery section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float RecoveryRotationSpeed = 3.0f;
 
