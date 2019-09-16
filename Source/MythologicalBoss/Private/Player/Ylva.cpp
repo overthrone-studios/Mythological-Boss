@@ -228,8 +228,9 @@ void AYlva::BeginPlay()
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
+	GetCapsuleComponent()->bVisible = true;
 
-	const float BaseXOffset = 200.0f;
+	const float BaseXOffset = 220.0f;
 	
 	OverthroneHUD->AddOnScreenDebugMessage("Pitch: ", FColor::Orange, BaseXOffset, 30.0f);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green, BaseXOffset, 45.0f);
@@ -244,6 +245,7 @@ void AYlva::BeginPlay()
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
+	GetCapsuleComponent()->bVisible = false;
 #endif
 }
 
