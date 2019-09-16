@@ -77,6 +77,16 @@ bool UInputKeyBinding::IsDefault()
 	return PrimaryKeySelector->SelectedKey == DefaultPrimaryInput && GamepadKeySelector->SelectedKey == DefaultGamepadInput;
 }
 
+void UInputKeyBinding::SetSelectedPrimaryInput()
+{
+	PrimaryKeySelector->SetSelectedKey(CurrentPrimaryInput);
+}
+
+void UInputKeyBinding::SetSelectedGamepadInput()
+{
+	GamepadKeySelector->SetSelectedKey(CurrentGamepadInput);
+}
+
 void UInputKeyBinding::SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad)
 {
 	Primary->SetSelectedKey(DefaultPrimaryInput);

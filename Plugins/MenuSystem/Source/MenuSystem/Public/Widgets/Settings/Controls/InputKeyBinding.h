@@ -43,6 +43,9 @@ public:
 	FInputChord PreviousPrimaryInput;
 	FInputChord PreviousGamepadInput;
 
+	void SetSelectedPrimaryInput();
+	void SetSelectedGamepadInput();
+
 protected:
 	UFUNCTION(BlueprintCallable, Category = "InputKeyBinding Setting")
 		void SetDefaultInput(class UInputKeySelector* Primary, class UInputKeySelector* Gamepad);

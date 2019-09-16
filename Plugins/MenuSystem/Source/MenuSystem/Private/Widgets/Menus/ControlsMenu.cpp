@@ -89,7 +89,14 @@ void UControlsMenu::RebindInputMapping(const class UInputKeyBinding* InputKeyBin
 		// Add the new input
 		FInputAxisKeyMapping NewAxisMapping;
 		NewAxisMapping.AxisName = InputName;
-		NewAxisMapping.Key = NewInput.Key;
+
+		if (NewInput.Key == EKeys::Gamepad_RightStick_Up || NewInput.Key == EKeys::Gamepad_RightStick_Down)
+			NewAxisMapping.Key = EKeys::Gamepad_LeftY;
+		else if (NewInput.Key == EKeys::Gamepad_RightStick_Left || NewInput.Key == EKeys::Gamepad_RightStick_Right)
+			NewAxisMapping.Key = EKeys::Gamepad_LeftX;
+		else
+			NewAxisMapping.Key = NewInput.Key;
+
 		NewAxisMapping.Scale = InputKeyBinding->GetScale();
 		Input->AddAxisMapping(NewAxisMapping);
 	}
@@ -201,6 +208,7 @@ void UControlsMenu::InitializeControls()
 void UControlsMenu::Reset()
 {
 	ResetKeyBindings();
+	ResetKeyBindings();
 }
 
 void UControlsMenu::HideWidgets()
@@ -255,26 +263,32 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 		// If this control setting is not the same as ControlToCheck AND If we have a duplicate key
 		if (Control != ControlToCheck && Control->GetSelectedPrimaryKey() == InputToCheck)
 		{
-			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
-			//BackButton->SetIsEnabled(false);
+			if (Control->GetInputName() == ControlToCheck->GetInputName())
+			{
+				const auto ConflictedInput = Control->GetCurrentPrimaryInput();
+				const auto OldInput = ControlToCheck->GetCurrentPrimaryInput();
 
-			ULog::DebugMessage(INFO, Control->GetName() + FString(" is in conflict with ") + ControlToCheck->GetName(), true);
+				RebindInputMapping(Control, Control->GetCurrentPrimaryInput(), OldInput);
+				RebindInputMapping(ControlToCheck, ControlToCheck->GetCurrentPrimaryInput(), ConflictedInput);
+				
+				ControlToCheck->SetCurrentPrimaryInput(ConflictedInput);
+				Control->SetCurrentPrimaryInput(OldInput);
+				Control->SetSelectedPrimaryInput();
 
-			//RebindInputMapping(ControlToCheck, Control->GetCurrentPrimaryInput(), InputToCheck);
-			//Control->SetCurrentPrimaryInput(InputToCheck);
-			//ControlToCheck->SetCurrentPrimaryInput(Control->GetCurrentPrimaryInput());
+				return true;
+			}
 
-			//ControlToCheck->HighlightError();
-			//Control->HighlightError();
+			const auto OtherInput = ControlToCheck->GetCurrentPrimaryInput();
+
+			RebindInputMapping(ControlToCheck, ControlToCheck->GetCurrentPrimaryInput(), Control->GetCurrentPrimaryInput());
+			RebindInputMapping(Control, Control->GetCurrentPrimaryInput(), ControlToCheck->GetCurrentPrimaryInput());
+
+			ControlToCheck->SetCurrentPrimaryInput(Control->GetCurrentPrimaryInput());
+			Control->SetCurrentPrimaryInput(OtherInput);
+			Control->SetSelectedPrimaryInput();
 			
 			return true;
 		}
-		
-		DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
-		//BackButton->SetIsEnabled(true);
-
-		//ControlToCheck->UnHighlightError();
-		//Control->UnHighlightError();
 	}
 
 	return false;
@@ -287,20 +301,32 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 	{
 		if (Control != ControlToCheck && Control->GetCurrentGamepadInput() == InputToCheck)
 		{
-			//DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
-			//BackButton->SetIsEnabled(false);
-			
-			//ControlToCheck->HighlightError();
-			//Control->HighlightError();
+			if (Control->GetInputName() == ControlToCheck->GetInputName())
+			{
+				const auto ConflictedInput = Control->GetCurrentGamepadInput();
+				const auto OldInput = ControlToCheck->GetCurrentGamepadInput();
+
+				RebindInputMapping(Control, Control->GetCurrentGamepadInput(), OldInput);
+				RebindInputMapping(ControlToCheck, ControlToCheck->GetCurrentGamepadInput(), ConflictedInput);
+				
+				ControlToCheck->SetCurrentGamepadInput(ConflictedInput);
+				Control->SetCurrentGamepadInput(OldInput);
+				Control->SetSelectedGamepadInput();
+
+				return true;
+			}
+
+			const auto OtherInput = ControlToCheck->GetCurrentGamepadInput();
+
+			RebindInputMapping(ControlToCheck, ControlToCheck->GetCurrentGamepadInput(), Control->GetCurrentGamepadInput());
+			RebindInputMapping(Control, Control->GetCurrentGamepadInput(), ControlToCheck->GetCurrentGamepadInput());
+
+			ControlToCheck->SetCurrentGamepadInput(Control->GetCurrentGamepadInput());
+			Control->SetCurrentGamepadInput(OtherInput);
+			Control->SetSelectedGamepadInput();
 
 			return true;
 		}
-		
-		//DuplicateWarningBox->SetVisibility(ESlateVisibility::Hidden);
-		//BackButton->SetIsEnabled(true);
-
-		//ControlToCheck->UnHighlightError();
-		//Control->UnHighlightError();
 	}
 
 	return false;
