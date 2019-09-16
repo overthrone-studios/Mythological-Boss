@@ -172,7 +172,9 @@ void UControlsMenu::InitializeControls()
 		if (Control->IsAxis())
 		{
 			AddAxisMapping(InputName, DefaultPrimaryInput.Key, AxisScale);
-			AddAxisMapping(InputName, DefaultGamepadInput.Key, AxisScale);
+
+			if (DefaultGamepadInput.Key.IsFloatAxis() && AxisScale > 0.0f)
+				AddAxisMapping(InputName, DefaultGamepadInput.Key, AxisScale);
 		}
 		else
 		{
@@ -250,6 +252,7 @@ bool UControlsMenu::IsPrimaryInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 	const auto Controls = GetAllControls();
 	for (auto Control : Controls)
 	{
+		// If this control setting is not the same as ControlToCheck AND If we have a duplicate key
 		if (Control != ControlToCheck && Control->GetSelectedPrimaryKey() == InputToCheck)
 		{
 			DuplicateWarningBox->SetVisibility(ESlateVisibility::Visible);
