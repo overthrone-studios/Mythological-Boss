@@ -27,9 +27,21 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Dash")
 		float GetCooldownTimeRemaining();
 
-	// Returns true if the dash cooldown timer is active
+	// Start the dash cooldown timer
 	UFUNCTION(BlueprintCallable, Category = "Dash")
 		void StartCooldown();
+
+	// Pause the dash cooldown timer
+	UFUNCTION(BlueprintCallable, Category = "Dash")
+		void PauseCooldown();
+
+	// Resume the dash cooldown timer
+	UFUNCTION(BlueprintCallable, Category = "Dash")
+		void UnPauseCooldown();
+
+	// Stop the dash cooldown timer
+	UFUNCTION(BlueprintCallable, Category = "Dash")
+		void StopCooldown();
 
 protected:
 	void BeginPlay() override;

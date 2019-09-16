@@ -1627,6 +1627,7 @@ void AYlva::OnExitDashState()
 
 	if (!DashQueue.IsEmpty())
 	{
+		DashComponent->PauseCooldown();
 		GetWorldTimerManager().SetTimer(DashQueueTimerHandle, this, &AYlva::Dash_Queued, 0.2f);
 	}
 }
