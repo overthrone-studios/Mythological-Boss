@@ -306,8 +306,12 @@ public:
 	bool IsMovingInAnyDirection() const override;
 
 	// Returns true if we are currently locked on to the boss
-	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		bool IsLockedOn() const;
+
+	// Returns true if we are currently blocking
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsBlocking() const;
 
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")

@@ -792,7 +792,7 @@ void AYlva::FinishParryEvent()
 
 void AYlva::Block()
 {
-	if (IsChargeAttacking())
+	if (IsChargeAttacking() || IsDashing())
 		return;
 
 	if (FSM->GetActiveStateID() != 5 /*Death*/ &&
@@ -809,7 +809,7 @@ void AYlva::StopBlocking()
 	if (FSM->GetActiveStateID() == 5 /*Death*/)
 		return;
 
-	AnimInstance->Montage_Stop(0.3f,Combat.BlockSettings.BlockIdle);
+	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 	bUseControllerRotationYaw = false;
 
 	FSM->PopState();
@@ -931,7 +931,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking())
+	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking() || IsBlocking())
 		return;
 
 	if (IsDashing() && DashQueue.IsEmpty())
@@ -1757,6 +1757,11 @@ bool AYlva::IsMovingInAnyDirection() const
 bool AYlva::IsLockedOn() const
 {
 	return LockOnSettings.bShouldLockOnTarget;
+}
+
+bool AYlva::IsBlocking() const
+{
+	return FSM->GetActiveStateID() == 4;
 }
 
 void AYlva::ResetGlobalTimeDilation()
