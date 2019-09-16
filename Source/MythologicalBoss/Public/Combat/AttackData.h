@@ -54,6 +54,22 @@ public:
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float RecoveryRotationSpeed = 3.0f;
 
+	// Should we snap to the player's location at the pinnacle section of the anim montage?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bSnapToPlayerLocation : 1;
+
+	// The distance from the player to snap to
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation", ClampMin = 0.0f))
+		float DistanceFromPlayer = 200.0f;
+
+	// Should we smoothly lerp to the snap location?
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation"))
+		uint8 bLerp : 1;
+
+	// How fast we smoothly snap to the player's location
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bLerp", ClampMin = 0.0f))
+		float LerpSpeed = 10.0f;
+
 	// Can we dash before we attack?
 	UPROPERTY(EditInstanceOnly)
 		uint8 bCanDashWithAttack : 1;

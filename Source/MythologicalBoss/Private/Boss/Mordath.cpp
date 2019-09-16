@@ -1443,6 +1443,19 @@ void AMordath::FacePlayerBasedOnMontageSection()
 	}
 	else if (CurrentMontageSection == "Pinnacle")
 	{
+		if (CurrentAttackData->bSnapToPlayerLocation)
+		{
+			FVector NewLocation;
+
+			if (CurrentAttackData->bLerp)
+				NewLocation = FMath::Lerp(GetActorLocation(), PlayerCharacter->GetActorLocation() - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
+			else
+				NewLocation = PlayerCharacter->GetActorLocation() - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer;
+
+			NewLocation.Z = GetActorLocation().Z;
+			SetActorLocation(NewLocation);
+		}
+
 		FacePlayer();
 	}
 	else if (CurrentMontageSection == "Contact")
