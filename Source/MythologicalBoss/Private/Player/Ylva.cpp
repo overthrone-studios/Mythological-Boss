@@ -272,7 +272,7 @@ void AYlva::Tick(const float DeltaTime)
 	CalculatePitchLean(DeltaTime);
 
 	// Lock-on mechanic
-	if (LockOnSettings.bShouldLockOnTarget)
+	if (LockOnSettings.bLockedOn)
 	{
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameInstance->BossData.Location);
 		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
@@ -714,7 +714,10 @@ void AYlva::Attack_Queued()
 void AYlva::ClearAttackQueue()
 {
 	AttackQueue.Pop();
+
+#if !UE_BUILD_SHIPPING
 	ULog::Info("Attack Queue cleared!", true);
+#endif
 }
 
 void AYlva::ChargeUpAttack()
@@ -894,7 +897,9 @@ void AYlva::Run()
 	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking())
 		return;
 
-	if (IsLockedOn() && IsMovingForward() && StaminaComponent->HasStamina() || !IsLockedOn() && IsMovingInAnyDirection())
+	bCanRun = !bCanRun;
+
+	if (IsLockedOn() && IsMovingForward() && StaminaComponent->HasStamina() && bCanRun || !IsLockedOn() && IsMovingInAnyDirection() && bCanRun)
 	{
 		FSM->PopState();
 		FSM->PushState("Run");
@@ -910,14 +915,10 @@ void AYlva::StopRunning()
 {
 	bIsRunKeyHeld = false;
 
-	if (FSM->GetActiveStateName() == "Death" ||
-		FSM->GetActiveStateName() == "Light Attack 1" ||
-		FSM->GetActiveStateName() == "Light Attack 2" ||
-		FSM->GetActiveStateName() == "Heavy Attack 1" ||
-		FSM->GetActiveStateName() == "Heavy Attack 2")
+	if (FSM->GetActiveStateName() == "Death" || bCanRun)
 		return;
 
-	if (LockOnSettings.bShouldLockOnTarget)
+	if (LockOnSettings.bLockedOn)
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	else
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -979,9 +980,9 @@ void AYlva::ToggleLockOn()
 	if (GameInstance->BossData.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
 		return;
 
-	LockOnSettings.bShouldLockOnTarget = !LockOnSettings.bShouldLockOnTarget;
+	LockOnSettings.bLockedOn = !LockOnSettings.bLockedOn;
 
-	if (LockOnSettings.bShouldLockOnTarget)
+	if (LockOnSettings.bLockedOn)
 		EnableLockOn();
 	else
 		DisableLockOn();
@@ -993,7 +994,7 @@ void AYlva::EnableLockOn()
 	if (GameInstance->BossData.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
 		return;
 
-	LockOnSettings.bShouldLockOnTarget = true;
+	LockOnSettings.bLockedOn = true;
 	PlayerController->SetIgnoreLookInput(true);
 	GameInstance->ToggleLockOnVisibility(true);
 	MovementComponent->bUseControllerDesiredRotation = true;
@@ -1006,7 +1007,7 @@ void AYlva::EnableLockOn()
 
 void AYlva::DisableLockOn()
 {
-	LockOnSettings.bShouldLockOnTarget = false;
+	LockOnSettings.bLockedOn = false;
 	PlayerController->SetIgnoreLookInput(false);
 	GameInstance->ToggleLockOnVisibility(false);
 	MovementComponent->bUseControllerDesiredRotation = false;
@@ -1471,7 +1472,7 @@ void AYlva::OnExitRunState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	if (LockOnSettings.bShouldLockOnTarget)
+	if (LockOnSettings.bLockedOn)
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	else
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -1757,7 +1758,7 @@ bool AYlva::IsMovingInAnyDirection() const
 
 bool AYlva::IsLockedOn() const
 {
-	return LockOnSettings.bShouldLockOnTarget;
+	return LockOnSettings.bLockedOn;
 }
 
 bool AYlva::IsBlocking() const

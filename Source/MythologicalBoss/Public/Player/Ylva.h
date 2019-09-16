@@ -56,8 +56,8 @@ struct FLockOnSettings
 	GENERATED_BODY()
 
 	// Should the camera focus on the boss?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 10.0f, ClampMax = 1000.0f))
-		bool bShouldLockOnTarget = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		uint8 bLockedOn : 1;
 
 	// The target pitch when locking on
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))
@@ -803,6 +803,8 @@ private:
 	float PlayerLeanPitchAmount = 0.0f;
 
 	uint8 bGodMode : 1;
+
+	uint8 bCanRun : 1;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;
