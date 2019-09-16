@@ -590,7 +590,7 @@ void AMordath::OnEnterHeavyAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAttackMontage();
+	PlayAnimMontage(ComboSettings.Stage1_JumpAttack, 1.0f, FName("Anticipation"));
 }
 
 void AMordath::UpdateHeavyAttack1State()
@@ -600,7 +600,7 @@ void AMordath::UpdateHeavyAttack1State()
 	FacePlayerBasedOnMontageSection();
 
 	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
+	if (!AnimInstance->Montage_IsPlaying(ComboSettings.Stage1_JumpAttack))
 	{
 		NextAttack();
 
@@ -615,7 +615,7 @@ void AMordath::OnExitHeavyAttack1State()
 	AnimInstance->bAcceptHeavyAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	StopAnimMontage(ComboSettings.Stage1_JumpAttack);
 }
 #pragma endregion
 
@@ -958,8 +958,11 @@ void AMordath::UpdateFarRange()
 	if (!IsRecovering())
 	{
 		// Decide which attack to choose
-		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
+		if (!IsWaitingForNewCombo() && !IsDelayingAttack() && !IsAttacking())
+		{
 			FSM->PushState("Heavy Attack 1");
+			//ULog::Info("Long Attack...", true);
+		}
 	}
 }
 
@@ -1314,13 +1317,13 @@ void AMordath::ChooseAttack()
 		break;
 
 		case LongAttack_1:
-			if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
-				FSM->PushState("Heavy Attack 1");
-			else
-			{
-				NextAttack();
-				ChooseAttack();
-			}
+			//if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
+			//	FSM->PushState("Heavy Attack 1");
+			//else
+			//{
+			//	NextAttack();
+			//	ChooseAttack();
+			//}
 		break;
 
 		case LongAttack_2:
@@ -1357,9 +1360,9 @@ void AMordath::NextAttack()
 		return;
 	}
 
-	if (ChosenCombo->IsAtLastAttack())
-		ChooseCombo();
-	else
+	//if (ChosenCombo->IsAtLastAttack())
+	//	ChooseCombo();
+	//else
 		ChosenCombo->NextAttack();
 }
 

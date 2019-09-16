@@ -156,6 +156,10 @@ struct FComboSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UComboData*> FirstStageCombos;
 
+	// The animation montage to play when in far range
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* Stage1_JumpAttack;
+
 	// A list of combos the boss character will choose from when in the second stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UComboData*> SecondStageCombos;
@@ -173,10 +177,6 @@ struct FAttackSettings_Mordath : public FAttackSettings
 	// The attack damage we deal when heavy attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
 		float SpecialAttackDamage = 250.0f;
-
-	// The amount of time (in seconds) that the boss can be allowed to jump attack again
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float JumpAttackCooldown = 2.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -295,7 +295,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsRecovering() const;
 
-	// Returns true if we are our current attack
+	// Returns true if we are delaying our current attack
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDelayingAttack();
 
