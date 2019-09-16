@@ -1425,6 +1425,14 @@ void AMordath::FacePlayer(const float RotationSpeed)
 	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
 }
 
+void AMordath::FacePlayer()
+{
+	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
+	Direction.Normalize();
+	
+	SetActorRotation(FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll));
+}
+
 void AMordath::FacePlayerBasedOnMontageSection()
 {
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttackData->AttackMontage);
@@ -1432,6 +1440,10 @@ void AMordath::FacePlayerBasedOnMontageSection()
 	if (CurrentMontageSection == "Anticipation")
 	{
 		FacePlayer(CurrentAttackData->AnticipationRotationSpeed);
+	}
+	else if (CurrentMontageSection == "Pinnacle")
+	{
+		FacePlayer();
 	}
 	else if (CurrentMontageSection == "Contact")
 	{

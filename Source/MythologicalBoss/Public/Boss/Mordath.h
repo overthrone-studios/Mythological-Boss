@@ -337,6 +337,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayer(float RotationSpeed);
 
+	void FacePlayer();
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayerBasedOnMontageSection();
 
