@@ -156,13 +156,17 @@ struct FComboSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UComboData*> FirstStageCombos;
 
-	// The animation montage to play when in far range
+	// The animation montage to play when in far range on stage 1
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* Stage1_JumpAttack;
+		class UAnimMontage* Stage1_LongAttack;
 
 	// A list of combos the boss character will choose from when in the second stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UComboData*> SecondStageCombos;
+	
+	// The animation montage to play when in far range on stage 2
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* Stage2_LongAttack;
 
 	// A list of combos the boss character will choose from when in the third stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -340,7 +344,7 @@ protected:
 	void FacePlayer();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
-		void FacePlayerBasedOnMontageSection();
+		void FacePlayerBasedOnMontageSection(class UAnimMontage* Montage);
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseComboWithDelay();
@@ -712,6 +716,8 @@ private:
 
 	FTimerHandle ComboDelayTimerHandle;
 	FTimerHandle InvincibilityTimerHandle;
+
+	class UAnimMontage* CurrentLongAttackMontage;
 
 	// Access to player information
 	AOverthroneCharacter* PlayerCharacter;

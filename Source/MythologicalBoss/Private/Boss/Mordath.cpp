@@ -495,7 +495,7 @@ void AMordath::UpdateLightAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayerBasedOnMontageSection();
+	FacePlayerBasedOnMontageSection(CurrentAttackData->AttackMontage);
 	
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAttack())
@@ -529,7 +529,7 @@ void AMordath::UpdateLightAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayerBasedOnMontageSection();
+	FacePlayerBasedOnMontageSection(CurrentAttackData->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAttack())
@@ -563,7 +563,7 @@ void AMordath::UpdateLightAttack3State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayerBasedOnMontageSection();
+	FacePlayerBasedOnMontageSection(CurrentAttackData->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAttack())
@@ -590,17 +590,28 @@ void AMordath::OnEnterHeavyAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAnimMontage(ComboSettings.Stage1_JumpAttack, 1.0f, FName("Anticipation"));
+	if (StageFSM->GetActiveStateName() == "Stage 1")
+	{
+		CurrentLongAttackMontage = ComboSettings.Stage1_LongAttack;
+		PlayAnimMontage(ComboSettings.Stage1_LongAttack, 1.0f, FName("Anticipation"));
+	}
+	else if (StageFSM->GetActiveStateName() == "Stage 2")
+	{
+		CurrentLongAttackMontage = ComboSettings.Stage2_LongAttack;
+		PlayAnimMontage(ComboSettings.Stage2_LongAttack, 1.0f, FName("Anticipation"));
+	}
+	else
+		FSM->PopState();
 }
 
 void AMordath::UpdateHeavyAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayerBasedOnMontageSection();
+	FacePlayerBasedOnMontageSection(CurrentLongAttackMontage);
 
 	// If attack animation has finished, go back to previous state
-	if (!AnimInstance->Montage_IsPlaying(ComboSettings.Stage1_JumpAttack))
+	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
 	{
 		NextAttack();
 
@@ -615,7 +626,9 @@ void AMordath::OnExitHeavyAttack1State()
 	AnimInstance->bAcceptHeavyAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAnimMontage(ComboSettings.Stage1_JumpAttack);
+	StopAnimMontage(CurrentLongAttackMontage);
+
+	CurrentLongAttackMontage = nullptr;
 }
 #pragma endregion
 
@@ -633,7 +646,7 @@ void AMordath::UpdateHeavyAttack2State()
 
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
-	FacePlayerBasedOnMontageSection();
+	FacePlayerBasedOnMontageSection(CurrentAttackData->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAttack())
@@ -667,7 +680,7 @@ void AMordath::UpdateHeavyAttack3State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayerBasedOnMontageSection();
+	FacePlayerBasedOnMontageSection(CurrentAttackData->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAttack())
@@ -961,7 +974,6 @@ void AMordath::UpdateFarRange()
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack() && !IsAttacking())
 		{
 			FSM->PushState("Heavy Attack 1");
-			//ULog::Info("Long Attack...", true);
 		}
 	}
 }
@@ -1302,6 +1314,9 @@ void AMordath::ChooseComboWithDelay()
 
 void AMordath::ChooseAttack()
 {
+	if (IsAttacking())
+		return;
+
 	switch (ChosenCombo->GetCurrentAttackData()->Attack)
 	{
 		case ShortAttack_1:
@@ -1436,9 +1451,9 @@ void AMordath::FacePlayer()
 	SetActorRotation(FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll));
 }
 
-void AMordath::FacePlayerBasedOnMontageSection()
+void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 {
-	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttackData->AttackMontage);
+	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(Montage);
 
 	if (CurrentMontageSection == "Anticipation")
 	{
