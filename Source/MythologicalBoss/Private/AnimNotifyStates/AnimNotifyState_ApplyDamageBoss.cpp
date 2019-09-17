@@ -46,7 +46,7 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 	const auto HitActor = HitResult.GetActor();
 	const FDamageEvent DamageEvent;
 
-	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) || HitActor->IsA(ADestructibleActor::StaticClass())))
+	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged))
 	{
 		bIsHit = true;
 
