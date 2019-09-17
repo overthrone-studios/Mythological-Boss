@@ -18,6 +18,14 @@ struct FDebug_Ylva : public FCharacterDebug
 	// Log the hit component name to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogComponentHits : 1;
+
+	// Log the attack queue information to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogAttackQueue : 1;
+	
+	// Log the dash queue information to the viewport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		uint8 bLogDashQueue : 1;
 };
 
 USTRUCT(BlueprintType)

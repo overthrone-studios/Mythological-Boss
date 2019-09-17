@@ -606,7 +606,10 @@ void AYlva::LightAttack()
 		
 		GetWorldTimerManager().SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
 
-		ULog::Info(CUR_FUNC + ": Queueing attack...", true);
+#if !UE_BUILD_SHIPPING
+		if (Debug.bLogAttackQueue)
+			ULog::Info(CUR_FUNC + ": Queueing attack...", true);
+#endif
 
 		return;
 	}
@@ -659,7 +662,10 @@ void AYlva::HeavyAttack()
 	
 		GetWorldTimerManager().SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
 
-		ULog::Info(CUR_FUNC + ": Queueing attack...", true);
+#if !UE_BUILD_SHIPPING
+		if (Debug.bLogAttackQueue)
+			ULog::Info(CUR_FUNC + ": Queueing attack...", true);
+#endif
 	
 		return;
 	}
@@ -716,7 +722,8 @@ void AYlva::ClearAttackQueue()
 	AttackQueue.Pop();
 
 #if !UE_BUILD_SHIPPING
-	ULog::Info("Attack Queue cleared!", true);
+	if (Debug.bLogAttackQueue)
+		ULog::Info("Attack Queue cleared!", true);
 #endif
 }
 
@@ -939,8 +946,10 @@ void AYlva::Dash()
 	{
 		DashQueue.Enqueue(1);
 
-		ULog::Info("Queuing dash...", true);
-
+#if !UE_BUILD_SHIPPING
+		if (Debug.bLogDashQueue)
+			ULog::Info("Queuing dash...", true);
+#endif
 		return;
 	}
 
