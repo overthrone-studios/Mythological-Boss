@@ -1,6 +1,8 @@
 // Copyright Overthrone Studios 2019
 
 #include "Public/OverthroneHUD.h"
+#include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneCharacter.h"
 
 #include "Widgets/HUD/MasterHUD.h"
 #include "Widgets/HUD/MainPlayerHUD.h"
@@ -12,6 +14,7 @@
 #include "ConstructorHelpers.h"
 #include "Log.h"
 #include "Engine/Engine.h"
+#include "OverthroneFunctionLibrary.h"
 
 AOverthroneHUD::AOverthroneHUD()
 {
@@ -41,7 +44,7 @@ UMainPlayerHUD* AOverthroneHUD::GetMainHUD() const
 	return Cast <UMainPlayerHUD>(MasterHUD->GetHUD("MainHUD"));
 }
 
-void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLinearColor Color, const float YPadding)
+void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLinearColor Color, const float YPadding, const float FontScale)
 {
 	FDebugData DebugData;
 
@@ -49,6 +52,7 @@ void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLine
 	DebugData.Color = Color;
 	DebugData.XOffset = BaseXOffset;
 	DebugData.YOffset = NewYOffset + YPadding;
+	DebugData.FontScale = FontScale;
 
 	DebugMessages.Add(DebugData);
 
@@ -61,6 +65,16 @@ void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString
 		DebugMessages[Index].Message = Message;
 }
 
+void AOverthroneHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	const auto GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
+
+	reinterpret_cast<AOverthroneCharacter*>(GameInstance->Player)->AddDebugMessages();
+	reinterpret_cast<AOverthroneCharacter*>(GameInstance->Boss)->AddDebugMessages();
+}
+
 void AOverthroneHUD::DrawHUD()
 {
 	if (bHideDebugText && !HasActorBegunPlay())
@@ -70,7 +84,7 @@ void AOverthroneHUD::DrawHUD()
 
 	for (const FDebugData& Debug : DebugMessages)
 	{
-		DrawText(Debug.Message, Debug.Color, ViewportSize.X - Debug.XOffset, Debug.YOffset);
+		DrawText(Debug.Message, Debug.Color, ViewportSize.X - Debug.XOffset, Debug.YOffset, nullptr, Debug.FontScale);
 	}
 }
 

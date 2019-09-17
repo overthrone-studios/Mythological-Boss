@@ -90,29 +90,29 @@ AMordath::AMordath()
 	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThinkState);
 	FSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThinkState);
 
-	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack1State);
-	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack1State);
-	FSM->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack1State);
+	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterShortAttack1State);
+	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateShortAttack1State);
+	FSM->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitShortAttack1State);
 
-	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack2State);
-	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack2State);
-	FSM->GetState(4)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack2State);
+	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AMordath::OnEnterShortAttack2State);
+	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AMordath::UpdateShortAttack2State);
+	FSM->GetState(4)->OnExitState.AddDynamic(this, &AMordath::OnExitShortAttack2State);
 
-	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLightAttack3State);
-	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLightAttack3State);
-	FSM->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitLightAttack3State);
+	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AMordath::OnEnterShortAttack3State);
+	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateShortAttack3State);
+	FSM->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitShortAttack3State);
 
-	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack1State);
-	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack1State);
-	FSM->GetState(6)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack1State);
+	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLongAttack1State);
+	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLongAttack1State);
+	FSM->GetState(6)->OnExitState.AddDynamic(this, &AMordath::OnExitLongAttack1State);
 
-	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack2State);
-	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack2State);
-	FSM->GetState(7)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack2State);
+	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLongAttack2State);
+	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLongAttack2State);
+	FSM->GetState(7)->OnExitState.AddDynamic(this, &AMordath::OnExitLongAttack2State);
 
-	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AMordath::OnEnterHeavyAttack3State);
-	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AMordath::UpdateHeavyAttack3State);
-	FSM->GetState(8)->OnExitState.AddDynamic(this, &AMordath::OnExitHeavyAttack3State);
+	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLongAttack3State);
+	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLongAttack3State);
+	FSM->GetState(8)->OnExitState.AddDynamic(this, &AMordath::OnExitLongAttack3State);
 
 	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
@@ -240,14 +240,6 @@ void AMordath::BeginPlay()
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
-
-	const float YPadding = 5.0f;
-
-	OverthroneHUD->AddOnScreenDebugMessage("Boss", FColor::White, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Yellow, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, YPadding);
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
@@ -490,14 +482,14 @@ void AMordath::OnExitThinkState()
 #pragma endregion 
 
 #pragma region Light Attack 1
-void AMordath::OnEnterLightAttack1State()
+void AMordath::OnEnterShortAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	PlayAttackMontage();
 }
 
-void AMordath::UpdateLightAttack1State()
+void AMordath::UpdateShortAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
@@ -512,11 +504,9 @@ void AMordath::UpdateLightAttack1State()
 	}
 }
 
-void AMordath::OnExitLightAttack1State()
+void AMordath::OnExitShortAttack1State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptLightAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -524,14 +514,14 @@ void AMordath::OnExitLightAttack1State()
 #pragma endregion
 
 #pragma region Light Attack 2
-void AMordath::OnEnterLightAttack2State()
+void AMordath::OnEnterShortAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	PlayAttackMontage();
 }
 
-void AMordath::UpdateLightAttack2State()
+void AMordath::UpdateShortAttack2State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
@@ -546,11 +536,9 @@ void AMordath::UpdateLightAttack2State()
 	}
 }
 
-void AMordath::OnExitLightAttack2State()
+void AMordath::OnExitShortAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptSecondLightAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -558,14 +546,14 @@ void AMordath::OnExitLightAttack2State()
 #pragma endregion
 
 #pragma region Light Attack 3
-void AMordath::OnEnterLightAttack3State()
+void AMordath::OnEnterShortAttack3State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	PlayAttackMontage();
 }
 
-void AMordath::UpdateLightAttack3State()
+void AMordath::UpdateShortAttack3State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
@@ -580,11 +568,9 @@ void AMordath::UpdateLightAttack3State()
 	}
 }
 
-void AMordath::OnExitLightAttack3State()
+void AMordath::OnExitShortAttack3State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptThirdLightAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -592,7 +578,7 @@ void AMordath::OnExitLightAttack3State()
 #pragma endregion 
 
 #pragma region Heavy Attack 1
-void AMordath::OnEnterHeavyAttack1State()
+void AMordath::OnEnterLongAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
@@ -610,7 +596,7 @@ void AMordath::OnEnterHeavyAttack1State()
 		FSM->PopState();
 }
 
-void AMordath::UpdateHeavyAttack1State()
+void AMordath::UpdateLongAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
@@ -625,11 +611,9 @@ void AMordath::UpdateHeavyAttack1State()
 	}
 }
 
-void AMordath::OnExitHeavyAttack1State()
+void AMordath::OnExitLongAttack1State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptHeavyAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage(CurrentLongAttackMontage);
@@ -639,14 +623,14 @@ void AMordath::OnExitHeavyAttack1State()
 #pragma endregion
 
 #pragma region Heavy Attack 2
-void AMordath::OnEnterHeavyAttack2State()
+void AMordath::OnEnterLongAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	PlayAttackMontage();
 }
 
-void AMordath::UpdateHeavyAttack2State()
+void AMordath::UpdateLongAttack2State()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
 
@@ -663,11 +647,9 @@ void AMordath::UpdateHeavyAttack2State()
 	}
 }
 
-void AMordath::OnExitHeavyAttack2State()
+void AMordath::OnExitLongAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptSecondHeavyAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -675,14 +657,14 @@ void AMordath::OnExitHeavyAttack2State()
 #pragma endregion
 
 #pragma region Heavy Attack 3
-void AMordath::OnEnterHeavyAttack3State()
+void AMordath::OnEnterLongAttack3State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	PlayAttackMontage();
 }
 
-void AMordath::UpdateHeavyAttack3State()
+void AMordath::UpdateLongAttack3State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
@@ -697,11 +679,9 @@ void AMordath::UpdateHeavyAttack3State()
 	}
 }
 
-void AMordath::OnExitHeavyAttack3State()
+void AMordath::OnExitLongAttack3State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	AnimInstance->bAcceptThirdHeavyAttack = false;
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -1608,15 +1588,15 @@ void AMordath::PauseAnimsWithTimer()
 
 bool AMordath::IsAttacking() const
 {
-	return IsLightAttacking() || IsHeavyAttacking() || IsSpecialAttacking();
+	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
 }
 
-bool AMordath::IsLightAttacking() const
+bool AMordath::IsShortAttacking() const
 {
 	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5;
 }
 
-bool AMordath::IsHeavyAttacking() const
+bool AMordath::IsLongAttacking() const
 {
 	return FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8;
 }
@@ -1721,4 +1701,15 @@ void FRetreatStateData::CalculateRetreatTime()
 	const float Max = RetreatTime + RandomDeviation;
 
 	RetreatTime = FMath::Clamp(FMath::FRandRange(Min, Max), 0.0f, Max);
+}
+
+void AMordath::AddDebugMessages()
+{
+	const float YPadding = 5.0f;
+
+	OverthroneHUD->AddOnScreenDebugMessage("Boss", FColor::White, YPadding, 1.1f);
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Yellow, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, YPadding);
 }

@@ -109,6 +109,8 @@ public:
 	// Sets default values for this character's properties
 	AOverthroneCharacter();
 
+	virtual void AddDebugMessages();
+
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ApplyHitStop();
 

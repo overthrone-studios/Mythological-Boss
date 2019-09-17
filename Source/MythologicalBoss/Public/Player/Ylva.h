@@ -231,6 +231,8 @@ class MYTHOLOGICALBOSS_API AYlva final : public AOverthroneCharacter
 public:
 	AYlva();
 
+	void AddDebugMessages() override;
+
 	void ApplyHitStop() override;
 
 	// Returns CameraBoom component

@@ -170,6 +170,22 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+void AYlva::AddDebugMessages()
+{
+	OverthroneHUD->AddOnScreenDebugMessage("Player", FColor::White, 0.0f, 1.1f);
+	OverthroneHUD->AddOnScreenDebugMessage("Camera Pitch: ", FColor::Orange);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
+}
+
 void AYlva::ResumeMovement()
 {
 	MovementComponent->SetMovementMode(MOVE_Walking);
@@ -229,20 +245,6 @@ void AYlva::BeginPlay()
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
 	GetCapsuleComponent()->bVisible = true;
-
-	OverthroneHUD->AddOnScreenDebugMessage("Player", FColor::White);
-	OverthroneHUD->AddOnScreenDebugMessage("Camera Pitch: ", FColor::Orange);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green);
-	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White);
-	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
-	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
-
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 	GetCapsuleComponent()->bVisible = false;
@@ -407,7 +409,7 @@ void AYlva::MoveForward(const float Value)
 		AddMovementInput(Direction, Value);
 	}
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
 }
 
 void AYlva::MoveRight(const float Value)
@@ -439,7 +441,7 @@ void AYlva::MoveRight(const float Value)
 		AddMovementInput(Direction, Value);
 	}
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 }
 
 void AYlva::TurnAtRate(const float Rate)

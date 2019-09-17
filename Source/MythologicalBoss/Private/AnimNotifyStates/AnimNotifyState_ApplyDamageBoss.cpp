@@ -23,10 +23,10 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 
 	AttackRadius = Mordath->GetAttackRadius();
 
-	if (Mordath->IsLightAttacking())
-		AttackDamage = Mordath->GetLightAttackDamage();
-	else if (Mordath->IsHeavyAttacking())
-		AttackDamage = Mordath->GetHeavyAttackDamage();
+	if (Mordath->IsShortAttacking())
+		AttackDamage = Mordath->GetShortAttackDamage();
+	else if (Mordath->IsLongAttacking())
+		AttackDamage = Mordath->GetLongAttackDamage();
 	else if (Mordath->IsSpecialAttacking())
 		AttackDamage = Mordath->GetSpecialAttackDamage();
 

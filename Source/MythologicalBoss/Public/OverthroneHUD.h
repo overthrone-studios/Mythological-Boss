@@ -16,6 +16,8 @@ struct FDebugData
 
 	float XOffset;
 	float YOffset;
+
+	float FontScale = 1.0f;
 };
 
 /**
@@ -34,7 +36,7 @@ public:
 	FORCEINLINE class UMasterHUD* GetMasterHUD() const { return MasterHUD; }
 	class UMainPlayerHUD* GetMainHUD() const;
 
-	void AddOnScreenDebugMessage(const FString& Message, FLinearColor Color, float YPadding = 0.0f);
+	void AddOnScreenDebugMessage(const FString& Message, FLinearColor Color, float YPadding = 0.0f, float FontScale = 1.0f);
 	void UpdateOnScreenDebugMessage(int32 Index, const FString& Message);
 
 	uint8 bHideDebugText : 1;
@@ -42,6 +44,7 @@ public:
 	FORCEINLINE int32 GetDebugMessagesCount() const { return DebugMessages.Num(); }
 
 protected:
+	void BeginPlay() override;
 	void DrawHUD() override;
 
 	void CreateWidgets();

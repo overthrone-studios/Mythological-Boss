@@ -225,13 +225,15 @@ class MYTHOLOGICALBOSS_API AMordath final : public AOverthroneCharacter
 public:
 	AMordath();
 
+	void AddDebugMessages() override;
+
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
+		FORCEINLINE float GetShortAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
 
 	// Returns the heavy attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
+		FORCEINLINE float GetLongAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
 
 	// Returns the special attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -249,11 +251,11 @@ public:
 
 	// Returns true if we are light attacking
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsLightAttacking() const;
+		bool IsShortAttacking() const;
 
 	// Returns true if we are heavy attacking
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsHeavyAttacking() const;
+		bool IsLongAttacking() const;
 
 	// Returns true if we are special attacking
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -434,56 +436,56 @@ protected:
 
 		#pragma region Light Attack 1
 		UFUNCTION()
-			void OnEnterLightAttack1State();
+			void OnEnterShortAttack1State();
 		UFUNCTION()
-			void UpdateLightAttack1State();
+			void UpdateShortAttack1State();
 		UFUNCTION()
-			void OnExitLightAttack1State();
+			void OnExitShortAttack1State();
 		#pragma endregion 
 
 		#pragma region Light Attack 2
 		UFUNCTION()
-			void OnEnterLightAttack2State();
+			void OnEnterShortAttack2State();
 		UFUNCTION()
-			void UpdateLightAttack2State();
+			void UpdateShortAttack2State();
 		UFUNCTION()
-			void OnExitLightAttack2State();
+			void OnExitShortAttack2State();
 		#pragma endregion 
 
 		#pragma region Light Attack 3
 		UFUNCTION()
-			void OnEnterLightAttack3State();
+			void OnEnterShortAttack3State();
 		UFUNCTION()
-			void UpdateLightAttack3State();
+			void UpdateShortAttack3State();
 		UFUNCTION()
-			void OnExitLightAttack3State();
+			void OnExitShortAttack3State();
 		#pragma endregion 
 
 		#pragma region Heavy Attack 1
 		UFUNCTION()
-			void OnEnterHeavyAttack1State();
+			void OnEnterLongAttack1State();
 		UFUNCTION()
-			void UpdateHeavyAttack1State();
+			void UpdateLongAttack1State();
 		UFUNCTION()
-			void OnExitHeavyAttack1State();
+			void OnExitLongAttack1State();
 		#pragma endregion 
 
 		#pragma region Heavy Attack 2
 		UFUNCTION()
-			void OnEnterHeavyAttack2State();
+			void OnEnterLongAttack2State();
 		UFUNCTION()
-			void UpdateHeavyAttack2State();
+			void UpdateLongAttack2State();
 		UFUNCTION()
-			void OnExitHeavyAttack2State();
+			void OnExitLongAttack2State();
 		#pragma endregion 
 
 		#pragma region Heavy Attack 3
 		UFUNCTION()
-			void OnEnterHeavyAttack3State();
+			void OnEnterLongAttack3State();
 		UFUNCTION()
-			void UpdateHeavyAttack3State();
+			void UpdateLongAttack3State();
 		UFUNCTION()
-			void OnExitHeavyAttack3State();
+			void OnExitLongAttack3State();
 		#pragma endregion 
 
 		#pragma region Damaged
