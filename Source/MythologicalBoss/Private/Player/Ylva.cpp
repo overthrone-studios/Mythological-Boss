@@ -230,8 +230,6 @@ void AYlva::BeginPlay()
 	GetCapsuleComponent()->bHiddenInGame = false;
 	GetCapsuleComponent()->bVisible = true;
 
-	const float BaseXOffset = 220.0f;
-	
 	OverthroneHUD->AddOnScreenDebugMessage("Player", FColor::White);
 	OverthroneHUD->AddOnScreenDebugMessage("Camera Pitch: ", FColor::Orange);
 	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green);
