@@ -26,6 +26,9 @@ public:
 		uint8 bIsMoving : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsRunning : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bCanCharge : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")

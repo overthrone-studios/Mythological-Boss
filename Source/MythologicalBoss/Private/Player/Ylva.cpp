@@ -899,7 +899,7 @@ void AYlva::Run()
 
 	bCanRun = !bCanRun;
 
-	if (IsLockedOn() && IsMovingForward() && StaminaComponent->HasStamina() && bCanRun || !IsLockedOn() && IsMovingInAnyDirection() && bCanRun)
+	if (IsLockedOn() && StaminaComponent->HasStamina() && bCanRun || !IsLockedOn() && IsMovingInAnyDirection() && bCanRun)
 	{
 		FSM->PopState();
 		FSM->PushState("Run");
@@ -1417,11 +1417,11 @@ void AYlva::UpdateWalkState()
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
-	if (bIsRunKeyHeld && StaminaComponent->HasStamina() && GetVelocity().Size() > MovementSettings.WalkSpeed)
-	{
-		FSM->PushState("Run");
-		return;
-	}
+	//if (bIsRunKeyHeld && StaminaComponent->HasStamina() && GetVelocity().Size() > MovementSettings.WalkSpeed)
+	//{
+	//	FSM->PushState("Run");
+	//	return;
+	//}
 
 	if (!IsMovingInAnyDirection())
 		FSM->PopState();
@@ -1437,6 +1437,14 @@ void AYlva::OnExitWalkState()
 void AYlva::OnEnterRunState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	YlvaAnimInstance->bIsRunning = true;
+
+	if (IsLockedOn())
+	{
+		MovementComponent->bOrientRotationToMovement = true;
+		MovementComponent->bUseControllerDesiredRotation = false;
+	}
 
 	if (StaminaComponent->IsLowStamina())
 		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed/2.0f;
@@ -1457,20 +1465,20 @@ void AYlva::UpdateRunState()
 	{
 		StaminaComponent->DelayRegeneration();
 		FSM->PopState();
-		return;
-	}
-
-	// If we are locked on AND trying to run in a direction other than forward
-	if ((ForwardInput < 0.0f || RightInput != 0.0f) && IsLockedOn())
-	{
-		StaminaComponent->DelayRegeneration();
-		FSM->PopState();
 	}
 }
 
 void AYlva::OnExitRunState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	YlvaAnimInstance->bIsRunning = false;
+
+	if (IsLockedOn())
+	{
+		MovementComponent->bUseControllerDesiredRotation = true;
+		MovementComponent->bOrientRotationToMovement = false;
+	}
 
 	if (LockOnSettings.bLockedOn)
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
