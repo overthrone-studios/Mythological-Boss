@@ -3,6 +3,7 @@
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamageBoss.h"
 #include "ApexDestruction/Public/DestructibleActor.h"
 #include "Animation/AnimSequenceBase.h"
+#include "HitSoundData.h"
 #include "Mordath.h"
 #include "Log.h"
 #include "Kismet/GameplayStatics.h"
@@ -31,7 +32,7 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 		AttackDamage = Mordath->GetSpecialAttackDamage();
 
 #if !UE_BUILD_SHIPPING
-	if (HitSounds.Num() == 0)
+	if (HitSoundData && HitSoundData->HitSounds.Num() == 0)
 		ULog::Warning("No hit sounds specified in " + Animation->GetName(), true);
 #endif
 }

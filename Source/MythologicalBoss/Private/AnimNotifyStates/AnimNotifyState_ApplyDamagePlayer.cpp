@@ -5,6 +5,7 @@
 #include "Components/HitboxComponent.h"
 #include "Ylva.h"
 #include "Log.h"
+#include "HitSoundData.h"
 #include "Animation/AnimSequenceBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
@@ -33,7 +34,7 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 		AttackDamage = Ylva->GetChargeAttackDamage();
 
 #if !UE_BUILD_SHIPPING
-	if (HitSounds.Num() == 0)
+	if (HitSoundData && HitSoundData->HitSounds.Num() == 0)
 		ULog::Warning("No hit sound specified in " + Animation->GetName(), true);
 #endif
 }

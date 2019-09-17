@@ -27,7 +27,7 @@ protected:
 		FName EndBone = "SwordEnd";
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		TArray<USoundBase*> HitSounds;
+		class UHitSoundData* HitSoundData;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 		float Pitch = 1.0f;
