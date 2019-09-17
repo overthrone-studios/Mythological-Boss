@@ -380,6 +380,11 @@ void AMordath::UpdateFollowState()
 		else
 			FSM->PushState("Thinking");
 	}
+	else
+	{
+		ForwardInput = 0.0f;
+		RightInput = 0.0f;
+	}
 }
 
 void AMordath::OnExitFollowState()
@@ -1000,8 +1005,7 @@ void AMordath::UpdateFirstStage()
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 
 	// Can we enter the second stage?
-	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth &&
-		HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
+	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth)
 	{
 		GameInstance->OnSecondStage.Broadcast();
 		return;
@@ -1012,13 +1016,12 @@ void AMordath::UpdateFirstStage()
 		if (ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
-		{
 			ChooseCombo();
-			return;
-		}
+
+		return;
 	}
 
-	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/ && !IsRecovering())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1046,14 +1049,23 @@ void AMordath::UpdateSecondStage()
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 
 	// Can we enter the third stage?
-	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth &&
-		HealthComponent->GetCurrentHealth() > 0.0f)
+	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth)
 	{
 		GameInstance->OnThirdStage.Broadcast();
 		return;
 	}
 
-	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/ && !IsRecovering())
+	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
+	{
+		if (ComboSettings.bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+
+		return;
+	}
+
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1080,10 +1092,20 @@ void AMordath::UpdateThirdStage()
 {
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 
-	if (RangeFSM->GetActiveStateID() == 0 /*Close range*/)
+	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
+	{
+		if (ComboSettings.bDelayBetweenCombo)
+			ChooseComboWithDelay();
+		else
+			ChooseCombo();
+
+		return;
+	}
+
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking())
 	{
 		// Decide which attack to choose
-		if (!IsWaitingForNewCombo() && !IsDelayingAttack() && !IsRecovering())
+		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
 			ChooseAttack();
 	}
 }
@@ -1375,10 +1397,7 @@ void AMordath::NextAttack()
 		return;
 	}
 
-	//if (ChosenCombo->IsAtLastAttack())
-	//	ChooseCombo();
-	//else
-		ChosenCombo->NextAttack();
+	ChosenCombo->NextAttack();
 }
 
 void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
