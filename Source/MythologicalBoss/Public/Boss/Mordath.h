@@ -675,6 +675,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakes_Mordath CameraShakes;
 
+	// The bone name of Mordath's skeleton where the lock-on indiciator should be placed on
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
 
