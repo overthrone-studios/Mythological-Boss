@@ -232,16 +232,18 @@ void AYlva::BeginPlay()
 
 	const float BaseXOffset = 220.0f;
 	
-	OverthroneHUD->AddOnScreenDebugMessage("Pitch: ", FColor::Orange, BaseXOffset, 30.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green, BaseXOffset, 45.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green, BaseXOffset, 60.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, BaseXOffset, 75.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow, BaseXOffset, 90.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow, BaseXOffset, 105.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White, BaseXOffset, 120.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White, BaseXOffset, 135.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan, BaseXOffset, 150.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow, BaseXOffset, 195.0f); // Continued from Mordath BeginPlay()
+	OverthroneHUD->AddOnScreenDebugMessage("Player", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Camera Pitch: ", FColor::Orange);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
 
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
@@ -301,18 +303,20 @@ void AYlva::Tick(const float DeltaTime)
 	if (Debug.bShowTeleportRadius)
 		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation(), TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(0, "Camera Pitch: " + FString::SanitizeFloat(GetControlRotation().Pitch));
+	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(GetControlRotation().Pitch));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(4, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(4, "Player Health: " + FString::FromInt(HealthComponent->GetCurrentHealth()));
-	OverthroneHUD->UpdateOnScreenDebugMessage(5, "Player Stamina: " + FString::FromInt(StaminaComponent->GetCurrentStamina()));
+	OverthroneHUD->UpdateOnScreenDebugMessage(5, "Player Health: " + FString::FromInt(HealthComponent->GetCurrentHealth()));
+	OverthroneHUD->UpdateOnScreenDebugMessage(6, "Player Stamina: " + FString::FromInt(StaminaComponent->GetCurrentStamina()));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(7, "Current Attack: " + AttackComboComponent->GetCurrentAttackAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(8, "Current Attack: " + AttackComboComponent->GetCurrentAttackAsString());
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(8, "Player Move Direction: " + FString::SanitizeFloat(AnimInstance->MovementDirection));
+	OverthroneHUD->UpdateOnScreenDebugMessage(9, "Player Move Direction: " + FString::SanitizeFloat(AnimInstance->MovementDirection));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(9, "Player Displayed Health: " + FString::SanitizeFloat(HealthComponent->GetSmoothedHealth()));
+	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Player Displayed Health: " + FString::SanitizeFloat(HealthComponent->GetSmoothedHealth()));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Player Displayed Stamina: " + FString::SanitizeFloat(StaminaComponent->GetSmoothedStamina()));
 #endif
 }
 

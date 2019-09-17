@@ -41,16 +41,18 @@ UMainPlayerHUD* AOverthroneHUD::GetMainHUD() const
 	return Cast <UMainPlayerHUD>(MasterHUD->GetHUD("MainHUD"));
 }
 
-void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLinearColor Color, const float XOffset, const float YOffset)
+void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLinearColor Color, const float YPadding)
 {
 	FDebugData DebugData;
 
 	DebugData.Message = Message;
 	DebugData.Color = Color;
-	DebugData.XOffset = XOffset;
-	DebugData.YOffset = YOffset;
+	DebugData.XOffset = BaseXOffset;
+	DebugData.YOffset = NewYOffset + YPadding;
 
 	DebugMessages.Add(DebugData);
+
+	NewYOffset += YOffsetInterval;
 }
 
 void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString& Message)
@@ -61,7 +63,7 @@ void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString
 
 void AOverthroneHUD::DrawHUD()
 {
-	if (bHideDebugText)
+	if (bHideDebugText && !HasActorBegunPlay())
 		return;
 
 	GEngine->GameViewport->GetViewportSize(ViewportSize);

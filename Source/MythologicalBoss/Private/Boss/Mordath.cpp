@@ -241,11 +241,13 @@ void AMordath::BeginPlay()
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
 
-	const float BaseXOffset = 220.0f;
+	const float YPadding = 5.0f;
 
-	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, BaseXOffset, 165.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, BaseXOffset, 180.0f);
-	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Green, BaseXOffset, 210.0f); // Continued from Ylva BeginPlay()
+	OverthroneHUD->AddOnScreenDebugMessage("Boss", FColor::White, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Yellow, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, YPadding);
 #else
 	GetCapsuleComponent()->bHiddenInGame = true;
 #endif
@@ -278,12 +280,10 @@ void AMordath::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
-	if (Debug.bLogMovementSpeed)
-		ULog::Number(MovementComponent->MaxWalkSpeed, "Movement Speed: ", true);
-
-	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 4, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 3, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 2, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 1, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 #endif
 }
 
