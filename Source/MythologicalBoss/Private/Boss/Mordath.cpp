@@ -382,6 +382,7 @@ void AMordath::UpdateFollowState()
 	}
 	else
 	{
+		CurrentMovementSpeed = 0.0f;
 		ForwardInput = 0.0f;
 		RightInput = 0.0f;
 	}
@@ -1354,13 +1355,7 @@ void AMordath::ChooseAttack()
 		break;
 
 		case LongAttack_1:
-			//if (RangeFSM->GetActiveStateID() == 2 /*Far*/)
-			//	FSM->PushState("Heavy Attack 1");
-			//else
-			//{
-			//	NextAttack();
-			//	ChooseAttack();
-			//}
+			FSM->PushState("Heavy Attack 1");
 		break;
 
 		case LongAttack_2:
