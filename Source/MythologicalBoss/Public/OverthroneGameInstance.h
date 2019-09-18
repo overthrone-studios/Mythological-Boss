@@ -7,6 +7,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackParryedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
@@ -52,7 +53,11 @@ struct FBossData : public FCharacterData
 {
 	GENERATED_BODY()
 
-	FVector MeshLocation;
+	FVector LockOnBoneLocation;
+
+	uint8 bCanBeParryed : 1;
+
+	FOnAttackParryedSignature OnAttackParryed;
 };
 
 /**
