@@ -4,6 +4,7 @@
 
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
+#include "TimerManager.h"
 #include "OverthroneCharacter.generated.h"
 
 USTRUCT(BlueprintType)
@@ -261,6 +262,9 @@ protected:
 
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
+
+	// A class to manage all timers
+	FTimerManager* TimerManager;
 
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle HitStopTimerHandle;

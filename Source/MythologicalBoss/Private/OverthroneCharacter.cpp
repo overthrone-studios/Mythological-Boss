@@ -48,6 +48,7 @@ void AOverthroneCharacter::BeginPlay()
 
 	// Initialize variables
 	World = GetWorld();
+	TimerManager = &World->GetTimerManager();
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	MovementComponent = GetCharacterMovement();
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());

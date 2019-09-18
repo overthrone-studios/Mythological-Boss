@@ -214,6 +214,18 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
 
+	// The flash color to set when our current attack has no counter
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FLinearColor NoCounterFlashColor = FLinearColor(1.0f, 0.0f, 0.0f, 0.2f);
+
+	// The flash color to set when our current attack has is parryable
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FLinearColor ParryableFlashColor = FLinearColor(1.0f, 1.0f, 0.0f, 0.2f);
+
+	// The flash color to set when our current attack has is blockable
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+		FLinearColor BlockableFlashColor = FLinearColor(1.0f, 1.0f, 1.0f, 0.2f);
+
 	float RecentDamage = 0.0f;
 };
 
@@ -323,6 +335,7 @@ public:
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
+	void OnConstruction(const FTransform& Transform) override;
 	void PossessedBy(AController* NewController) override;
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -395,6 +408,9 @@ protected:
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		void OnPlayerDeath();
+
+	UFUNCTION()
+		void OnAttackParryed();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnSecondStageHealth();
@@ -622,15 +638,18 @@ protected:
 
 	#pragma region Components
 	// The boss's range Finite State Machine
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Mordath")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* RangeFSM;
 
 	// The boss's stage Finite State Machine
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Mordath")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* StageFSM;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category = "Mordath")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UTeleportationComponent* TeleportationComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class UFlashIndicatorComponent* FlashIndicator;
 	#pragma endregion
 
 	// The radius in which the boss character will accept that it has arrived to the player's location
@@ -721,6 +740,8 @@ private:
 
 	FTimerHandle ComboDelayTimerHandle;
 	FTimerHandle InvincibilityTimerHandle;
+
+	FTimerHandle TH_FlashIndicator;
 
 	class UAnimMontage* CurrentLongAttackMontage;
 

@@ -283,7 +283,7 @@ void AYlva::Tick(const float DeltaTime)
 
 		GetController()->SetControlRotation(NewRotation);
 
-		GameInstance->SetLockOnLocation(GameInstance->BossData.MeshLocation);
+		GameInstance->SetLockOnLocation(GameInstance->BossData.LockOnBoneLocation);
 	}
 
 	// Stamina regen mechanic
@@ -487,7 +487,7 @@ void AYlva::Die()
 
 void AYlva::Respawn()
 {
-	GetWorldTimerManager().ClearTimer(DeathExpiryTimerHandle);
+	TimerManager->ClearTimer(DeathExpiryTimerHandle);
 
 	FSM->PopState();
 
@@ -605,10 +605,10 @@ void AYlva::LightAttack()
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(Light);
 
-		if (!GetWorldTimerManager().IsTimerActive(AttackQueueExpiryTimerHandle))
-			GetWorldTimerManager().SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+		if (!TimerManager->IsTimerActive(AttackQueueExpiryTimerHandle))
+			TimerManager->SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
 		
-		GetWorldTimerManager().SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
+		TimerManager->SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
 
 #if !UE_BUILD_SHIPPING
 		if (Debug.bLogAttackQueue)
@@ -661,10 +661,10 @@ void AYlva::HeavyAttack()
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(Heavy);
 		
-		if (!GetWorldTimerManager().IsTimerActive(AttackQueueExpiryTimerHandle))
-			GetWorldTimerManager().SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+		if (!TimerManager->IsTimerActive(AttackQueueExpiryTimerHandle))
+			TimerManager->SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
 	
-		GetWorldTimerManager().SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
+		TimerManager->SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
 
 #if !UE_BUILD_SHIPPING
 		if (Debug.bLogAttackQueue)
@@ -775,7 +775,7 @@ void AYlva::ReleaseChargeAttack()
 
 	PlayerController->ResetIgnoreLookInput();
 
-	GetWorldTimerManager().SetTimer(ChargeAttackReleaseTimer,this,&AYlva::FinishChargeAttack,0.2f);
+	TimerManager->SetTimer(ChargeAttackReleaseTimer,this,&AYlva::FinishChargeAttack,0.2f);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -794,8 +794,8 @@ void AYlva::StartParryEvent()
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
-	if (!GetWorldTimerManager().IsTimerActive(ParryEventExpiryTimer))
-		GetWorldTimerManager().SetTimer(ParryEventExpiryTimer,this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
+	if (!TimerManager->IsTimerActive(ParryEventExpiryTimer))
+		TimerManager->SetTimer(ParryEventExpiryTimer,this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 
 void AYlva::FinishParryEvent()
@@ -842,7 +842,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 		FSM->PopState();
 	}
 
-	if (IsParrySuccessful())
+	if (IsParrySuccessful() && GameInstance->BossData.bCanBeParryed)
 	{
 		FSM->PushState("Parry");
 		return;
@@ -1169,7 +1169,7 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 
 	if (StaminaComponent->GetDecreaseDelay() > 0.0f)
 	{
-		GetWorldTimerManager().SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
+		TimerManager->SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
 	}
 	else
 		StartLosingStamina();
@@ -1430,12 +1430,6 @@ void AYlva::UpdateWalkState()
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
-	//if (bIsRunKeyHeld && StaminaComponent->HasStamina() && GetVelocity().Size() > MovementSettings.WalkSpeed)
-	//{
-	//	FSM->PushState("Run");
-	//	return;
-	//}
-
 	if (!IsMovingInAnyDirection())
 		FSM->PopState();
 }
@@ -1574,7 +1568,7 @@ void AYlva::OnEnterDeathState()
 
 	GameInstance->OnPlayerDeath.Broadcast();
 
-	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
+	TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
 }
 
 void AYlva::UpdateDeathState()
@@ -1650,7 +1644,7 @@ void AYlva::OnExitDashState()
 	if (!DashQueue.IsEmpty())
 	{
 		DashComponent->PauseCooldown();
-		GetWorldTimerManager().SetTimer(DashQueueTimerHandle, this, &AYlva::Dash_Queued, 0.2f);
+		TimerManager->SetTimer(DashQueueTimerHandle, this, &AYlva::Dash_Queued, 0.2f);
 	}
 }
 #pragma endregion 
@@ -1672,6 +1666,8 @@ void AYlva::OnEnterParryState()
 	PlayerController->SetIgnoreLookInput(true);
 
 	AnimInstance->Montage_Play(Combat.ParrySettings.ParryMontage);
+
+	GameInstance->BossData.OnAttackParryed.Broadcast();
 
 	StartParryEvent();
 }
@@ -1696,7 +1692,7 @@ void AYlva::OnExitParryState()
 
 	ResetGlobalTimeDilation();
 
-	GetWorldTimerManager().ClearTimer(ParryEventExpiryTimer);
+	TimerManager->ClearTimer(ParryEventExpiryTimer);
 }
 #pragma endregion 
 #pragma endregion 
@@ -1706,7 +1702,7 @@ void AYlva::ApplyHitStop()
 	if (Combat.bEnableHitStop)
 	{
 		PauseAnims();
-		GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
 	}
 }
 
