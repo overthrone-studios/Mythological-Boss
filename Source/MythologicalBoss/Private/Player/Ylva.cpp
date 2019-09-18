@@ -1705,7 +1705,8 @@ void AYlva::ApplyHitStop()
 {
 	if (Combat.bEnableHitStop)
 	{
-		// Todo: Hit stop implementation
+		PauseAnims();
+		GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AYlva::UnPauseAnims, Combat.HitStopTime);
 	}
 }
 
