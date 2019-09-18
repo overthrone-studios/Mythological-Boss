@@ -748,7 +748,7 @@ void AMordath::OnEnterDeathState()
 	RangeFSM->Stop();
 	StageFSM->Stop();
 
-	GetWorldTimerManager().SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
+	TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
 }
 
 void AMordath::UpdateDeathState()
@@ -1337,7 +1337,7 @@ void AMordath::ChooseComboWithDelay()
 {
 	if (ComboSettings.RandomDeviation == 0.0f)
 	{
-		GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, ComboSettings.ComboDelayTime);
+		TimerManager->SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, ComboSettings.ComboDelayTime);
 		return;
 	}
 
@@ -1345,7 +1345,7 @@ void AMordath::ChooseComboWithDelay()
 	const float Max = ComboSettings.ComboDelayTime + ComboSettings.RandomDeviation;
 	const float NewDelayTime = FMath::FRandRange(Min, Max);
 				
-	GetWorldTimerManager().SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
+	TimerManager->SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
 
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogComboDelayTime)
@@ -1459,23 +1459,23 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
-	if (!AnimInstance->bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (!AnimInstance->bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(InvincibilityTimerHandle))
 	{
 		ApplyDamage(DamageAmount);
 
 		GetMesh()->SetWorldScale3D(FVector(1.35f));
-		GetWorldTimerManager().SetTimer(HitReactionTimerHandle, this, &AMordath::ResetMeshScale, 0.1f);
+		TimerManager->SetTimer(HitReactionTimerHandle, this, &AMordath::ResetMeshScale, 0.1f);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
-	if (HitCounter == Combat.MaxHitsBeforeInvincibility && !GetWorldTimerManager().IsTimerActive(InvincibilityTimerHandle))
+	if (HitCounter == Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(InvincibilityTimerHandle))
 	{
 		// Reset our hits
 		HitCounter = 0;
 
 		// Become invincible and set a timer to disable invincibility after 'X' seconds
 		EnableInvincibility();
-		GetWorldTimerManager().SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, Combat.InvincibilityTimeAfterDamage);
+		TimerManager->SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, Combat.InvincibilityTimeAfterDamage);
 
 		// Cancel our current animation and enter the downed state
 		FSM->PushState("Beaten");
@@ -1653,7 +1653,7 @@ void AMordath::PauseAnimsWithTimer()
 	if (Combat.bEnableHitStop)
 	{
 		PauseAnims();
-		GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
 	}
 }
 
@@ -1717,12 +1717,12 @@ bool AMordath::InInvincibleState() const
 
 bool AMordath::IsWaitingForNewCombo() const
 {
-	return GetWorldTimerManager().IsTimerActive(ComboDelayTimerHandle);
+	return TimerManager->IsTimerActive(ComboDelayTimerHandle);
 }
 
 bool AMordath::IsDelayingAttack()
 {
-	return GetWorldTimerManager().IsTimerActive(ChosenCombo->GetAttackDelayTimer());
+	return TimerManager->IsTimerActive(ChosenCombo->GetAttackDelayTimer());
 }
 
 bool AMordath::WantsMoveRight() const
