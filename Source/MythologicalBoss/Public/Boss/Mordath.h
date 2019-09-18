@@ -706,6 +706,8 @@ private:
 
 	FName CurrentMontageSection = "None";
 
+	uint8 bWantsLongAttack : 1;
+
 	uint8 MoveDirection = 0;
 
 	FTimerHandle UpdateInfoTimerHandle;

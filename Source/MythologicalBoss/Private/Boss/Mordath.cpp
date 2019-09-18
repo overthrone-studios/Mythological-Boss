@@ -939,11 +939,30 @@ void AMordath::OnEnterFarRange()
 
 	CurrentMovementSpeed = GetMovementSpeed();
 
-	if ((StageFSM->GetActiveStateID() == 1 /*Second Stage*/ || StageFSM->GetActiveStateID() == 2 /*Third Stage*/) &&
-		ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
+	if (IsInFirstStage())
 	{
-		FSM->PopState();
-		FSM->PushState("Teleport");
+		if (!IsRecovering())
+			FSM->PushState("Heavy Attack 1");
+
+		return;
+	}
+
+	bWantsLongAttack = FMath::RandRange(0, 1);
+	
+	if (bWantsLongAttack)
+	{
+		if (!IsRecovering())
+		{
+			FSM->PushState("Heavy Attack 1");
+		}
+	}
+	else
+	{
+		if ((IsInSecondStage() || IsInThirdStage()) && ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
+		{
+			FSM->PopState();
+			FSM->PushState("Teleport");
+		}
 	}
 }
 
@@ -953,15 +972,6 @@ void AMordath::UpdateFarRange()
 
 	if (GetDistanceToPlayer() < MidRangeRadius)
 		RangeFSM->PushState("Mid");
-
-	if (!IsRecovering())
-	{
-		// Decide which attack to choose
-		if (!IsWaitingForNewCombo() && !IsDelayingAttack() && !IsAttacking())
-		{
-			FSM->PushState("Heavy Attack 1");
-		}
-	}
 }
 
 void AMordath::OnExitFarRange()
