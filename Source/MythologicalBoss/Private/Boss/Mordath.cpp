@@ -16,6 +16,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/TeleportationComponent.h"
+#include "Components/FlashIndicatorComponent.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -26,6 +27,10 @@
 #include "HUD/MasterHUD.h"
 #include "HUD/MainPlayerHUD.h"
 #include "HUD/FSMVisualizerHUD.h"
+
+#include "Materials/MaterialInstanceDynamic.h"
+
+#include "Engine/StaticMesh.h"
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
@@ -206,6 +211,21 @@ AMordath::AMordath()
 
 	// Teleportation component
 	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
+
+	// Flash indicator static mesh component
+	FlashIndicator = CreateDefaultSubobject<UFlashIndicatorComponent>(FName("Flash Indicator Mesh"));
+	FlashIndicator->SetupAttachment(GetMesh(), "spine03_jnt");
+	FlashIndicator->SetRelativeLocation(FVector(0.0f));
+	FlashIndicator->SetRelativeRotation(FRotator(0.0f));
+	FlashIndicator->SetWorldScale3D(FVector(0.0f));
+	FlashIndicator->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FlashIndicator->SetCollisionProfileName("NoCollision");
+	FlashIndicator->bVisible = false;
+
+	const auto SphereMesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'")));
+
+	if (SphereMesh)
+		FlashIndicator->SetStaticMesh(SphereMesh);
 }
 
 void AMordath::BeginPlay()
@@ -223,6 +243,7 @@ void AMordath::BeginPlay()
 	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
 	GameInstance->BossData.SmoothedHealth = HealthComponent->GetCurrentHealth();
 	GameInstance->BossData.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
+	GameInstance->BossData.OnAttackParryed.AddDynamic(this, &AMordath::OnAttackParryed);
 	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameInstance->OnSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameInstance->OnThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
@@ -231,7 +252,7 @@ void AMordath::BeginPlay()
 
 	ChooseCombo();
 
-	GetWorld()->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
+	World->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
 
 	// Begin the state machines
 	FSM->Start();
@@ -256,20 +277,11 @@ void AMordath::Tick(const float DeltaTime)
 	}
 	
 	GameInstance->BossData.Location = GetActorLocation();
-	GameInstance->BossData.MeshLocation = GetMesh()->GetSocketLocation(LockOnBoneName);
+	GameInstance->BossData.LockOnBoneLocation = GetMesh()->GetSocketLocation(LockOnBoneName);
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
-
-	if (GameInstance->PlayerData.bParrySucceeded && FSM->GetActiveStateID() != 14 /*Stunned*/)
-	{
-		FSM->PopState();
-		FSM->PushState("Stunned");
-
-		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CameraShakes.Stun.Shake, CameraShakes.Stun.Intensity);
-	}
 
 #if !UE_BUILD_SHIPPING
 	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 4, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
@@ -277,6 +289,13 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 2, "Current Montage Section: " + CurrentMontageSection.ToString());
 	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 1, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 #endif
+}
+
+void AMordath::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -1126,6 +1145,19 @@ void AMordath::OnPlayerDeath()
 	StageFSM->Stop();
 }
 
+void AMordath::OnAttackParryed()
+{
+	ULog::Info(CurrentAttackData->GetCounterTypeAsString(), true);
+	if (CurrentAttackData->CounterType == Parryable && !IsStunned())
+	{
+		FSM->PopState();
+		FSM->PushState("Stunned");
+
+		// Shake the camera
+		PlayerController->ClientPlayCameraShake(CameraShakes.Stun.Shake, CameraShakes.Stun.Intensity);
+	}
+}
+
 void AMordath::OnSecondStageHealth()
 {
 	StageFSM->PushState(1);
@@ -1158,8 +1190,6 @@ void AMordath::DestroySelf()
 
 void AMordath::PlayAttackMontage()
 {
-	CurrentAttackData = ChosenCombo->GetCurrentAttackData();
-
 	PlayAnimMontage(CurrentAttackData->AttackMontage, 1.0f, FName("Anticipation"));
 }
 
@@ -1330,7 +1360,36 @@ void AMordath::ChooseAttack()
 	if (IsAttacking())
 		return;
 
-	switch (ChosenCombo->GetCurrentAttackData()->Attack)
+	CurrentAttackData = ChosenCombo->GetCurrentAttackData();
+
+	// Do a flash to indicate what kind of attack this is
+	switch (CurrentAttackData->CounterType)
+	{
+	case Parryable:
+		FlashIndicator->Flash(Combat.ParryableFlashColor);
+
+		GameInstance->BossData.bCanBeParryed = true;
+	break;
+
+	case Blockable:
+		FlashIndicator->Flash(Combat.BlockableFlashColor);
+
+		GameInstance->BossData.bCanBeParryed = false;
+	break;
+
+	case NoCounter:
+		FlashIndicator->Flash(Combat.NoCounterFlashColor);
+
+		GameInstance->BossData.bCanBeParryed = false;
+	break;
+
+	default:
+		GameInstance->BossData.bCanBeParryed = false;
+	break;
+	}
+
+	// Choose the current attack from the attack data
+	switch (CurrentAttackData->Attack)
 	{
 		case ShortAttack_1:
 			FSM->PushState("Light Attack 1");
@@ -1550,6 +1609,7 @@ float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
 
+	// Todo: Move to the new debug system
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDistance)
 		ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
@@ -1563,6 +1623,7 @@ FVector AMordath::GetDirectionToPlayer() const
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
 
+	// Todo: Move to the new debug system
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDirection)
 		ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
