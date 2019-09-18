@@ -72,7 +72,9 @@ void AOverthroneHUD::BeginPlay()
 	const auto GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
 
 	reinterpret_cast<AOverthroneCharacter*>(GameInstance->Player)->AddDebugMessages();
-	reinterpret_cast<AOverthroneCharacter*>(GameInstance->Boss)->AddDebugMessages();
+
+	if (reinterpret_cast<AOverthroneCharacter*>(GameInstance->Boss))
+		reinterpret_cast<AOverthroneCharacter*>(GameInstance->Boss)->AddDebugMessages();
 }
 
 void AOverthroneHUD::DrawHUD()
