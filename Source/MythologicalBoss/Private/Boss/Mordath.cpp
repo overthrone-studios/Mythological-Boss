@@ -158,6 +158,7 @@ AMordath::AMordath()
 	RangeFSM->AddState(0, "Close");
 	RangeFSM->AddState(1, "Mid");
 	RangeFSM->AddState(2, "Far");
+	RangeFSM->AddState(3, "Super Close");
 
 	RangeFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseRange);
 	RangeFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseRange);
@@ -170,6 +171,10 @@ AMordath::AMordath()
 	RangeFSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarRange);
 	RangeFSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarRange);
 	RangeFSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitFarRange);
+
+	RangeFSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSuperCloseRange);
+	RangeFSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSuperCloseRange);
+	RangeFSM->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitSuperCloseRange);
 
 	RangeFSM->InitState(0);
 
@@ -234,6 +239,9 @@ void AMordath::BeginPlay()
 
 	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 
+	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
+	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
+
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
@@ -279,15 +287,23 @@ void AMordath::Tick(const float DeltaTime)
 	GameInstance->BossData.Location = GetActorLocation();
 	GameInstance->BossData.LockOnBoneLocation = GetMesh()->GetSocketLocation(LockOnBoneName);
 
+	DistanceToPlayer = GetDistanceToPlayer();
+	DirectionToPlayer = GetDirectionToPlayer();
+
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
 
+	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 #if !UE_BUILD_SHIPPING
-	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 4, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 3, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 2, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(OverthroneHUD->GetDebugMessagesCount() - 1, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Direction To Player: " + DirectionToPlayer.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Light Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.LightAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Heavy Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.HeavyAttackDamage));
 #endif
 }
 
@@ -367,20 +383,20 @@ void AMordath::UpdateFollowState()
 
 	FacePlayer(DefaultRotationSpeed);
 
-	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius)
+	if (IsWaitingForNewCombo() && DistanceToPlayer < AcceptanceRadius)
 	{
 		FSM->PushState("Retreat");
 		return;
 	}
 
-	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < MidRangeRadius)
+	if (IsWaitingForNewCombo() && DistanceToPlayer < MidRangeRadius)
 	{
 		FSM->PushState("Thinking");
 		return;
 	}
 
 	// Move towards the player
-	if (GetDistanceToPlayer() > AcceptanceRadius)
+	if (DistanceToPlayer > AcceptanceRadius)
 	{
 		if (!IsDelayingAttack())
 		{
@@ -428,10 +444,10 @@ void AMordath::UpdateRetreatState()
 
 	FacePlayer(DefaultRotationSpeed);
 
-	if (GetDistanceToPlayer() > MidRangeRadius)
+	if (DistanceToPlayer > MidRangeRadius)
 		FSM->PopState();
 
-	if (IsWaitingForNewCombo() && GetDistanceToPlayer() < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
+	if (IsWaitingForNewCombo() && DistanceToPlayer < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
 	{
 		ForwardInput = -1.0f;
 		RightInput = 0.0f;
@@ -916,7 +932,10 @@ void AMordath::UpdateCloseRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (GetDistanceToPlayer() > AcceptanceRadius)
+	if (DistanceToPlayer < 200.0f)
+		RangeFSM->PushState("Super Close");
+
+	if (DistanceToPlayer > AcceptanceRadius)
 		RangeFSM->PushState("Mid");
 }
 
@@ -938,10 +957,10 @@ void AMordath::UpdateMidRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
 
-	if (GetDistanceToPlayer() < AcceptanceRadius)
+	if (DistanceToPlayer < AcceptanceRadius)
 		RangeFSM->PushState("Close");
 
-	if (GetDistanceToPlayer() > MidRangeRadius)
+	if (DistanceToPlayer > MidRangeRadius)
 		RangeFSM->PushState("Far");
 }
 
@@ -989,13 +1008,33 @@ void AMordath::UpdateFarRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (GetDistanceToPlayer() < MidRangeRadius)
+	if (DistanceToPlayer < MidRangeRadius)
 		RangeFSM->PushState("Mid");
 }
 
 void AMordath::OnExitFarRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+}
+#pragma endregion 
+
+#pragma region Super Close
+void AMordath::OnEnterSuperCloseRange()
+{
+	Combat.AttackSettings.LightAttackDamage *= 1.5;
+	Combat.AttackSettings.HeavyAttackDamage *= 1.5;
+}
+
+void AMordath::UpdateSuperCloseRange()
+{
+	if (DistanceToPlayer > 200.0f)
+		RangeFSM->PopState();
+}
+
+void AMordath::OnExitSuperCloseRange()
+{
+	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
+	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
 #pragma endregion 
 #pragma endregion
@@ -1609,7 +1648,6 @@ float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
 
-	// Todo: Move to the new debug system
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDistance)
 		ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
@@ -1623,7 +1661,6 @@ FVector AMordath::GetDirectionToPlayer() const
 	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
 	Direction.Normalize();
 
-	// Todo: Move to the new debug system
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDirection)
 		ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
@@ -1694,7 +1731,7 @@ bool AMordath::IsInThirdStage() const
 
 bool AMordath::IsCloseRange() const
 {
-	return RangeFSM->GetActiveStateID() == 0;
+	return RangeFSM->GetActiveStateID() == 0 || RangeFSM->GetActiveStateID() == 3;
 }
 
 bool AMordath::IsMidRange() const
@@ -1783,4 +1820,8 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Distance To Player: ", FColor::Cyan, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Direction To Player: ", FColor::Cyan, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Light Attack Damage: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Heavy Attack Damage: ", FColor::Green, YPadding);
 }

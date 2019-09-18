@@ -603,6 +603,13 @@ protected:
 			void UpdateFarRange();
 		UFUNCTION()
 			void OnExitFarRange();
+
+		UFUNCTION()
+			void OnEnterSuperCloseRange();
+		UFUNCTION()
+			void UpdateSuperCloseRange();
+		UFUNCTION()
+			void OnExitSuperCloseRange();
 		#pragma endregion 
 	#pragma endregion
 
@@ -720,6 +727,9 @@ protected:
 
 private:
 	float DefaultRotationSpeed = 10.0f;
+
+	float DistanceToPlayer = 0.0f;
+	FVector DirectionToPlayer;
 
 	UAttackData* CurrentAttackData;
 
