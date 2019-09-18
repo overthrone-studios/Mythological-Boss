@@ -283,7 +283,7 @@ void AYlva::Tick(const float DeltaTime)
 
 		GetController()->SetControlRotation(NewRotation);
 
-		GameInstance->SetLockOnLocation(GameInstance->BossData.MeshLocation);
+		GameInstance->SetLockOnLocation(GameInstance->BossData.LockOnBoneLocation);
 	}
 
 	// Stamina regen mechanic
@@ -842,7 +842,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 		FSM->PopState();
 	}
 
-	if (IsParrySuccessful())
+	if (IsParrySuccessful() && GameInstance->BossData.bCanBeParryed)
 	{
 		FSM->PushState("Parry");
 		return;
@@ -1430,12 +1430,6 @@ void AYlva::UpdateWalkState()
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
-	//if (bIsRunKeyHeld && StaminaComponent->HasStamina() && GetVelocity().Size() > MovementSettings.WalkSpeed)
-	//{
-	//	FSM->PushState("Run");
-	//	return;
-	//}
-
 	if (!IsMovingInAnyDirection())
 		FSM->PopState();
 }
@@ -1672,6 +1666,8 @@ void AYlva::OnEnterParryState()
 	PlayerController->SetIgnoreLookInput(true);
 
 	AnimInstance->Montage_Play(Combat.ParrySettings.ParryMontage);
+
+	GameInstance->BossData.OnAttackParryed.Broadcast();
 
 	StartParryEvent();
 }
