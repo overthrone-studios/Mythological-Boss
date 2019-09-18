@@ -1560,7 +1560,8 @@ void AYlva::OnEnterDeathState()
 	GameInstance->PlayerData.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
-	DisableLockOn();
+	if (IsLockedOn())
+		DisableLockOn();
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
