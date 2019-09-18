@@ -29,6 +29,14 @@ enum EAttackType_Combo
 	SpecialAttack_3
 };
 
+UENUM()
+enum EAttackCounters
+{
+	Parryable,
+	Blockable,
+	NoCounter
+};
+
 /**
  * An asset that holds attack data for the boss
  */
@@ -38,12 +46,19 @@ class MYTHOLOGICALBOSS_API UAttackData final : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	FString GetCounterTypeAsString();
+
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EAttackType_Combo> Attack;
 
+	// The attack animation montage to play
 	UPROPERTY(EditInstanceOnly)
 		class UAnimMontage* AttackMontage;
+
+	// What type of counter can this attack be countered by the player?
+	UPROPERTY(EditInstanceOnly)
+		TEnumAsByte<EAttackCounters> CounterType;
 	
 	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
