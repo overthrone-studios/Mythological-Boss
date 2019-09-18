@@ -1348,7 +1348,7 @@ void AYlva::ToggleGodMode()
 		OverthroneHUD->GetMasterHUD()->UnhighlightBox(4 /*God mode box*/);
 	}
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(6, "God mode: " + FString(bGodMode ? "On" : "Off"));
+	OverthroneHUD->UpdateOnScreenDebugMessage(7, "God mode: " + FString(bGodMode ? "On" : "Off"));
 }
 #pragma endregion
 
