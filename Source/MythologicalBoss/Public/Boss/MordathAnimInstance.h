@@ -31,6 +31,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsBeaten : 1;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bWantsSideStepDash : 1;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanLaugh : 1;
 

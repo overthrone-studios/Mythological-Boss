@@ -380,6 +380,10 @@ void AMordath::OnEnterFollowState()
 			ChooseCombo();
 	}
 
+	bWantsDashForward = FMath::RandRange(0, 1);
+	if (bWantsDashForward)
+		FSM->PushState("Dash");
+
 	ChooseMovementDirection();
 }
 
@@ -484,6 +488,7 @@ void AMordath::OnEnterThinkState()
 	ThinkStateData.CalculateThinkTime();
 
 	MordathAnimInstance->bIsThinking = true;
+	MordathAnimInstance->bWantsSideStepDash = FMath::RandRange(0, 1);
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogThinkTime)
@@ -851,6 +856,8 @@ void AMordath::OnEnterDashState()
 
 	// Reset hit count
 	HitCounter = 0;
+
+	MordathAnimInstance->bIsDashing = true;
 }
 
 void AMordath::UpdateDashState()
@@ -858,12 +865,16 @@ void AMordath::UpdateDashState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
 	FacePlayer(DefaultRotationSpeed);
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
 }
 
 void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	MordathAnimInstance->bIsDashing = false;
 }
 #pragma endregion
 
@@ -964,7 +975,7 @@ void AMordath::OnEnterMidRange()
 
 void AMordath::UpdateMidRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(),RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
 	if (DistanceToPlayer < AcceptanceRadius)
 		RangeFSM->PushState("Close");
