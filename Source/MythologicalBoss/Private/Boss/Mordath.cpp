@@ -305,24 +305,28 @@ void AMordath::Tick(const float DeltaTime)
 	AnimInstance->RightInput = RightInput;
 
 #if !UE_BUILD_SHIPPING
-	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+	if (Debug.bShowRaycasts)
+	{
+		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+	}
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Direction To Player: " + DirectionToPlayer.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Light Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.LightAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Heavy Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.HeavyAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Direction To Player: " + DirectionToPlayer.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Short Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.LightAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Long Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.HeavyAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Attack: " + CurrentAttackData->GetCurrentAttackAsString());
 #endif
 }
 
@@ -1360,6 +1364,7 @@ void AMordath::ChooseCombo()
 			#endif
 
 			ChosenCombo->Init();
+			CurrentAttackData = ChosenCombo->GetCurrentAttackData();
 
 			CachedCombos.Remove(ChosenCombo);
 		}
@@ -1862,6 +1867,7 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Distance To Player: ", FColor::Cyan, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Direction To Player: ", FColor::Cyan, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Light Attack Damage: ", FColor::Green, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Heavy Attack Damage: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Short Attack Damage: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Long Attack Damage: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Green, YPadding);
 }

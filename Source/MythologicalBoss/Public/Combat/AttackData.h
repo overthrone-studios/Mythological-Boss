@@ -46,7 +46,8 @@ class MYTHOLOGICALBOSS_API UAttackData final : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	FString GetCounterTypeAsString();
+	FString GetCounterTypeAsString() const;
+	FString GetCurrentAttackAsString() const;
 
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
