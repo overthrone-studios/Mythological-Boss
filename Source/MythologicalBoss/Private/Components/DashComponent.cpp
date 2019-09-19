@@ -20,7 +20,12 @@ void UDashComponent::BeginPlay()
 
 bool UDashComponent::IsCooldownActive()
 {
-	return Owner->GetWorldTimerManager().IsTimerPaused(DashCooldownTimer) ? false : Owner->GetWorldTimerManager().IsTimerActive(DashCooldownTimer);
+	return Owner->GetWorldTimerManager().IsTimerActive(DashCooldownTimer);
+}
+
+bool UDashComponent::IsCooldownPaused()
+{
+	return Owner->GetWorldTimerManager().IsTimerPaused(DashCooldownTimer);
 }
 
 float UDashComponent::GetCooldownTimeRemaining()

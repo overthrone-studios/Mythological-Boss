@@ -812,7 +812,10 @@ private:
 	float PlayerLeanRollAmount = 0.0f;
 	float PlayerLeanPitchAmount = 0.0f;
 
+	uint8 MaxDashInQueue = 1;
+
 	uint8 bGodMode : 1;
+	uint8 bCanDash : 1;
 
 	uint8 bCanRun : 1;
 

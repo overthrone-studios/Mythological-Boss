@@ -23,6 +23,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Dash")
 		bool IsCooldownActive();
 
+	// Returns true if the dash cooldown timer is paused
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		bool IsCooldownPaused();
+
 	// Returns the dash cooldown time remaining, in seconds
 	UFUNCTION(BlueprintPure, Category = "Dash")
 		float GetCooldownTimeRemaining();

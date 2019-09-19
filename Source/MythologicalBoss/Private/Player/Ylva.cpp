@@ -239,6 +239,8 @@ void AYlva::BeginPlay()
 
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
 
+	bCanDash = true;
+
 	// Begin the state machine
 	FSM->Start();
 
@@ -946,19 +948,21 @@ void AYlva::Dash()
 	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking() || IsBlocking())
 		return;
 
-	if (IsDashing() && DashQueue.IsEmpty())
+	if (IsDashing() && DashQueue.IsEmpty() && !bCanDash && !TimerManager->IsTimerActive(DashQueueTimerHandle))
 	{
 		DashQueue.Enqueue(1);
 
-#if !UE_BUILD_SHIPPING
+	#if !UE_BUILD_SHIPPING
 		if (Debug.bLogDashQueue)
 			ULog::Info("Queuing dash...", true);
-#endif
+	#endif
 		return;
 	}
 
 	if (!DashComponent->IsCooldownActive() && !IsDashing())
 	{
+		bCanDash = false;
+
 		// Do we have enough stamina to dash?
 		if (StaminaComponent->HasEnoughForDash())
 		{
@@ -980,9 +984,12 @@ void AYlva::StartDashCooldown()
 
 void AYlva::Dash_Queued()
 {
+	Dash();
+	DashComponent->UnPauseCooldown();
+
 	DashQueue.Pop();
 
-	Dash();
+	bCanDash = true;
 }
 #pragma endregion
 
