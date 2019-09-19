@@ -61,7 +61,11 @@ public:
 
 	// Return the charge gain per hit value
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
-		FORCEINLINE float GetChargeGain() const { return ChargeGainPerHit; }
+		FORCEINLINE float GetChargeGainForLight() const { return ChargeGainPerLightHit; }
+
+	// Return the charge gain per hit value
+	UFUNCTION(BlueprintPure, Category = "Charge Attack")
+		FORCEINLINE float GetChargeGainForHeavy() const { return ChargeGainPerHeavyHit; }
 
 	// Return the charge loss per hit value
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
@@ -106,9 +110,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack", meta = (ClampMin = 0.0f))
 		float MaxCharge = 100.0f;
 
-	// The amount of charge we gain after a successful hit
+	// The amount of charge we gain after a successful light attack hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
-		float ChargeGainPerHit = 10.0f;
+		float ChargeGainPerLightHit = 10.0f;
+
+	// The amount of charge we gain after a successful heavy attack hit
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
+		float ChargeGainPerHeavyHit = 20.0f;
 
 	// The amount of charge we lose after we've taken damage
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))

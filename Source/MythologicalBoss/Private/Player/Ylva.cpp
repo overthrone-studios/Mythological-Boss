@@ -1260,7 +1260,10 @@ void AYlva::FinishLosingStamina()
 #pragma region Charge Attack
 void AYlva::IncreaseCharge()
 {
-	StartGainingCharge(ChargeAttackComponent->GetChargeGain());
+	if (IsLightAttacking())
+		StartGainingCharge(ChargeAttackComponent->GetChargeGainForLight());
+	else if (IsHeavyAttacking())
+		StartGainingCharge(ChargeAttackComponent->GetChargeGainForHeavy());
 
 	UpdateCharacterInfo();
 
