@@ -184,7 +184,7 @@ struct FCombatSettings_Mordath : public FCombatSettings
 		FAttackSettings_Mordath AttackSettings;
 
 	// Settings that affect Mordath's dash values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Dash")
 		FDashSettings_Mordath DashSettings;
 
 	// Settings that affect Mordath's stun values
