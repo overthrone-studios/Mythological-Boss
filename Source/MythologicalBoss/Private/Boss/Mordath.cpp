@@ -304,8 +304,17 @@ void AMordath::Tick(const float DeltaTime)
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
 
-	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 #if !UE_BUILD_SHIPPING
+	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+
+	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+
+	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+
+	UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+
+	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
+
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Montage Section: " + CurrentMontageSection.ToString());
@@ -653,7 +662,10 @@ void AMordath::UpdateLongAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayer(DefaultRotationSpeed);
+	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
+
+	if (CurrentMontageSection != "Recovery")
+		FacePlayer();
 
 	// If attack animation has finished, go back to previous state
 	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
@@ -961,7 +973,7 @@ void AMordath::UpdateCloseRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (DistanceToPlayer < 200.0f)
+	if (DistanceToPlayer < SuperCloseRadius)
 		RangeFSM->PushState("Super Close");
 
 	if (DistanceToPlayer > AcceptanceRadius)
@@ -1056,7 +1068,7 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange()
 {
-	if (DistanceToPlayer > 200.0f)
+	if (DistanceToPlayer > SuperCloseRadius)
 		RangeFSM->PopState();
 }
 
