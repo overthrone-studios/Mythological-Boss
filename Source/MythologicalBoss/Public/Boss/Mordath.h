@@ -161,7 +161,7 @@ struct FDashSettings_Mordath
 
 	// The distance away from the player where we can dash forwards
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float DashAtDistance = 250.0f;
+		float DashAtDistance = 800.0f;
 };
 
 USTRUCT(BlueprintType)

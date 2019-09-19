@@ -653,7 +653,7 @@ void AMordath::UpdateLongAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	//FacePlayer(DefaultRotationSpeed);
+	FacePlayer(DefaultRotationSpeed);
 
 	// If attack animation has finished, go back to previous state
 	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
@@ -863,6 +863,8 @@ void AMordath::OnEnterDashState()
 
 	DashComponent->StartCooldown();
 
+	FacePlayer();
+
 	// Reset hit count
 	HitCounter = 0;
 
@@ -872,8 +874,6 @@ void AMordath::OnEnterDashState()
 void AMordath::UpdateDashState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	//FacePlayer(DefaultRotationSpeed);
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
@@ -1568,18 +1568,12 @@ void AMordath::ChangeHitboxSize(const float NewRadius)
 
 void AMordath::FacePlayer(const float RotationSpeed)
 {
-	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
-	Direction.Normalize();
-	
-	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
+	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
 }
 
 void AMordath::FacePlayer()
 {
-	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
-	Direction.Normalize();
-	
-	SetActorRotation(FRotator(GetControlRotation().Pitch, Direction.Rotation().Yaw, GetControlRotation().Roll));
+	SetActorRotation(FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll));
 }
 
 void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
