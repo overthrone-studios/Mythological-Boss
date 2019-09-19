@@ -381,7 +381,7 @@ void AMordath::OnEnterFollowState()
 	}
 
 	bWantsDashForward = FMath::RandRange(0, 1);
-	if (bWantsDashForward)
+	if (bWantsDashForward && IsMidRange() && IsInFirstStage()) // Todo remove stage 1 check
 		FSM->PushState("Dash");
 
 	ChooseMovementDirection();
