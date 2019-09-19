@@ -641,7 +641,7 @@ void AMordath::UpdateLongAttack1State()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayerBasedOnMontageSection(CurrentLongAttackMontage);
+	FacePlayer(DefaultRotationSpeed);
 
 	// If attack animation has finished, go back to previous state
 	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
