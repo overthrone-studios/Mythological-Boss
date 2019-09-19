@@ -18,6 +18,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/TeleportationComponent.h"
+#include "Components/DashComponent.h"
 #include "Components/FlashIndicatorComponent.h"
 
 #include "Animation/AnimInstance.h"
@@ -223,6 +224,9 @@ AMordath::AMordath()
 	// Teleportation component
 	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
 
+	// Dash component
+	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash Component"));
+
 	// Flash indicator static mesh component
 	FlashIndicator = CreateDefaultSubobject<UFlashIndicatorComponent>(FName("Flash Indicator Mesh"));
 	FlashIndicator->SetupAttachment(GetMesh(), "spine03_jnt");
@@ -381,8 +385,11 @@ void AMordath::OnEnterFollowState()
 	}
 
 	bWantsDashForward = FMath::RandRange(0, 1);
-	if (bWantsDashForward && IsMidRange() && IsInFirstStage()) // Todo remove stage 1 check
+	if (bWantsDashForward && IsMidRange() && !IsDashing() && DistanceToPlayer > Combat.DashSettings.DashAtDistance && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
+	{
 		FSM->PushState("Dash");
+		return;
+	}
 
 	ChooseMovementDirection();
 }
@@ -854,6 +861,8 @@ void AMordath::OnEnterDashState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	DashComponent->StartCooldown();
+
 	// Reset hit count
 	HitCounter = 0;
 
@@ -864,7 +873,7 @@ void AMordath::UpdateDashState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	FacePlayer(DefaultRotationSpeed);
+	//FacePlayer(DefaultRotationSpeed);
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
@@ -1090,7 +1099,7 @@ void AMordath::UpdateFirstStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1134,7 +1143,7 @@ void AMordath::UpdateSecondStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1171,7 +1180,7 @@ void AMordath::UpdateThirdStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1780,6 +1789,11 @@ bool AMordath::IsWaitingForNewCombo() const
 bool AMordath::IsDelayingAttack()
 {
 	return TimerManager->IsTimerActive(ChosenCombo->GetAttackDelayTimer());
+}
+
+bool AMordath::IsDashing()
+{
+	return FSM->GetActiveStateID() == 16;
 }
 
 bool AMordath::WantsMoveRight() const
