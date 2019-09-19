@@ -6,6 +6,15 @@
 #include "Combat/ComboData.h"
 #include "Mordath.generated.h"
 
+UENUM()
+enum EDashType_Mordath
+{
+	Dash_Forward,
+	Dash_Backward,
+	Dash_Left,
+	Dash_Right
+};
+
 USTRUCT(BlueprintType)
 struct FDebug_Mordath : public FCharacterDebug
 {
@@ -270,6 +279,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsInThirdStage() const;
 	
+	// Returns true if we are super close to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
+		bool IsSuperCloseRange() const;
+
 	// Returns true if we are in close distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsCloseRange() const;
@@ -667,6 +680,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float DeathTime = 2.0f;
 
+	// How long (in seconds) should the boss stay close to the player before dashing away?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float SuperCloseRangeTime = 2.0f;
+
 	// Holds the data relating to the 'Think' state
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		FThinkStateData ThinkStateData;
@@ -729,12 +746,11 @@ private:
 	float DistanceToPlayer = 0.0f;
 	FVector DirectionToPlayer;
 
+	EDashType_Mordath DashType;
+
 	UAttackData* CurrentAttackData;
 
 	FName CurrentMontageSection = "None";
-
-	uint8 bWantsLongAttack : 1;
-	uint8 bWantsDashForward : 1;
 
 	uint8 MoveDirection = 0;
 
