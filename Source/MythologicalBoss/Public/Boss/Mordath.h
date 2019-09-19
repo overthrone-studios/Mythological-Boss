@@ -45,35 +45,6 @@ struct FDebug_Mordath : public FCharacterDebug
 };
 
 USTRUCT(BlueprintType)
-struct FBezier
-{
-	GENERATED_BODY()
-
-	// The curve asset to use when in this state
-	UPROPERTY(EditInstanceOnly)
-		UCurveFloat* Curve;
-
-	// Show debug information
-	UPROPERTY(EditInstanceOnly)
-		uint8 bDebug : 1;
-
-	// How fast do we do this attack (1.0 = Normal, 2.0+ = Fast)
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
-		float PlaybackSpeed = 1.0f;
-
-	// The height of the 2nd point of the bezier curve
-	UPROPERTY(EditInstanceOnly)
-		float CurveHeight = 0.0f;
-
-	// The amount of units to offset the end point by
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
-		float EndPointOffsetDistance = 0.0f;
-
-	// Points on bezier
-	FVector A, B, C;
-};
-
-USTRUCT(BlueprintType)
 struct FThinkStateData
 {
 	GENERATED_BODY()
@@ -184,6 +155,16 @@ struct FAttackSettings_Mordath : public FAttackSettings
 };
 
 USTRUCT(BlueprintType)
+struct FDashSettings_Mordath
+{
+	GENERATED_BODY()
+
+	// The distance away from the player where we can dash forwards
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
+		float DashAtDistance = 250.0f;
+};
+
+USTRUCT(BlueprintType)
 struct FStunSettings_Mordath
 {
 	GENERATED_BODY()
@@ -201,6 +182,10 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	// Settings that affect Mordath's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Attack")
 		FAttackSettings_Mordath AttackSettings;
+
+	// Settings that affect Mordath's dash values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
+		FDashSettings_Mordath DashSettings;
 
 	// Settings that affect Mordath's stun values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
@@ -316,6 +301,10 @@ public:
 	// Returns true if we are delaying our current attack
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDelayingAttack();
+
+	// Returns true if we are currently dashing
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsDashing();
 
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -654,6 +643,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UTeleportationComponent* TeleportationComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class UDashComponent* DashComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFlashIndicatorComponent* FlashIndicator;
