@@ -1869,5 +1869,5 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Direction To Player: ", FColor::Cyan, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Short Attack Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Long Attack Damage: ", FColor::Green, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Yellow, YPadding);
 }
