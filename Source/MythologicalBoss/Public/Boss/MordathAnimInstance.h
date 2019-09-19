@@ -34,6 +34,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bWantsSideStepDash : 1;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsDashingForward : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsDashingBackward : 1;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanLaugh : 1;
 

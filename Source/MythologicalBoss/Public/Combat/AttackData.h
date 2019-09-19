@@ -7,15 +7,6 @@
 #include "AttackData.generated.h"
 
 UENUM()
-enum EDashType_Combo
-{
-	Dash_Forward,
-	Dash_Backward,
-	Dash_Left,
-	Dash_Right
-};
-
-UENUM()
 enum EAttackType_Combo
 {
 	ShortAttack_1,
@@ -96,16 +87,4 @@ public:
 	// Can we teleport before we attack?
 	UPROPERTY(EditInstanceOnly)
 		uint8 bCanTeleportWithAttack : 1;
-
-	// The type of dash to use before attacking
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bCanDashWithAttack"))
-		TEnumAsByte<EDashType_Combo> DashType;
-
-	// The distance offset. (Does not affect Left or Right dash)
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bCanDashWithAttack", ClampMin = 0.0f, ClampMax = 1000000.0f))
-		float AcceptanceRadius = 0.0f;
-
-	// The speed of the dash
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bCanDashWithAttack", ClampMin = 0.01f, ClampMax = 1000.0f))
-		float Speed = 1.0f;
 };

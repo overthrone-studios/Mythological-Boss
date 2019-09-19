@@ -397,9 +397,14 @@ void AMordath::OnEnterFollowState()
 			ChooseCombo();
 	}
 
-	bWantsDashForward = FMath::RandRange(0, 1);
-	if (bWantsDashForward && IsMidRange() && !IsDashing() && DistanceToPlayer > Combat.DashSettings.DashAtDistance && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
+	const bool bWantsDashForward = FMath::RandRange(0, 1);
+	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > Combat.DashSettings.DashAtDistance && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
 	{
+		if (IsMidRange())
+			DashType = Dash_Forward;
+		else if (IsCloseRange() || IsSuperCloseRange())
+			DashType = Dash_Backward;
+
 		FSM->PushState("Dash");
 		return;
 	}
@@ -884,7 +889,20 @@ void AMordath::OnEnterDashState()
 	// Reset hit count
 	HitCounter = 0;
 
-	MordathAnimInstance->bIsDashing = true;
+	switch (DashType)
+	{
+	case Dash_Forward:
+		MordathAnimInstance->bIsDashingForward = true;
+	break;
+
+	case Dash_Backward:
+		MordathAnimInstance->bIsDashingBackward = true;
+	break;
+
+	default:
+		MordathAnimInstance->bIsDashing = true;
+	break;
+	}
 }
 
 void AMordath::UpdateDashState()
@@ -899,7 +917,8 @@ void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	MordathAnimInstance->bIsDashing = false;
+	MordathAnimInstance->bIsDashingForward = false;
+	MordathAnimInstance->bIsDashingBackward = false;
 }
 #pragma endregion
 
@@ -1030,7 +1049,7 @@ void AMordath::OnEnterFarRange()
 		return;
 	}
 
-	bWantsLongAttack = FMath::RandRange(0, 1);
+	const bool bWantsLongAttack = FMath::RandRange(0, 1);
 	
 	if (bWantsLongAttack)
 	{
@@ -1066,18 +1085,30 @@ void AMordath::OnExitFarRange()
 #pragma region Super Close
 void AMordath::OnEnterSuperCloseRange()
 {
+	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
 	Combat.AttackSettings.LightAttackDamage *= 1.5;
 	Combat.AttackSettings.HeavyAttackDamage *= 1.5;
 }
 
 void AMordath::UpdateSuperCloseRange()
 {
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+
+	if (RangeFSM->GetActiveStateUptime() > SuperCloseRangeTime && (!IsDashing() || !IsAttacking() && !IsRecovering()))
+	{
+		DashType = Dash_Backward;
+		FSM->PushState("Dash");
+	}
+
 	if (DistanceToPlayer > SuperCloseRadius)
 		RangeFSM->PopState();
 }
 
 void AMordath::OnExitSuperCloseRange()
 {
+	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
 	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
@@ -1769,6 +1800,11 @@ bool AMordath::IsInThirdStage() const
 	return StageFSM->GetActiveStateID() == 2;
 }
 
+bool AMordath::IsSuperCloseRange() const
+{
+	return RangeFSM->GetActiveStateID() == 3;
+}
+
 bool AMordath::IsCloseRange() const
 {
 	return RangeFSM->GetActiveStateID() == 0 || RangeFSM->GetActiveStateID() == 3;
@@ -1869,5 +1905,5 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Direction To Player: ", FColor::Cyan, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Short Attack Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Long Attack Damage: ", FColor::Green, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Yellow, YPadding);
 }
