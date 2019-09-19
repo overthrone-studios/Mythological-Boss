@@ -397,7 +397,7 @@ void AMordath::OnEnterFollowState()
 			ChooseCombo();
 	}
 
-	const bool bWantsDashForward = FMath::RandRange(0, 1);
+	const uint8 bWantsDashForward = FMath::RandRange(0, 1);
 	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > Combat.DashSettings.DashAtDistance && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
 	{
 		if (IsMidRange())
@@ -1055,7 +1055,7 @@ void AMordath::OnEnterFarRange()
 		return;
 	}
 
-	const bool bWantsLongAttack = FMath::RandRange(0, 1);
+	const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
 	
 	if (bWantsLongAttack)
 	{
