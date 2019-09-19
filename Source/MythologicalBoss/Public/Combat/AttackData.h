@@ -80,10 +80,6 @@ public:
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bLerp", ClampMin = 0.0f))
 		float LerpSpeed = 10.0f;
 
-	// Can we dash before we attack?
-	UPROPERTY(EditInstanceOnly)
-		uint8 bCanDashWithAttack : 1;
-
 	// Can we teleport before we attack?
 	UPROPERTY(EditInstanceOnly)
 		uint8 bCanTeleportWithAttack : 1;

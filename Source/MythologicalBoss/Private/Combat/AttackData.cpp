@@ -43,6 +43,15 @@ FString UAttackData::GetCurrentAttackAsString() const
 	case LongAttack_3:
 		return FString("Long Attack 3");
 
+	case SpecialAttack_1:
+		return FString("Special Attack 1");
+
+	case SpecialAttack_2:
+		return FString("Special Attack 2");
+
+	case SpecialAttack_3:
+		return FString("Special Attack 3");
+
 	default:
 		return FString("None");
 	}

@@ -664,7 +664,11 @@ void AMordath::OnEnterLongAttack1State()
 		PlayAnimMontage(ComboSettings.Stage2_LongAttack, 1.0f, FName("Anticipation"));
 	}
 	else
+	{
+		NextAttack();
+
 		FSM->PopState();
+	}
 }
 
 void AMordath::UpdateLongAttack1State()
@@ -674,7 +678,9 @@ void AMordath::UpdateLongAttack1State()
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
 
 	if (CurrentMontageSection != "Recovery")
-		FacePlayer();
+		FacePlayer(DefaultRotationSpeed);
+	else
+		FacePlayer(0.5f);
 
 	// If attack animation has finished, go back to previous state
 	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
