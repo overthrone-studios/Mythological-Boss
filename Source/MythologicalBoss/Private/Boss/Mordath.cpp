@@ -1049,40 +1049,42 @@ void AMordath::OnEnterFarRange()
 	CurrentMovementSpeed = GetMovementSpeed();
 
 	GameInstance->PlayerData.CurrentRange = Far;
-
-	if (IsInFirstStage())
-	{
-		if (!IsRecovering())
-			FSM->PushState("Heavy Attack 1");
-
-		return;
-	}
-
-	const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
-	
-	if (bWantsLongAttack)
-	{
-		if (!IsRecovering())
-		{
-			FSM->PushState("Heavy Attack 1");
-		}
-	}
-	else
-	{
-		if ((IsInSecondStage() || IsInThirdStage()) && ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
-		{
-			FSM->PopState();
-			FSM->PushState("Teleport");
-		}
-	}
 }
 
 void AMordath::UpdateFarRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	const float& Uptime = RangeFSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), Uptime);
 
 	if (DistanceToPlayer < MidRangeRadius)
+	{
 		RangeFSM->PushState("Mid");
+		return;
+	}
+
+	if (IsInFirstStage() && Uptime > ComboSettings.Stage1_LongAttackDelay)
+	{
+		if (!IsRecovering())
+			FSM->PushState("Heavy Attack 1");
+	}
+	else if (IsInSecondStage() || IsInThirdStage() && Uptime > ComboSettings.Stage2_LongAttackDelay)
+	{
+		const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
+		
+		if (bWantsLongAttack)
+		{
+			if (!IsRecovering())
+				FSM->PushState("Heavy Attack 1");
+		}
+		else
+		{
+			if (CurrentAttackData->bCanTeleportWithAttack)
+			{
+				FSM->PopState();
+				FSM->PushState("Teleport");
+			}
+		}
+	}
 }
 
 void AMordath::OnExitFarRange()

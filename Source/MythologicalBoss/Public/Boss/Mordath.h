@@ -137,8 +137,12 @@ struct FComboSettings
 		TArray<UComboData*> FirstStageCombos;
 
 	// The animation montage to play when in far range on stage 1
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
 		class UAnimMontage* Stage1_LongAttack;
+
+	// The amount of time (in seconds) we wait before initiating the long attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		float Stage1_LongAttackDelay = 1.0f;
 
 	// A list of combos the boss character will choose from when in the second stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -147,6 +151,9 @@ struct FComboSettings
 	// The animation montage to play when in far range on stage 2
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UAnimMontage* Stage2_LongAttack;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
+		float Stage2_LongAttackDelay = 1.0f;
 
 	// A list of combos the boss character will choose from when in the third stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
