@@ -310,6 +310,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(10, "Player Displayed Health: " + FString::SanitizeFloat(HealthComponent->GetSmoothedHealth()));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Player Displayed Stamina: " + FString::SanitizeFloat(StaminaComponent->GetSmoothedStamina()));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Moved Right by: " + FString::SanitizeFloat(DistanceMovedInRightDirection));
 #endif
 }
 
@@ -437,7 +439,9 @@ void AYlva::MoveRight(const float Value)
 	}
 	else
 	{
+		DistanceMovedInRightDirection = 0.0f;
 		RightMovementStart = CurrentLocation;
+		RightMovementEnd = CurrentLocation;
 	}
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
@@ -587,20 +591,20 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 
 bool AYlva::HasMovedRightBy(const float Distance)
 {
-	const float DistanceMovedBy = FVector::Dist(RightMovementStart, RightMovementEnd);
+	DistanceMovedInRightDirection = FVector::Dist(RightMovementStart, RightMovementEnd);
 
 	if (IsMovingRight())
-		return DistanceMovedBy >= Distance;
+		return DistanceMovedInRightDirection >= Distance;
 
 	return false;
 }
 
 bool AYlva::HasMovedLeftBy(const float Distance)
 {
-	const float DistanceMovedBy = FVector::Dist(RightMovementStart, RightMovementEnd);
+	DistanceMovedInRightDirection = FVector::Dist(RightMovementStart, RightMovementEnd);
 
 	if (IsMovingLeft())
-		return DistanceMovedBy >= Distance;
+		return DistanceMovedInRightDirection >= Distance;
 
 	return false;
 }
@@ -1920,4 +1924,5 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Moved Right by: ", FColor::Green);
 }

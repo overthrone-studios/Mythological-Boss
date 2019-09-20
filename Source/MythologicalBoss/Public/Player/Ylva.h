@@ -820,6 +820,7 @@ private:
 	TQueue<uint8> DashQueue;
 
 	FVector RightMovementStart, RightMovementEnd;
+	float DistanceMovedInRightDirection;
 
 	FRotator DirectionToBoss;
 
