@@ -210,10 +210,6 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// The amount of time (in seconds) the sword "sticks" when hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bEnableHitStop", ClampMin = 0.0f, ClampMax = 2.0f))
 		float SwordStickTime = 0.1f;
-
-	// Should the player rotate instantly where the camera is looking when attacking?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bRotateToCameraLookDirection : 1;
 };
 
 /*
