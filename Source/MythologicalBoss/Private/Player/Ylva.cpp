@@ -233,7 +233,7 @@ void AYlva::BeginPlay()
 	// Bind events to our functions
 	GameInstance->PlayerData.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameInstance->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
-	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath);
+	GameInstance->OnBossDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
@@ -1385,8 +1385,10 @@ void AYlva::OnLowHealth()
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
-void AYlva::OnBossDeath()
+void AYlva::OnBossDeath_Implementation()
 {
+	OnBossDeath();
+
 	DisableLockOn();
 
 	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
@@ -1599,7 +1601,9 @@ void AYlva::OnEnterDeathState()
 
 	GameInstance->OnPlayerDeath.Broadcast();
 
-	TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
+	//TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
+
+	OnDeath();
 }
 
 void AYlva::UpdateDeathState()
