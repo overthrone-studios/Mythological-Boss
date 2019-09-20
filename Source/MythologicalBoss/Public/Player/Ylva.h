@@ -323,6 +323,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
 
+	bool HasMovedRightBy(float Distance) override;
+
+	bool HasMovedLeftBy(float Distance) override;
+
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
@@ -379,6 +383,7 @@ protected:
 
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
+
 
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FVector GetDirectionToBoss() const;
@@ -813,6 +818,8 @@ protected:
 private:
 	TQueue<enum EAttackType> AttackQueue;
 	TQueue<uint8> DashQueue;
+
+	FVector RightMovementStart, RightMovementEnd;
 
 	FRotator CurrentRotation;
 	FRotator DirectionToBoss;

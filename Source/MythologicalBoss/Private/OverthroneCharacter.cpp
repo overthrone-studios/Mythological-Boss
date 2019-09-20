@@ -55,6 +55,7 @@ void AOverthroneCharacter::BeginPlay()
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	MainHUD = OverthroneHUD->GetMainHUD();
 	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+	SKMComponent = GetMesh();
 }
 
 void AOverthroneCharacter::Tick(const float DeltaSeconds)
@@ -67,6 +68,9 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 		CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
 	else
 		CurrentMovementSpeed = 0.0f;
+
+	CurrentLocation = GetActorLocation();
+	CurrentRotation = GetActorRotation();
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()
@@ -248,6 +252,18 @@ void AOverthroneCharacter::UnPauseAnims() const
 bool AOverthroneCharacter::IsInvincible() const
 {
 	return !bCanBeDamaged;
+}
+
+bool AOverthroneCharacter::HasMovedRightBy(float Distance)
+{
+	check(0 && "You must implement HasMovedRightBy()");
+	return false;
+}
+
+bool AOverthroneCharacter::HasMovedLeftBy(float Distance)
+{
+	check(0 && "You must implement HasMovedLeftBy()");
+	return false;
 }
 
 bool AOverthroneCharacter::IsAttacking() const

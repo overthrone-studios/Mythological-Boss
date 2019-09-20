@@ -133,6 +133,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		bool IsDead() const;
 
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		virtual bool HasMovedRightBy(float Distance);
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		virtual bool HasMovedLeftBy(float Distance);
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -263,13 +269,19 @@ protected:
 	// To give data to the Visualizer HUD
 	class UFSMVisualizerHUD* FSMVisualizer{};
 
-	// A class to manage all timers
+	// To access sockect locations
+	class USkeletalMeshComponent* SKMComponent;
+
+	// A cache to the timer manager object
 	FTimerManager* TimerManager;
 
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle HitStopTimerHandle;
 
 	uint8 bWasLowHealthEventTriggered : 1;
+
+	FVector CurrentLocation;
+	FRotator CurrentRotation;
 
 	float RightInput = 0.0f, ForwardInput = 0.0f;
 

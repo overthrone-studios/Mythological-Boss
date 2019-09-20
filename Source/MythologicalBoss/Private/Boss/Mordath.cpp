@@ -1697,13 +1697,13 @@ void AMordath::EncirclePlayer()
 {
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
-	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f)
+	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(100.0f))
 	{
 		AddMovementInput(GetActorRightVector());
 		ForwardInput = 0.0f;
 		RightInput = 1.0f;
 	}
-	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f)
+	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(100.0f))
 	{
 		AddMovementInput(-GetActorRightVector());
 		ForwardInput = 0.0f;

@@ -453,6 +453,12 @@ void AYlva::MoveRight(const float Value)
 
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
+
+		RightMovementEnd = GetActorLocation();
+	}
+	else
+	{
+		RightMovementStart = GetActorLocation();
 	}
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
@@ -598,6 +604,26 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
 	}
+}
+
+bool AYlva::HasMovedRightBy(const float Distance)
+{
+	const float DistanceMovedBy = FVector::Dist(RightMovementStart, RightMovementEnd);
+
+	if (IsMovingRight())
+		return DistanceMovedBy >= Distance;
+
+	return false;
+}
+
+bool AYlva::HasMovedLeftBy(const float Distance)
+{
+	const float DistanceMovedBy = FVector::Dist(RightMovementStart, RightMovementEnd);
+
+	if (IsMovingLeft())
+		return DistanceMovedBy >= Distance;
+
+	return false;
 }
 
 FVector AYlva::GetDirectionToBoss() const
