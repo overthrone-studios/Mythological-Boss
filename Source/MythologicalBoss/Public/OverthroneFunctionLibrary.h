@@ -4,7 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "GenericPlatformMisc.h"
 #include "OverthroneFunctionLibrary.generated.h"
+
+UENUM()
+enum EBuildConfig
+{
+	DebugBuild,
+	DevelopmentBuild,
+	ShippingBuild
+};
 
 /**
  * A list of useful utility and helpful public functions exposed to blueprints
@@ -18,6 +27,14 @@ public:
 	// Get the project version string from DefaultGame.ini file
 	UFUNCTION(BlueprintPure, Category = "Project Information")
 		static FString GetProjectVersion();
+
+	// Get the current project build configuration type as a string
+	UFUNCTION(BlueprintPure, Category = "Project Information")
+		static FString GetBuildConfigurationAsString();
+
+	// Get the current project build configuration type
+	UFUNCTION(BlueprintPure, Category = "Project Information")
+		static TEnumAsByte<EBuildConfig> GetBuildConfiguration();
 	
 	// Get the first player character found in the level
 	UFUNCTION(BlueprintPure, Category = "Overthrone")

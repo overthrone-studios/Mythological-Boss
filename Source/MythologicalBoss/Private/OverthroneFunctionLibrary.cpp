@@ -20,6 +20,27 @@ FString UOverthroneFunctionLibrary::GetProjectVersion()
 	return ProjectVersion;
 }
 
+FString UOverthroneFunctionLibrary::GetBuildConfigurationAsString()
+{
+	FString BuildConfig;
+	
+	GConfig->GetString(TEXT("/Script/UnrealEd.ProjectPackagingSettings"), TEXT("BuildConfiguration"), BuildConfig, GGameIni);
+	BuildConfig.RemoveAt(0, 5);
+
+	return BuildConfig;
+}
+
+TEnumAsByte<EBuildConfig> UOverthroneFunctionLibrary::GetBuildConfiguration()
+{
+#if UE_BUILD_SHIPPING
+		return ShippingBuild;
+#elif UE_BUILD_DEVELOPMENT
+		return DevelopmentBuild;
+#elif UE_BUILD_DEBUG
+		return DebugBuild;
+#endif
+}
+
 AOverthroneCharacter* UOverthroneFunctionLibrary::GetPlayerCharacter(UObject* WorldContextObject)
 {
 	return Cast<AOverthroneCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
