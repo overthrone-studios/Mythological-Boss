@@ -462,8 +462,10 @@ void AYlva::LookUpAtRate(const float Rate)
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead or while dashing
-	if (bIsDead || IsDashing())
+	if (bIsDead || IsDashing() && GameInstance->BossData.CurrentCounterType == NoCounter)
+	{
 		return DamageAmount;
+	}
 
 	BeginTakeDamage(DamageAmount);
 
@@ -1658,7 +1660,8 @@ void AYlva::OnEnterDashState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	EnableInvincibility();
+	if (GameInstance->BossData.CurrentCounterType == NoCounter)
+		EnableInvincibility();
 
 	AnimInstance->bIsDashing = true;
 
