@@ -265,6 +265,7 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
+	CurrentRotation = GetActorRotation();
 	GameInstance->PlayerData.Location = GetActorLocation();
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
@@ -299,6 +300,17 @@ void AYlva::Tick(const float DeltaTime)
 		!ChargeAttackComponent->IsChargeEmpty())
 	{
 		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
+	}
+
+	if ((GameInstance->PlayerData.CurrentRange == Close || GameInstance->PlayerData.CurrentRange == SuperClose) && IsAttacking())
+	{
+		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
+
+		if (GameInstance->PlayerData.CurrentRange == SuperClose)
+			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
+
+		DirectionToBoss = GetDirectionToBoss().Rotation();
+		SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 	}
 
 #if !UE_BUILD_SHIPPING
@@ -586,6 +598,11 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
 	}
+}
+
+FVector AYlva::GetDirectionToBoss() const
+{
+	return (GameInstance->BossData.Location - GetActorLocation()).GetSafeNormal(0.01f);;
 }
 
 #pragma region Combat

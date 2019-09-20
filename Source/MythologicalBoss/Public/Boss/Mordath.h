@@ -313,15 +313,15 @@ public:
 
 	// Returns true if we are delaying our current attack
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsDelayingAttack();
+		bool IsDelayingAttack() const;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsDashing();
+		bool IsDashing() const;
 
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool HasFinishedAttack();
+		bool HasFinishedAttack() const;
 
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -770,6 +770,5 @@ private:
 
 	class UAnimMontage* CurrentLongAttackMontage;
 
-	// Access to player information
 	AOverthroneCharacter* PlayerCharacter;
 };

@@ -92,6 +92,14 @@ struct FAttackSettings_Ylva : public FAttackSettings
 	// The amount of time (in seconds) the attack queue will clear itself. If the queue takes longer than the specified time (in seconds), clear the queue.
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
 		float AttackQueueExpiryTime = 0.5f;
+
+	// The amount of time (in seconds) the attack queue will clear itself. If the queue takes longer than the specified time (in seconds), clear the queue.
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float CloseRangeAttackRotationSpeed = 5.0f;
+
+	// The rotation speed the character will rotate at to face the boss when in the super close range
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float SuperCloseRangeAttackRotationSpeed = 2.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -382,6 +390,9 @@ protected:
 
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
+
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		FVector GetDirectionToBoss() const;
 
 	#pragma region Combat
 	// Called via input to enter the light attacking state
@@ -806,6 +817,9 @@ protected:
 private:
 	TQueue<enum EAttackType> AttackQueue;
 	TQueue<uint8> DashQueue;
+
+	FRotator CurrentRotation;
+	FRotator DirectionToBoss;
 
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
 

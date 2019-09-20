@@ -971,12 +971,12 @@ void AMordath::OnEnterTeleportState()
 
 void AMordath::UpdateTeleportState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if(FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
+	if (FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
 	{
-		if(ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
-			SetActorLocation(TeleportationComponent->FindLocationToTeleport(PlayerCharacter->GetActorLocation(),GameInstance->GetTeleportRadius(),GameInstance->PlayArea));
+		if (ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
+			SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameInstance->PlayerData.Location, GameInstance->GetTeleportRadius(), GameInstance->PlayArea));
 
 		FSM->PopState();
 	}
@@ -996,6 +996,8 @@ void AMordath::OnExitTeleportState()
 void AMordath::OnEnterCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	GameInstance->PlayerData.CurrentRange = Close;
 }
 
 void AMordath::UpdateCloseRange()
@@ -1021,6 +1023,8 @@ void AMordath::OnEnterMidRange()
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
 	CurrentMovementSpeed = GetMovementSpeed();
+
+	GameInstance->PlayerData.CurrentRange = Mid;
 }
 
 void AMordath::UpdateMidRange()
@@ -1046,6 +1050,8 @@ void AMordath::OnEnterFarRange()
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
 	CurrentMovementSpeed = GetMovementSpeed();
+
+	GameInstance->PlayerData.CurrentRange = Far;
 
 	if (IsInFirstStage())
 	{
@@ -1092,6 +1098,8 @@ void AMordath::OnExitFarRange()
 void AMordath::OnEnterSuperCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	GameInstance->PlayerData.CurrentRange = SuperClose;
 
 	Combat.AttackSettings.LightAttackDamage *= 1.5;
 	Combat.AttackSettings.HeavyAttackDamage *= 1.5;
@@ -1645,9 +1653,9 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 			FVector NewLocation;
 
 			if (CurrentAttackData->bLerp)
-				NewLocation = FMath::Lerp(GetActorLocation(), PlayerCharacter->GetActorLocation() - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
+				NewLocation = FMath::Lerp(GetActorLocation(), GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
 			else
-				NewLocation = PlayerCharacter->GetActorLocation() - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer;
+				NewLocation = GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer;
 
 			NewLocation.Z = GetActorLocation().Z;
 			SetActorLocation(NewLocation);
@@ -1723,7 +1731,7 @@ void AMordath::ResetMeshScale()
 
 float AMordath::GetDistanceToPlayer() const
 {
-	const float Distance = FVector::Dist(GetActorLocation(), PlayerCharacter->GetActorLocation());
+	const float Distance = FVector::Dist(GetActorLocation(), GameInstance->PlayerData.Location);
 
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDistance)
@@ -1735,7 +1743,7 @@ float AMordath::GetDistanceToPlayer() const
 
 FVector AMordath::GetDirectionToPlayer() const
 {
-	FVector Direction = PlayerCharacter->GetActorLocation() - GetActorLocation();
+	FVector Direction = GameInstance->PlayerData.Location - GetActorLocation();
 	Direction.Normalize();
 
 	#if !UE_BUILD_SHIPPING
@@ -1839,12 +1847,12 @@ bool AMordath::IsWaitingForNewCombo() const
 	return TimerManager->IsTimerActive(ComboDelayTimerHandle);
 }
 
-bool AMordath::IsDelayingAttack()
+bool AMordath::IsDelayingAttack() const
 {
 	return TimerManager->IsTimerActive(ChosenCombo->GetAttackDelayTimer());
 }
 
-bool AMordath::IsDashing()
+bool AMordath::IsDashing() const
 {
 	return FSM->GetActiveStateID() == 16;
 }
@@ -1859,7 +1867,7 @@ bool AMordath::IsRecovering() const
 	return FSM->GetActiveStateID() == 17;
 }
 
-bool AMordath::HasFinishedAttack()
+bool AMordath::HasFinishedAttack() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->AttackMontage);
 }

@@ -13,6 +13,15 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
+UENUM()
+enum ERanges
+{
+	SuperClose,
+	Close,
+	Mid,
+	Far
+};
+
 USTRUCT()
 struct FCharacterData
 {
@@ -27,6 +36,8 @@ struct FCharacterData
 	FOnLowHealthSignature OnLowHealth;
 
 	uint8 bIsDead : 1;
+
+	ERanges CurrentRange = Mid;
 };
 
 USTRUCT()
