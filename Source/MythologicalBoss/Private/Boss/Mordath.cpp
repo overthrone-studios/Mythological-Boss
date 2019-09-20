@@ -523,7 +523,8 @@ void AMordath::UpdateThinkState()
 
 	FacePlayer(DefaultRotationSpeed);
 
-	EncirclePlayer();
+	if (AnimInstance->AnimTimeRemaining > 0.2f)
+		EncirclePlayer();
 
 	if (!IsWaitingForNewCombo() && Uptime >= ThinkStateData.ThinkTime)
 	{
@@ -1693,11 +1694,11 @@ void AMordath::EncirclePlayer()
 {
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
-	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(100.0f)/* && AnimInstance->AnimTimeRemaining < 0.5*/)
+	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
 	{
 		MoveRight();
 	}
-	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(100.0f)/* && AnimInstance->AnimTimeRemaining < 0.5*/)
+	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(300.0f))
 	{
 		MoveRight(-1.0f);
 	}
