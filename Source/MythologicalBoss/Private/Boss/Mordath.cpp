@@ -253,7 +253,7 @@ void AMordath::BeginPlay()
 	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
 
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
-	MordathAnimInstance = Cast<UMordathAnimInstance>(GetMesh()->GetAnimInstance());
+	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
@@ -295,7 +295,7 @@ void AMordath::Tick(const float DeltaTime)
 	}
 	
 	GameInstance->BossData.Location = GetActorLocation();
-	GameInstance->BossData.LockOnBoneLocation = GetMesh()->GetSocketLocation(LockOnBoneName);
+	GameInstance->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
 
 	DistanceToPlayer = GetDistanceToPlayer();
 	DirectionToPlayer = GetDirectionToPlayer();
@@ -1595,7 +1595,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	{
 		ApplyDamage(DamageAmount);
 
-		GetMesh()->SetWorldScale3D(FVector(1.35f));
+		SKMComponent->SetWorldScale3D(FVector(1.35f));
 		TimerManager->SetTimer(HitReactionTimerHandle, this, &AMordath::ResetMeshScale, 0.1f);
 	}
 
@@ -1728,7 +1728,7 @@ void AMordath::EncirclePlayer()
 
 void AMordath::ResetMeshScale()
 {
-	GetMesh()->SetWorldScale3D(FVector(1.3f));
+	SKMComponent->SetWorldScale3D(FVector(1.3f));
 }
 
 float AMordath::GetDistanceToPlayer() const

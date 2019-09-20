@@ -204,7 +204,7 @@ void AYlva::BeginPlay()
 	// Initialize our variables
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
-	YlvaAnimInstance = Cast<UYlvaAnimInstance>(GetMesh()->GetAnimInstance());
+	YlvaAnimInstance = Cast<UYlvaAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
 
 	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
@@ -265,9 +265,10 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
+	CurrentLocation = GetActorLocation();
 	CurrentRotation = GetActorRotation();
 	DirectionToBoss = GetDirectionToBoss().Rotation();
-	GameInstance->PlayerData.Location = GetActorLocation();
+	GameInstance->PlayerData.Location = CurrentLocation;
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->MovementDirection = CalculateDirection();
@@ -315,7 +316,7 @@ void AYlva::Tick(const float DeltaTime)
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowTeleportRadius)
-		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation(), TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation, TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(GetControlRotation().Pitch));
 
@@ -454,11 +455,11 @@ void AYlva::MoveRight(const float Value)
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
 
-		RightMovementEnd = GetActorLocation();
+		RightMovementEnd = CurrentLocation;
 	}
 	else
 	{
-		RightMovementStart = GetActorLocation();
+		RightMovementStart = CurrentLocation;
 	}
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
@@ -628,7 +629,7 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 
 FVector AYlva::GetDirectionToBoss() const
 {
-	return (GameInstance->BossData.Location - GetActorLocation()).GetSafeNormal(0.01f);;
+	return (GameInstance->BossData.Location - CurrentLocation).GetSafeNormal(0.01f);;
 }
 
 #pragma region Combat

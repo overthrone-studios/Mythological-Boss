@@ -821,7 +821,6 @@ private:
 
 	FVector RightMovementStart, RightMovementEnd;
 
-	FRotator CurrentRotation;
 	FRotator DirectionToBoss;
 
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
