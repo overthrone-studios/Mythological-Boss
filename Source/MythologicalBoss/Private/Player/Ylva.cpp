@@ -243,8 +243,6 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
-	CurrentLocation = GetActorLocation();
-	CurrentRotation = GetActorRotation();
 	DirectionToBoss = GetDirectionToBoss().Rotation();
 	GameInstance->PlayerData.Location = CurrentLocation;
 
