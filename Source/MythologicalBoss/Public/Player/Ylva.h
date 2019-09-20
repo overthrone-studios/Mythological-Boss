@@ -331,6 +331,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsBlocking() const;
 
+	// Returns true if we are currently running
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsRunning() const;
+
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();

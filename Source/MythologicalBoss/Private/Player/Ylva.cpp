@@ -473,7 +473,7 @@ void AYlva::LookUpAtRate(const float Rate)
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead or while dashing
-	if (FSM->GetActiveStateName() == "Death" || FSM->GetActiveStateName() == "Dash")
+	if (bIsDead || IsDashing())
 		return DamageAmount;
 
 	BeginTakeDamage(DamageAmount);
@@ -609,7 +609,7 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
+	if (bIsDead ||
 		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
 		IsChargeAttacking())
 		return;
@@ -668,7 +668,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (FSM->GetActiveStateID() == 5 /*Death*/ ||
+	if (bIsDead ||
 		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
 		IsChargeAttacking())
 		return;
@@ -845,7 +845,7 @@ void AYlva::Block()
 
 void AYlva::StopBlocking()
 {
-	if (FSM->GetActiveStateID() == 5 /*Death*/)
+	if (bIsDead)
 		return;
 
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
@@ -930,7 +930,7 @@ void AYlva::EndTakeDamage()
 #pragma region Movement
 void AYlva::Run()
 {
-	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking())
+	if (bIsDead || IsChargeAttacking())
 		return;
 
 	bCanRun = !bCanRun;
@@ -951,16 +951,16 @@ void AYlva::StopRunning()
 {
 	bIsRunKeyHeld = false;
 
-	if (FSM->GetActiveStateName() == "Death" || bCanRun)
+	if (bIsDead || bCanRun)
 		return;
 
 	if (LockOnSettings.bLockedOn)
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	else
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-
-	// Delay stamina regeneration
-	if (FSM->GetActiveStateName() == "Run")
+	
+	// Delay stamina regeneration if we were running
+	if (IsRunning())
 		StaminaComponent->DelayRegeneration();
 
 	FSM->PopState();
@@ -968,7 +968,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (FSM->GetActiveStateName() == "Death" || IsChargeAttacking() || IsBlocking())
+	if (bIsDead || IsChargeAttacking() || IsBlocking())
 		return;
 
 	if (IsDashing() && DashQueue.IsEmpty() && !bCanDash && !TimerManager->IsTimerActive(DashQueueTimerHandle))
@@ -1020,7 +1020,7 @@ void AYlva::Dash_Queued()
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameInstance->BossData.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
+	if (GameInstance->BossData.Health <= 0.0f || bIsDead)
 		return;
 
 	LockOnSettings.bLockedOn = !LockOnSettings.bLockedOn;
@@ -1033,8 +1033,8 @@ void AYlva::ToggleLockOn()
 
 void AYlva::EnableLockOn()
 {
-	// Don't lock on if boss is dead
-	if (GameInstance->BossData.Health <= 0.0f || FSM->GetActiveStateName() == "Death")
+	// Don't lock on if boss is dead OR if we are dead
+	if (GameInstance->BossData.Health <= 0.0f || bIsDead)
 		return;
 
 	LockOnSettings.bLockedOn = true;
@@ -1181,7 +1181,7 @@ void AYlva::ShowNoHUD()
 #pragma region Stamina
 void AYlva::RegenerateStamina(const float Rate)
 {
-	if (bGodMode || FSM->GetActiveStateID() == 5 /*Death*/)
+	if (bGodMode || bIsDead)
 		return;
 
 	IncreaseStamina(Rate * World->DeltaTimeSeconds);
@@ -1778,7 +1778,7 @@ bool AYlva::IsChargeAttacking() const
 
 bool AYlva::IsParrySuccessful() const
 {
-	return FSM->GetActiveStateName() == "Block" && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
+	return IsBlocking() && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
 }
 
 bool AYlva::IsDashing() const
@@ -1819,6 +1819,11 @@ bool AYlva::IsLockedOn() const
 bool AYlva::IsBlocking() const
 {
 	return FSM->GetActiveStateID() == 4;
+}
+
+bool AYlva::IsRunning() const
+{
+	return FSM->GetActiveStateID() == 2;
 }
 
 void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
