@@ -170,28 +170,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
-void AYlva::AddDebugMessages()
-{
-	OverthroneHUD->AddOnScreenDebugMessage("Player", FColor::White, 0.0f, 1.1f);
-	OverthroneHUD->AddOnScreenDebugMessage("Camera Pitch: ", FColor::Orange);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green);
-	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White);
-	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White);
-	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
-	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
-}
-
-void AYlva::ResumeMovement()
-{
-	MovementComponent->SetMovementMode(MOVE_Walking);
-	PlayerController->ResetIgnoreMoveInput();
-}
-
 void AYlva::BeginPlay()
 {
 	Super::BeginPlay();
@@ -1783,6 +1761,12 @@ void AYlva::StopMovement()
 	FSM->RemoveAllStatesFromStack();
 }
 
+void AYlva::ResumeMovement()
+{
+	MovementComponent->SetMovementMode(MOVE_Walking);
+	PlayerController->ResetIgnoreMoveInput();
+}
+
 bool AYlva::IsLightAttacking() const
 {
 	return AttackComboComponent->GetCurrentAttack() == Light;
@@ -1920,4 +1904,20 @@ void AYlva::OnUntouchableFeatAchieved()
 	GameInstance->AchievedFeat = UntouchableFeat;
 
 	UntouchableFeat->OnFeatAchieved.Broadcast();
+}
+
+void AYlva::AddDebugMessages()
+{
+	OverthroneHUD->AddOnScreenDebugMessage("Player", FColor::White, 0.0f, 1.1f);
+	OverthroneHUD->AddOnScreenDebugMessage("Camera Pitch: ", FColor::Orange);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Forward Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Right Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Health: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Stamina: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("God mode: Off", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Current attack: ", FColor::White);
+	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
+	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
 }
