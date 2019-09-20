@@ -997,7 +997,7 @@ void AMordath::OnEnterCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	GameInstance->PlayerData.bIsCloseRange = true;
+	GameInstance->PlayerData.CurrentRange = Close;
 }
 
 void AMordath::UpdateCloseRange()
@@ -1014,8 +1014,6 @@ void AMordath::UpdateCloseRange()
 void AMordath::OnExitCloseRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	GameInstance->PlayerData.bIsCloseRange = false;
 }
 #pragma endregion 
 
@@ -1025,6 +1023,8 @@ void AMordath::OnEnterMidRange()
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
 	CurrentMovementSpeed = GetMovementSpeed();
+
+	GameInstance->PlayerData.CurrentRange = Mid;
 }
 
 void AMordath::UpdateMidRange()
@@ -1050,6 +1050,8 @@ void AMordath::OnEnterFarRange()
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
 	CurrentMovementSpeed = GetMovementSpeed();
+
+	GameInstance->PlayerData.CurrentRange = Far;
 
 	if (IsInFirstStage())
 	{
@@ -1097,7 +1099,7 @@ void AMordath::OnEnterSuperCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	GameInstance->PlayerData.bIsSuperCloseRange = true;
+	GameInstance->PlayerData.CurrentRange = SuperClose;
 
 	Combat.AttackSettings.LightAttackDamage *= 1.5;
 	Combat.AttackSettings.HeavyAttackDamage *= 1.5;
@@ -1120,8 +1122,6 @@ void AMordath::UpdateSuperCloseRange()
 void AMordath::OnExitSuperCloseRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	GameInstance->PlayerData.bIsSuperCloseRange = false;
 
 	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;

@@ -13,6 +13,15 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
+UENUM()
+enum ERanges
+{
+	SuperClose,
+	Close,
+	Mid,
+	Far
+};
+
 USTRUCT()
 struct FCharacterData
 {
@@ -27,6 +36,8 @@ struct FCharacterData
 	FOnLowHealthSignature OnLowHealth;
 
 	uint8 bIsDead : 1;
+
+	ERanges CurrentRange = Mid;
 };
 
 USTRUCT()
@@ -46,8 +57,6 @@ struct FPlayerData : public FCharacterData
 	float TeleportRadius = 0.0f;
 
 	uint8 bParrySucceeded : 1;
-	uint8 bIsCloseRange : 1;
-	uint8 bIsSuperCloseRange : 1;
 };
 
 USTRUCT()

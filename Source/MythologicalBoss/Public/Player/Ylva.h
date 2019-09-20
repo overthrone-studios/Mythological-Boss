@@ -818,6 +818,7 @@ private:
 	TQueue<enum EAttackType> AttackQueue;
 	TQueue<uint8> DashQueue;
 
+	FRotator CurrentRotation;
 	FRotator DirectionToBoss;
 
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;

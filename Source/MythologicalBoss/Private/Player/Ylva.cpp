@@ -265,6 +265,7 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
+	CurrentRotation = GetActorRotation();
 	GameInstance->PlayerData.Location = GetActorLocation();
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
@@ -301,15 +302,15 @@ void AYlva::Tick(const float DeltaTime)
 		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
 	}
 
-	if ((GameInstance->PlayerData.bIsCloseRange || GameInstance->PlayerData.bIsSuperCloseRange) && IsAttacking())
+	if ((GameInstance->PlayerData.CurrentRange == Close || GameInstance->PlayerData.CurrentRange == SuperClose) && IsAttacking())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
 
-		if (GameInstance->PlayerData.bIsSuperCloseRange)
+		if (GameInstance->PlayerData.CurrentRange == SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
 		DirectionToBoss = GetDirectionToBoss().Rotation();
-		SetActorRotation(FMath::Lerp(GetActorRotation(), FRotator(GetActorRotation().Pitch, DirectionToBoss.Yaw, GetActorRotation().Roll), RotationSpeed * DeltaTime));
+		SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 	}
 
 #if !UE_BUILD_SHIPPING
