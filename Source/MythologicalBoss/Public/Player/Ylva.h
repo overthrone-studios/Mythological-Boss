@@ -741,11 +741,11 @@ protected:
 
 	// Returns the sword static mesh components attached to the left hand bone
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
-		UStaticMeshComponent* GetLeftHandSword();
+		UStaticMeshComponent* GetLeftHandSword() const;
 
 	// Returns the sword static mesh components attached to the right hand bone
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Misc")
-		UStaticMeshComponent* GetRightHandSword();
+		UStaticMeshComponent* GetRightHandSword() const;
 	#pragma endregion
 
 	#pragma region Components

@@ -1836,7 +1836,7 @@ void AYlva::ResetGlobalTimeDilation()
 	UGameplayStatics::SetGlobalTimeDilation(this, 1.0f);
 }
 
-UStaticMeshComponent* AYlva::GetLeftHandSword()
+UStaticMeshComponent* AYlva::GetLeftHandSword() const
 {
 	if (Components.Num() == 0)
 	{
@@ -1862,7 +1862,7 @@ UStaticMeshComponent* AYlva::GetLeftHandSword()
 	return nullptr;
 }
 
-UStaticMeshComponent* AYlva::GetRightHandSword()
+UStaticMeshComponent* AYlva::GetRightHandSword() const
 {
 	if (Components.Num() == 0)
 	{
