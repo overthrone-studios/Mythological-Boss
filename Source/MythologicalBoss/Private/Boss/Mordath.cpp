@@ -318,15 +318,16 @@ void AMordath::Tick(const float DeltaTime)
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Direction To Player: " + DirectionToPlayer.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Short Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.LightAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Long Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.HeavyAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Attack: " + CurrentAttackData->GetCurrentAttackAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Direction To Player: " + DirectionToPlayer.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.LightAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.HeavyAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Attack: " + CurrentAttackData->GetCurrentAttackAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Counter: " + CurrentAttackData->GetCounterTypeAsString());
 #endif
 }
 
@@ -1929,4 +1930,5 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Short Attack Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Long Attack Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Yellow, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Counter: ", FColor::Yellow, YPadding);
 }
