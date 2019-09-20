@@ -739,7 +739,7 @@ protected:
 		TArray<UComboData*> CachedCombos;
 
 private:
-	TSubclassOf<class APotionBase> HealthPotion;
+	//TSubclassOf<class APotionBase> HealthPotion;
 
 	float DefaultRotationSpeed = 10.0f;
 

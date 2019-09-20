@@ -44,10 +44,10 @@ AMordath::AMordath()
 
 	// Get our anim blueprint class
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Mordath/Animations/ABP_Mordath.ABP_Mordath_C'"));
-	static ConstructorHelpers::FObjectFinder<UBlueprint> BP_HealthPotion(TEXT("Blueprint'/Game/Blueprints/Potions/BP_HealthPotion.BP_HealthPotion'"));
+	//static ConstructorHelpers::FObjectFinder<UBlueprint> BP_HealthPotion(TEXT("Blueprint'/Game/Blueprints/Potions/BP_HealthPotion.BP_HealthPotion'"));
 
-	if (BP_HealthPotion.Succeeded())
-		HealthPotion = BP_HealthPotion.Object->GeneratedClass;
+	//if (BP_HealthPotion.Succeeded())
+	//	HealthPotion = BP_HealthPotion.Object->GeneratedClass;
 
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath.SKM_Mordath'")));
@@ -334,7 +334,8 @@ void AMordath::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
+	if (SkeletalMesh)
+		FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -933,8 +934,8 @@ void AMordath::OnEnterBeatenState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	const FVector2D PointOnCircle = FMath::RandPointInCircle(100.0f);
-	World->SpawnActor<APotionBase>(HealthPotion, FVector(PointOnCircle.X, PointOnCircle.Y, 170.0f), FRotator(0.0f));
+	//const FVector2D PointOnCircle = FMath::RandPointInCircle(100.0f);
+	//World->SpawnActor<APotionBase>(HealthPotion, FVector(PointOnCircle.X, PointOnCircle.Y, 170.0f), FRotator(0.0f));
 
 	MordathAnimInstance->bIsBeaten = true;
 }
