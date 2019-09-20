@@ -294,7 +294,7 @@ void AMordath::Tick(const float DeltaTime)
 		return;
 	}
 	
-	GameInstance->BossData.Location = GetActorLocation();
+	GameInstance->BossData.Location = CurrentLocation;
 	GameInstance->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
 
 	DistanceToPlayer = GetDistanceToPlayer();
@@ -307,13 +307,13 @@ void AMordath::Tick(const float DeltaTime)
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
 	{
-		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation() * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 	}
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
@@ -1655,11 +1655,11 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 			FVector NewLocation;
 
 			if (CurrentAttackData->bLerp)
-				NewLocation = FMath::Lerp(GetActorLocation(), GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
+				NewLocation = FMath::Lerp(CurrentLocation, GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
 			else
 				NewLocation = GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer;
 
-			NewLocation.Z = GetActorLocation().Z;
+			NewLocation.Z = CurrentLocation.Z;
 			SetActorLocation(NewLocation);
 		}
 
@@ -1697,13 +1697,13 @@ void AMordath::EncirclePlayer()
 {
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
-	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(100.0f))
+	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(100.0f)/* && AnimInstance->AnimTimeRemaining < 0.5*/)
 	{
 		AddMovementInput(GetActorRightVector());
 		ForwardInput = 0.0f;
 		RightInput = 1.0f;
 	}
-	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(100.0f))
+	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(100.0f)/* && AnimInstance->AnimTimeRemaining < 0.5*/)
 	{
 		AddMovementInput(-GetActorRightVector());
 		ForwardInput = 0.0f;
@@ -1733,7 +1733,7 @@ void AMordath::ResetMeshScale()
 
 float AMordath::GetDistanceToPlayer() const
 {
-	const float Distance = FVector::Dist(GetActorLocation(), GameInstance->PlayerData.Location);
+	const float Distance = FVector::Dist(CurrentLocation, GameInstance->PlayerData.Location);
 
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDistance)
@@ -1745,7 +1745,7 @@ float AMordath::GetDistanceToPlayer() const
 
 FVector AMordath::GetDirectionToPlayer() const
 {
-	FVector Direction = GameInstance->PlayerData.Location - GetActorLocation();
+	FVector Direction = GameInstance->PlayerData.Location - CurrentLocation;
 	Direction.Normalize();
 
 	#if !UE_BUILD_SHIPPING
