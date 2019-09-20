@@ -24,6 +24,9 @@ void UOverthroneGameInstance::RestartGame()
 
 	const FString LevelName = UGameplayStatics::GetCurrentLevelName(this);
 	UGameplayStatics::OpenLevel(this, *LevelName);
+
+	PlayerData.bIsDead = false;
+	BossData.bIsDead = false;
 }
 
 bool UOverthroneGameInstance::IsGamePaused()
