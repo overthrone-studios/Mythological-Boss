@@ -145,14 +145,6 @@ struct FCameraShakes_Ylva : public FCameraShakes
 };
 
 USTRUCT(BlueprintType)
-struct FDashSettings_Ylva
-{
-	GENERATED_BODY()
-
-
-};
-
-USTRUCT(BlueprintType)
 struct FDefenseSettings_Ylva
 {
 	GENERATED_BODY()
@@ -202,10 +194,6 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FAttackSettings_Ylva AttackSettings;
-
-	// Settings that affect Ylva's dash behaviour
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FDashSettings_Ylva DashSettings;
 
 	// Settings that affect Ylva's charge settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
