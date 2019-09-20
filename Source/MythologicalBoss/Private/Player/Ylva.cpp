@@ -660,9 +660,6 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 	{
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
 	}
-
-	if (Combat.bRotateToCameraLookDirection)
-		bUseControllerRotationYaw = true;
 }
 
 void AYlva::HeavyAttack()
@@ -719,9 +716,6 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 	{
 		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
 	}
-
-	if (Combat.bRotateToCameraLookDirection)
-		bUseControllerRotationYaw = true;
 }
 
 void AYlva::Attack_Queued()
