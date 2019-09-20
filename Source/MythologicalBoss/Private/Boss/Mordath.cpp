@@ -334,8 +334,7 @@ void AMordath::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	if (SkeletalMesh)
-		FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
+	FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
 }
 
 void AMordath::PossessedBy(AController* NewController)
