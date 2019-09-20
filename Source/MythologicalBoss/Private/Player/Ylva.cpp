@@ -266,6 +266,7 @@ void AYlva::Tick(const float DeltaTime)
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
 	CurrentRotation = GetActorRotation();
+	DirectionToBoss = GetDirectionToBoss().Rotation();
 	GameInstance->PlayerData.Location = GetActorLocation();
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
@@ -309,8 +310,7 @@ void AYlva::Tick(const float DeltaTime)
 		if (GameInstance->PlayerData.CurrentRange == SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
-		DirectionToBoss = GetDirectionToBoss().Rotation();
-		SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
+		FaceBoss(DeltaTime, RotationSpeed);
 	}
 
 #if !UE_BUILD_SHIPPING
@@ -649,6 +649,9 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 {
 	OnBeginLightAttack(); // Handled in blueprints
 
+	if (IsLockedOn())
+		MovementComponent->bUseControllerDesiredRotation = false;
+
 	AnimInstance->Montage_Play(AttackMontage);
 
 	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
@@ -704,6 +707,9 @@ void AYlva::HeavyAttack()
 void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 {
 	OnBeginHeavyAttack(); // Handled in blueprints
+
+	if (IsLockedOn())
+		MovementComponent->bUseControllerDesiredRotation = false;
 
 	AnimInstance->Montage_Play(AttackMontage);
 
@@ -1412,6 +1418,9 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 {
 	OnAttackEnd(Montage, bInterrupted);
 
+	if (IsLockedOn())
+		MovementComponent->bUseControllerDesiredRotation = true;
+
 	if (!bInterrupted)
 	{
 		AttackComboComponent->OnAttackEnd.Broadcast();
@@ -1810,6 +1819,11 @@ bool AYlva::IsLockedOn() const
 bool AYlva::IsBlocking() const
 {
 	return FSM->GetActiveStateID() == 4;
+}
+
+void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
+{
+	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 }
 
 void AYlva::ResetGlobalTimeDilation()

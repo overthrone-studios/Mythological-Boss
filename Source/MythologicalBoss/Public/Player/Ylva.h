@@ -349,6 +349,7 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void FaceBoss(float DeltaTime, float RotationSpeed);
 	void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
