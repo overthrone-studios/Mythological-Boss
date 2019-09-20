@@ -599,6 +599,8 @@ protected:
 	// Called when the boss's health is less than or equal to zero
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnBossDeath();
+
+	UFUNCTION()
 		void OnBossDeath_Implementation();
 
 	// Called when our stamina value is below the given threshold
