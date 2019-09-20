@@ -435,9 +435,7 @@ void AMordath::UpdateFollowState()
 	{
 		if (!IsDelayingAttack())
 		{
-			AddMovementInput(GetDirectionToPlayer());
-			ForwardInput = 1.0f;
-			RightInput = 0.0f;
+			MoveForward();
 		}
 		else
 			FSM->PushState("Thinking");
@@ -484,10 +482,7 @@ void AMordath::UpdateRetreatState()
 
 	if (IsWaitingForNewCombo() && DistanceToPlayer < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
 	{
-		ForwardInput = -1.0f;
-		RightInput = 0.0f;
-
-		AddMovementInput(-GetDirectionToPlayer());
+		MoveForward(-1.0f);
 	}
 	else
 	{
@@ -1253,6 +1248,7 @@ void AMordath::OnExitThirdStage()
 {
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 }
+
 #pragma endregion   
 #pragma endregion
 
@@ -1699,29 +1695,21 @@ void AMordath::EncirclePlayer()
 
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(100.0f)/* && AnimInstance->AnimTimeRemaining < 0.5*/)
 	{
-		AddMovementInput(GetActorRightVector());
-		ForwardInput = 0.0f;
-		RightInput = 1.0f;
+		MoveRight();
 	}
 	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(100.0f)/* && AnimInstance->AnimTimeRemaining < 0.5*/)
 	{
-		AddMovementInput(-GetActorRightVector());
-		ForwardInput = 0.0f;
-		RightInput = -1.0f;
+		MoveRight(-1.0f);
 	}
 	else
 	{
 		if (WantsMoveRight())
 		{
-			AddMovementInput(GetActorRightVector());
-			ForwardInput = 0.0f;
-			RightInput = 1.0f;
+			MoveRight();
 		}
 		else
 		{
-			AddMovementInput(-GetActorRightVector());
-			ForwardInput = 0.0f;
-			RightInput = -1.0f;
+			MoveRight(-1.0f);
 		}
 	}
 }
@@ -1872,6 +1860,24 @@ bool AMordath::IsRecovering() const
 bool AMordath::HasFinishedAttack() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->AttackMontage);
+}
+
+void AMordath::MoveForward(float Scale)
+{
+	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
+
+	AddMovementInput(Scale * DirectionToPlayer);
+	ForwardInput = Scale;
+	RightInput = 0.0f;
+}
+
+void AMordath::MoveRight(float Scale)
+{
+	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
+
+	AddMovementInput(Scale * GetActorRightVector());
+	ForwardInput = 0.0f;
+	RightInput = Scale;
 }
 
 float AMordath::GetMovementSpeed() const

@@ -741,6 +741,9 @@ protected:
 private:
 	//TSubclassOf<class APotionBase> HealthPotion;
 
+	void MoveForward(float Scale = 1.0f);
+	void MoveRight(float Scale = 1.0f);
+
 	float DefaultRotationSpeed = 10.0f;
 
 	float DistanceToPlayer = 0.0f;
