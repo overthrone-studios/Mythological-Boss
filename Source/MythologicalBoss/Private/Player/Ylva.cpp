@@ -301,6 +301,17 @@ void AYlva::Tick(const float DeltaTime)
 		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
 	}
 
+	if ((GameInstance->PlayerData.bIsCloseRange || GameInstance->PlayerData.bIsSuperCloseRange) && IsAttacking())
+	{
+		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
+
+		if (GameInstance->PlayerData.bIsSuperCloseRange)
+			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
+
+		DirectionToBoss = GetDirectionToBoss().Rotation();
+		SetActorRotation(FMath::Lerp(GetActorRotation(), FRotator(GetActorRotation().Pitch, DirectionToBoss.Yaw, GetActorRotation().Roll), RotationSpeed * DeltaTime));
+	}
+
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowTeleportRadius)
 		UKismetSystemLibrary::DrawDebugCircle(this, GetActorLocation(), TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
@@ -586,6 +597,11 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
 	}
+}
+
+FVector AYlva::GetDirectionToBoss() const
+{
+	return (GameInstance->BossData.Location - GetActorLocation()).GetSafeNormal(0.01f);;
 }
 
 #pragma region Combat

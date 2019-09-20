@@ -46,6 +46,8 @@ struct FPlayerData : public FCharacterData
 	float TeleportRadius = 0.0f;
 
 	uint8 bParrySucceeded : 1;
+	uint8 bIsCloseRange : 1;
+	uint8 bIsSuperCloseRange : 1;
 };
 
 USTRUCT()
