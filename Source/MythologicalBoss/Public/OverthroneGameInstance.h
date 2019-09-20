@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Engine/GameInstance.h"
+#include "Combat/AttackData.h"
 #include "OverthroneGameInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
@@ -67,6 +68,8 @@ struct FBossData : public FCharacterData
 	FVector LockOnBoneLocation;
 
 	uint8 bCanBeParryed : 1;
+
+	EAttackCounters CurrentCounterType;
 
 	FOnAttackParryedSignature OnAttackParryed;
 };

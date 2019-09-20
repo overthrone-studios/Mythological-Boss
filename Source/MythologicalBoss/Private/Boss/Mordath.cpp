@@ -1320,6 +1320,8 @@ void AMordath::DestroySelf()
 void AMordath::PlayAttackMontage()
 {
 	PlayAnimMontage(CurrentAttackData->AttackMontage, 1.0f, FName("Anticipation"));
+
+	GameInstance->BossData.CurrentCounterType = CurrentAttackData->CounterType;
 }
 
 void AMordath::StopAttackMontage()
