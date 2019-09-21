@@ -3,6 +3,7 @@
 #include "OverthroneCharacter.h"
 
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneGameState.h"
 #include "Public/OverthroneAnimInstance.h"
 #include "Public/OverthroneHUD.h"
 
@@ -20,6 +21,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "TimerManager.h"
+#include "OverthroneFunctionLibrary.h"
 
 AOverthroneCharacter::AOverthroneCharacter()
 {
@@ -54,7 +56,8 @@ void AOverthroneCharacter::BeginPlay()
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
 	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	MainHUD = OverthroneHUD->GetMainHUD();
-	GameInstance = Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
+	GameState = UOverthroneFunctionLibrary::GetGameState(this);
 	SKMComponent = GetMesh();
 }
 

@@ -256,6 +256,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		class UOverthroneGameInstance* GameInstance{};
 
+	// Cached game state pointer
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class AOverthroneGameState* GameState{};
+
 	// Cached movement component
 	UCharacterMovementComponent* MovementComponent{};
 
