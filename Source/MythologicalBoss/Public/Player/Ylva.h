@@ -4,6 +4,7 @@
 
 #include "OverthroneCharacter.h"
 #include "Queue.h"
+#include "Components/AttackComboComponent.h"
 #include "Ylva.generated.h"
 
 USTRUCT(BlueprintType)
@@ -812,7 +813,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
 		class UYlvaAnimInstance* YlvaAnimInstance{};
 private:
-	TQueue<enum EAttackType> AttackQueue;
+	TQueue<EAttackType> AttackQueue;
 	TQueue<uint8> DashQueue;
 
 	FVector RightMovementStart, RightMovementEnd;
