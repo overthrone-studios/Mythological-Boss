@@ -41,6 +41,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class UOverthroneGameInstance* GetGameInstance(const UObject* WorldContext);
 
+	// Get our custom game state
+	UFUNCTION(BlueprintPure, Category = "Overthrone")
+		static class AOverthroneGameState* GetGameState(const UObject* WorldContext);
+
 	// Get our custom HUD object
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class AOverthroneHUD* GetHUD(APlayerController* InPlayerController);

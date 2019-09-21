@@ -1,15 +1,20 @@
 // Copyright Overthrone Studios 2019
 
 #include "OverthroneFunctionLibrary.h"
+
 #include "Public/OverthroneGameInstance.h"
+#include "Public/OverthroneGameState.h"
 #include "Public/OverthroneCharacter.h"
 #include "Public/OverthroneHUD.h"
 #include "Public/BossBattleGameMode.h"
-#include "ConfigCacheIni.h"
+
 #include "Mordath.h"
+
+#include "ConfigCacheIni.h"
 #include "EngineUtils.h"
-#include "Kismet/GameplayStatics.h"
 #include "SlateApplication.h"
+
+#include "Kismet/GameplayStatics.h"
 
 FString UOverthroneFunctionLibrary::GetProjectVersion()
 {
@@ -59,6 +64,11 @@ AOverthroneCharacter* UOverthroneFunctionLibrary::GetBossCharacter(UWorld* InWor
 UOverthroneGameInstance* UOverthroneFunctionLibrary::GetGameInstance(const UObject* WorldContext)
 {
 	return Cast<UOverthroneGameInstance>(UGameplayStatics::GetGameInstance(WorldContext));
+}
+
+AOverthroneGameState* UOverthroneFunctionLibrary::GetGameState(const UObject* WorldContext)
+{
+	return Cast<AOverthroneGameState>(UGameplayStatics::GetGameState(WorldContext));
 }
 
 AOverthroneHUD* UOverthroneFunctionLibrary::GetHUD(APlayerController* InPlayerController)
