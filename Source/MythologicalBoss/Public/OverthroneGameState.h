@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackParryedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFirstStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
@@ -107,6 +108,7 @@ struct FBossData : public FCharacterData
 
 	FOnAttackParryedSignature OnAttackParryed;
 
+	FOnFirstStageSignature OnEnterFirstStage;
 	FOnSecondStageSignature OnEnterSecondStage;
 	FOnThirdStageSignature OnEnterThirdStage;
 };

@@ -326,6 +326,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void EnterStage(EBossStage InStage);
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
@@ -412,6 +415,9 @@ protected:
 
 	UFUNCTION()
 		void OnAttackParryed();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void OnFirstStageHealth();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnSecondStageHealth();

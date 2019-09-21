@@ -4,6 +4,8 @@
 
 #include "OverthroneFunctionLibrary.h"
 
+#include "Boss/Mordath.h"
+
 #include "Kismet/GameplayStatics.h"
 
 void AOverthroneGameState::EnterBossStage(const EBossStage InBossStage)
@@ -11,13 +13,16 @@ void AOverthroneGameState::EnterBossStage(const EBossStage InBossStage)
 	switch (InBossStage)
 	{
 	case Stage_1:
-		break;
+		Boss->EnterStage(Stage_1);
+	break;
 
 	case Stage_2:
-		break;
+		Boss->EnterStage(Stage_2);
+	break;
 
 	case Stage_3:
-		break;
+		Boss->EnterStage(Stage_3);
+	break;
 	}
 }
 

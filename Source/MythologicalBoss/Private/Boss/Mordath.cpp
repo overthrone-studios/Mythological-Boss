@@ -264,6 +264,7 @@ void AMordath::BeginPlay()
 	GameState->BossData.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameState->BossData.OnAttackParryed.AddDynamic(this, &AMordath::OnAttackParryed);
 	GameState->PlayerData.OnDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
+	GameState->BossData.OnEnterFirstStage.AddDynamic(this, &AMordath::OnFirstStageHealth);
 	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
 	GameState->Boss = this;
@@ -1196,6 +1197,15 @@ void AMordath::UpdateSecondStage()
 		return;
 	}
 
+#if !UE_BUILD_SHIPPING
+	// Can we enter the first stage?
+	if (HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * SecondStageHealth)
+	{
+		GameState->BossData.OnEnterFirstStage.Broadcast();
+		return;
+	}
+#endif
+
 	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
 		if (ComboSettings.bDelayBetweenCombo)
@@ -1232,6 +1242,15 @@ void AMordath::OnEnterThirdStage()
 void AMordath::UpdateThirdStage()
 {
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+
+#if !UE_BUILD_SHIPPING
+	// Can we enter the second stage?
+	if (HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
+	{
+		GameState->BossData.OnEnterSecondStage.Broadcast();
+		return;
+	}
+#endif
 
 	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
@@ -1288,6 +1307,14 @@ void AMordath::OnAttackParryed()
 		// Shake the camera
 		PlayerController->ClientPlayCameraShake(CameraShakes.Stun.Shake, CameraShakes.Stun.Intensity);
 	}
+}
+
+void AMordath::OnFirstStageHealth()
+{
+	StageFSM->PushState(0);
+
+	CachedCombos.Empty();
+	ChooseCombo();
 }
 
 void AMordath::OnSecondStageHealth()
@@ -1902,6 +1929,24 @@ float AMordath::GetMovementSpeed() const
 
 	default:
 		return MovementSettings.WalkSpeed;
+	}
+}
+
+void AMordath::EnterStage(const EBossStage InStage)
+{
+	switch (InStage)
+	{
+	case Stage_1:
+		SetHealth(HealthComponent->GetDefaultHealth());
+	break;
+
+	case Stage_2:
+		SetHealth(HealthComponent->GetDefaultHealth() * SecondStageHealth);
+	break;
+		
+	case Stage_3:
+		SetHealth(HealthComponent->GetDefaultHealth() * ThirdStageHealth);
+	break;
 	}
 }
 
