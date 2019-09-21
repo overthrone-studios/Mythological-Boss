@@ -6,6 +6,7 @@
 #include "Player/Ylva.h"
 #include "Kismet/GameplayStatics.h"
 #include "Log.h"
+#include "OverthroneGameState.h"
 
 ABossBattleGameMode::ABossBattleGameMode()
 {
@@ -13,6 +14,7 @@ ABossBattleGameMode::ABossBattleGameMode()
 
 	// Set default HUD class to our HUD
 	HUDClass = AOverthroneHUD::StaticClass();
+	GameStateClass = AOverthroneGameState::StaticClass();
 }
 
 void ABossBattleGameMode::BeginPlay()
