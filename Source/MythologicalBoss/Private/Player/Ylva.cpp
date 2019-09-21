@@ -1469,7 +1469,7 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 
 	if (!bInterrupted)
 	{
-		AttackComboComponent->OnAttackEnd.Broadcast();
+		AttackComboComponent->ClearCurrentAttack();
 	}
 }
 #pragma endregion
@@ -1611,6 +1611,10 @@ void AYlva::OnEnterDamagedState()
 	if (MovementSettings.bStopMovingWhenDamaged)
 		MovementComponent->SetMovementMode(MOVE_None);
 
+	StopAnimMontage();
+	AttackComboComponent->ClearCurrentAttack();
+
+
 	AnimInstance->bIsHit = true;
 }
 
@@ -1637,6 +1641,8 @@ void AYlva::OnExitDamagedState()
 void AYlva::OnEnterDeathState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	AnimInstance->StopAllMontages(0.1f);
 
 	bIsDead = true;
 	GameState->PlayerData.bIsDead = true;
