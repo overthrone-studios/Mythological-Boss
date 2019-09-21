@@ -17,23 +17,44 @@ public:
 	void Init() override;
 
 	UHUDBase* GetHUD(TSubclassOf<UHUDBase> HUDClass) const;
-	UHUDBase* GetHUD(const FString& HUDWidgetName) const;
-	TArray<UHUDBase*> GetAllHUDs() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		UHUDBase* GetHUD(const FString& HUDWidgetName) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		TArray<UHUDBase*> GetAllHUDs() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		UWidget* GetActiveHUDWidget() const;
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		int32 GetActiveHUDIndex() const;
+
 	void StoreAllDebugOptions(const UPanelWidget* ParentWidget);
 
-	UWidget* GetActiveHUDWidget() const;
-	int32 GetActiveHUDIndex() const;
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void SwitchToHUD(UHUDBase* HUD);
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void SwitchToHUDIndex(int32 Index);
 
-	void SwitchToHUD(UHUDBase* HUD);
-	void SwitchToHUDIndex(int32 Index);
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void HighlightBox(int32 Index);
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void UnhighlightBox(int32 Index);
 
-	void HighlightBox(int32 Index);
-	void UnhighlightBox(int32 Index);
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void ShowDebugInfo();
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void HideDebugInfo();
 
-	void ShowTitle();
-	void HideTitle();
-	void ShowBoxes();
-	void HideBoxes();
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void ShowTitle();
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void HideTitle();
+
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void ShowBoxes();
+	UFUNCTION(BlueprintCallable, Category = "Master HUD")
+		void HideBoxes();
 
 	uint8 bLogHUDInitialized : 1;
 
