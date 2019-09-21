@@ -1163,7 +1163,7 @@ void AMordath::UpdateFirstStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1182,6 +1182,9 @@ void AMordath::OnEnterSecondStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
 
+	if (Stage2_Transition)
+		PlayAnimMontage(Stage2_Transition);
+
 	MordathAnimInstance->CurrentStage = Stage_2;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
 }
@@ -1189,6 +1192,9 @@ void AMordath::OnEnterSecondStage()
 void AMordath::UpdateSecondStage()
 {
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+
+	if (AnimInstance->Montage_IsPlaying(Stage2_Transition))
+		return;
 
 	// Can we enter the third stage?
 	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth)
@@ -1216,7 +1222,7 @@ void AMordath::UpdateSecondStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1235,6 +1241,9 @@ void AMordath::OnEnterThirdStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
 
+	if (Stage3_Transition)
+		PlayAnimMontage(Stage3_Transition);
+
 	MordathAnimInstance->CurrentStage = Stage_3;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
 }
@@ -1242,6 +1251,9 @@ void AMordath::OnEnterThirdStage()
 void AMordath::UpdateThirdStage()
 {
 	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+
+	if (AnimInstance->Montage_IsPlaying(Stage3_Transition))
+		return;
 
 #if !UE_BUILD_SHIPPING
 	// Can we enter the second stage?
@@ -1262,7 +1274,7 @@ void AMordath::UpdateThirdStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing())
+	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1894,6 +1906,11 @@ bool AMordath::IsRecovering() const
 bool AMordath::HasFinishedAttack() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->AttackMontage);
+}
+
+bool AMordath::IsTransitioning() const
+{
+	return AnimInstance->Montage_IsPlaying(Stage2_Transition) || AnimInstance->Montage_IsPlaying(Stage3_Transition);
 }
 
 void AMordath::MoveForward(float Scale)

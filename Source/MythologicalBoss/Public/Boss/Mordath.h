@@ -322,6 +322,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
 
+	// Returns true if we are transitioning to the next stage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsTransitioning() const;
+
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
@@ -716,6 +720,12 @@ protected:
 	// Properties of the boss's combat settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FCombatSettings_Mordath Combat;
+
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
+		class UAnimMontage* Stage2_Transition;
+
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
+		class UAnimMontage* Stage3_Transition;
 
 	// List of camera shakes
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
