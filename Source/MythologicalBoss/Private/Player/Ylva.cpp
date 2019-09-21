@@ -263,8 +263,6 @@ void AYlva::Tick(const float DeltaTime)
 		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
 		GetController()->SetControlRotation(NewRotation);
-
-		GameInstance->SetLockOnLocation(GameInstance->BossData.LockOnBoneLocation);
 	}
 
 	// Stamina regen mechanic

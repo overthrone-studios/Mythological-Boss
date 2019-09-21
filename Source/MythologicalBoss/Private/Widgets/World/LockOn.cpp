@@ -9,17 +9,18 @@
 #include "Components/WidgetComponent.h"
 
 #include "Engine/World.h"
+#include "Log.h"
 
 ALockOn::ALockOn()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ALockOn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	class UOverthroneGameInstance* GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
+	GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
 	GameInstance->LockOn = this;
 
 	// Get our lock on widget component
@@ -36,6 +37,13 @@ void ALockOn::BeginPlay()
 			break;
 		}
 	}
+}
+
+void ALockOn::Tick(const float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	SetActorLocation(GameInstance->BossData.LockOnBoneLocation);
 }
 
 void ALockOn::Show()

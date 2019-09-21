@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "LockOn.generated.h"
 
+/*
+ * The lock on actor that can be placed in the world
+ */
 UCLASS()
 class MYTHOLOGICALBOSS_API ALockOn final : public AActor
 {
@@ -28,7 +31,11 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void Tick(float DeltaSeconds) override;
 
 	class UWidgetComponent* LockOnWidgetComponent;
 	class ULockOnWidget* LockOnWidget;
+
+private:
+	class UOverthroneGameInstance* GameInstance;
 };

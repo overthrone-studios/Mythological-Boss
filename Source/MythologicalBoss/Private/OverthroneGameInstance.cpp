@@ -96,12 +96,6 @@ void UOverthroneGameInstance::InitInstance()
 	bFirstLaunch = false;
 }
 
-void UOverthroneGameInstance::SetLockOnLocation(const FVector& LockOnLocation) const
-{
-	if (LockOn)
-		LockOn->SetActorLocation(LockOnLocation);
-}
-
 void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
 {
 	if (LockOn)
