@@ -813,7 +813,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
 		class UYlvaAnimInstance* YlvaAnimInstance{};
 private:
-	TQueue<EAttackType> AttackQueue;
+	TQueue<EAttackType_Player> AttackQueue;
 	TQueue<uint8> DashQueue;
 
 	FVector RightMovementStart, RightMovementEnd;

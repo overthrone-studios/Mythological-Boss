@@ -4,6 +4,7 @@
 
 #include "Engine/GameInstance.h"
 #include "Combat/AttackData.h"
+#include "OverthroneEnums.h"
 #include "OverthroneGameInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerDeathSignature);
@@ -13,15 +14,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
-
-UENUM()
-enum ERanges
-{
-	SuperClose,
-	Close,
-	Mid,
-	Far
-};
 
 USTRUCT()
 struct FCharacterData
@@ -38,7 +30,7 @@ struct FCharacterData
 
 	uint8 bIsDead : 1;
 
-	ERanges CurrentRange = Mid;
+	EBossRanges CurrentRange = Mid;
 };
 
 USTRUCT()
@@ -69,7 +61,7 @@ struct FBossData : public FCharacterData
 
 	uint8 bCanBeParryed : 1;
 
-	EAttackCounters CurrentCounterType;
+	EAttackCounters_Mordath CurrentCounterType;
 
 	FOnAttackParryedSignature OnAttackParryed;
 };

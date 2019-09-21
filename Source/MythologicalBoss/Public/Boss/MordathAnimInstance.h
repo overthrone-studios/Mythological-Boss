@@ -4,15 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "OverthroneAnimInstance.h"
+#include "OverthroneEnums.h"
 #include "MordathAnimInstance.generated.h"
-
-UENUM(BlueprintType)
-enum EBossStage
-{
-	Stage_1,
-	Stage_2,
-	Stage_3
-};
 
 /**
  * The animation instance the boss character will use

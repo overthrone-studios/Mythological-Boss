@@ -60,7 +60,7 @@ void UAttackComboComponent::BeginPlay()
 	CurrentAttack = None;
 }
 
-class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAttackType)
+class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player InAttackType)
 {
 	CurrentAttack = InAttackType;
 
@@ -104,7 +104,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType InAtta
 	return CurrentAttackAnim;
 }
 
-class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType InAttackType)
+class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType_Player InAttackType)
 {
 	if (IsAtTreeEnd() && IsWaitingForComboReset())
 	{
@@ -168,7 +168,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	return MontageToReturn;
 }
 
-int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const EAttackType& InAttackType)
+int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const EAttackType_Player& InAttackType)
 {
 	if (AttackIndex >= AttackList.Num())
 	{

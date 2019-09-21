@@ -5,15 +5,8 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GenericPlatformMisc.h"
+#include "OverthroneEnums.h"
 #include "OverthroneFunctionLibrary.generated.h"
-
-UENUM()
-enum EBuildConfig
-{
-	DebugBuild,
-	DevelopmentBuild,
-	ShippingBuild
-};
 
 /**
  * A list of useful utility and helpful public functions exposed to blueprints

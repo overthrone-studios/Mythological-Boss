@@ -4,19 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "OverthroneEnums.h"
 #include "AttackComboComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboTreeResetSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndSignature);
-
-UENUM()
-enum EAttackType
-{
-	Light,
-	Heavy,
-	Special,
-	None
-};
 
 USTRUCT(BlueprintType)
 struct FAttacks
@@ -39,7 +31,7 @@ struct FAttackChain
 
 	// The list of attacks
 	UPROPERTY(EditInstanceOnly)
-		TArray<TEnumAsByte<EAttackType>> Attacks;
+		TArray<TEnumAsByte<EAttackType_Player>> Attacks;
 };
 
 
@@ -56,7 +48,7 @@ public:
 
 	// Advances to the next attack in the combo tree
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
-		class UAnimMontage* AdvanceCombo(enum EAttackType InAttackType);
+		class UAnimMontage* AdvanceCombo(EAttackType_Player InAttackType);
 
 	// Returns the array of light attacks
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -84,11 +76,11 @@ public:
 
 	// Returns the combo we've created
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE TArray<TEnumAsByte<EAttackType>> GetComboChain() const { return PreviousCombo; }
+		FORCEINLINE TArray<TEnumAsByte<EAttackType_Player>> GetComboChain() const { return PreviousCombo; }
 
 	// Returns the current attack type we are on
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE EAttackType GetCurrentAttack() const { return CurrentAttack; }
+		FORCEINLINE EAttackType_Player GetCurrentAttack() const { return CurrentAttack; }
 
 	// Returns the current attack animation montage we are on
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -184,19 +176,19 @@ protected:
 		uint8 bLogTreeStatus : 1;
 
 private:
-	class UAnimMontage* AdvanceCombo_Internal(enum EAttackType InAttackType);
-	int8 AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const enum EAttackType& InAttackType);
+	class UAnimMontage* AdvanceCombo_Internal(enum EAttackType_Player InAttackType);
+	int8 AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const enum EAttackType_Player& InAttackType);
 
 	void DelayAttack(const float& Delay);
 	void LogAttackChain(); // Tracks the attacks we've chained
 
-	EAttackType CurrentAttack;
+	EAttackType_Player CurrentAttack;
 
 	class UAnimMontage* CurrentAttackAnim;
 
 	// The attack chain history
-	TArray<TEnumAsByte<EAttackType>> Combo;
-	TArray<TEnumAsByte<EAttackType>> PreviousCombo;
+	TArray<TEnumAsByte<EAttackType_Player>> Combo;
+	TArray<TEnumAsByte<EAttackType_Player>> PreviousCombo;
 
 	int8 LightAttackIndex = 0;
 	int8 HeavyAttackIndex = 0;

@@ -4,16 +4,8 @@
 
 #include "OverthroneCharacter.h"
 #include "Combat/ComboData.h"
+#include "OverthroneEnums.h"
 #include "Mordath.generated.h"
-
-UENUM()
-enum EDashType_Mordath
-{
-	Dash_Forward,
-	Dash_Backward,
-	Dash_Left,
-	Dash_Right
-};
 
 USTRUCT(BlueprintType)
 struct FDebug_Mordath : public FCharacterDebug

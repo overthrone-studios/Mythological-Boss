@@ -39,6 +39,7 @@
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
+#include "Engine/Engine.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -728,7 +729,7 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 
 void AYlva::Attack_Queued()
 {
-	EAttackType AttackType;
+	EAttackType_Player AttackType;
 	
 	AttackQueue.Peek(AttackType);
 	AttackQueue.Pop();

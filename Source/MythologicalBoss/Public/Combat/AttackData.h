@@ -4,29 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "OverthroneEnums.h"
 #include "AttackData.generated.h"
-
-UENUM()
-enum EAttackType_Combo
-{
-	ShortAttack_1,
-	ShortAttack_2,
-	ShortAttack_3,
-	LongAttack_1,
-	LongAttack_2,
-	LongAttack_3,
-	SpecialAttack_1,
-	SpecialAttack_2,
-	SpecialAttack_3
-};
-
-UENUM()
-enum EAttackCounters
-{
-	Parryable,
-	Blockable,
-	NoCounter
-};
 
 /**
  * An asset that holds attack data for the boss
@@ -42,7 +21,7 @@ public:
 
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
-		TEnumAsByte<EAttackType_Combo> Attack;
+		TEnumAsByte<EAttackType_Mordath> Attack;
 
 	// The attack animation montage to play
 	UPROPERTY(EditInstanceOnly)
@@ -50,7 +29,7 @@ public:
 
 	// What type of counter can this attack be countered by the player?
 	UPROPERTY(EditInstanceOnly)
-		TEnumAsByte<EAttackCounters> CounterType;
+		TEnumAsByte<EAttackCounters_Mordath> CounterType;
 	
 	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
