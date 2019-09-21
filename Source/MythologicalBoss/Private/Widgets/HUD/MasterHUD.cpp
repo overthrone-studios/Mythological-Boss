@@ -63,6 +63,18 @@ void UMasterHUD::UnhighlightBox(const int32 Index)
 	Background->SetColorAndOpacity(GWhite);
 }
 
+void UMasterHUD::ShowDebugInfo()
+{
+	ShowTitle();
+	ShowBoxes();
+}
+
+void UMasterHUD::HideDebugInfo()
+{
+	HideTitle();
+	HideBoxes();
+}
+
 void UMasterHUD::ShowTitle()
 {
 	Title->SetVisibility(ESlateVisibility::Visible);
