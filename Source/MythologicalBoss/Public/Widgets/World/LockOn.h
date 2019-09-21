@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "LockOn.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToggleLockOnSignature, bool, bInVisibility);
+
 /*
  * The lock on actor that can be placed in the world
  */
@@ -16,6 +18,8 @@ class MYTHOLOGICALBOSS_API ALockOn final : public AActor
 	
 public:	
 	ALockOn();
+
+	FOnToggleLockOnSignature OnToggleLockOn;
 
 	// Set lock-on widget to visible
 	UFUNCTION(BlueprintCallable, Category = "Lock-On")
@@ -37,5 +41,5 @@ protected:
 	class ULockOnWidget* LockOnWidget;
 
 private:
-	class UOverthroneGameInstance* GameInstance;
+	class AOverthroneGameState* GameState;
 };

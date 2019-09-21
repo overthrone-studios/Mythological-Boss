@@ -1,9 +1,11 @@
 // Copyright Overthrone Studios 2019
 
 #include "BoundingBox.h"
-#include "OverthroneGameInstance.h"
-#include "Components/BoxComponent.h"
 
+#include "OverthroneGameState.h"
+#include "OverthroneFunctionLibrary.h"
+
+#include "Components/BoxComponent.h"
 
 ABoundingBox::ABoundingBox()
 {
@@ -20,7 +22,7 @@ void ABoundingBox::BeginPlay()
 	Box.Min = -BoxComponent->GetUnscaledBoxExtent();
 	Box.Max = BoxComponent->GetUnscaledBoxExtent();
 
-	const auto GameInstance = Cast<UOverthroneGameInstance>(GetGameInstance());
+	const auto GameState = UOverthroneFunctionLibrary::GetGameState(this);
 
-	GameInstance->PlayArea = Box;
+	GameState->PlayArea = Box;
 }

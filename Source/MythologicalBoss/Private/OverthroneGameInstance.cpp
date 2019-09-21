@@ -1,43 +1,19 @@
 // Copyright Overthrone Studios 2019
 
 #include "OverthroneGameInstance.h"
-#include "UserWidget.h"
+
 #include "LockOn.h"
+
 #include "Misc/FeatData.h"
+
 #include "Kismet/GameplayStatics.h"
-#include "ConstructorHelpers.h"
+
 #include "Log.h"
-#include "OverthroneFunctionLibrary.h"
+
+static bool bFirstLaunch = true;
 
 UOverthroneGameInstance::UOverthroneGameInstance()
 {
-	bFirstLaunch = true;
-}
-
-void UOverthroneGameInstance::RestartGame()
-{
-	UOverthroneFunctionLibrary::UnPauseGame(PlayerController);
-
-	const FString LevelName = UGameplayStatics::GetCurrentLevelName(this);
-	UGameplayStatics::OpenLevel(this, *LevelName);
-
-	PlayerData.bIsDead = false;
-	BossData.bIsDead = false;
-}
-
-bool UOverthroneGameInstance::IsGamePaused()
-{
-	return UGameplayStatics::IsGamePaused(this);
-}
-
-void UOverthroneGameInstance::PauseGame()
-{
-	UOverthroneFunctionLibrary::PauseGame(PlayerController);
-}
-
-void UOverthroneGameInstance::UnPauseGame()
-{
-	UOverthroneFunctionLibrary::UnPauseGame(PlayerController);
 }
 
 UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
@@ -94,12 +70,6 @@ void UOverthroneGameInstance::InitInstance()
 	InitFeats();
 
 	bFirstLaunch = false;
-}
-
-void UOverthroneGameInstance::ToggleLockOnVisibility(const bool bIsVisible) const
-{
-	if (LockOn)
-		LockOn->ToggleVisibility(!bIsVisible);
 }
 
 void UOverthroneGameInstance::OnFeatAchieved()

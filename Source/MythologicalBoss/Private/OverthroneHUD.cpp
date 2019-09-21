@@ -1,8 +1,9 @@
 // Copyright Overthrone Studios 2019
 
-#include "Public/OverthroneHUD.h"
-#include "Public/OverthroneGameInstance.h"
-#include "Public/OverthroneCharacter.h"
+#include "OverthroneHUD.h"
+#include "OverthroneGameState.h"
+#include "OverthroneCharacter.h"
+#include "OverthroneFunctionLibrary.h"
 
 #include "Widgets/HUD/MasterHUD.h"
 #include "Widgets/HUD/MainPlayerHUD.h"
@@ -14,7 +15,6 @@
 #include "ConstructorHelpers.h"
 #include "Log.h"
 #include "Engine/Engine.h"
-#include "OverthroneFunctionLibrary.h"
 
 AOverthroneHUD::AOverthroneHUD()
 {
@@ -69,13 +69,13 @@ void AOverthroneHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const auto GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
+	const AOverthroneGameState* GameState = UOverthroneFunctionLibrary::GetGameState(this);
 
 #if !UE_BUILD_SHIPPING
-	reinterpret_cast<AOverthroneCharacter*>(GameInstance->Player)->AddDebugMessages();
+	reinterpret_cast<AOverthroneCharacter*>(GameState->Player)->AddDebugMessages();
 
-	if (reinterpret_cast<AOverthroneCharacter*>(GameInstance->Boss))
-		reinterpret_cast<AOverthroneCharacter*>(GameInstance->Boss)->AddDebugMessages();
+	if (reinterpret_cast<AOverthroneCharacter*>(GameState->Boss))
+		reinterpret_cast<AOverthroneCharacter*>(GameState->Boss)->AddDebugMessages();
 #endif
 }
 

@@ -54,7 +54,7 @@ public:
 		float GetBossSmoothedHealthAsPercentage() const;
 
 protected:
-	class UOverthroneGameInstance* GameInstance;
+	class AOverthroneGameState* GameState;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Animation")
 		class UWidgetAnimation* DamageValueFade;

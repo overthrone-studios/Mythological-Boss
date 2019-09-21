@@ -509,6 +509,18 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
 		void Debug_ToggleBuff();
 
+	// Called via input to trigger boss stage 1 behaviour
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
+		void Debug_BossStage1();
+	
+	// Called via input to trigger boss stage 2 behaviour
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
+		void Debug_BossStage2();
+	
+	// Called via input to trigger boss stage 3 behaviour
+	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
+		void Debug_BossStage3();
+
 	// Called via input to show the FSM Visualizer widget
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
 		void ShowPlayerFSMVisualizer();

@@ -2,7 +2,8 @@
 
 #include "MainPlayerHUD.h"
 
-#include "Public/OverthroneGameInstance.h"
+#include "OverthroneGameState.h"
+#include "OverthroneFunctionLibrary.h"
 
 #include "WidgetTree.h"
 
@@ -12,13 +13,12 @@
 #include "WidgetAnimation.h"
 
 #include "TimerManager.h"
-#include "Log.h"
 
 void UMainPlayerHUD::Init()
 {
 	Super::Init();
 
-	GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
+	GameState = UOverthroneFunctionLibrary::GetGameState(this);
 
 	PlayerHealthBar = Cast<UProgressBar>(WidgetTree->FindWidget("Player_Health"));
 	PlayerStaminaBar = Cast<UProgressBar>(WidgetTree->FindWidget("Player_Stamina"));
@@ -63,42 +63,42 @@ void UMainPlayerHUD::SetOffTimer_DamageValueFadeOut(const float InSeconds)
 
 float UMainPlayerHUD::GetPlayerHealthAsPercentage() const
 {
-	return GameInstance->PlayerData.Health / GameInstance->PlayerData.StartingHealth;
+	return GameState->PlayerData.Health / GameState->PlayerData.StartingHealth;
 }
 
 float UMainPlayerHUD::GetPlayerSmoothedHealthAsPercentage() const
 {
-	return GameInstance->PlayerData.SmoothedHealth / GameInstance->PlayerData.StartingHealth;
+	return GameState->PlayerData.SmoothedHealth / GameState->PlayerData.StartingHealth;
 }
 
 float UMainPlayerHUD::GetPlayerStaminaAsPercentage() const
 {
-	return GameInstance->PlayerData.Stamina / GameInstance->PlayerData.StartingStamina;
+	return GameState->PlayerData.Stamina / GameState->PlayerData.StartingStamina;
 }
 
 float UMainPlayerHUD::GetPlayerSmoothedStaminaAsPercentage() const
 {
-	return GameInstance->PlayerData.SmoothedStamina / GameInstance->PlayerData.StartingStamina;
+	return GameState->PlayerData.SmoothedStamina / GameState->PlayerData.StartingStamina;
 }
 
 float UMainPlayerHUD::GetPlayerChargeAsPercentage() const
 {
-	return GameInstance->PlayerData.Charge / GameInstance->PlayerData.MaxCharge;
+	return GameState->PlayerData.Charge / GameState->PlayerData.MaxCharge;
 }
 
 float UMainPlayerHUD::GetPlayerSmoothedChargeAsPercentage() const
 {
-	return GameInstance->PlayerData.SmoothedCharge / GameInstance->PlayerData.MaxCharge;
+	return GameState->PlayerData.SmoothedCharge / GameState->PlayerData.MaxCharge;
 }
 
 float UMainPlayerHUD::GetBossHealthAsPercentage() const
 {
-	return GameInstance->BossData.Health / GameInstance->BossData.StartingHealth;
+	return GameState->BossData.Health / GameState->BossData.StartingHealth;
 }
 
 float UMainPlayerHUD::GetBossSmoothedHealthAsPercentage() const
 {
-	return GameInstance->BossData.SmoothedHealth / GameInstance->BossData.StartingHealth;
+	return GameState->BossData.SmoothedHealth / GameState->BossData.StartingHealth;
 }
 
 void UMainPlayerHUD::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)

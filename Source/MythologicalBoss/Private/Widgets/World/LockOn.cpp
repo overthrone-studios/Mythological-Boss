@@ -2,26 +2,28 @@
 
 #include "LockOn.h"
 
-#include "Public/OverthroneGameInstance.h"
+#include "OverthroneFunctionLibrary.h"
+#include "OverthroneGameState.h"
 
 #include "Widgets/World/LockOnWidget.h"
 
 #include "Components/WidgetComponent.h"
 
-#include "Engine/World.h"
 #include "Log.h"
 
 ALockOn::ALockOn()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	OnToggleLockOn.AddDynamic(this, &ALockOn::ToggleVisibility);
 }
 
 void ALockOn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameInstance = Cast<UOverthroneGameInstance>(GetWorld()->GetGameInstance());
-	GameInstance->LockOn = this;
+	GameState = UOverthroneFunctionLibrary::GetGameState(this);
+	GameState->LockOn = this;
 
 	// Get our lock on widget component
 	const auto Components = GetComponents();
@@ -43,7 +45,7 @@ void ALockOn::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	SetActorLocation(GameInstance->BossData.LockOnBoneLocation);
+	SetActorLocation(GameState->BossData.LockOnBoneLocation);
 }
 
 void ALockOn::Show()

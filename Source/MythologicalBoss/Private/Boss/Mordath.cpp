@@ -4,6 +4,7 @@
 
 #include "OverthroneFunctionLibrary.h"
 #include "OverthroneGameInstance.h"
+#include "OverthroneGameState.h"
 #include "OverthroneHUD.h"
 
 #include "Potions/PotionBase.h"
@@ -257,15 +258,15 @@ void AMordath::BeginPlay()
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
-	GameInstance->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
-	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->BossData.SmoothedHealth = HealthComponent->GetCurrentHealth();
-	GameInstance->BossData.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
-	GameInstance->BossData.OnAttackParryed.AddDynamic(this, &AMordath::OnAttackParryed);
-	GameInstance->OnPlayerDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
-	GameInstance->OnSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
-	GameInstance->OnThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
-	GameInstance->Boss = this;
+	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
+	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
+	GameState->BossData.SmoothedHealth = HealthComponent->GetCurrentHealth();
+	GameState->BossData.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
+	GameState->BossData.OnAttackParryed.AddDynamic(this, &AMordath::OnAttackParryed);
+	GameState->PlayerData.OnDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
+	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
+	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
+	GameState->Boss = this;
 	SendInfo();
 
 	ChooseCombo();
@@ -294,8 +295,8 @@ void AMordath::Tick(const float DeltaTime)
 		return;
 	}
 	
-	GameInstance->BossData.Location = CurrentLocation;
-	GameInstance->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
+	GameState->BossData.Location = CurrentLocation;
+	GameState->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
 
 	DistanceToPlayer = GetDistanceToPlayer();
 	DirectionToPlayer = GetDirectionToPlayer();
@@ -356,7 +357,7 @@ void AMordath::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (GameInstance->PlayerData.bIsDead)
+	if (GameState->PlayerData.bIsDead)
 		return;
 
 	FacePlayer(DefaultRotationSpeed);
@@ -798,10 +799,10 @@ void AMordath::OnEnterDeathState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	bIsDead = true;
-	GameInstance->BossData.bIsDead = true;
+	GameState->BossData.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
-	GameInstance->OnBossDeath.Broadcast();
+	GameState->BossData.OnDeath.Broadcast();
 
 	RangeFSM->Stop();
 	StageFSM->Stop();
@@ -824,7 +825,7 @@ void AMordath::OnExitDeathState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	bIsDead = false;
-	GameInstance->BossData.bIsDead = false;
+	GameState->BossData.bIsDead = false;
 	AnimInstance->bIsDead = false;
 }
 #pragma endregion
@@ -852,7 +853,7 @@ void AMordath::OnExitStunnedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	GameInstance->PlayerData.bParrySucceeded = false;
+	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
 
 	if (ChosenCombo)
@@ -975,7 +976,7 @@ void AMordath::UpdateTeleportState()
 	if (FSM->GetActiveStateUptime() > TeleportationComponent->GetTeleportTime())
 	{
 		if (ChosenCombo->GetCurrentAttackData()->bCanTeleportWithAttack)
-			SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameInstance->PlayerData.Location, GameInstance->GetTeleportRadius(), GameInstance->PlayArea));
+			SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, GameState->GetTeleportRadius(), GameState->PlayArea));
 
 		FSM->PopState();
 	}
@@ -996,7 +997,7 @@ void AMordath::OnEnterCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	GameInstance->PlayerData.CurrentRange = Close;
+	GameState->PlayerData.CurrentRange = Close;
 }
 
 void AMordath::UpdateCloseRange()
@@ -1023,7 +1024,7 @@ void AMordath::OnEnterMidRange()
 
 	CurrentMovementSpeed = GetMovementSpeed();
 
-	GameInstance->PlayerData.CurrentRange = Mid;
+	GameState->PlayerData.CurrentRange = Mid;
 }
 
 void AMordath::UpdateMidRange()
@@ -1050,7 +1051,7 @@ void AMordath::OnEnterFarRange()
 
 	CurrentMovementSpeed = GetMovementSpeed();
 
-	GameInstance->PlayerData.CurrentRange = Far;
+	GameState->PlayerData.CurrentRange = Far;
 }
 
 void AMordath::UpdateFarRange()
@@ -1100,7 +1101,7 @@ void AMordath::OnEnterSuperCloseRange()
 {
 	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	GameInstance->PlayerData.CurrentRange = SuperClose;
+	GameState->PlayerData.CurrentRange = SuperClose;
 
 	Combat.AttackSettings.LightAttackDamage *= 1.5;
 	Combat.AttackSettings.HeavyAttackDamage *= 1.5;
@@ -1147,7 +1148,7 @@ void AMordath::UpdateFirstStage()
 	// Can we enter the second stage?
 	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth)
 	{
-		GameInstance->OnSecondStage.Broadcast();
+		GameState->BossData.OnEnterSecondStage.Broadcast();
 		return;
 	}
 
@@ -1191,7 +1192,7 @@ void AMordath::UpdateSecondStage()
 	// Can we enter the third stage?
 	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * ThirdStageHealth)
 	{
-		GameInstance->OnThirdStage.Broadcast();
+		GameState->BossData.OnEnterThirdStage.Broadcast();
 		return;
 	}
 
@@ -1323,7 +1324,7 @@ void AMordath::PlayAttackMontage()
 {
 	PlayAnimMontage(CurrentAttackData->AttackMontage, 1.0f, FName("Anticipation"));
 
-	GameInstance->BossData.CurrentCounterType = CurrentAttackData->CounterType;
+	GameState->BossData.CurrentCounterType = CurrentAttackData->CounterType;
 }
 
 void AMordath::StopAttackMontage()
@@ -1336,13 +1337,13 @@ void AMordath::StopAttackMontage()
 
 void AMordath::UpdateCharacterInfo()
 {
-	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
+	GameState->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 }
 
 void AMordath::BroadcastLowHealth()
 {
-	GameInstance->BossData.OnLowHealth.Broadcast();
+	GameState->BossData.OnLowHealth.Broadcast();
 	bWasLowHealthEventTriggered = true;
 }
 
@@ -1502,23 +1503,23 @@ void AMordath::ChooseAttack()
 	case Parryable:
 		FlashIndicator->Flash(Combat.ParryableFlashColor);
 
-		GameInstance->BossData.bCanBeParryed = true;
+		GameState->BossData.bCanBeParryed = true;
 	break;
 
 	case Blockable:
 		FlashIndicator->Flash(Combat.BlockableFlashColor);
 
-		GameInstance->BossData.bCanBeParryed = false;
+		GameState->BossData.bCanBeParryed = false;
 	break;
 
 	case NoCounter:
 		FlashIndicator->Flash(Combat.NoCounterFlashColor);
 
-		GameInstance->BossData.bCanBeParryed = false;
+		GameState->BossData.bCanBeParryed = false;
 	break;
 
 	default:
-		GameInstance->BossData.bCanBeParryed = false;
+		GameState->BossData.bCanBeParryed = false;
 	break;
 	}
 
@@ -1657,9 +1658,9 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 			FVector NewLocation;
 
 			if (CurrentAttackData->bLerp)
-				NewLocation = FMath::Lerp(CurrentLocation, GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
+				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer, CurrentAttackData->LerpSpeed * World->DeltaTimeSeconds);
 			else
-				NewLocation = GameInstance->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer;
+				NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * CurrentAttackData->DistanceFromPlayer;
 
 			NewLocation.Z = CurrentLocation.Z;
 			SetActorLocation(NewLocation);
@@ -1681,8 +1682,8 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 
 void AMordath::SendInfo()
 {
-	GameInstance->BossData.Health = HealthComponent->GetCurrentHealth();
-	GameInstance->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
+	GameState->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 }
 
 bool AMordath::IsStunned()
@@ -1727,7 +1728,7 @@ void AMordath::ResetMeshScale()
 
 float AMordath::GetDistanceToPlayer() const
 {
-	const float Distance = FVector::Dist(CurrentLocation, GameInstance->PlayerData.Location);
+	const float Distance = FVector::Dist(CurrentLocation, GameState->PlayerData.Location);
 
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogDistance)
@@ -1739,7 +1740,7 @@ float AMordath::GetDistanceToPlayer() const
 
 FVector AMordath::GetDirectionToPlayer() const
 {
-	FVector Direction = GameInstance->PlayerData.Location - CurrentLocation;
+	FVector Direction = GameState->PlayerData.Location - CurrentLocation;
 	Direction.Normalize();
 
 	#if !UE_BUILD_SHIPPING
