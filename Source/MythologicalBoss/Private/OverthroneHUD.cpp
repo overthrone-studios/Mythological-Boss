@@ -81,7 +81,7 @@ void AOverthroneHUD::BeginPlay()
 
 void AOverthroneHUD::DrawHUD()
 {
-	if (bHideDebugText && !HasActorBegunPlay())
+	if (bHideDebugText || !HasActorBegunPlay())
 		return;
 
 	GEngine->GameViewport->GetViewportSize(ViewportSize);
