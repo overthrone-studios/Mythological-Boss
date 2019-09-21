@@ -8,8 +8,6 @@
 UAttackComboComponent::UAttackComboComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
-	OnAttackEnd.AddDynamic(this, &UAttackComboComponent::ClearCurrentAttack);
 }
 
 UAnimMontage* UAttackComboComponent::GetCurrentAttackAnim() const

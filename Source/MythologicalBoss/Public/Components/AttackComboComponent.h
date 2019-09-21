@@ -8,7 +8,6 @@
 #include "AttackComboComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboTreeResetSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackEndSignature);
 
 USTRUCT(BlueprintType)
 struct FAttacks
@@ -44,11 +43,14 @@ public:
 	UAttackComboComponent();
 
 	FOnComboTreeResetSignature OnComboReset;
-	FOnAttackEndSignature OnAttackEnd;
 
 	// Advances to the next attack in the combo tree
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
 		class UAnimMontage* AdvanceCombo(EAttackType_Player InAttackType);
+
+	// Clears our current attack to None
+	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
+		void ClearCurrentAttack();
 
 	// Returns the array of light attacks
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -115,9 +117,6 @@ protected:
 
 	// Resets the combo tree
 	void ResetCombo();
-
-	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
-		void ClearCurrentAttack();
 
 	// The list of light attacks we can use
 	UPROPERTY(EditInstanceOnly, Category = "Combo")
