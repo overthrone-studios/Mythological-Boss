@@ -1614,8 +1614,10 @@ void AYlva::OnEnterDamagedState()
 	StopAnimMontage();
 	AttackComboComponent->ClearCurrentAttack();
 
-
-	AnimInstance->bIsHit = true;
+	if (GameState->BossData.CurrentCounterType == NoCounter)
+		YlvaAnimInstance->bIsHitByNoCounter = true;
+	else
+		AnimInstance->bIsHit = true;
 }
 
 void AYlva::UpdateDamagedState()
@@ -1633,6 +1635,7 @@ void AYlva::OnExitDamagedState()
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
+	YlvaAnimInstance->bIsHitByNoCounter = false;
 	AnimInstance->bIsHit = false;
 }
 #pragma endregion 
