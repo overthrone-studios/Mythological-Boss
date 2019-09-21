@@ -807,6 +807,8 @@ void AMordath::OnEnterDeathState()
 	StageFSM->Stop();
 
 	TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AMordath::DestroySelf, DeathTime);
+
+	OnDeath();
 }
 
 void AMordath::UpdateDeathState()

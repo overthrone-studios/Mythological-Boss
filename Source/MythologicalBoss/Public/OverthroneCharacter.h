@@ -159,6 +159,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void EndTakeDamage();
 
+	// Called when we are dead
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnDeath();
+
 	// Set a new health value
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void SetHealth(float NewHealthAmount);

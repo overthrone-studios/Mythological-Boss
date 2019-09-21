@@ -616,10 +616,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnComboReset();
 
-	// Called when we are dead
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnDeath();
-
 	UFUNCTION()
 		void OnComboReset_Implementation();
 
