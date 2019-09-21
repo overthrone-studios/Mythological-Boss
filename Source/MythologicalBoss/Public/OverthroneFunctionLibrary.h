@@ -60,6 +60,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
 		static class ABossBattleGameMode* GetGameMode(const UObject* WorldContext);
 
+	// Pauses the game
+	UFUNCTION(BlueprintCallable, Category = "Overthrone")
+		static void PauseGame(APlayerController* InPlayerController);
+
+	// UnPauses the game
+	UFUNCTION(BlueprintCallable, Category = "Overthrone")
+		static void UnPauseGame(APlayerController* InPlayerController);
+
 	// Check if gamepad is connected at runtime
 	UFUNCTION(BlueprintPure, Category = "System Information")
 		static bool IsGamepadConnected();

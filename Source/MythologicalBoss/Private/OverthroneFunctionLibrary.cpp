@@ -76,6 +76,20 @@ ABossBattleGameMode* UOverthroneFunctionLibrary::GetGameMode(const UObject* Worl
 	return Cast<ABossBattleGameMode>(UGameplayStatics::GetGameMode(WorldContext));
 }
 
+void UOverthroneFunctionLibrary::PauseGame(APlayerController* InPlayerController)
+{
+	UGameplayStatics::SetGamePaused(InPlayerController, true);
+	InPlayerController->bShowMouseCursor = true;
+	InPlayerController->SetInputMode(FInputModeUIOnly());
+}
+
+void UOverthroneFunctionLibrary::UnPauseGame(APlayerController* InPlayerController)
+{
+	UGameplayStatics::SetGamePaused(InPlayerController, false);
+	InPlayerController->bShowMouseCursor = false;
+	InPlayerController->SetInputMode(FInputModeGameOnly());
+}
+
 bool UOverthroneFunctionLibrary::IsGamepadConnected()
 {
 	return FSlateApplication::Get().GetPlatformApplication().Get()->IsGamepadAttached();
