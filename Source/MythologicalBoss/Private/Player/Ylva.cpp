@@ -358,17 +358,27 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 #if !UE_BUILD_SHIPPING
 	// Debugging
 	PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AYlva::ShowPlayerFSMVisualizer);
+	PlayerInputComponent->BindKey(EKeys::NumPadOne, IE_Pressed, this, &AYlva::ShowPlayerFSMVisualizer);
 	PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AYlva::ShowBossFSMVisualizer);
+	PlayerInputComponent->BindKey(EKeys::NumPadTwo, IE_Pressed, this, &AYlva::ShowBossFSMVisualizer);
 	PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AYlva::ShowMainHUD);
+	PlayerInputComponent->BindKey(EKeys::NumPadThree, IE_Pressed, this, &AYlva::ShowMainHUD);
 	PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AYlva::ShowNoHUD);
+	PlayerInputComponent->BindKey(EKeys::NumPadFour, IE_Pressed, this, &AYlva::ShowNoHUD);
 
 	PlayerInputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AYlva::ToggleGodMode);
+	PlayerInputComponent->BindKey(EKeys::NumPadFive, IE_Pressed, this, &AYlva::ToggleGodMode);
 
 	PlayerInputComponent->BindKey(EKeys::Six, IE_Pressed, this, &AYlva::Debug_Die);
+	PlayerInputComponent->BindKey(EKeys::NumPadSix, IE_Pressed, this, &AYlva::Debug_Die);
 	PlayerInputComponent->BindKey(EKeys::Seven, IE_Pressed, this, &AYlva::Debug_MaxHealth);
+	PlayerInputComponent->BindKey(EKeys::NumPadSeven, IE_Pressed, this, &AYlva::Debug_MaxHealth);
 	PlayerInputComponent->BindKey(EKeys::Eight, IE_Pressed, this, &AYlva::Debug_RefillStamina);
+	PlayerInputComponent->BindKey(EKeys::NumPadEight, IE_Pressed, this, &AYlva::Debug_RefillStamina);
 	PlayerInputComponent->BindKey(EKeys::Nine, IE_Pressed, this, &AYlva::Debug_MaxCharge);
+	PlayerInputComponent->BindKey(EKeys::NumPadNine, IE_Pressed, this, &AYlva::Debug_MaxCharge);
 	PlayerInputComponent->BindKey(EKeys::Zero, IE_Pressed, this, &AYlva::Debug_ToggleBuff);
+	PlayerInputComponent->BindKey(EKeys::NumPadZero, IE_Pressed, this, &AYlva::Debug_ToggleBuff);
 
 	PlayerInputComponent->BindKey(EKeys::L, IE_Pressed, this, &AYlva::Debug_ResetFeats);
 	PlayerInputComponent->BindKey(EKeys::B, IE_Pressed, this, &AYlva::Debug_BossStage1);
@@ -1077,20 +1087,16 @@ void AYlva::Pause()
 	if (GameState->IsGamePaused())
 	{
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
-		OverthroneHUD->GetMasterHUD()->HideTitle();
-		OverthroneHUD->GetMasterHUD()->HideBoxes();
-		UOverthroneFunctionLibrary::UnPauseGame(PlayerController);
+		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
 
-		// Todo: GameState->UnPauseGame();
+		GameState->UnPauseGame();
 	}
 	else
 	{
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(3);
-		OverthroneHUD->GetMasterHUD()->HideTitle();
-		OverthroneHUD->GetMasterHUD()->HideBoxes();
-		UOverthroneFunctionLibrary::PauseGame(PlayerController);
+		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
 		
-		// Todo: GameState->PauseGame();
+		GameState->PauseGame();
 	}
 }
 
