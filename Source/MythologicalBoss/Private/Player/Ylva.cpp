@@ -1071,9 +1071,23 @@ void AYlva::DisableLockOn()
 void AYlva::Pause()
 {
 	if (GameInstance->IsGamePaused())
-		GameInstance->UnPauseGame();
+	{
+		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
+		OverthroneHUD->GetMasterHUD()->HideTitle();
+		OverthroneHUD->GetMasterHUD()->HideBoxes();
+		UOverthroneFunctionLibrary::UnPauseGame(PlayerController);
+
+		// Todo: GameState->UnPauseGame();
+	}
 	else
-		GameInstance->PauseGame();
+	{
+		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(3);
+		OverthroneHUD->GetMasterHUD()->HideTitle();
+		OverthroneHUD->GetMasterHUD()->HideBoxes();
+		UOverthroneFunctionLibrary::PauseGame(PlayerController);
+		
+		// Todo: GameState->PauseGame();
+	}
 }
 
 void AYlva::DisableControllerRotationYaw()
