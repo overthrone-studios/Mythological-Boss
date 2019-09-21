@@ -94,14 +94,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void UnPauseGame();
 
-	// Switches input mode to UI only
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
-		void SetInputModeUI() const;
-
-	// Switches input mode to Game only
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
-		void SetInputModeGame() const;
-
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
 		FORCEINLINE float GetTeleportRadius() const { return PlayerData.TeleportRadius; };
 
@@ -140,9 +132,6 @@ public:
 
 private:
 	uint8 bFirstLaunch : 1;
-
-	class UUserWidget* PauseMenu{};
-	TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
 	APlayerController* PlayerController{};
 };
