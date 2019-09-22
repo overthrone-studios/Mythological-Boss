@@ -1572,6 +1572,8 @@ void AYlva::OnExitRunState()
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	else
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+
+	bCanRun = false;
 }
 #pragma endregion
 
