@@ -52,6 +52,7 @@ FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, c
 		Owner->GetActorLocation().Z
 	};
 
+	// If the calculated location is outside the box
 	if (!InBox.IsInside(NewLocation))
 	{
 		NewLocation = FMath::RandPointInBox(InBox);

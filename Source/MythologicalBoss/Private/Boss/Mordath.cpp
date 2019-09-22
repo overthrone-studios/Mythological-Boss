@@ -977,6 +977,7 @@ void AMordath::OnEnterTeleportState()
 	MordathAnimInstance->bCanTeleport = true;
 
 	TeleportationComponent->GenerateTeleportTime();
+	TeleportationComponent->StartCooldown();
 }
 
 void AMordath::UpdateTeleportState()
