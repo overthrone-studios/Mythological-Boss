@@ -485,6 +485,13 @@ void AMordath::UpdateRetreatState()
 
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
+	if (IsTransitioning())
+	{
+		BossAIController->StopMovement();
+
+		return;
+	}
+
 	FacePlayer(DefaultRotationSpeed);
 
 	if (DistanceToPlayer > MidRangeRadius)
@@ -530,6 +537,13 @@ void AMordath::UpdateThinkState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
+
+	if (IsTransitioning())
+	{
+		BossAIController->StopMovement();
+
+		return;
+	}
 
 	FacePlayer(DefaultRotationSpeed);
 
