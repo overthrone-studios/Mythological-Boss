@@ -151,6 +151,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE bool IsBossDead() const { return BossData.bIsDead; }
 
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
+		FORCEINLINE bool IsPlayerDead() const { return PlayerData.bIsDead; }
+
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")
 		class AYlva* Player;

@@ -419,6 +419,13 @@ void AMordath::UpdateFollowState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
+	if (IsTransitioning())
+	{
+		BossAIController->StopMovement();
+
+		return;
+	}
+
 	FacePlayer(DefaultRotationSpeed);
 
 	if (IsWaitingForNewCombo() && DistanceToPlayer < AcceptanceRadius)
@@ -1303,7 +1310,6 @@ void AMordath::OnPlayerDeath()
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Laugh");
 
-	FSM->Stop();
 	RangeFSM->Stop();
 	StageFSM->Stop();
 }
@@ -1368,7 +1374,7 @@ void AMordath::PlayAttackMontage()
 
 void AMordath::StopAttackMontage()
 {
-	if (!HasFinishedAttack())
+	if (!HasFinishedAttack() && !GameState->IsPlayerDead())
 		StopAnimMontage(CurrentAttackData->AttackMontage);
 
 	CurrentMontageSection = "None";
