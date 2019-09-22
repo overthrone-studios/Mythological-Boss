@@ -24,6 +24,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Teleportation Component")
 		void GenerateTeleportTime();
 
+	UFUNCTION(BlueprintCallable, Category = "Teleportation Component")
+		void StartCooldown();
+
+	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
+		bool IsCoolingDown();
+
 protected:
 	void BeginPlay() override;
 
@@ -36,13 +42,21 @@ protected:
 		uint8 bLogTeleportTime : 1;
 
 	// The amount of time (in seconds) we wait before we teleport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport Debug", meta = (ClampMin = 0.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport", meta = (ClampMin = 0.0f))
 		float TeleportTime = 1.0f;
 
 	// Adds a range range to TeleportTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport Debug", meta = (ClampMin = 0.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport", meta = (ClampMin = 0.0f))
 		float RandomDeviation = 0.2f;
 
+	// The amount of time (in seconds) to cooldown before accepting a teleport
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport", meta = (ClampMin = 0.0f))
+		float CooldownTime = 1.0f;
+
 private:
+	FTimerHandle TH_Cooldown;
+
+	FTimerManager* TimerManager;
+
 	AActor* Owner;
 };

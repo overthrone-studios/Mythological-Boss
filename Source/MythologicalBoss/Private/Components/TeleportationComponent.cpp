@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "DrawDebugHelpers.h"
 #include "Log.h"
+#include "TimerManager.h"
 
 UTeleportationComponent::UTeleportationComponent()
 {
@@ -15,6 +16,7 @@ void UTeleportationComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Owner = GetOwner();
+	TimerManager = &Owner->GetWorldTimerManager();
 }
 
 void UTeleportationComponent::GenerateTeleportTime()
@@ -27,6 +29,16 @@ void UTeleportationComponent::GenerateTeleportTime()
 
 	if (bLogTeleportTime)
 		ULog::Number(TeleportTime, "Teleport time: ", true);
+}
+
+void UTeleportationComponent::StartCooldown()
+{
+	TimerManager->SetTimer(TH_Cooldown, CooldownTime, false);
+}
+
+bool UTeleportationComponent::IsCoolingDown()
+{
+	return TimerManager->IsTimerActive(TH_Cooldown);
 }
 
 FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, const float Radius, const FBox& InBox) const
