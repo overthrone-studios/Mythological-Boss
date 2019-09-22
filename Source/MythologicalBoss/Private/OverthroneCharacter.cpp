@@ -2,7 +2,6 @@
 
 #include "OverthroneCharacter.h"
 
-#include "Public/OverthroneGameInstance.h"
 #include "Public/OverthroneGameState.h"
 #include "Public/OverthroneAnimInstance.h"
 #include "Public/OverthroneHUD.h"

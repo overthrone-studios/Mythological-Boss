@@ -9,6 +9,8 @@
 
 #include "Potions/PotionBase.h"
 
+#include "Misc/MordathStageData.h"
+
 #include "FSM.h"
 #include "Log.h"
 
@@ -216,7 +218,7 @@ AMordath::AMordath()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 2.0f;
-	GetCharacterMovement()->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 
 	// Configure character settings
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -248,11 +250,6 @@ void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-
-	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
-	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
-
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
@@ -270,14 +267,19 @@ void AMordath::BeginPlay()
 	GameState->Boss = this;
 	SendInfo();
 
-	ChooseCombo();
-
-	World->GetTimerManager().SetTimer(UpdateInfoTimerHandle, this, &AMordath::SendInfo, 0.05f, true);
+	World->GetTimerManager().SetTimer(TH_UpdateInfo, this, &AMordath::SendInfo, 0.05f, true);
 
 	// Begin the state machines
 	FSM->Start();
 	RangeFSM->Start();
 	StageFSM->Start();
+
+	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
+
+	CurrentStageData->Combat.AttackSettings.OriginalLightAttackDamage = CurrentStageData->Combat.AttackSettings.LightAttackDamage;
+	CurrentStageData->Combat.AttackSettings.OriginalHeavyAttackDamage = CurrentStageData->Combat.AttackSettings.HeavyAttackDamage;
+
+	ChooseCombo();
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->bHiddenInGame = false;
@@ -309,13 +311,13 @@ void AMordath::Tick(const float DeltaTime)
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
 	{
-		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), CurrentStageData->SuperCloseRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), CurrentStageData->AcceptanceRadius, 32, FColor::Orange, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), CurrentStageData->MidRangeRadius, 32, FColor::Cyan, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), CurrentStageData->MidRangeRadius * 2, 32, FColor::Green, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 	}
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
@@ -326,8 +328,8 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Direction To Player: " + DirectionToPlayer.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.LightAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(Combat.AttackSettings.HeavyAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(CurrentStageData->Combat.AttackSettings.LightAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(CurrentStageData->Combat.AttackSettings.HeavyAttackDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Attack: " + CurrentAttackData->GetCurrentAttackAsString());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Counter: " + CurrentAttackData->GetCounterTypeAsString());
 #endif
@@ -394,14 +396,14 @@ void AMordath::OnEnterFollowState()
 
 	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
-		if (ComboSettings.bDelayBetweenCombo)
+		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
 			ChooseCombo();
 	}
 
 	const uint8 bWantsDashForward = FMath::RandRange(0, 1);
-	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > Combat.DashSettings.DashAtDistance && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
+	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > CurrentStageData->MovementSettings.DashAtDistance && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
 	{
 		if (IsMidRange())
 			DashType = Dash_Forward;
@@ -428,20 +430,20 @@ void AMordath::UpdateFollowState()
 
 	FacePlayer(DefaultRotationSpeed);
 
-	if (IsWaitingForNewCombo() && DistanceToPlayer < AcceptanceRadius)
+	if (IsWaitingForNewCombo() && DistanceToPlayer < CurrentStageData->AcceptanceRadius)
 	{
 		FSM->PushState("Retreat");
 		return;
 	}
 
-	if (IsWaitingForNewCombo() && DistanceToPlayer < MidRangeRadius)
+	if (IsWaitingForNewCombo() && DistanceToPlayer < CurrentStageData->MidRangeRadius)
 	{
 		FSM->PushState("Thinking");
 		return;
 	}
 
 	// Move towards the player
-	if (DistanceToPlayer > AcceptanceRadius)
+	if (DistanceToPlayer > CurrentStageData->AcceptanceRadius)
 	{
 		if (!IsDelayingAttack())
 		{
@@ -469,13 +471,13 @@ void AMordath::OnEnterRetreatState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed / 2.0f;
+	MovementComponent->MaxWalkSpeed = CurrentStageData->MovementSettings.RunSpeed / 2.0f;
 
-	RetreatStateData.CalculateRetreatTime();
+	CurrentStageData->RetreatStateData.CalculateRetreatTime();
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogRetreatTime)
-		ULog::Number(RetreatStateData.RetreatTime, "Retreat Time: ", true);
+		ULog::Number(CurrentStageData->RetreatStateData.RetreatTime, "Retreat Time: ", true);
 #endif
 }
 
@@ -494,10 +496,10 @@ void AMordath::UpdateRetreatState()
 
 	FacePlayer(DefaultRotationSpeed);
 
-	if (DistanceToPlayer > MidRangeRadius)
+	if (DistanceToPlayer > CurrentStageData->MidRangeRadius)
 		FSM->PopState();
 
-	if (IsWaitingForNewCombo() && DistanceToPlayer < AcceptanceRadius || Uptime <= RetreatStateData.RetreatTime)
+	if (IsWaitingForNewCombo() && DistanceToPlayer < CurrentStageData->AcceptanceRadius || Uptime <= CurrentStageData->RetreatStateData.RetreatTime)
 	{
 		MoveForward(-1.0f);
 	}
@@ -518,18 +520,18 @@ void AMordath::OnEnterThinkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	MovementComponent->MaxWalkSpeed = CurrentStageData->MovementSettings.WalkSpeed;
 
 	ChooseMovementDirection();
 
-	ThinkStateData.CalculateThinkTime();
+	CurrentStageData->ThinkStateData.CalculateThinkTime();
 
 	MordathAnimInstance->bIsThinking = true;
 	MordathAnimInstance->bWantsSideStepDash = FMath::RandRange(0, 1);
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bLogThinkTime)
-		ULog::Number(ThinkStateData.ThinkTime, "Think Time: ", true);
+		ULog::Number(CurrentStageData->ThinkStateData.ThinkTime, "Think Time: ", true);
 #endif
 }
 
@@ -550,7 +552,7 @@ void AMordath::UpdateThinkState()
 	if (AnimInstance->AnimTimeRemaining > 0.2f)
 		EncirclePlayer();
 
-	if (!IsWaitingForNewCombo() && Uptime >= ThinkStateData.ThinkTime)
+	if (!IsWaitingForNewCombo() && Uptime >= CurrentStageData->ThinkStateData.ThinkTime)
 	{
 		FSM->PopState();
 		FSM->PushState("Follow");
@@ -673,22 +675,8 @@ void AMordath::OnEnterLongAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	if (StageFSM->GetActiveStateName() == "Stage 1")
-	{
-		CurrentLongAttackMontage = ComboSettings.Stage1_LongAttack;
-		PlayAnimMontage(ComboSettings.Stage1_LongAttack, 1.0f, FName("Anticipation"));
-	}
-	else if (StageFSM->GetActiveStateName() == "Stage 2")
-	{
-		CurrentLongAttackMontage = ComboSettings.Stage2_LongAttack;
-		PlayAnimMontage(ComboSettings.Stage2_LongAttack, 1.0f, FName("Anticipation"));
-	}
-	else
-	{
-		NextAttack();
-
-		FSM->PopState();
-	}
+	CurrentLongAttackMontage = CurrentStageData->ComboSettings.FarRangeAttackAnim;
+	PlayAnimMontage(CurrentStageData->ComboSettings.FarRangeAttackAnim, 1.0f, FName("Anticipation"));
 }
 
 void AMordath::UpdateLongAttack1State()
@@ -967,7 +955,7 @@ void AMordath::UpdateBeatenState()
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	// If the recover time has finished, go back to previous state
-	if (Uptime >= Combat.InvincibilityTimeAfterDamage)
+	if (Uptime >= CurrentStageData->Combat.InvincibilityTimeAfterDamage)
 	{
 		FSM->PopState();
 	}
@@ -1026,10 +1014,10 @@ void AMordath::UpdateCloseRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (DistanceToPlayer < SuperCloseRadius)
+	if (DistanceToPlayer < CurrentStageData->SuperCloseRadius)
 		RangeFSM->PushState("Super Close");
 
-	if (DistanceToPlayer > AcceptanceRadius)
+	if (DistanceToPlayer > CurrentStageData->AcceptanceRadius)
 		RangeFSM->PushState("Mid");
 }
 
@@ -1053,10 +1041,10 @@ void AMordath::UpdateMidRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (DistanceToPlayer < AcceptanceRadius)
+	if (DistanceToPlayer < CurrentStageData->AcceptanceRadius)
 		RangeFSM->PushState("Close");
 
-	if (DistanceToPlayer > MidRangeRadius)
+	if (DistanceToPlayer > CurrentStageData->MidRangeRadius)
 		RangeFSM->PushState("Far");
 }
 
@@ -1081,18 +1069,18 @@ void AMordath::UpdateFarRange()
 	const float& Uptime = RangeFSM->GetActiveStateUptime();
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), Uptime);
 
-	if (DistanceToPlayer < MidRangeRadius)
+	if (DistanceToPlayer < CurrentStageData->MidRangeRadius)
 	{
 		RangeFSM->PushState("Mid");
 		return;
 	}
 
-	if (IsInFirstStage() && Uptime > ComboSettings.Stage1_LongAttackDelay)
+	if (IsInFirstStage() && Uptime > CurrentStageData->ComboSettings.FarRangeAttackDelay)
 	{
 		if (!IsRecovering())
 			FSM->PushState("Heavy Attack 1");
 	}
-	else if (IsInSecondStage() || IsInThirdStage() && Uptime > ComboSettings.Stage2_LongAttackDelay)
+	else if (IsInSecondStage() || IsInThirdStage() && Uptime > CurrentStageData->ComboSettings.FarRangeAttackDelay)
 	{
 		const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
 		
@@ -1125,21 +1113,21 @@ void AMordath::OnEnterSuperCloseRange()
 
 	GameState->PlayerData.CurrentRange = SuperClose;
 
-	Combat.AttackSettings.LightAttackDamage *= 1.5;
-	Combat.AttackSettings.HeavyAttackDamage *= 1.5;
+	CurrentStageData->Combat.AttackSettings.LightAttackDamage *= 1.5;
+	CurrentStageData->Combat.AttackSettings.HeavyAttackDamage *= 1.5;
 }
 
 void AMordath::UpdateSuperCloseRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (RangeFSM->GetActiveStateUptime() > SuperCloseRangeTime && (!IsDashing() || !IsAttacking() && !IsRecovering()))
+	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->SuperCloseRangeTime && (!IsDashing() || !IsAttacking() && !IsRecovering()))
 	{
 		DashType = Dash_Backward;
 		FSM->PushState("Dash");
 	}
 
-	if (DistanceToPlayer > SuperCloseRadius)
+	if (DistanceToPlayer > CurrentStageData->SuperCloseRadius)
 		RangeFSM->PopState();
 }
 
@@ -1147,8 +1135,8 @@ void AMordath::OnExitSuperCloseRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
-	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
+	CurrentStageData->Combat.AttackSettings.LightAttackDamage = CurrentStageData->Combat.AttackSettings.OriginalLightAttackDamage;
+	CurrentStageData->Combat.AttackSettings.HeavyAttackDamage = CurrentStageData->Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
 #pragma endregion 
 #pragma endregion
@@ -1158,6 +1146,8 @@ void AMordath::OnExitSuperCloseRange()
 void AMordath::OnEnterFirstStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+
+	CurrentStageData = StageOneData;
 
 	MordathAnimInstance->CurrentStage = Stage_1;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[0];
@@ -1176,7 +1166,7 @@ void AMordath::UpdateFirstStage()
 
 	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
-		if (ComboSettings.bDelayBetweenCombo)
+		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
 			ChooseCombo();
@@ -1202,6 +1192,8 @@ void AMordath::OnExitFirstStage()
 void AMordath::OnEnterSecondStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+
+	CurrentStageData = StageTwoData;
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
@@ -1235,7 +1227,7 @@ void AMordath::UpdateSecondStage()
 
 	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
-		if (ComboSettings.bDelayBetweenCombo)
+		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
 			ChooseCombo();
@@ -1262,6 +1254,8 @@ void AMordath::OnEnterThirdStage()
 {
 	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
 
+	CurrentStageData = StageThreeData;
+
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
 
@@ -1287,7 +1281,7 @@ void AMordath::UpdateThirdStage()
 
 	if (ChosenCombo->IsAtLastAttack() && !IsWaitingForNewCombo())
 	{
-		if (ComboSettings.bDelayBetweenCombo)
+		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
 			ChooseComboWithDelay();
 		else
 			ChooseCombo();
@@ -1314,7 +1308,7 @@ void AMordath::OnExitThirdStage()
 #pragma region Events
 void AMordath::OnLowHealth()
 {
-	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
+	ChangeHitboxSize(CurrentStageData->Combat.AttackSettings.AttackRadiusOnLowHealth);
 }
 
 void AMordath::OnPlayerDeath()
@@ -1337,7 +1331,7 @@ void AMordath::OnAttackParryed()
 		FSM->PushState("Stunned");
 
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CameraShakes.Stun.Shake, CameraShakes.Stun.Intensity);
+		PlayerController->ClientPlayCameraShake(CurrentStageData->CameraShakes.Stun.Shake, CurrentStageData->CameraShakes.Stun.Intensity);
 	}
 }
 
@@ -1413,10 +1407,10 @@ void AMordath::FinishStun()
 
 void AMordath::BeginTakeDamage(const float DamageAmount)
 {
-	Combat.RecentDamage = DamageAmount;
+	CurrentStageData->Combat.RecentDamage = DamageAmount;
 
 	// Shake the camera
-	PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+	PlayerController->ClientPlayCameraShake(CurrentStageData->CameraShakes.Damaged.Shake, CurrentStageData->CameraShakes.Damaged.Intensity);
 }
 
 void AMordath::ApplyDamage(const float DamageAmount)
@@ -1457,7 +1451,7 @@ void AMordath::EndTakeDamage()
 
 void AMordath::ChooseCombo()
 {
-	if (ComboSettings.bChooseRandomCombo)
+	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
 		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
 
 	if (CachedCombos.Num() > 0)
@@ -1490,38 +1484,30 @@ void AMordath::ChooseCombo()
 	{
 		ComboIndex = 0;
 
+		CachedCombos = CurrentStageData->ComboSettings.Combos;
+
+		#if !UE_BUILD_SHIPPING
 		switch (StageFSM->GetActiveStateID())
 		{
 		case 0:
-			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentStageCombo)
 				ULog::Info("Using stage 1 combos", true);
-			#endif
-
-			CachedCombos = ComboSettings.FirstStageCombos;
 		break;
 
 		case 1:
-			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentStageCombo)
 				ULog::Info("Using stage 2 combos", true);
-			#endif
-
-			CachedCombos = ComboSettings.SecondStageCombos;
 		break;
 
 		case 2:
-			#if !UE_BUILD_SHIPPING
 			if (Debug.bLogCurrentStageCombo)
 				ULog::Info("Using stage 3 combos", true);
-			#endif
-
-			CachedCombos = ComboSettings.ThirdStageCombos;
 		break;
 
 		default:
 		break;
 		}
+		#endif
 
 		ChooseCombo();
 	}
@@ -1529,17 +1515,17 @@ void AMordath::ChooseCombo()
 
 void AMordath::ChooseComboWithDelay()
 {
-	if (ComboSettings.RandomDeviation == 0.0f)
+	if (CurrentStageData->ComboSettings.RandomDeviation == 0.0f)
 	{
-		TimerManager->SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, ComboSettings.ComboDelayTime);
+		TimerManager->SetTimer(TH_ComboDelay, this, &AMordath::ChooseCombo, CurrentStageData->ComboSettings.ComboDelayTime);
 		return;
 	}
 
-	const float Min = ComboSettings.ComboDelayTime - ComboSettings.RandomDeviation;
-	const float Max = ComboSettings.ComboDelayTime + ComboSettings.RandomDeviation;
+	const float Min = CurrentStageData->ComboSettings.ComboDelayTime - CurrentStageData->ComboSettings.RandomDeviation;
+	const float Max = CurrentStageData->ComboSettings.ComboDelayTime + CurrentStageData->ComboSettings.RandomDeviation;
 	const float NewDelayTime = FMath::FRandRange(Min, Max);
 				
-	TimerManager->SetTimer(ComboDelayTimerHandle, this, &AMordath::ChooseCombo, NewDelayTime);
+	TimerManager->SetTimer(TH_ComboDelay, this, &AMordath::ChooseCombo, NewDelayTime);
 
 	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogComboDelayTime)
@@ -1560,19 +1546,19 @@ void AMordath::ChooseAttack()
 	switch (CurrentAttackData->CounterType)
 	{
 	case Parryable:
-		FlashIndicator->Flash(Combat.ParryableFlashColor);
+		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
 
 		GameState->BossData.bCanBeParryed = true;
 	break;
 
 	case Blockable:
-		FlashIndicator->Flash(Combat.BlockableFlashColor);
+		FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
 
 		GameState->BossData.bCanBeParryed = false;
 	break;
 
 	case NoCounter:
-		FlashIndicator->Flash(Combat.NoCounterFlashColor);
+		FlashIndicator->Flash(CurrentStageData->Combat.NoCounterFlashColor);
 
 		GameState->BossData.bCanBeParryed = false;
 	break;
@@ -1653,23 +1639,20 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
-	if (!AnimInstance->bIsHit && HitCounter < Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(InvincibilityTimerHandle))
+	if (!AnimInstance->bIsHit && HitCounter < CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility))
 	{
 		ApplyDamage(DamageAmount);
-
-		SKMComponent->SetWorldScale3D(FVector(1.35f));
-		TimerManager->SetTimer(HitReactionTimerHandle, this, &AMordath::ResetMeshScale, 0.1f);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
-	if (HitCounter == Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(InvincibilityTimerHandle))
+	if (HitCounter == CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility))
 	{
 		// Reset our hits
 		HitCounter = 0;
 
 		// Become invincible and set a timer to disable invincibility after 'X' seconds
 		EnableInvincibility();
-		TimerManager->SetTimer(InvincibilityTimerHandle, this, &AMordath::DisableInvincibility, Combat.InvincibilityTimeAfterDamage);
+		TimerManager->SetTimer(TH_Invincibility, this, &AMordath::DisableInvincibility, CurrentStageData->Combat.InvincibilityTimeAfterDamage);
 
 		// Cancel our current animation and enter the downed state
 		FSM->PushState("Beaten");
@@ -1689,7 +1672,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 
 void AMordath::ChangeHitboxSize(const float NewRadius)
 {
-	Combat.AttackSettings.AttackRadius = NewRadius;
+	CurrentStageData->Combat.AttackSettings.AttackRadius = NewRadius;
 }
 
 void AMordath::FacePlayer(const float RotationSpeed)
@@ -1757,7 +1740,7 @@ void AMordath::ChooseMovementDirection()
 
 void AMordath::EncirclePlayer()
 {
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	MovementComponent->MaxWalkSpeed = CurrentStageData->MovementSettings.WalkSpeed;
 
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
 	{
@@ -1828,10 +1811,10 @@ void AMordath::Die()
 
 void AMordath::PauseAnimsWithTimer()
 {
-	if (Combat.bEnableHitStop)
+	if (CurrentStageData->Combat.bEnableHitStop)
 	{
 		PauseAnims();
-		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, Combat.HitStopTime);
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, CurrentStageData->Combat.HitStopTime);
 	}
 }
 
@@ -1900,7 +1883,7 @@ bool AMordath::InInvincibleState() const
 
 bool AMordath::IsWaitingForNewCombo() const
 {
-	return TimerManager->IsTimerActive(ComboDelayTimerHandle);
+	return TimerManager->IsTimerActive(TH_ComboDelay);
 }
 
 bool AMordath::IsDelayingAttack() const
@@ -1956,17 +1939,42 @@ float AMordath::GetMovementSpeed() const
 	switch (RangeFSM->GetActiveStateID())
 	{
 	case 0 /*Close*/:
-		return MovementSettings.WalkSpeed;
+		return CurrentStageData->MovementSettings.WalkSpeed;
 
 	case 1 /*Mid*/:
-		return MovementSettings.RunSpeed;
+		return CurrentStageData->MovementSettings.RunSpeed;
 
 	case 2 /*Far*/:
-		return MovementSettings.RunSpeed;
+		return CurrentStageData->MovementSettings.RunSpeed;
 
 	default:
-		return MovementSettings.WalkSpeed;
+		return CurrentStageData->MovementSettings.WalkSpeed;
 	}
+}
+
+float AMordath::GetShortAttackDamage() const
+{
+	return CurrentStageData->Combat.AttackSettings.LightAttackDamage;
+}
+
+float AMordath::GetLongAttackDamage() const
+{
+	return CurrentStageData->Combat.AttackSettings.HeavyAttackDamage;
+}
+
+float AMordath::GetSpecialAttackDamage() const
+{
+	return CurrentStageData->Combat.AttackSettings.SpecialAttackDamage;
+}
+
+float AMordath::GetAttackRadius() const
+{
+	return CurrentStageData->Combat.AttackSettings.AttackRadius;
+}
+
+float AMordath::GetRecentDamage() const
+{
+	return CurrentStageData->Combat.RecentDamage;
 }
 
 void AMordath::EnterStage(const EBossStage InStage)

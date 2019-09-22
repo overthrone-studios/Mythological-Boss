@@ -45,183 +45,6 @@ struct FDebug_Mordath : public FCharacterDebug
 		uint8 bLogRetreatTime : 1;
 };
 
-USTRUCT(BlueprintType)
-struct FThinkStateData
-{
-	GENERATED_BODY()
-
-	// Calculates a new think time using RandomDeviation
-	void CalculateThinkTime();
-
-	// How long (in seconds) should the boss think for, before initiating an attack?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
-		float ThinkTime = 2.0f;
-
-	// Adds a random range to ThinkTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
-		float RandomDeviation = 0.3f;
-};
-
-USTRUCT(BlueprintType)
-struct FRetreatStateData
-{
-	GENERATED_BODY()
-
-	// Calculates a new retreat time using RandomDeviation
-	void CalculateRetreatTime();
-		
-	// How long (in seconds) should the boss move away from you (walk backwards)?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
-		float RetreatTime = 1.0f;
-
-	// Adds a random range to RetreatTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
-		float RandomDeviation = 0.3f;
-};
-
-USTRUCT(BlueprintType)
-struct FMovementSettings_Mordath : public FMovementSettings
-{
-	GENERATED_BODY()
-
-	// The movement speed of the boss when we're at mid range distance from the player
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 1000000.0f))
-		float RunSpeed = 800.0f;
-};
-
-USTRUCT(BlueprintType)
-struct FCameraShakes_Mordath
-{
-	GENERATED_BODY()
-
-	// The camera shake to play when we are damaged
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Damaged;
-
-	// The camera shake to play when we are damaged
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Stun;
-};
-
-USTRUCT(BlueprintType)
-struct FComboSettings
-{
-	GENERATED_BODY()
-
-	// Should the boss wait before initiating the next combo?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bDelayBetweenCombo : 1;
-
-	// The time in seconds to delay before choosing a new combo
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float ComboDelayTime = 1.0f;
-
-	// Adds a random range to ComboDelayTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bDelayBetweenCombo", ClampMin = 0.0f, ClampMax = 10.0f))
-		float RandomDeviation = 0.1f;
-
-	// Should the boss choose a random combo from the Combos list?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bChooseRandomCombo : 1;
-
-	// A list of combos the boss character will choose from when in the first stage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		TArray<UComboData*> FirstStageCombos;
-
-	// The animation montage to play when in far range on stage 1
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
-		class UAnimMontage* Stage1_LongAttack;
-
-	// The amount of time (in seconds) we wait before initiating the long attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		float Stage1_LongAttackDelay = 1.0f;
-
-	// A list of combos the boss character will choose from when in the second stage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		TArray<UComboData*> SecondStageCombos;
-	
-	// The animation montage to play when in far range on stage 2
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UAnimMontage* Stage2_LongAttack;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
-		float Stage2_LongAttackDelay = 1.0f;
-
-	// A list of combos the boss character will choose from when in the third stage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		TArray<UComboData*> ThirdStageCombos;
-};
-
-USTRUCT(BlueprintType)
-struct FAttackSettings_Mordath : public FAttackSettings
-{
-	GENERATED_BODY()
-
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float SpecialAttackDamage = 250.0f;
-};
-
-USTRUCT(BlueprintType)
-struct FDashSettings_Mordath
-{
-	GENERATED_BODY()
-
-	// The distance away from the player where we can dash forwards
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float DashAtDistance = 800.0f;
-};
-
-USTRUCT(BlueprintType)
-struct FStunSettings_Mordath
-{
-	GENERATED_BODY()
-
-	// The amount of time in seconds this boss should be stunned for
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f, ClampMax = 10.0f))
-		float Duration = 0.8f;
-};
-
-USTRUCT(BlueprintType)
-struct FCombatSettings_Mordath : public FCombatSettings
-{
-	GENERATED_BODY()
-
-	// Settings that affect Mordath's attack values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Attack")
-		FAttackSettings_Mordath AttackSettings;
-
-	// Settings that affect Mordath's dash values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Dash")
-		FDashSettings_Mordath DashSettings;
-
-	// Settings that affect Mordath's stun values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Stun")
-		FStunSettings_Mordath StunSettings;
-
-	// Maximum hits that can be taken before becoming invincible
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0, ClampMax = 100))
-		uint8 MaxHitsBeforeInvincibility = 3;
-
-	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float InvincibilityTimeAfterDamage = 1.5f;
-
-	// The flash color to set when our current attack has no counter
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		FLinearColor NoCounterFlashColor = FLinearColor(1.0f, 0.0f, 0.0f, 0.2f);
-
-	// The flash color to set when our current attack has is parryable
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		FLinearColor ParryableFlashColor = FLinearColor(1.0f, 1.0f, 0.0f, 0.2f);
-
-	// The flash color to set when our current attack has is blockable
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		FLinearColor BlockableFlashColor = FLinearColor(1.0f, 1.0f, 1.0f, 0.2f);
-
-	float RecentDamage = 0.0f;
-};
-
 UCLASS()
 class MYTHOLOGICALBOSS_API AMordath final : public AOverthroneCharacter
 {
@@ -234,23 +57,23 @@ public:
 
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetShortAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
+		float GetShortAttackDamage() const;
 
 	// Returns the heavy attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetLongAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
+		float GetLongAttackDamage() const;
 
 	// Returns the special attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetSpecialAttackDamage() const { return Combat.AttackSettings.SpecialAttackDamage; }
+		float GetSpecialAttackDamage() const;
 
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
+		float GetAttackRadius() const;
 
 	// Returns the recent damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FORCEINLINE float GetRecentDamage() const { return Combat.RecentDamage; }
+		float GetRecentDamage() const;
 
 	bool IsAttacking() const override;
 
@@ -673,34 +496,6 @@ protected:
 		class UFlashIndicatorComponent* FlashIndicator;
 	#pragma endregion
 
-	// The radius in which the boss character will accept that it has arrived to the player's location
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f), DisplayName = "Close Range Radius")
-		float AcceptanceRadius = 200.0f;
-
-	// The radius in which the boss character will increase their damage by a factor of 1.5
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
-		float SuperCloseRadius = 200.0f;
-
-	// The radius of the mid range area
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
-		float MidRangeRadius = 400.0f;
-
-	// How long (in seconds) should the boss stay dead before being destroyed?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float DeathTime = 2.0f;
-
-	// How long (in seconds) should the boss stay close to the player before dashing away?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float SuperCloseRangeTime = 2.0f;
-
-	// Holds the data relating to the 'Think' state
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		FThinkStateData ThinkStateData;
-	
-	// Holds the data relating to the 'Retreat' state (i.e Walking backwards)
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		FRetreatStateData RetreatStateData;
-
 	// The health value where we enter the second stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float SecondStageHealth = 0.6f;
@@ -709,31 +504,31 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float ThirdStageHealth = 0.3f;
 
-	// Mordath's movement settings
-	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")
-		FMovementSettings_Mordath MovementSettings;
-
-	// The combo settings
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
-		FComboSettings ComboSettings;
-
-	// Properties of the boss's combat settings
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
-		FCombatSettings_Mordath Combat;
-
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
 		class UAnimMontage* Stage2_Transition;
 
-	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 3 Transition Anim")
 		class UAnimMontage* Stage3_Transition;
-
-	// List of camera shakes
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakes_Mordath CameraShakes;
 
 	// The bone name of Mordath's skeleton where the lock-on indiciator should be placed on
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
+
+	// The data the boss will reference during stage 1 of the fight
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		class UMordathStageData* StageOneData;
+
+	// The data the boss will reference during stage 2 of the fight
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		class UMordathStageData* StageTwoData;
+
+	// The data the boss will reference during stage 3 of the fight
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
+		class UMordathStageData* StageThreeData;
+
+	// How long (in seconds) should the boss stay dead before being destroyed?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
+		float DeathTime = 2.0f;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
@@ -772,21 +567,16 @@ private:
 
 	uint8 MoveDirection = 0;
 
-	FTimerHandle UpdateInfoTimerHandle;
+	FTimerHandle TH_UpdateInfo;
 
-	FTimerHandle HitReactionTimerHandle;
-
-	FTimerHandle StunExpiryTimerHandle;
-
-	FTimerHandle JumpAttackCooldownTimerHandle;
-	FTimerHandle DashCooldownTimerHandle;
-
-	FTimerHandle ComboDelayTimerHandle;
-	FTimerHandle InvincibilityTimerHandle;
+	FTimerHandle TH_ComboDelay;
+	FTimerHandle TH_Invincibility;
 
 	FTimerHandle TH_FlashIndicator;
 
 	class UAnimMontage* CurrentLongAttackMontage;
 
-	AOverthroneCharacter* PlayerCharacter;
+	class UMordathStageData* CurrentStageData;
+
+	class AOverthroneCharacter* PlayerCharacter;
 };
