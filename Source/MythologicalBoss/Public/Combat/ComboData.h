@@ -8,6 +8,20 @@
 #include "TimerManager.h"
 #include "ComboData.generated.h"
 
+USTRUCT(BlueprintType)
+struct FComboData_Attack
+{
+	GENERATED_BODY()
+
+	// The list of attacks to go through sequentially
+	UPROPERTY(EditInstanceOnly, Category = "Combos")
+		UAttackData* Attack;
+
+	// Can we teleport before we attack?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bCanTeleportWithAttack : 1;
+};
+
 /**
  *	An asset containing a series of attacks
  */
@@ -42,7 +56,7 @@ public:
 		int32 GetCurrentAttackIndex() const { return AttackIndex; }
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		UAttackData* GetCurrentAttackData() const { return CurrentAttack; }
+		FComboData_Attack& GetCurrentAttackData() { return CurrentAttack; }
 
 protected:
 	// Should we wait between attacks?
@@ -59,9 +73,9 @@ protected:
 
 	// The list of attacks to go through sequentially
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
-		TArray<UAttackData*> Attacks;
+		TArray<FComboData_Attack> Attacks;
 
-	UAttackData* CurrentAttack;
+	FComboData_Attack CurrentAttack;
 
 private:
 	int32 AttackIndex = 0;

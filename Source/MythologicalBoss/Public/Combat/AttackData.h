@@ -21,7 +21,7 @@ public:
 
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
-		TEnumAsByte<EAttackType_Mordath> Attack;
+		TEnumAsByte<EAttackType_Mordath> AttackType;
 
 	// The attack animation montage to play
 	UPROPERTY(EditInstanceOnly)
@@ -58,8 +58,4 @@ public:
 	// How fast we smoothly snap to the player's location
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bLerp", ClampMin = 0.0f))
 		float LerpSpeed = 10.0f;
-
-	// Can we teleport before we attack?
-	UPROPERTY(EditInstanceOnly)
-		uint8 bCanTeleportWithAttack : 1;
 };

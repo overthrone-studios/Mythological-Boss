@@ -149,6 +149,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTransitioning() const;
 
+	// Returns true if we are teleporting to another location
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsTeleporting() const;
+
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
@@ -561,7 +565,7 @@ private:
 
 	EDashType_Mordath DashType;
 
-	UAttackData* CurrentAttackData;
+	FComboData_Attack* CurrentAttackData;
 
 	FName CurrentMontageSection = "None";
 

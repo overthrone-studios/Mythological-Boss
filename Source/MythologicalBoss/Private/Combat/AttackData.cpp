@@ -23,7 +23,7 @@ FString UAttackData::GetCounterTypeAsString() const
 FString UAttackData::GetCurrentAttackAsString() const
 {
 	// Choose the current attack from the attack data
-	switch (Attack)
+	switch (AttackType)
 	{
 	case ShortAttack_1:
 		return FString("Short Attack 1");
