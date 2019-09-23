@@ -9,6 +9,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackParryedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackBlockedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFirstStageSignature);
@@ -107,6 +108,7 @@ struct FBossData : public FCharacterData
 	EAttackCounters_Mordath CurrentCounterType;
 
 	FOnAttackParryedSignature OnAttackParryed;
+	FOnAttackBlockedSignature OnAttackBlocked;
 
 	FOnFirstStageSignature OnEnterFirstStage;
 	FOnSecondStageSignature OnEnterSecondStage;
