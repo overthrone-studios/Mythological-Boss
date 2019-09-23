@@ -264,7 +264,7 @@ void AYlva::Tick(const float DeltaTime)
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
 		const FRotator SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, 10.0f);
 
-		const FRotator NewRotation = FRotator(-Target.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+		const FRotator NewRotation = FRotator(-Target.Pitch * LockOnPitchMultiplier, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 	}

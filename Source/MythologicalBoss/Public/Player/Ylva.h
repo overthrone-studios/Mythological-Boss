@@ -813,6 +813,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
 		float CameraPitchMax = 50.0f;
 
+	// The multiplier value for moving the lock-on camera on the pitch axis
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
+		float LockOnPitchMultiplier = 1.0f;	
+
 	// Ylva's movement settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
