@@ -1760,6 +1760,8 @@ void AYlva::OnEnterParryState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	StopAnimMontage();
+
 	YlvaAnimInstance->bCanParry = true;
 
 	const int32 RandomIndex = FMath::RandRange(0, Combat.ParrySettings.ParryHitSoundData->HitSounds.Num()-1);
@@ -1776,7 +1778,6 @@ void AYlva::OnEnterParryState()
 
 	PlayerController->SetIgnoreLookInput(true);
 
-	StopAnimMontage();
 
 	GameState->BossData.OnAttackParryed.Broadcast();
 
