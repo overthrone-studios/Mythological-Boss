@@ -1685,7 +1685,10 @@ void AYlva::OnExitDeathState()
 #pragma region Shield Hit
 void AYlva::OnEnterShieldHitState()
 {
-	YlvaAnimInstance->bIsShieldHit = true;
+	if (GameState->BossData.CurrentCounterType == NoCounter)
+		YlvaAnimInstance->bIsHitByNoCounter = true;
+	else
+		YlvaAnimInstance->bIsShieldHit = true;
 
 	GameState->BossData.OnAttackBlocked.Broadcast();
 
@@ -1704,6 +1707,7 @@ void AYlva::UpdateShieldHitState()
 
 void AYlva::OnExitShieldHitState()
 {
+	YlvaAnimInstance->bIsHitByNoCounter = false;
 	YlvaAnimInstance->bIsShieldHit = false;
 }
 #pragma endregion 
