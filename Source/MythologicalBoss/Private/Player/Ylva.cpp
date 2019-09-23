@@ -259,12 +259,12 @@ void AYlva::Tick(const float DeltaTime)
 	CalculatePitchLean(DeltaTime);
 
 	// Lock-on mechanic
-	if (LockOnSettings.bLockedOn)
+	if (IsLockedOn())
 	{
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
 		const FRotator SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, 10.0f);
 
-		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+		const FRotator NewRotation = FRotator(bAllowPitchInputOnLockOn ? ControlRotation.Pitch : LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 	}
