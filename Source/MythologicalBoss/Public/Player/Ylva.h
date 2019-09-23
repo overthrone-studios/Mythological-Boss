@@ -854,15 +854,15 @@ private:
 
 	uint16 ChargeAttackHoldFrames = 0;
 
-	FTimerHandle ParryEventExpiryTimer;
+	FTimerHandle TH_ParryEventExpiry;
 
-	FTimerHandle ChargeAttackReleaseTimer;
-	FTimerHandle ChargeLossTimerHandle;
+	FTimerHandle TH_ChargeAttackRelease;
+	FTimerHandle TH_ChargeLoss;
 	
-	FTimerHandle AttackQueueTimerHandle;
-	FTimerHandle AttackQueueExpiryTimerHandle;
+	FTimerHandle TH_AttackQueue;
+	FTimerHandle TH_AttackQueueExpiry;
 
-	FTimerHandle DashQueueTimerHandle;
+	FTimerHandle TH_DashQueue;
 
 	class APlayerCameraManager* CameraManager;
 

@@ -646,10 +646,10 @@ void AYlva::LightAttack()
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(Light);
 
-		if (!TimerManager->IsTimerActive(AttackQueueExpiryTimerHandle))
-			TimerManager->SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
+			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
 		
-		TimerManager->SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
+		TimerManager->SetTimer(TH_AttackQueue, this, &AYlva::Attack_Queued, 0.1f);
 
 #if !UE_BUILD_SHIPPING
 		if (Debug.bLogAttackQueue)
@@ -702,10 +702,10 @@ void AYlva::HeavyAttack()
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(Heavy);
 		
-		if (!TimerManager->IsTimerActive(AttackQueueExpiryTimerHandle))
-			TimerManager->SetTimer(AttackQueueExpiryTimerHandle, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
+			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
 	
-		TimerManager->SetTimer(AttackQueueTimerHandle, this, &AYlva::Attack_Queued, 0.1f);
+		TimerManager->SetTimer(TH_AttackQueue, this, &AYlva::Attack_Queued, 0.1f);
 
 #if !UE_BUILD_SHIPPING
 		if (Debug.bLogAttackQueue)
@@ -816,7 +816,7 @@ void AYlva::ReleaseChargeAttack()
 
 	PlayerController->ResetIgnoreLookInput();
 
-	TimerManager->SetTimer(ChargeAttackReleaseTimer,this,&AYlva::FinishChargeAttack,0.2f);
+	TimerManager->SetTimer(TH_ChargeAttackRelease,this,&AYlva::FinishChargeAttack,0.2f);
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
@@ -835,8 +835,8 @@ void AYlva::StartParryEvent()
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
-	if (!TimerManager->IsTimerActive(ParryEventExpiryTimer))
-		TimerManager->SetTimer(ParryEventExpiryTimer,this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
+	if (!TimerManager->IsTimerActive(TH_ParryEventExpiry))
+		TimerManager->SetTimer(TH_ParryEventExpiry,this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 
 void AYlva::FinishParryEvent()
@@ -989,7 +989,7 @@ void AYlva::Dash()
 	if (bIsDead || IsChargeAttacking() || IsBlocking())
 		return;
 
-	if (IsDashing() && DashQueue.IsEmpty() && !bCanDash && !TimerManager->IsTimerActive(DashQueueTimerHandle))
+	if (IsDashing() && DashQueue.IsEmpty() && !bCanDash && !TimerManager->IsTimerActive(TH_DashQueue))
 	{
 		DashQueue.Enqueue(1);
 
@@ -1686,6 +1686,8 @@ void AYlva::OnEnterShieldHitState()
 {
 	YlvaAnimInstance->bIsShieldHit = true;
 
+	GameState->BossData.OnAttackBlocked.Broadcast();
+
 	StaminaComponent->DelayRegeneration();
 }
 
@@ -1740,7 +1742,7 @@ void AYlva::OnExitDashState()
 	if (!DashQueue.IsEmpty())
 	{
 		DashComponent->PauseCooldown();
-		TimerManager->SetTimer(DashQueueTimerHandle, this, &AYlva::Dash_Queued, 0.2f);
+		TimerManager->SetTimer(TH_DashQueue, this, &AYlva::Dash_Queued, 0.2f);
 	}
 }
 #pragma endregion 
@@ -1749,6 +1751,8 @@ void AYlva::OnExitDashState()
 void AYlva::OnEnterParryState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	YlvaAnimInstance->bCanParry = true;
 
 	if (!Combat.ParrySettings.ParryCameraAnimInst)
 	{
@@ -1761,7 +1765,7 @@ void AYlva::OnEnterParryState()
 
 	PlayerController->SetIgnoreLookInput(true);
 
-	AnimInstance->Montage_Play(Combat.ParrySettings.ParryMontage);
+	StopAnimMontage();
 
 	GameState->BossData.OnAttackParryed.Broadcast();
 
@@ -1784,11 +1788,12 @@ void AYlva::OnExitParryState()
 
 	PlayerController->SetIgnoreLookInput(false);
 
+	YlvaAnimInstance->bCanParry = false;
 	GameState->PlayerData.bParrySucceeded = false;
 
 	ResetGlobalTimeDilation();
 
-	TimerManager->ClearTimer(ParryEventExpiryTimer);
+	TimerManager->ClearTimer(TH_ParryEventExpiry);
 }
 #pragma endregion 
 #pragma endregion 
