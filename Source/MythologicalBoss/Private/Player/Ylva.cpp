@@ -260,11 +260,12 @@ void AYlva::Tick(const float DeltaTime)
 	// Lock-on mechanic
 	if (LockOnSettings.bLockedOn)
 	{
-		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(FollowCamera->GetComponentLocation(), GameState->BossData.Location);
+		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
 		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
 
 		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
+		//CameraBoom->SetRelativeRotation(NewRotation);
 		GetController()->SetControlRotation(NewRotation);
 	}
 
@@ -850,6 +851,8 @@ void AYlva::Block()
 {
 	if (IsChargeAttacking() || IsDashing())
 		return;
+
+	AttackComboComponent->ClearCurrentAttack();
 
 	if (FSM->GetActiveStateID() != 5 /*Death*/ &&
 		FSM->GetActiveStateID() != 20 /*Damaged*/ &&
@@ -1686,7 +1689,10 @@ void AYlva::OnExitDeathState()
 void AYlva::OnEnterShieldHitState()
 {
 	if (GameState->BossData.CurrentCounterType == NoCounter)
+	{
+		AttackComboComponent->ClearCurrentAttack();
 		YlvaAnimInstance->bIsHitByNoCounter = true;
+	}
 	else
 		YlvaAnimInstance->bIsShieldHit = true;
 
