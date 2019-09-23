@@ -362,6 +362,9 @@ protected:
 	// Called for side to side/strafing input
 	void MoveRight(float Value);
 
+	// Called to turn the camera
+	void AddControllerYawInput(float Val) override;
+
 	/**
 	 * Called via input to turn at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -836,6 +839,7 @@ private:
 	FVector RightMovementStart, RightMovementEnd;
 	float DistanceMovedInRightDirection;
 
+	FRotator ControlRotation;
 	FRotator DirectionToBoss;
 
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;

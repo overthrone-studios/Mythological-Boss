@@ -246,6 +246,7 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
+	ControlRotation = GetControlRotation();
 	DirectionToBoss = GetDirectionToBoss().Rotation();
 	GameState->PlayerData.Location = CurrentLocation;
 
@@ -261,9 +262,9 @@ void AYlva::Tick(const float DeltaTime)
 	if (LockOnSettings.bLockedOn)
 	{
 		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
-		const FRotator SmoothedRotation = FMath::RInterpTo(GetControlRotation(), Target, DeltaTime, 10.0f);
+		const FRotator SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, 10.0f);
 
-		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
+		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 	}
@@ -295,7 +296,7 @@ void AYlva::Tick(const float DeltaTime)
 	if (Debug.bShowTeleportRadius)
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation, TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(GetControlRotation().Pitch));
+	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(4, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 
@@ -406,7 +407,7 @@ void AYlva::MoveForward(const float Value)
 	if (Controller && ForwardInput != 0.0f)
 	{
 		// Find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = ControlRotation;
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// Get forward vector
@@ -438,7 +439,7 @@ void AYlva::MoveRight(const float Value)
 	if (Controller && RightInput != 0.0f)
 	{
 		// Find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = ControlRotation;
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// Get right vector 
@@ -459,16 +460,24 @@ void AYlva::MoveRight(const float Value)
 	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 }
 
+void AYlva::AddControllerYawInput(const float Val)
+{
+	if (IsLockedOn())
+		return;
+	
+	Super::AddControllerYawInput(Val);
+}
+
 void AYlva::TurnAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * TurnRate * World->GetDeltaSeconds());
+	AddControllerYawInput(Rate * TurnRate * World->DeltaTimeSeconds);
 }
 
 void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * LookUpRate * World->GetDeltaSeconds());
+	AddControllerPitchInput(Rate * LookUpRate * World->DeltaTimeSeconds);
 }
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -771,7 +780,7 @@ void AYlva::ChargeUpAttack()
 				Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
 		}
 
-		const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess,GetActorForwardVector().Rotation().Yaw,GetControlRotation().Roll);
+		const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess,GetActorForwardVector().Rotation().Yaw,ControlRotation.Roll);
 		GetController()->SetControlRotation(NewRotation);
 
 		PlayerController->SetIgnoreLookInput(true);
@@ -1036,7 +1045,7 @@ void AYlva::EnableLockOn()
 		return;
 
 	LockOnSettings.bLockedOn = true;
-	PlayerController->SetIgnoreLookInput(true);
+	//PlayerController->SetIgnoreLookInput(true);
 	GameState->LockOn->OnToggleLockOn.Broadcast(false);
 	MovementComponent->bUseControllerDesiredRotation = true;
 	MovementComponent->bOrientRotationToMovement = false;
@@ -1755,7 +1764,7 @@ void AYlva::OnEnterParryState()
 			Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
 	}
 
-	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, GetControlRotation().Roll);
+	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, ControlRotation.Roll);
 	GetController()->SetControlRotation(NewRotation);
 
 	PlayerController->SetIgnoreLookInput(true);
