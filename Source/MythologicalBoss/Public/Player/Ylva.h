@@ -813,10 +813,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
 		float CameraPitchMax = 50.0f;
 
-	// Can we look up and down while locked on?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera")
-		uint8 bAllowPitchInputOnLockOn : 1;
-
 	// Ylva's movement settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
