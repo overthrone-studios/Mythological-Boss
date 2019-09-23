@@ -383,9 +383,6 @@ protected:
 	void BroadcastLowHealth() override;
 	void BroadcastLowStamina();
 
-	void LoseHealth() override;
-	void StartLosingHealth() override;
-
 	void Die() override;
 
 	float CalculateDirection() const;

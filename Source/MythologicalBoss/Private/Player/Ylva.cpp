@@ -541,29 +541,6 @@ void AYlva::BroadcastLowStamina()
 	bWasLowStaminaEventTriggered = true;
 }
 
-void AYlva::LoseHealth()
-{
-	Super::LoseHealth();
-
-#if !UE_BUILD_SHIPPING
-	if (Debug.bLogHealthValues)
-		ULog::Number(HealthComponent->GetSmoothedHealth(), "New Health: ", true);
-#endif
-}
-
-void AYlva::StartLosingHealth()
-{
-	Super::StartLosingHealth();
-
-#if !UE_BUILD_SHIPPING
-	if (Debug.bLogHealthValues)
-	{
-		ULog::Number(HealthComponent->GetPreviousHealth(), "Previous Health: ", true);
-		ULog::Number(HealthComponent->GetCurrentHealth(), "Target Health: ", true);
-	}
-#endif
-}
-
 float AYlva::CalculateDirection() const
 {
 	const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());

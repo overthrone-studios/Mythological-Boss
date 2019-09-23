@@ -13,14 +13,6 @@ struct FCharacterDebug
 {
 	GENERATED_BODY()
 
-	// Log our health values to the viewport?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogHealthValues : 1;
-
-	// Log current movement speed value to the viewport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogMovementSpeed : 1;
-
 	// Allow raycasts to be drawn?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bShowRaycasts : 1;
