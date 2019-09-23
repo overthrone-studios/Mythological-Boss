@@ -260,6 +260,7 @@ void AMordath::BeginPlay()
 	GameState->BossData.SmoothedHealth = HealthComponent->GetCurrentHealth();
 	GameState->BossData.OnLowHealth.AddDynamic(this, &AMordath::OnLowHealth);
 	GameState->BossData.OnAttackParryed.AddDynamic(this, &AMordath::OnAttackParryed);
+	GameState->BossData.OnAttackBlocked.AddDynamic(this, &AMordath::OnAttackBlocked);
 	GameState->PlayerData.OnDeath.AddDynamic(this, &AMordath::OnPlayerDeath);
 	GameState->BossData.OnEnterFirstStage.AddDynamic(this, &AMordath::OnFirstStageHealth);
 	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
@@ -788,7 +789,7 @@ void AMordath::UpdateDamagedState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
 
@@ -848,14 +849,17 @@ void AMordath::OnEnterStunnedState()
 	// Reset hit count
 	HitCounter = 0;
 
+	StopAttackMontage();
+
 	MordathAnimInstance->bIsStunned = true;
 }
 
 void AMordath::UpdateStunnedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	const float Uptime = FSM->GetActiveStateUptime();
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (Uptime > CurrentStageData->Combat.StunDuration)
 		FSM->PopState();
 }
 
@@ -1179,7 +1183,7 @@ void AMordath::UpdateFirstStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning())
+	if (CanAttack())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1240,7 +1244,7 @@ void AMordath::UpdateSecondStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsTeleporting())
+	if (CanAttack() && !IsTeleporting())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1294,7 +1298,7 @@ void AMordath::UpdateThirdStage()
 		return;
 	}
 
-	if (IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsTeleporting())
+	if (CanAttack() && !IsTeleporting())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAttack())
@@ -1329,14 +1333,29 @@ void AMordath::OnPlayerDeath()
 
 void AMordath::OnAttackParryed()
 {
-	ULog::Info(CurrentAttackData->Attack->GetCounterTypeAsString(), true);
 	if (CurrentAttackData->Attack->CounterType == Parryable && !IsStunned())
 	{
+		StopAttackMontage();
+
 		FSM->PopState();
 		FSM->PushState("Stunned");
 
 		// Shake the camera
 		PlayerController->ClientPlayCameraShake(CurrentStageData->CameraShakes.Stun.Shake, CurrentStageData->CameraShakes.Stun.Intensity);
+	}
+}
+
+void AMordath::OnAttackBlocked()
+{
+	if (CurrentAttackData->Attack->CounterType == Blockable && !IsDamaged())
+	{
+		StopAttackMontage();
+
+		FSM->PopState();
+		FSM->PushState("Damaged");
+		
+		// Shake the camera
+		PlayerController->ClientPlayCameraShake(CurrentStageData->CameraShakes.Damaged.Shake, CurrentStageData->CameraShakes.Damaged.Intensity);
 	}
 }
 
@@ -1427,12 +1446,12 @@ void AMordath::ApplyDamage(const float DamageAmount)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 #endif
 
-	if (FSM->GetActiveStateName() != "Stunned" && !InInvincibleState())
-	{
-		// Cancel current animation and enter the damaged state
-		FSM->PopState();
-		FSM->PushState("Damaged");
-	}
+	//if (!IsStunned() && !InInvincibleState() && GameState->BossData.bWasAttackBlocked)
+	//{
+	//	// Cancel current animation and enter the damaged state
+	//	FSM->PopState();
+	//	FSM->PushState("Damaged");
+	//}
 
 	UpdateDamageValueInMainHUD(DamageAmount);
 
@@ -1733,7 +1752,7 @@ void AMordath::SendInfo()
 	GameState->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 }
 
-bool AMordath::IsStunned()
+bool AMordath::IsStunned() const
 {
 	return FSM->GetActiveStateID() == 14;
 }
@@ -1771,6 +1790,11 @@ void AMordath::EncirclePlayer()
 void AMordath::ResetMeshScale()
 {
 	SKMComponent->SetWorldScale3D(FVector(1.3f));
+}
+
+bool AMordath::CanAttack() const
+{
+	return IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged();
 }
 
 float AMordath::GetDistanceToPlayer() const
@@ -1899,6 +1923,11 @@ bool AMordath::IsDelayingAttack() const
 bool AMordath::IsDashing() const
 {
 	return FSM->GetActiveStateID() == 16;
+}
+
+bool AMordath::IsDamaged() const
+{
+	return FSM->GetActiveStateID() == 12;
 }
 
 bool AMordath::WantsMoveRight() const

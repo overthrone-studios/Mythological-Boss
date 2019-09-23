@@ -56,7 +56,10 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
-		// Play sound effect
-		PlayHitSound(MeshComp);
+		if (!Mordath->IsDamaged() && !Mordath->IsStunned())
+		{
+			// Play sound effect
+			PlayHitSound(MeshComp);
+		}
 	}
 }

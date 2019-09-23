@@ -141,6 +141,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDashing() const;
 
+	// Returns true if we are damaged by the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsDamaged() const;
+
+	// Returns true if we are currently stunned by an attack
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsStunned() const;
+
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
@@ -227,9 +235,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		FVector GetDirectionToPlayer() const;
 
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsStunned();
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void ChooseMovementDirection();
 
@@ -239,6 +244,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void ResetMeshScale();
 
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool CanAttack() const;
+
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
@@ -246,6 +254,9 @@ protected:
 
 	UFUNCTION()
 		void OnAttackParryed();
+
+	UFUNCTION()
+		void OnAttackBlocked();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnFirstStageHealth();
