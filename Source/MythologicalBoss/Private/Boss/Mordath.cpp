@@ -331,7 +331,7 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Current Montage Section: " + CurrentMontageSection.ToString());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Direction To Player: " + DirectionToPlayer.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Attack: " + CurrentAttackData->Attack->GetCurrentAttackAsString());
