@@ -157,6 +157,10 @@ struct FDefenseSettings_Ylva
 	// The block idle anim montage to play
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UAnimMontage* BlockIdle;
+
+	// The sound to play when we've blocked an attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UHitSoundData* ShieldHitSoundData;
 };
 
 USTRUCT(BlueprintType)

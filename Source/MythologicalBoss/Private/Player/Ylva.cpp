@@ -33,6 +33,7 @@
 #include "GameFramework/PlayerController.h"
 
 #include "Misc/FeatData.h"
+#include "Misc/HitSoundData.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -1688,6 +1689,9 @@ void AYlva::OnEnterShieldHitState()
 
 	GameState->BossData.OnAttackBlocked.Broadcast();
 
+	const int32 RandomIndex = FMath::RandRange(0, Combat.BlockSettings.ShieldHitSoundData->HitSounds.Num()-1);
+	UGameplayStatics::PlaySoundAtLocation(this, Combat.BlockSettings.ShieldHitSoundData->HitSounds[RandomIndex], CurrentLocation);
+
 	StaminaComponent->DelayRegeneration();
 }
 
@@ -1753,6 +1757,9 @@ void AYlva::OnEnterParryState()
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
 	YlvaAnimInstance->bCanParry = true;
+
+	const int32 RandomIndex = FMath::RandRange(0, Combat.BlockSettings.ShieldHitSoundData->HitSounds.Num()-1);
+	UGameplayStatics::PlaySoundAtLocation(this, Combat.BlockSettings.ShieldHitSoundData->HitSounds[RandomIndex], CurrentLocation);
 
 	if (!Combat.ParrySettings.ParryCameraAnimInst)
 	{
