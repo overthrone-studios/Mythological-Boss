@@ -178,6 +178,10 @@ struct FParrySettings_Ylva
 
 	class UCameraAnimInst* ParryCameraAnimInst;
 
+	// The sound to play when we've parried an attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UHitSoundData* ParryHitSoundData;
+
 	// The parry window time frame
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
 		float ParryWindowTime = 0.1f;
