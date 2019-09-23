@@ -265,7 +265,6 @@ void AYlva::Tick(const float DeltaTime)
 
 		const FRotator NewRotation = FRotator(LockOnSettings.LockOnPitch, SmoothedRotation.Yaw, GetControlRotation().Roll);
 
-		//CameraBoom->SetRelativeRotation(NewRotation);
 		GetController()->SetControlRotation(NewRotation);
 	}
 
