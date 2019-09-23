@@ -22,31 +22,6 @@ void UMordathStageData::Init()
 {
 	Combat.GetAttackSettings().OriginalLightAttackDamage = Combat.GetAttackSettings().LightAttackDamage;
 	Combat.GetAttackSettings().OriginalHeavyAttackDamage = Combat.GetAttackSettings().HeavyAttackDamage;
-
-	ResetAttackDamage();
-}
-
-void UMordathStageData::ResetAttackDamage()
-{
-	Combat.GetAttackSettings().LightAttackDamage = GetOriginalShortAttackDamage();
-	Combat.GetAttackSettings().HeavyAttackDamage = GetOriginalLongAttackDamage();
-}
-
-void UMordathStageData::IncreaseAttackDamage(const float& Multiplier)
-{
-	Combat.GetAttackSettings().LightAttackDamage *= Multiplier;
-	Combat.GetAttackSettings().HeavyAttackDamage *= Multiplier;
-	Combat.GetAttackSettings().SpecialAttackDamage *= Multiplier;
-}
-
-float UMordathStageData::GetOriginalShortAttackDamage()
-{
-	return Combat.GetAttackSettings().OriginalLightAttackDamage;
-}
-
-float UMordathStageData::GetOriginalLongAttackDamage()
-{
-	return Combat.GetAttackSettings().OriginalHeavyAttackDamage;
 }
 
 float UMordathStageData::GetShortAttackDamage()

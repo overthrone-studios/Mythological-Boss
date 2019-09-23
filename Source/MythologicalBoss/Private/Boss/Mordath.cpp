@@ -268,7 +268,7 @@ void AMordath::BeginPlay()
 	GameState->Boss = this;
 	SendInfo();
 
-	World->GetTimerManager().SetTimer(TH_UpdateInfo, this, &AMordath::SendInfo, 0.05f, true);
+	TimerManager->SetTimer(TH_UpdateInfo, this, &AMordath::SendInfo, 0.05f, true);
 
 	// Begin the state machines
 	FSM->Start();
@@ -278,6 +278,8 @@ void AMordath::BeginPlay()
 	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 
 	CurrentStageData->Init();
+
+	ResetAttackDamage();
 
 	ChooseCombo();
 
@@ -295,6 +297,8 @@ void AMordath::Tick(const float DeltaTime)
 	if (bIsDead)
 	{
 		AnimInstance->MovementSpeed = 0.0f;
+		AnimInstance->ForwardInput = ForwardInput;
+		AnimInstance->RightInput = RightInput;
 		return;
 	}
 	
@@ -328,8 +332,8 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Direction To Player: " + DirectionToPlayer.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(CurrentStageData->GetShortAttackDamage()));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(CurrentStageData->GetLongAttackDamage()));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Attack: " + CurrentAttackData->Attack->GetCurrentAttackAsString());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Counter: " + CurrentAttackData->Attack->GetCounterTypeAsString());
 #endif
@@ -1121,7 +1125,7 @@ void AMordath::OnEnterSuperCloseRange()
 
 	GameState->PlayerData.CurrentRange = SuperClose;
 
-	CurrentStageData->IncreaseAttackDamage(1.5f);
+	IncreaseAttackDamage(1.5f);
 }
 
 void AMordath::UpdateSuperCloseRange()
@@ -1142,7 +1146,7 @@ void AMordath::OnExitSuperCloseRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
 
-	CurrentStageData->ResetAttackDamage();
+	ResetAttackDamage();
 }
 #pragma endregion 
 #pragma endregion
@@ -1383,7 +1387,6 @@ void AMordath::OnThirdStageHealth()
 	ChooseCombo();
 }
 #pragma endregion
-
 
 void AMordath::DestroySelf()
 {
@@ -1787,6 +1790,20 @@ bool AMordath::CanAttack() const
 	return IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged();
 }
 
+void AMordath::ResetAttackDamage()
+{
+	ShortAttackDamage = CurrentStageData->GetShortAttackDamage();
+	LongAttackDamage = CurrentStageData->GetLongAttackDamage();
+	SpecialAttackDamage = CurrentStageData->GetSpecialAttackDamage();
+}
+
+void AMordath::IncreaseAttackDamage(const float& Multiplier)
+{
+	ShortAttackDamage *= Multiplier;
+	LongAttackDamage *= Multiplier;
+	SpecialAttackDamage *= Multiplier;
+}
+
 float AMordath::GetDistanceToPlayer() const
 {
 	const float Distance = FVector::Dist(CurrentLocation, GameState->PlayerData.Location);
@@ -1983,17 +2000,17 @@ float AMordath::GetMovementSpeed() const
 
 float AMordath::GetShortAttackDamage() const
 {
-	return CurrentStageData->GetShortAttackDamage();
+	return ShortAttackDamage;
 }
 
 float AMordath::GetLongAttackDamage() const
 {
-	return CurrentStageData->GetLongAttackDamage();
+	return LongAttackDamage;
 }
 
 float AMordath::GetSpecialAttackDamage() const
 {
-	return CurrentStageData->GetSpecialAttackDamage();
+	return SpecialAttackDamage;
 }
 
 float AMordath::GetAttackRadius() const

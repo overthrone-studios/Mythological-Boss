@@ -172,18 +172,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void Init();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ResetAttackDamage();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void IncreaseAttackDamage(const float& Multiplier);
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetOriginalShortAttackDamage();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetOriginalLongAttackDamage();
-
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetShortAttackDamage();
 

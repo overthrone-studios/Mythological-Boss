@@ -247,6 +247,12 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool CanAttack() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void ResetAttackDamage();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void IncreaseAttackDamage(const float& Multiplier);
+
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
@@ -570,6 +576,11 @@ private:
 	void MoveRight(float Scale = 1.0f);
 
 	float DefaultRotationSpeed = 10.0f;
+
+	float ShortAttackDamage = 0.0f;
+	float LongAttackDamage = 0.0f;
+	float SpecialAttackDamage = 0.0f;
+
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
 
