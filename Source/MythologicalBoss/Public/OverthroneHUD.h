@@ -58,7 +58,7 @@ protected:
 
 	float BaseXOffset = 220.0f;
 
-	float NewYOffset = 30.0f;
+	float YOffset = 30.0f;
 	float YOffsetInterval = 15.0f;
 
 private:

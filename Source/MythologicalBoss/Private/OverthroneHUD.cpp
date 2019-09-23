@@ -51,12 +51,12 @@ void AOverthroneHUD::AddOnScreenDebugMessage(const FString& Message, const FLine
 	DebugData.Message = Message;
 	DebugData.Color = Color;
 	DebugData.XOffset = BaseXOffset;
-	DebugData.YOffset = NewYOffset + YPadding;
+	DebugData.YOffset = YOffset + YPadding;
 	DebugData.FontScale = FontScale;
 
 	DebugMessages.Add(DebugData);
 
-	NewYOffset += YOffsetInterval;
+	YOffset += YOffsetInterval;
 }
 
 void AOverthroneHUD::UpdateOnScreenDebugMessage(const int32 Index, const FString& Message)
