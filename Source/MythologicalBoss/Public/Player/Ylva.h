@@ -393,8 +393,10 @@ protected:
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
 
+	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
+		float GetDistanceToBoss() const;
 
-	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		FVector GetDirectionToBoss() const;
 
 	#pragma region Combat
@@ -825,10 +827,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f))
 		float LockOnRotationSpeed = 10.0f;
 
-	// The multiplier value for moving the lock-on camera on the pitch axis
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
-	//	float LockOnPitchMultiplier = 1.0f;	
-
 	// Ylva's movement settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
@@ -857,6 +855,7 @@ private:
 
 	FRotator ControlRotation;
 	FRotator DirectionToBoss;
+	float DistanceToBoss;
 
 	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
 

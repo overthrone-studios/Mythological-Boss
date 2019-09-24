@@ -247,6 +247,7 @@ void AYlva::Tick(const float DeltaTime)
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
 	ControlRotation = GetControlRotation();
+	DistanceToBoss = GetDistanceToBoss();
 	DirectionToBoss = GetDirectionToBoss().Rotation();
 	GameState->PlayerData.Location = CurrentLocation;
 
@@ -265,6 +266,8 @@ void AYlva::Tick(const float DeltaTime)
 		const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
 
 		const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
+		//const float& NewPitch = FMath::Lerp(NewPitch, FMath::GetMappedRangeValueClamped({1500.0f, 200.0f}, {LockOnPitchMin, LockOnPitchMax}, DistanceToBoss), LockOnRotationSpeed * DeltaTime);
+
 		const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 		PlayerController->SetControlRotation(NewRotation);
@@ -610,9 +613,14 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 	return false;
 }
 
+float AYlva::GetDistanceToBoss() const
+{
+	return FVector::Dist(GameState->BossData.Location, CurrentLocation);
+}
+
 FVector AYlva::GetDirectionToBoss() const
 {
-	return (GameState->BossData.Location - CurrentLocation).GetSafeNormal(0.01f);;
+	return (GameState->BossData.Location - CurrentLocation).GetSafeNormal(0.01f);
 }
 
 #pragma region Combat
