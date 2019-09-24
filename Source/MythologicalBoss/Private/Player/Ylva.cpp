@@ -987,7 +987,7 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	if (bIsDead || IsChargeAttacking() || IsBlocking())
+	if ((bIsDead || IsChargeAttacking() || IsBlocking()) && TimerManager->IsTimerActive(TH_DashQueue))
 		return;
 
 	if (IsDashing() && DashQueue.IsEmpty() && !bCanDash && !TimerManager->IsTimerActive(TH_DashQueue))
@@ -1011,7 +1011,9 @@ void AYlva::Dash()
 			if (!bGodMode)
 			{
 				StartDashCooldown();
-				UpdateStamina(StaminaComponent->GetDashValue());
+
+				if (DashQueue.IsEmpty())
+					UpdateStamina(StaminaComponent->GetDashValue());
 			}
 
 			FSM->PushState("Dash");
