@@ -73,9 +73,12 @@ enum EBossRanges
 /**
  * A header file containing all enums that Overthrone uses
  */
-class MYTHOLOGICALBOSS_API OverthroneEnums
+class MYTHOLOGICALBOSS_API UOverthroneEnums
 {
 public:
-	OverthroneEnums() = default;
-	~OverthroneEnums() = default;
+	UOverthroneEnums() = default;
+	~UOverthroneEnums() = default;
+
+	static FString MordathAttackTypeToString(const EAttackType_Mordath& Enum);
+	static FString MordathAttackCounterTypeToString(const EAttackCounters_Mordath& Enum);
 };
