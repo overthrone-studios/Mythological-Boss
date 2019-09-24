@@ -410,7 +410,7 @@ void AMordath::OnEnterFollowState()
 	}
 
 	const uint8 bWantsDashForward = FMath::RandRange(0, 1);
-	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > CurrentStageData->GetDashDistanceThreshold() && !DashComponent->IsCooldownActive() && IsInFirstStage()) // Todo remove stage 1 check
+	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > CurrentStageData->GetDashDistanceThreshold() && !DashComponent->IsCooldownActive())
 	{
 		if (IsMidRange())
 			DashType = Dash_Forward;
