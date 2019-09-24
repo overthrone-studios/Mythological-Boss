@@ -315,6 +315,18 @@ void AMordath::Tick(const float DeltaTime)
 	AnimInstance->RightInput = RightInput;
 
 #if !UE_BUILD_SHIPPING
+	// Main FSM
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	// Range FSM
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
+
+	// Stage FSM
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+
 	if (Debug.bShowRaycasts)
 	{
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), CurrentStageData->GetSuperCloseRangeRadius(), 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
@@ -365,8 +377,6 @@ void AMordath::OnEnterIdleState()
 
 void AMordath::UpdateIdleState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	if (GameState->PlayerData.bIsDead)
 		return;
 
@@ -381,6 +391,9 @@ void AMordath::UpdateIdleState()
 void AMordath::OnExitIdleState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 
@@ -426,8 +439,6 @@ void AMordath::OnEnterFollowState()
 
 void AMordath::UpdateFollowState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	if (IsTransitioning())
 	{
 		BossAIController->StopMovement();
@@ -470,6 +481,9 @@ void AMordath::UpdateFollowState()
 void AMordath::OnExitFollowState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 
@@ -491,8 +505,6 @@ void AMordath::OnEnterRetreatState()
 void AMordath::UpdateRetreatState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
-
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	if (IsTransitioning())
 	{
@@ -519,6 +531,9 @@ void AMordath::UpdateRetreatState()
 void AMordath::OnExitRetreatState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion  
 
@@ -545,7 +560,6 @@ void AMordath::OnEnterThinkState()
 void AMordath::UpdateThinkState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	if (IsTransitioning())
 	{
@@ -577,6 +591,9 @@ void AMordath::OnExitThinkState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
 	MordathAnimInstance->bIsThinking = false;
 }
 #pragma endregion 
@@ -591,8 +608,6 @@ void AMordath::OnEnterShortAttack1State()
 
 void AMordath::UpdateShortAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
 	
 	// If attack animation has finished, go back to previous state
@@ -607,6 +622,9 @@ void AMordath::UpdateShortAttack1State()
 void AMordath::OnExitShortAttack1State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -623,8 +641,6 @@ void AMordath::OnEnterShortAttack2State()
 
 void AMordath::UpdateShortAttack2State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
@@ -639,6 +655,9 @@ void AMordath::UpdateShortAttack2State()
 void AMordath::OnExitShortAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -655,8 +674,6 @@ void AMordath::OnEnterShortAttack3State()
 
 void AMordath::UpdateShortAttack3State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
@@ -671,6 +688,9 @@ void AMordath::UpdateShortAttack3State()
 void AMordath::OnExitShortAttack3State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -690,8 +710,6 @@ void AMordath::OnEnterLongAttack1State()
 
 void AMordath::UpdateLongAttack1State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
 
 	if (CurrentMontageSection != "Recovery")
@@ -712,6 +730,9 @@ void AMordath::OnExitLongAttack1State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage(CurrentLongAttackMontage);
 
@@ -729,10 +750,6 @@ void AMordath::OnEnterLongAttack2State()
 
 void AMordath::UpdateLongAttack2State()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
-
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
-
 	FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
@@ -747,6 +764,9 @@ void AMordath::UpdateLongAttack2State()
 void AMordath::OnExitLongAttack2State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -763,8 +783,6 @@ void AMordath::OnEnterLongAttack3State()
 
 void AMordath::UpdateLongAttack3State()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
 
 	// If attack animation has finished, go back to previous state
@@ -779,6 +797,9 @@ void AMordath::UpdateLongAttack3State()
 void AMordath::OnExitLongAttack3State()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
@@ -795,8 +816,6 @@ void AMordath::OnEnterDamagedState()
 
 void AMordath::UpdateDamagedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
@@ -833,8 +852,6 @@ void AMordath::OnEnterDeathState()
 
 void AMordath::UpdateDeathState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->Stop();
 }
@@ -865,7 +882,6 @@ void AMordath::OnEnterStunnedState()
 void AMordath::UpdateStunnedState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	if (Uptime > CurrentStageData->Combat.StunDuration)
 		FSM->PopState();
@@ -874,6 +890,9 @@ void AMordath::UpdateStunnedState()
 void AMordath::OnExitStunnedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
@@ -893,13 +912,14 @@ void AMordath::OnEnterLaughState()
 
 void AMordath::UpdateLaughState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(),FSM->GetActiveStateUptime());
-
 }
 
 void AMordath::OnExitLaughState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	MordathAnimInstance->bCanLaugh = false;
 }
@@ -935,8 +955,6 @@ void AMordath::OnEnterDashState()
 
 void AMordath::UpdateDashState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
@@ -944,6 +962,9 @@ void AMordath::UpdateDashState()
 void AMordath::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	MordathAnimInstance->bIsDashingForward = false;
 	MordathAnimInstance->bIsDashingBackward = false;
@@ -964,7 +985,6 @@ void AMordath::OnEnterBeatenState()
 void AMordath::UpdateBeatenState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	// If the recover time has finished, go back to previous state
 	if (Uptime >= CurrentStageData->Combat.InvincibilityTimeAfterDamage)
@@ -976,6 +996,9 @@ void AMordath::UpdateBeatenState()
 void AMordath::OnExitBeatenState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	MordathAnimInstance->bIsBeaten = false;
 }
@@ -995,7 +1018,6 @@ void AMordath::OnEnterTeleportState()
 void AMordath::UpdateTeleportState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), Uptime);
 
 	if (Uptime > TeleportationComponent->GetTeleportTime())
 	{
@@ -1009,6 +1031,9 @@ void AMordath::UpdateTeleportState()
 void AMordath::OnExitTeleportState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	MordathAnimInstance->bCanTeleport = false;
 }
@@ -1026,8 +1051,6 @@ void AMordath::OnEnterCloseRange()
 
 void AMordath::UpdateCloseRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-
 	if (DistanceToPlayer < CurrentStageData->GetSuperCloseRangeRadius())
 		RangeFSM->PushState("Super Close");
 
@@ -1038,6 +1061,9 @@ void AMordath::UpdateCloseRange()
 void AMordath::OnExitCloseRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
@@ -1053,8 +1079,6 @@ void AMordath::OnEnterMidRange()
 
 void AMordath::UpdateMidRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-
 	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
 		RangeFSM->PushState("Close");
 
@@ -1065,6 +1089,9 @@ void AMordath::UpdateMidRange()
 void AMordath::OnExitMidRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
@@ -1081,7 +1108,6 @@ void AMordath::OnEnterFarRange()
 void AMordath::UpdateFarRange()
 {
 	const float& Uptime = RangeFSM->GetActiveStateUptime();
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), Uptime);
 
 	if (DistanceToPlayer < CurrentStageData->GetMidRangeRadius())
 	{
@@ -1120,6 +1146,9 @@ void AMordath::UpdateFarRange()
 void AMordath::OnExitFarRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
@@ -1135,8 +1164,6 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange()
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-
 	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned()))
 	{
 		DashType = Dash_Backward;
@@ -1150,6 +1177,9 @@ void AMordath::UpdateSuperCloseRange()
 void AMordath::OnExitSuperCloseRange()
 {
 	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 
 	ResetAttackDamage();
 }
@@ -1170,8 +1200,6 @@ void AMordath::OnEnterFirstStage()
 
 void AMordath::UpdateFirstStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-
 	// Can we enter the second stage?
 	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth)
 	{
@@ -1200,6 +1228,9 @@ void AMordath::UpdateFirstStage()
 void AMordath::OnExitFirstStage()
 {
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
@@ -1219,8 +1250,6 @@ void AMordath::OnEnterSecondStage()
 
 void AMordath::UpdateSecondStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-
 	if (AnimInstance->Montage_IsPlaying(Stage2_Transition))
 		return;
 
@@ -1261,6 +1290,9 @@ void AMordath::UpdateSecondStage()
 void AMordath::OnExitSecondStage()
 {
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
@@ -1280,8 +1312,6 @@ void AMordath::OnEnterThirdStage()
 
 void AMordath::UpdateThirdStage()
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-
 	if (AnimInstance->Montage_IsPlaying(Stage3_Transition))
 		return;
 
@@ -1315,8 +1345,10 @@ void AMordath::UpdateThirdStage()
 void AMordath::OnExitThirdStage()
 {
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
-}
 
+	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+}
 #pragma endregion   
 #pragma endregion
 

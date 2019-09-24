@@ -297,6 +297,9 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
+	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
 	if (Debug.bShowTeleportRadius)
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation, TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
@@ -1483,6 +1486,7 @@ void AYlva::OnEnterIdleState()
 void AYlva::UpdateIdleState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
 
@@ -1493,6 +1497,9 @@ void AYlva::UpdateIdleState()
 void AYlva::OnExitIdleState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 
@@ -1500,13 +1507,10 @@ void AYlva::OnExitIdleState()
 void AYlva::OnEnterWalkState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 }
 
 void AYlva::UpdateWalkState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
 	if (!IsMovingInAnyDirection())
@@ -1516,6 +1520,9 @@ void AYlva::UpdateWalkState()
 void AYlva::OnExitWalkState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 
@@ -1540,8 +1547,6 @@ void AYlva::OnEnterRunState()
 
 void AYlva::UpdateRunState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	PlayerController->ClientPlayCameraShake(CameraShakes.Run.Shake, CameraShakes.Run.Intensity);
 
 	if (!bGodMode)
@@ -1557,6 +1562,9 @@ void AYlva::UpdateRunState()
 void AYlva::OnExitRunState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	YlvaAnimInstance->bIsRunning = false;
 
@@ -1589,12 +1597,14 @@ void AYlva::OnEnterBlockingState()
 
 void AYlva::UpdateBlockingState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
 void AYlva::OnExitBlockingState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	bUseControllerRotationYaw = false;
 
@@ -1621,8 +1631,6 @@ void AYlva::OnEnterDamagedState()
 
 void AYlva::UpdateDamagedState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	// If hit animation has finished, go back to previous state
 	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 		FSM->PopState();
@@ -1631,6 +1639,9 @@ void AYlva::UpdateDamagedState()
 void AYlva::OnExitDamagedState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
@@ -1666,7 +1677,6 @@ void AYlva::OnEnterDeathState()
 
 void AYlva::UpdateDeathState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
 void AYlva::OnExitDeathState()
@@ -1786,12 +1796,14 @@ void AYlva::OnEnterParryState()
 
 void AYlva::UpdateParryState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
 void AYlva::OnExitParryState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	if (Combat.ParrySettings.ParryCameraAnimInst->CurTime == 0.0f)
 		Combat.ParrySettings.ParryCameraAnimInst->Stop();
