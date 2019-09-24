@@ -1132,7 +1132,7 @@ void AMordath::UpdateSuperCloseRange()
 {
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 
-	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() || !IsAttacking() && !IsRecovering()))
+	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned()))
 	{
 		DashType = Dash_Backward;
 		FSM->PushState("Dash");
