@@ -905,7 +905,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
 			// Update stats
-			if (StaminaComponent->IsLowStamina() || GameState->BossData.CurrentCounterType != Blockable)
+			if (StaminaComponent->IsLowStamina() || GameState->BossData.CurrentCounterType != Blockable || GameState->BossData.CurrentCounterType != ParryableBlockable)
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 
 			UpdateStamina(StaminaComponent->GetShieldHitValue());

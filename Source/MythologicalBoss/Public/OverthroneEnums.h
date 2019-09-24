@@ -58,6 +58,7 @@ enum EAttackCounters_Mordath
 {
 	Parryable,
 	Blockable,
+	ParryableBlockable,
 	NoCounter
 };
 

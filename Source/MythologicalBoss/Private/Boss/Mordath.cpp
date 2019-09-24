@@ -1371,7 +1371,7 @@ void AMordath::OnPlayerDeath()
 
 void AMordath::OnAttackParryed()
 {
-	if (CurrentAttackData->Attack->CounterType == Parryable && !IsStunned())
+	if ((CurrentAttackData->Attack->CounterType == Parryable || CurrentAttackData->Attack->CounterType == ParryableBlockable)  && !IsStunned())
 	{
 		StopAttackMontage();
 
@@ -1385,7 +1385,7 @@ void AMordath::OnAttackParryed()
 
 void AMordath::OnAttackBlocked()
 {
-	if (CurrentAttackData->Attack->CounterType == Blockable && !IsDamaged())
+	if ((CurrentAttackData->Attack->CounterType == Blockable || CurrentAttackData->Attack->CounterType == ParryableBlockable) && !IsDamaged())
 	{
 		StopAttackMontage();
 
@@ -1609,6 +1609,12 @@ void AMordath::ChooseAttack()
 		FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
 
 		GameState->BossData.bCanBeParryed = false;
+	break;
+
+	case ParryableBlockable:
+		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
+
+		GameState->BossData.bCanBeParryed = true;
 	break;
 
 	case NoCounter:
