@@ -261,11 +261,11 @@ void AYlva::Tick(const float DeltaTime)
 	// Lock-on mechanic
 	if (IsLockedOn())
 	{
-		const FRotator Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
-		const FRotator SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
+		const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
+		const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
 
-		const float NewPitch = FMath::Clamp(Target.Pitch, MinLockOnPitch, MaxLockOnPitch);
-		const FRotator NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+		const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
+		const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 		GetController()->SetControlRotation(NewRotation);
 	}
