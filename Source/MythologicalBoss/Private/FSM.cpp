@@ -35,6 +35,7 @@ void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActo
 	{
 		Stack[0]->OnUpdateState.Broadcast();
 		Stack[0]->Uptime += DeltaTime;
+		Stack[0]->Frames++;
 	}
 }
 
@@ -179,6 +180,7 @@ void UFSM::PushState(const int32 StateID)
 		{
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
+			Stack[0]->Frames = 0;
 			Stack.Insert(&State, 0);
 			Stack[0]->OnEnterState.Broadcast();
 
@@ -210,6 +212,7 @@ void UFSM::PushState(const FName& StateName)
 		{
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
+			Stack[0]->Frames = 0;
 			Stack.Insert(&State, 0);
 			Stack[0]->OnEnterState.Broadcast();
 
@@ -240,6 +243,7 @@ void UFSM::PopState(const int32 StateID)
 		{
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
+			Stack[0]->Frames = 0;
 			Stack.Remove(State);
 			Stack[0]->OnEnterState.Broadcast();
 
@@ -270,6 +274,7 @@ void UFSM::PopState(const FName& StateName)
 		{
 			Stack[0]->OnExitState.Broadcast();
 			Stack[0]->Uptime = 0;
+			Stack[0]->Frames = 0;
 			Stack.Remove(State);
 			Stack[0]->OnEnterState.Broadcast();
 
@@ -362,6 +367,11 @@ FName UFSM::GetActiveStateName() const
 float UFSM::GetActiveStateUptime() const
 {
 	return Stack[0]->Uptime;
+}
+
+int32 UFSM::GetActiveStateFrames() const
+{
+	return Stack[0]->Frames;
 }
 
 bool UFSM::DoesStateExistInStack(const int32 StateID)

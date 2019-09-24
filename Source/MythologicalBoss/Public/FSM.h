@@ -30,7 +30,7 @@ struct FState
 		FOnUpdateStateSignature OnUpdateState;
 
 	int32 ID;
-	int32 Frames;
+	uint32 Frames;
 	FName Name;
 
 	float Uptime = 0;
@@ -94,6 +94,8 @@ public:
 		FName GetActiveStateName() const;
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		float GetActiveStateUptime() const;
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		int32 GetActiveStateFrames() const;
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		bool DoesStateExistInStack(int32 StateID);
