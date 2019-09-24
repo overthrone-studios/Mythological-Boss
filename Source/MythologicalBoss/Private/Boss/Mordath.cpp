@@ -1130,7 +1130,7 @@ void AMordath::OnEnterSuperCloseRange()
 
 	GameState->PlayerData.CurrentRange = SuperClose;
 
-	IncreaseAttackDamage(1.5f);
+	IncreaseAttackDamage(CurrentStageData->GetAttackDamageMultiplier());
 }
 
 void AMordath::UpdateSuperCloseRange()

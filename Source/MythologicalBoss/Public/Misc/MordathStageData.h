@@ -221,6 +221,9 @@ public:
 		FORCEINLINE float GetDashDistanceThreshold() { return MovementSettings.DashAtDistance; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
+		FORCEINLINE float GetAttackDamageMultiplier() { return DamageMultiplierOnSuperCloseRange; }
+
+	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE FCameraShakeData& GetDamagedShake() { return CameraShakes.Damaged; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
@@ -245,9 +248,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f), DisplayName = "Close Range Radius")
 		float AcceptanceRadius = 200.0f;
 
-	// The radius in which the boss character will increase their damage by a factor of 1.5
+	// The radius in which the boss character will increase their damage by a factor
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
 		float SuperCloseRadius = 200.0f;
+
+	// The factor to multiply all the attack damages by
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f))
+		float DamageMultiplierOnSuperCloseRange = 1.5f;
 
 	// The radius of the mid range area
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 1.0f, ClampMax = 100000.0f))
