@@ -28,7 +28,7 @@ void AOverthroneGameState::EnterBossStage(const EBossStage InBossStage)
 
 void AOverthroneGameState::RestartGame()
 {
-	UOverthroneFunctionLibrary::UnPauseGame(PlayerController);
+	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);
 
 	const FString LevelName = UGameplayStatics::GetCurrentLevelName(this);
 	UGameplayStatics::OpenLevel(this, *LevelName);
@@ -44,12 +44,12 @@ bool AOverthroneGameState::IsGamePaused()
 
 void AOverthroneGameState::PauseGame()
 {
-	UOverthroneFunctionLibrary::PauseGame(PlayerController);
+	UOverthroneFunctionLibrary::PauseGame(this, PlayerController);
 }
 
 void AOverthroneGameState::UnPauseGame()
 {
-	UOverthroneFunctionLibrary::UnPauseGame(PlayerController);
+	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);
 }
 
 void AOverthroneGameState::BeginPlay()

@@ -59,11 +59,11 @@ public:
 
 	// Pauses the game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone")
-		static void PauseGame(APlayerController* InPlayerController);
+		static void PauseGame(const UObject* WorldContext, APlayerController* InPlayerController);
 
 	// UnPauses the game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone")
-		static void UnPauseGame(APlayerController* InPlayerController);
+		static void UnPauseGame(const UObject* WorldContext, APlayerController* InPlayerController);
 
 	// Check if gamepad is connected at runtime
 	UFUNCTION(BlueprintPure, Category = "System Information")

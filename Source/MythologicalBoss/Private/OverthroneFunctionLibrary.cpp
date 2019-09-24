@@ -86,16 +86,16 @@ ABossBattleGameMode* UOverthroneFunctionLibrary::GetGameMode(const UObject* Worl
 	return Cast<ABossBattleGameMode>(UGameplayStatics::GetGameMode(WorldContext));
 }
 
-void UOverthroneFunctionLibrary::PauseGame(APlayerController* InPlayerController)
+void UOverthroneFunctionLibrary::PauseGame(const UObject* WorldContext, APlayerController* InPlayerController)
 {
-	UGameplayStatics::SetGamePaused(InPlayerController, true);
+	UGameplayStatics::SetGamePaused(WorldContext, true);
 	InPlayerController->bShowMouseCursor = true;
 	InPlayerController->SetInputMode(FInputModeUIOnly());
 }
 
-void UOverthroneFunctionLibrary::UnPauseGame(APlayerController* InPlayerController)
+void UOverthroneFunctionLibrary::UnPauseGame(const UObject* WorldContext, APlayerController* InPlayerController)
 {
-	UGameplayStatics::SetGamePaused(InPlayerController, false);
+	UGameplayStatics::SetGamePaused(WorldContext, false);
 	InPlayerController->bShowMouseCursor = false;
 	InPlayerController->SetInputMode(FInputModeGameOnly());
 }
