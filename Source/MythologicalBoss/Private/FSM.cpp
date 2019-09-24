@@ -18,8 +18,6 @@ void UFSM::BeginPlay()
 	if (bDebug)
 	{
 		ULog::DebugMessage(SUCCESS, FString("FSM Initialized"));
-		
-		ULog::Number(SubStates.Num(), GetName() + " SubStates: ", true);
 	}
 #endif
 }
@@ -128,25 +126,6 @@ void UFSM::AddState(const int32 ID, const FName& StateName)
 #if !UE_BUILD_SHIPPING
 	if (bDebug)
 		ULog::DebugMessage(INFO, FString("State " + StateName.ToString() + " added"), true);
-#endif
-}
-
-void UFSM::AddSubState(const int32 ParentStateID, const int32 SubStateID, const FName& SubStateName)
-{
-	if (GetState(ParentStateID))
-	{
-		TPair<FState*, FState*> SubState;
-		SubState.Key = GetState(ParentStateID);
-		SubState.Value = new FState(SubStateID, SubStateName);
-
-		SubStates.Add(SubState);
-	}
-	else
-		return;
-
-#if !UE_BUILD_SHIPPING
-	if (bDebug)
-		ULog::DebugMessage(INFO, FString("SubState " + SubStateName.ToString() + " added"), true);
 #endif
 }
 
@@ -304,22 +283,6 @@ void UFSM::PopState(const FName& StateName)
 #endif
 }
 
-void UFSM::EnterSubState(const int32 SubStateID)
-{
-	Stack[0]->OnExitState.Broadcast();
-	Stack[0]->Uptime = 0;
-	Stack[0] = GetSubState(SubStateID);
-	Stack[0]->OnEnterState.Broadcast();
-}
-
-void UFSM::ExitSubState()
-{
-	Stack[0]->OnExitState.Broadcast();
-	Stack[0]->Uptime = 0;
-	Stack[0] = GetParentState(GetActiveStateID());
-	Stack[0]->OnEnterState.Broadcast();
-}
-
 FState* UFSM::GetState(const int32 StateID)
 {
 	for (FState& State : States)
@@ -384,42 +347,6 @@ FState* UFSM::GetStateInStack(const FName& StateName)
 FState* UFSM::GetActiveState() const
 {
 	return Stack[0];
-}
-
-FState* UFSM::GetSubState(const int32 SubStateID) const
-{
-	for (const auto SubState : SubStates)
-	{
-		if (SubState.Value->ID == SubStateID)
-			return SubState.Value;
-	}
-
-	ULog::Warning("Could not find sub-state " + FString::FromInt(SubStateID), true);
-	return nullptr;
-}
-
-FState* UFSM::GetSubState(const int32 ParentStateID, const int32 SubStateID) const
-{
-	for (const auto SubState : SubStates)
-	{
-		if (SubState.Key->ID == ParentStateID && SubState.Value->ID == SubStateID)
-			return SubState.Value;
-	}
-
-	ULog::Warning("Failed to find sub-state " + FString::FromInt(SubStateID) + " from parent state ID " + FString::FromInt(ParentStateID), true);
-	return nullptr;
-}
-
-FState* UFSM::GetParentState(const int32 SubStateID) const
-{
-	for (const auto SubState : SubStates)
-	{
-		if (SubState.Value->ID == SubStateID)
-			return SubState.Key;
-	}
-
-	ULog::Warning("Failed not find the parent state", true);
-	return nullptr;
 }
 
 int32 UFSM::GetActiveStateID() const

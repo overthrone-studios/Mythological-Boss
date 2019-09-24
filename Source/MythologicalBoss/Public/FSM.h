@@ -14,11 +14,12 @@ struct FState
 {
 	GENERATED_USTRUCT_BODY()
 
-	FState() : ID(0) {}
+	FState() : ID(0), Frames(0) {}
 	FState(const int32 ID, const FName Name)
 	{
 		this->ID = ID;
 		this->Name = Name;
+		Frames = 0;
 	}
 
 	UPROPERTY()
@@ -29,6 +30,7 @@ struct FState
 		FOnUpdateStateSignature OnUpdateState;
 
 	int32 ID;
+	int32 Frames;
 	FName Name;
 
 	float Uptime = 0;
@@ -55,9 +57,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void AddState(int32 ID, const FName& StateName);
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
-		void AddSubState(int32 ParentStateID, int32 SubStateID, const FName& SubStateName);
-
 	void PopState();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
@@ -74,12 +73,6 @@ public:
 		void PopState(int32 StateID);
 		void PopState(const FName& StateName);
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
-		void EnterSubState(int32 SubStateID);
-
-	UFUNCTION(BlueprintCallable, Category = "FSM")
-		void ExitSubState();
-
 	FORCEINLINE TArray<FState> GetAllStates() const { return States; }
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
@@ -94,11 +87,6 @@ public:
 	FState* GetStateInStack(const FName& StateName);
 
 	FState* GetActiveState() const;
-
-	FState* GetSubState(int32 SubStateID) const;
-	FState* GetSubState(int32 ParentStateID, int32 SubStateID) const;
-
-	FState* GetParentState(int32 SubStateID) const;
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		int32 GetActiveStateID() const;
@@ -125,7 +113,6 @@ protected:
 	TArray<FState*> Stack;
 
 	TArray<FState> States;
-	TArray<TPair<FState*, FState*>> SubStates;
 
 	uint8 bHasFSMInitialized : 1;
 	uint8 bIsRunning : 1;
