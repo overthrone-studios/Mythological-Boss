@@ -1046,7 +1046,7 @@ void AYlva::EnableLockOn()
 		return;
 
 	LockOnSettings.bLockedOn = true;
-	//PlayerController->SetIgnoreLookInput(true);
+	PlayerController->SetIgnoreLookInput(true);
 	GameState->LockOn->OnToggleLockOn.Broadcast(false);
 	MovementComponent->bUseControllerDesiredRotation = true;
 	MovementComponent->bOrientRotationToMovement = false;
