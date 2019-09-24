@@ -26,7 +26,7 @@ void UFSMVisualizerHUD::HighlightState(const FString& StateName)
 	}
 }
 
-void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float Uptime)
+void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float& Uptime)
 {
 	for (auto StateWidget : StateDebugWidgets)
 	{
@@ -41,6 +41,51 @@ void UFSMVisualizerHUD::UpdateStateUptime(const FString& StateName, const float 
 	}
 }
 
+void UFSMVisualizerHUD::UpdatePreviousStateUptime(const FString& StateName, const float& Uptime)
+{
+	for (auto StateWidget : StateDebugWidgets)
+	{
+		if (StateWidget->GetStateName() == StateName)
+		{
+			FNumberFormattingOptions NumberFormattingOptions;
+			NumberFormattingOptions.MaximumFractionalDigits = 2;
+			StateWidget->UpdatePreviousUptimeText(FText::AsNumber(Uptime, &NumberFormattingOptions));
+
+			return;
+		}
+	}
+}
+
+void UFSMVisualizerHUD::UpdateStateFrames(const FString& StateName, const uint32& Frames)
+{
+	for (auto StateWidget : StateDebugWidgets)
+	{
+		if (StateWidget->GetStateName() == StateName)
+		{
+			FNumberFormattingOptions NumberFormattingOptions;
+			NumberFormattingOptions.MaximumFractionalDigits = 0;
+			StateWidget->UpdateFramesText(FText::AsNumber(Frames, &NumberFormattingOptions));
+
+			return;
+		}
+	}
+}
+
+void UFSMVisualizerHUD::UpdatePreviousStateFrames(const FString& StateName, const uint32& Frames)
+{
+	for (auto StateWidget : StateDebugWidgets)
+	{
+		if (StateWidget->GetStateName() == StateName)
+		{
+			FNumberFormattingOptions NumberFormattingOptions;
+			NumberFormattingOptions.MaximumFractionalDigits = 0;
+			StateWidget->UpdatePreviousFramesText(FText::AsNumber(Frames, &NumberFormattingOptions));
+
+			return;
+		}
+	}
+}
+
 void UFSMVisualizerHUD::UnhighlightState(const FString& StateName)
 {
 	for (auto StateWidget : StateDebugWidgets)
@@ -49,6 +94,7 @@ void UFSMVisualizerHUD::UnhighlightState(const FString& StateName)
 		{
 			StateWidget->ChangeBackgroundColor(White);
 			StateWidget->UpdateUptimeText(FText::AsNumber(0.0f));
+			StateWidget->UpdateFramesText(FText::AsNumber(0));
 			return;
 		}
 	}

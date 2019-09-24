@@ -18,6 +18,9 @@ public:
 
 	void ChangeBackgroundColor(const FLinearColor& Color);
 	void UpdateUptimeText(const FText& NewUptimeText);
+	void UpdatePreviousUptimeText(const FText& NewUptimeText);
+	void UpdateFramesText(const FText& NewFramesText);
+	void UpdatePreviousFramesText(const FText& NewFramesText);
 
 protected:
 	void NativePreConstruct() override;
@@ -27,6 +30,15 @@ protected:
 			
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 		FText UptimeText = FText::AsNumber(0.0f);
+
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		FText FramesText = FText::AsNumber(0);
+
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		FText PreviousUptimeText = FText::AsNumber(0.0f);
+
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		FText PreviousFramesText = FText::AsNumber(0);
 
 	class UTextBlock* LabelWidget;
 	class UImage* BGImage;

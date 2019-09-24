@@ -17,7 +17,10 @@ public:
 	void Init() override;
 
 	void HighlightState(const FString& StateName);
-	void UpdateStateUptime(const FString& StateName, float Uptime);
+	void UpdateStateUptime(const FString& StateName, const float& Uptime);
+	void UpdatePreviousStateUptime(const FString& StateName, const float& Uptime);
+	void UpdateStateFrames(const FString& StateName, const uint32& Frames);
+	void UpdatePreviousStateFrames(const FString& StateName, const uint32& Frames);
 	void UnhighlightState(const FString& StateName);
 
 protected:

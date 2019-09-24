@@ -29,3 +29,18 @@ void UStateDebugWidget::UpdateUptimeText(const FText& NewUptimeText)
 {
 	UptimeText = NewUptimeText;
 }
+
+void UStateDebugWidget::UpdatePreviousUptimeText(const FText& NewUptimeText)
+{
+	PreviousUptimeText = NewUptimeText;
+}
+
+void UStateDebugWidget::UpdateFramesText(const FText& NewFramesText)
+{
+	FramesText = NewFramesText;
+}
+
+void UStateDebugWidget::UpdatePreviousFramesText(const FText& NewFramesText)
+{
+	PreviousFramesText = NewFramesText;
+}
