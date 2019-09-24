@@ -1487,9 +1487,6 @@ void AYlva::OnEnterIdleState()
 
 void AYlva::UpdateIdleState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	PlayerController->ClientPlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
 
 	if (IsMovingInAnyDirection() && MovementComponent->IsMovingOnGround())
@@ -1740,8 +1737,6 @@ void AYlva::OnEnterDashState()
 
 void AYlva::UpdateDashState()
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
 	ForwardInput = LockedForwardInput;
 	RightInput = LockedRightInput;
 
@@ -1754,6 +1749,9 @@ void AYlva::UpdateDashState()
 void AYlva::OnExitDashState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	DisableInvincibility();
 
