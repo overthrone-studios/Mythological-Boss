@@ -105,6 +105,7 @@ struct FBossData : public FCharacterData
 
 	uint8 bCanBeParryed : 1;
 
+	EAttackType_Mordath CurrentAttackType;
 	EAttackCounters_Mordath CurrentCounterType;
 
 	FOnAttackParryedSignature OnAttackParryed;

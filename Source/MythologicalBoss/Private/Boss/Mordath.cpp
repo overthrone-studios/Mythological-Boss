@@ -6,6 +6,7 @@
 #include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
 #include "OverthroneHUD.h"
+#include "OverthroneEnums.h"
 
 #include "Potions/PotionBase.h"
 
@@ -304,6 +305,7 @@ void AMordath::Tick(const float DeltaTime)
 	
 	GameState->BossData.Location = CurrentLocation;
 	GameState->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
+	//GameState->BossData.LockOnLocation = GameState->BossData.CurrentAttackType == LongAttack_1 ? FMath::Lerp(GameState->BossData.LockOnLocation, GameState->BossData.LockOnBoneLocation, 10* DeltaTime) : FMath::Lerp(GameState->BossData.LockOnLocation, CurrentLocation, 5* DeltaTime);
 
 	DistanceToPlayer = GetDistanceToPlayer();
 	DirectionToPlayer = GetDirectionToPlayer();
@@ -326,16 +328,17 @@ void AMordath::Tick(const float DeltaTime)
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Attack: " + CurrentAttackData->Attack->GetCurrentAttackAsString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Counter: " + CurrentAttackData->Attack->GetCounterTypeAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Current Attack: " + UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentAttackType));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Counter: " + UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
 #endif
 }
 
@@ -678,6 +681,8 @@ void AMordath::OnExitShortAttack3State()
 void AMordath::OnEnterLongAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	GameState->BossData.CurrentAttackType = LongAttack_1;
 
 	CurrentLongAttackMontage = CurrentStageData->ComboSettings.FarRangeAttackAnim;
 	PlayAnimMontage(CurrentStageData->ComboSettings.FarRangeAttackAnim, 1.0f, FName("Anticipation"));
@@ -1585,6 +1590,9 @@ void AMordath::ChooseAttack()
 	break;
 	}
 
+	GameState->BossData.CurrentAttackType = CurrentAttackData->Attack->AttackType;
+	GameState->BossData.CurrentCounterType = CurrentAttackData->Attack->CounterType;
+
 	// Choose the current attack from the attack data
 	switch (CurrentAttackData->Attack->AttackType)
 	{
@@ -2056,4 +2064,5 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Long Attack Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Counter: ", FColor::Yellow, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Lock-on Location: ", FColor::Green, YPadding);
 }
