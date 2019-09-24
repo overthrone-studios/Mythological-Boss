@@ -267,7 +267,7 @@ void AYlva::Tick(const float DeltaTime)
 		const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
 		const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
-		GetController()->SetControlRotation(NewRotation);
+		PlayerController->SetControlRotation(NewRotation);
 	}
 
 	// Stamina regen mechanic
@@ -782,7 +782,7 @@ void AYlva::ChargeUpAttack()
 		}
 
 		const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess,GetActorForwardVector().Rotation().Yaw,ControlRotation.Roll);
-		GetController()->SetControlRotation(NewRotation);
+		PlayerController->SetControlRotation(NewRotation);
 
 		PlayerController->SetIgnoreLookInput(true);
 	}
@@ -1766,7 +1766,7 @@ void AYlva::OnEnterParryState()
 	}
 
 	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, ControlRotation.Roll);
-	GetController()->SetControlRotation(NewRotation);
+	PlayerController->SetControlRotation(NewRotation);
 
 	PlayerController->SetIgnoreLookInput(true);
 
