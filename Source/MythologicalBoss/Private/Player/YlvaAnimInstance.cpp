@@ -2,6 +2,8 @@
 
 #include "Player/YlvaAnimInstance.h"
 
+#include "Player/Ylva.h"
+
 void UYlvaAnimInstance::LeaveAllStates()
 {
 	Super::LeaveAllStates();
@@ -13,6 +15,8 @@ void UYlvaAnimInstance::LeaveAllStates()
 void UYlvaAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
+
+	Ylva = Cast<AYlva>(TryGetPawnOwner());
 
 	StateMachines[0] = GetStateMachineIndex("Generics");
 

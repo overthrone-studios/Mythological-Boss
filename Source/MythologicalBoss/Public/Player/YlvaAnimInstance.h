@@ -51,4 +51,7 @@ public:
 
 protected:
 	void NativeInitializeAnimation() override;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character")
+		class AYlva* Ylva;
 };
