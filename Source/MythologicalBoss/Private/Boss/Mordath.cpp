@@ -1731,7 +1731,8 @@ void AMordath::ChangeHitboxSize(const float NewRadius)
 
 void AMordath::FacePlayer(const float RotationSpeed)
 {
-	SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
+	if (RotationSpeed > 0.0f)
+		SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
 }
 
 void AMordath::FacePlayer()
