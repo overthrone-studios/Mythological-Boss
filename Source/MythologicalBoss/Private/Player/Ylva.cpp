@@ -409,6 +409,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::B, IE_Pressed, this, &AYlva::Debug_BossStage1);
 	PlayerInputComponent->BindKey(EKeys::N, IE_Pressed, this, &AYlva::Debug_BossStage2);
 	PlayerInputComponent->BindKey(EKeys::M, IE_Pressed, this, &AYlva::Debug_BossStage3);
+	PlayerInputComponent->BindKey(EKeys::J, IE_Pressed, this, &AYlva::SpawnGhost);
 #endif
 }
 
