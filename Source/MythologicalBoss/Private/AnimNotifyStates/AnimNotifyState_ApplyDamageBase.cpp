@@ -22,10 +22,6 @@ void UAnimNotifyState_ApplyDamageBase::OnHit(USkeletalMeshComponent* MeshComp)
 	check(0 && "You must implement OnHit()");
 }
 
-void UAnimNotifyState_ApplyDamageBase::OnOverlap(USkeletalMeshComponent* MeshComp)
-{
-}
-
 void UAnimNotifyState_ApplyDamageBase::PlayHitSound(UObject* WorldContextObject)
 {
 	if (HitSoundData && HitSoundData->HitSounds.Num() > 0)

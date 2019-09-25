@@ -18,7 +18,6 @@ protected:
 	void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
 	void OnHit(USkeletalMeshComponent* MeshComp) override;
-	void OnOverlap(USkeletalMeshComponent* MeshComp) override;
 
 private:
 	class AMordath* Mordath;

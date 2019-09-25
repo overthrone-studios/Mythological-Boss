@@ -19,7 +19,6 @@ protected:
 	void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
 
 	virtual void OnHit(USkeletalMeshComponent* MeshComp);
-	virtual void OnOverlap(USkeletalMeshComponent* MeshComp);
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		FName StartBone = "RightHand";

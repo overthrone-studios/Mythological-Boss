@@ -49,10 +49,7 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 	const FDamageEvent DamageEvent;
 
 	if (HitComponent)
-	{
 		HitComponent->OnComponentHit.Broadcast(HitResult.GetComponent(), Mordath, MeshComp, HitResult.ImpactNormal, HitResult);
-		ULog::Info("Hit Component: " + HitComponent->GetName(), true);
-	}
 
 	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged))
 	{
@@ -69,18 +66,4 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 			PlayHitSound(MeshComp);
 		}
 	}
-}
-
-void UAnimNotifyState_ApplyDamageBoss::OnOverlap(USkeletalMeshComponent* MeshComp)
-{
-	const auto OverlappedActor = HitResult.GetActor();
-	const auto OverlappedComponent = HitResult.GetComponent();
-
-	ULog::ObjectValidity(OverlappedComponent, true);
-
-	if (OverlappedActor)
-		ULog::Info("Overlapped with " + OverlappedActor->GetName(), true);
-
-	if (OverlappedComponent)
-		ULog::Info("Overlapped with " + OverlappedComponent->GetName(), true);
 }
