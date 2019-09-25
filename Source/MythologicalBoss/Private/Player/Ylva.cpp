@@ -1903,6 +1903,11 @@ void AYlva::ResumeMovement()
 	PlayerController->ResetIgnoreMoveInput();
 }
 
+void AYlva::SpawnGhost()
+{
+	World->SpawnActor(GhostClass, &SKMComponent->GetComponentTransform());
+}
+
 bool AYlva::IsLightAttacking() const
 {
 	return AttackComboComponent->GetCurrentAttack() == Light;

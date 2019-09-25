@@ -250,8 +250,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
 		void ResumeMovement();
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
+		void SpawnGhost();
+
 	// Returns true if we have taken 1 or more hits
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
 
 	// Returns the light attack damage value
@@ -856,6 +859,9 @@ protected:
 	// Ylva's combat settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
 		FCombatSettings_Ylva Combat;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Ghost Blueprint Class")
+		TSubclassOf<AActor> GhostClass;
 
 	// Cached player's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
