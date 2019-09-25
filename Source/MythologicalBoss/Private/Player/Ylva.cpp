@@ -177,6 +177,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	ParryCollisionComponent->SetBoxExtent(FVector(20.0f, 25.0f, 30.0f));
 	ParryCollisionComponent->SetEnableGravity(false);
 	ParryCollisionComponent->bApplyImpulseOnDamage = false;
+	ParryCollisionComponent->OnComponentHit.AddDynamic(this, &AYlva::OnParryBoxHit);
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -230,7 +231,6 @@ void AYlva::BeginPlay()
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
 
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	ParryCollisionComponent->OnComponentHit.AddDynamic(this, &AYlva::OnParryBoxHit);
 
 	bCanDash = true;
 
@@ -1637,16 +1637,6 @@ void AYlva::UpdateBlockingState()
 	else
 	{
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-
-		//if (bIsHit)
-		//{
-		//	ULog::Hello(true);
-
-		//	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
-		//	{
-		//		FSM->PushState("Parry");
-		//	}
-		//}
 	}
 }
 
