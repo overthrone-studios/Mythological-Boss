@@ -6,12 +6,12 @@
 
 void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
-	const FVector StartTrace = MeshComp->GetSocketLocation(StartBone);
-	const FVector EndTrace = MeshComp->GetSocketLocation(EndBone);
+	const FVector& StartTrace = MeshComp->GetSocketLocation(StartBone);
+	const FVector& EndTrace = MeshComp->GetSocketLocation(EndBone);
 
 	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), true, {}, DebugTrace, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
-	if (HitResult.bBlockingHit && !bIsHit)
+	if (!bIsHit)
 	{
 		OnHit(MeshComp);
 	}
@@ -20,6 +20,10 @@ void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshCo
 void UAnimNotifyState_ApplyDamageBase::OnHit(USkeletalMeshComponent* MeshComp)
 {
 	check(0 && "You must implement OnHit()");
+}
+
+void UAnimNotifyState_ApplyDamageBase::OnOverlap(USkeletalMeshComponent* MeshComp)
+{
 }
 
 void UAnimNotifyState_ApplyDamageBase::PlayHitSound(UObject* WorldContextObject)
