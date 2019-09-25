@@ -987,6 +987,12 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
+	if (IsAttacking())
+	{
+		StopAnimMontage();
+		AttackComboComponent->ClearCurrentAttack();
+	}
+
 	if ((bIsDead || IsChargeAttacking() || IsBlocking()) && TimerManager->IsTimerActive(TH_DashQueue))
 		return;
 
