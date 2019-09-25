@@ -535,6 +535,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
 
+	// The material to update when an attack is about to happen
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", DisplayName = "Flash Indicator Material")
+		class UMaterialInstance* MI_FlashIndicator;
+
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageOneData;
@@ -601,6 +605,8 @@ private:
 	FTimerHandle TH_Invincibility;
 
 	FTimerHandle TH_FlashIndicator;
+
+	UMaterialInstanceDynamic* MID_FlashIndicator;
 
 	class UAnimMontage* CurrentLongAttackMontage;
 
