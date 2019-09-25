@@ -868,8 +868,9 @@ void AYlva::StopBlocking()
 
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 	bUseControllerRotationYaw = false;
-
-	FSM->PopState();
+	
+	if (!IsParrying())
+		FSM->PopState();
 }
 
 void AYlva::BeginTakeDamage(float DamageAmount)
@@ -889,6 +890,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 
 	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
 	{
+		FSM->PopState();
 		FSM->PushState("Parry");
 		return;
 	}
@@ -901,8 +903,8 @@ void AYlva::ApplyDamage(const float DamageAmount)
 	{
 		case 4 /*Block*/:
 			// Enter shield hit state
-			//FSM->PopState();
-			//FSM->PushState("Shield Hit");
+			FSM->PopState();
+			FSM->PushState("Shield Hit");
 
 			// Shake the camera
 			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
@@ -1835,7 +1837,6 @@ void AYlva::OnEnterParryState()
 
 	PlayerController->SetIgnoreLookInput(true);
 
-
 	GameState->BossData.OnAttackParryed.Broadcast();
 
 	StartParryEvent();
@@ -1843,6 +1844,11 @@ void AYlva::OnEnterParryState()
 
 void AYlva::UpdateParryState()
 {
+	Combat.ParrySettings.TimeDilationOnSuccessfulParry = FMath::Lerp(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 5 * World->DeltaTimeSeconds);
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
 }
 
 void AYlva::OnExitParryState()
