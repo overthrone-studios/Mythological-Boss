@@ -24,9 +24,6 @@ public:
 		float RightInput = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-		float BlendAlpha = 1.0f;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 		float AnimTimeRemaining = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
@@ -62,9 +59,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bAcceptThirdHeavyAttack : 1;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Combat")
-		uint8 bLogDirection : 1;
-
 	// Used to get a reference to the anim state machines, and to query time remaining
 	int32 StateMachines[2];
 
@@ -76,15 +70,8 @@ public:
 		int32 ActiveStateMachine = 0;
 
 protected:
-	void NativeInitializeAnimation() override;
 	void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Anim Instance", meta = (BlueprintThreadSafe))
 		float GetAnimTimeRemaining();
-
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Anim Instance")
-		APawn* OwningPawn{};
-
-	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Anim Instance")
-		UPawnMovementComponent* PawnMovementComponent{};
 };

@@ -2,33 +2,12 @@
 
 #include "OverthroneAnimInstance.h"
 #include "Animation/AnimNode_StateMachine.h"
-#include "Log.h"
-
-void UOverthroneAnimInstance::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-
-	// Cache the owning pawn for use in Tick
-	OwningPawn = TryGetPawnOwner();
-
-	// Cache the owning pawn's movement component for use in Tick
-	if (OwningPawn)
-	{
-		PawnMovementComponent = OwningPawn->GetMovementComponent();
-	}
-}
 
 void UOverthroneAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	
-	if (!OwningPawn || !PawnMovementComponent)
-		return;
-
 	AnimTimeRemaining = GetAnimTimeRemaining();
-
-	if (bLogDirection)
-		ULog::Number(MovementDirection, "Direction: ", true);
 }
 
 void UOverthroneAnimInstance::LeaveAllStates()
