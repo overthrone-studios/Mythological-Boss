@@ -184,7 +184,11 @@ struct FParrySettings_Ylva
 
 	// The parry window time in frames
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0))
-		uint8 ParryWindowTime = 10;
+		uint8 MinParryFrame = 5;
+
+	// The parry window time in frames
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0))
+		uint8 MaxParryFrame = 20;
 
 	// This value will be used when a parry is successful (slowing down time)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))

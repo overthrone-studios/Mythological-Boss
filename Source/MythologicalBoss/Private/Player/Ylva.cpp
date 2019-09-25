@@ -177,7 +177,6 @@ AYlva::AYlva() : AOverthroneCharacter()
 	ParryCollisionComponent->SetBoxExtent(FVector(20.0f, 25.0f, 30.0f));
 	ParryCollisionComponent->SetEnableGravity(false);
 	ParryCollisionComponent->bApplyImpulseOnDamage = false;
-	ParryCollisionComponent->OnComponentHit.AddDynamic(this, &AYlva::OnParryBoxHit);
 
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -1630,7 +1629,7 @@ void AYlva::OnEnterBlockingState()
 
 void AYlva::UpdateBlockingState()
 {
-	if (FSM->GetActiveStateFrames() > Combat.ParrySettings.ParryWindowTime)
+	if (FSM->GetActiveStateFrames() > Combat.ParrySettings.MaxParryFrame)
 	{
 		ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -1930,7 +1929,7 @@ bool AYlva::IsChargeAttacking() const
 
 bool AYlva::IsParrySuccessful() const
 {
-	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() < Combat.ParrySettings.ParryWindowTime;
+	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame;
 }
 
 bool AYlva::IsDashing() const
