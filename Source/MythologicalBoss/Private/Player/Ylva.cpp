@@ -884,7 +884,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 		FSM->PopState();
 	}
 
-	if (IsParrySuccessful() && GameState->BossData.bCanBeParryed)
+	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
 	{
 		FSM->PushState("Parry");
 		return;
@@ -905,7 +905,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
 			// Update stats
-			if (StaminaComponent->IsLowStamina() || GameState->BossData.CurrentCounterType != Blockable || GameState->BossData.CurrentCounterType != ParryableBlockable)
+			if (StaminaComponent->IsLowStamina() || GameState->IsBossAttackNoCounter())
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 
 			UpdateStamina(StaminaComponent->GetShieldHitValue());

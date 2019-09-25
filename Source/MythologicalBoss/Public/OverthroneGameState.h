@@ -97,13 +97,10 @@ struct FBossData : public FCharacterData
 	{
 		Super::ResetData();
 
-		bCanBeParryed = false;
 		CurrentCounterType = NoCounter;
 	}
 
 	FVector LockOnBoneLocation;
-
-	uint8 bCanBeParryed : 1;
 
 	EAttackType_Mordath CurrentAttackType;
 	EAttackCounters_Mordath CurrentCounterType;
@@ -156,6 +153,18 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE bool IsPlayerDead() const { return PlayerData.bIsDead; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE bool IsBossAttackParryable() const { return BossData.CurrentCounterType == Parryable || BossData.CurrentCounterType == ParryableBlockable; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE bool IsBossAttackBlockable() const { return BossData.CurrentCounterType == Blockable; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == NoCounter; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE EAttackType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentAttackType; }
 
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")

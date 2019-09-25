@@ -1601,30 +1601,21 @@ void AMordath::ChooseAttack()
 	{
 	case Parryable:
 		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
-
-		GameState->BossData.bCanBeParryed = true;
 	break;
 
 	case Blockable:
 		FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
-
-		GameState->BossData.bCanBeParryed = false;
 	break;
 
 	case ParryableBlockable:
 		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
-
-		GameState->BossData.bCanBeParryed = true;
 	break;
 
 	case NoCounter:
 		FlashIndicator->Flash(CurrentStageData->Combat.NoCounterFlashColor);
-
-		GameState->BossData.bCanBeParryed = false;
 	break;
 
 	default:
-		GameState->BossData.bCanBeParryed = false;
 	break;
 	}
 
