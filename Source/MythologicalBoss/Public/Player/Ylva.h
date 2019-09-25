@@ -182,9 +182,9 @@ struct FParrySettings_Ylva
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UHitSoundData* ParryHitSoundData;
 
-	// The parry window time frame
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float ParryWindowTime = 0.1f;
+	// The parry window time in frames
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0))
+		uint8 ParryWindowTime = 10;
 
 	// This value will be used when a parry is successful (slowing down time)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
@@ -215,10 +215,6 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect parry values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
-
-	// The amount of time (in seconds) the sword "sticks" when hit
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (EditCondition = "bEnableHitStop", ClampMin = 0.0f, ClampMax = 2.0f))
-		float SwordStickTime = 0.1f;
 };
 
 /*
@@ -328,6 +324,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsRunning() const;
 
+	// Returns true if we are damaged by an attack
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsDamaged() const;
+
+	// Returns true if we are currently parrying
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsParrying() const;
+
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
@@ -430,6 +434,9 @@ protected:
 		void StartParryEvent();
 
 	void FinishParryEvent();
+
+	UFUNCTION()
+		void OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	// Called via input to enter the block state
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
@@ -784,6 +791,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UDashComponent* DashComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		class UBoxComponent* ParryCollisionComponent;
+
 	// This timeline plays when we are regenerating stamina
 	FTimeline StaminaRegenTimeline;
 
@@ -866,6 +876,8 @@ private:
 
 	uint8 bGodMode : 1;
 	uint8 bCanDash : 1;
+
+	uint8 bIsHit : 1;
 
 	uint8 bCanRun : 1;
 

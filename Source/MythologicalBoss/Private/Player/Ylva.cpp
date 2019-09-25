@@ -27,6 +27,7 @@
 #include "Components/StaminaComponent.h"
 #include "Components/ChargeAttackComponent.h"
 #include "Components/DashComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -169,6 +170,15 @@ AYlva::AYlva() : AOverthroneCharacter()
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash component"));
 
+	// Parry collision component
+	ParryCollisionComponent = CreateDefaultSubobject<UBoxComponent>(FName("Parry Collision Component"));
+	ParryCollisionComponent->SetRelativeLocation(FVector(50.0f, 6.0f, 40.0f));
+	ParryCollisionComponent->SetRelativeRotation(FRotator(0.0f));
+	ParryCollisionComponent->SetBoxExtent(FVector(20.0f, 25.0f, 30.0f));
+	ParryCollisionComponent->SetEnableGravity(false);
+	ParryCollisionComponent->bApplyImpulseOnDamage = false;
+	ParryCollisionComponent->OnComponentHit.AddDynamic(this, &AYlva::OnParryBoxHit);
+
 	// Configure character settings
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -220,17 +230,25 @@ void AYlva::BeginPlay()
 
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
 
+	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ParryCollisionComponent->OnComponentHit.AddDynamic(this, &AYlva::OnParryBoxHit);
+
 	bCanDash = true;
 
 	// Begin the state machine
 	FSM->Start();
 
+
 #if !UE_BUILD_SHIPPING
-	GetCapsuleComponent()->bHiddenInGame = false;
-	GetCapsuleComponent()->bVisible = true;
+	GetCapsuleComponent()->SetHiddenInGame(false);
+	GetCapsuleComponent()->SetVisibility(true);
+
+	ParryCollisionComponent->SetHiddenInGame(false);
 #else
-	GetCapsuleComponent()->bHiddenInGame = true;
-	GetCapsuleComponent()->bVisible = false;
+	GetCapsuleComponent()->SetHiddenInGame(true);
+	GetCapsuleComponent()->SetVisibility(false);
+
+	ParryCollisionComponent->SetHiddenInGame(true);
 #endif
 }
 
@@ -828,22 +846,6 @@ void AYlva::FinishChargeAttack()
 	YlvaAnimInstance->bChargeReleased = false;
 }
 
-void AYlva::StartParryEvent()
-{
-	GameState->PlayerData.bParrySucceeded = true;
-
-	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
-
-	if (!TimerManager->IsTimerActive(TH_ParryEventExpiry))
-		TimerManager->SetTimer(TH_ParryEventExpiry,this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
-}
-
-void AYlva::FinishParryEvent()
-{
-	FSM->PopState();
-	FSM->PopState("Block");
-}
-
 void AYlva::Block()
 {
 	if (IsChargeAttacking() || IsDashing())
@@ -877,6 +879,8 @@ void AYlva::BeginTakeDamage(float DamageAmount)
 
 void AYlva::ApplyDamage(const float DamageAmount)
 {
+	ULog::Info(CUR_CLASS_FUNC, true);
+
 	// Pop the active state that's not Idle or Block
 	if (FSM->GetActiveStateName() != "Idle" &&
 		FSM->GetActiveStateName() != "Block")
@@ -890,7 +894,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 		return;
 	}
 
-	if (bGodMode)
+	if (bGodMode || IsParrying())
 		return;
 
 	// Test against other states
@@ -898,8 +902,8 @@ void AYlva::ApplyDamage(const float DamageAmount)
 	{
 		case 4 /*Block*/:
 			// Enter shield hit state
-			FSM->PopState();
-			FSM->PushState("Shield Hit");
+			//FSM->PopState();
+			//FSM->PushState("Shield Hit");
 
 			// Shake the camera
 			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
@@ -1480,6 +1484,28 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 		AttackComboComponent->ClearCurrentAttack();
 	}
 }
+
+void AYlva::StartParryEvent()
+{
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
+
+	if (!TimerManager->IsTimerActive(TH_ParryEventExpiry))
+		TimerManager->SetTimer(TH_ParryEventExpiry, this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
+}
+
+void AYlva::FinishParryEvent()
+{
+	FSM->PopState();
+	FSM->PopState("Block");
+}
+
+void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	bIsHit = true;
+	GameState->PlayerData.bParrySucceeded = true;
+
+	//ULog::Bool(GameState->PlayerData.bParrySucceeded, true);
+}
 #pragma endregion
 
 #pragma region Player States
@@ -1598,10 +1624,31 @@ void AYlva::OnEnterBlockingState()
 	AnimInstance->Montage_Play(Combat.BlockSettings.BlockIdle);
 
 	YlvaAnimInstance->bIsBlocking = true;
+
+	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void AYlva::UpdateBlockingState()
 {
+	if (FSM->GetActiveStateFrames() > Combat.ParrySettings.ParryWindowTime)
+	{
+		ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	}
+	else
+	{
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+
+		//if (bIsHit)
+		//{
+		//	ULog::Hello(true);
+
+		//	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
+		//	{
+		//		FSM->PushState("Parry");
+		//	}
+		//}
+	}
 }
 
 void AYlva::OnExitBlockingState()
@@ -1613,7 +1660,10 @@ void AYlva::OnExitBlockingState()
 
 	bUseControllerRotationYaw = false;
 
+	bIsHit = false;
 	YlvaAnimInstance->bIsBlocking = false;
+
+	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 #pragma endregion
 
@@ -1636,6 +1686,8 @@ void AYlva::OnEnterDamagedState()
 
 void AYlva::UpdateDamagedState()
 {
+	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	// If hit animation has finished, go back to previous state
 	if (AnimInstance->AnimTimeRemaining <= 0.1f)
 		FSM->PopState();
@@ -1878,7 +1930,7 @@ bool AYlva::IsChargeAttacking() const
 
 bool AYlva::IsParrySuccessful() const
 {
-	return IsBlocking() && FSM->GetActiveStateUptime() < Combat.ParrySettings.ParryWindowTime;
+	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() < Combat.ParrySettings.ParryWindowTime;
 }
 
 bool AYlva::IsDashing() const
@@ -1924,6 +1976,16 @@ bool AYlva::IsBlocking() const
 bool AYlva::IsRunning() const
 {
 	return FSM->GetActiveStateID() == 2;
+}
+
+bool AYlva::IsDamaged() const
+{
+	return FSM->GetActiveStateID() == 20;
+}
+
+bool AYlva::IsParrying() const
+{
+	return FSM->GetActiveStateID() == 22;
 }
 
 void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
