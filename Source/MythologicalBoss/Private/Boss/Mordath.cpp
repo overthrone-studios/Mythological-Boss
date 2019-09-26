@@ -23,7 +23,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/TeleportationComponent.h"
 #include "Components/DashComponent.h"
-#include "Components/FlashIndicatorComponent.h"
+#include "Components/AttackIndicatorComponent.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -233,19 +233,19 @@ AMordath::AMordath()
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash Component"));
 
 	// Flash indicator static mesh component
-	FlashIndicator = CreateDefaultSubobject<UFlashIndicatorComponent>(FName("Flash Indicator Mesh"));
-	FlashIndicator->SetupAttachment(GetMesh(), "spine03_jnt");
-	FlashIndicator->SetRelativeLocation(FVector(0.0f));
-	FlashIndicator->SetRelativeRotation(FRotator(0.0f));
-	FlashIndicator->SetWorldScale3D(FVector(0.0f));
-	FlashIndicator->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	FlashIndicator->SetCollisionProfileName("NoCollision");
-	FlashIndicator->bVisible = false;
+	FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
+	//FlashIndicator->SetupAttachment(GetMesh(), "spine03_jnt");
+	//FlashIndicator->SetRelativeLocation(FVector(0.0f));
+	//FlashIndicator->SetRelativeRotation(FRotator(0.0f));
+	//FlashIndicator->SetWorldScale3D(FVector(0.0f));
+	//FlashIndicator->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//FlashIndicator->SetCollisionProfileName("NoCollision");
+	//FlashIndicator->bVisible = false;
 
-	const auto SphereMesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'")));
+	//const auto SphereMesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'")));
 
-	if (SphereMesh)
-		FlashIndicator->SetStaticMesh(SphereMesh);
+	//if (SphereMesh)
+	//	FlashIndicator->SetStaticMesh(SphereMesh);
 }
 
 void AMordath::BeginPlay()
@@ -272,9 +272,9 @@ void AMordath::BeginPlay()
 
 	TimerManager->SetTimer(TH_UpdateInfo, this, &AMordath::SendInfo, 0.05f, true);
 
-	MID_FlashIndicator = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, MI_FlashIndicator);
-	MID_FlashIndicator->SetScalarParameterValue("Opacity", 0.0f);
-	SKMComponent->SetMaterial(0, MID_FlashIndicator);
+	//MID_FlashIndicator = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, MI_FlashIndicator);
+	//MID_FlashIndicator->SetScalarParameterValue("Opacity", 0.0f);
+	//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 
 	// Begin the state machines
 	FSM->Start();
@@ -363,7 +363,7 @@ void AMordath::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
+	//FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -1452,8 +1452,6 @@ void AMordath::StopAttackMontage()
 		StopAnimMontage(CurrentAttackData->Attack->AttackMontage);
 
 	CurrentMontageSection = "None";
-
-	MID_FlashIndicator->SetScalarParameterValue("Opacity", 0.0f);
 }
 
 void AMordath::UpdateCharacterInfo()
@@ -1603,33 +1601,33 @@ void AMordath::ChooseAttack()
 
 	CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
 
-	MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
+	//MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
 
 	// Do a flash to indicate what kind of attack this is
 	switch (CurrentAttackData->Attack->CounterType)
 	{
 	case Parryable:
-		//FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
-		MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Yellow);
-		SKMComponent->SetMaterial(0, MID_FlashIndicator);
+		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
+		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Yellow);
+		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	case Blockable:
-		//FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
-		MID_FlashIndicator->SetVectorParameterValue("Color", FColor::White);
-		SKMComponent->SetMaterial(0, MID_FlashIndicator);
+		FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
+		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::White);
+		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	case ParryableBlockable:
-		//FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
-		MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Yellow);
-		SKMComponent->SetMaterial(0, MID_FlashIndicator);
+		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
+		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Yellow);
+		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	case NoCounter:
-		//FlashIndicator->Flash(CurrentStageData->Combat.NoCounterFlashColor);
-		MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Red);
-		SKMComponent->SetMaterial(0, MID_FlashIndicator);
+		FlashIndicator->Flash(CurrentStageData->Combat.NoCounterFlashColor);
+		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Red);
+		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	default:
