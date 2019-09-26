@@ -21,4 +21,5 @@ protected:
 
 private:
 	class AMordath* Mordath;
+	class AMordathGhost* MordathGhost;
 };

@@ -7,13 +7,27 @@
 #include "Mordath.h"
 #include "Log.h"
 #include "Kismet/GameplayStatics.h"
+#include "MordathGhost.h"
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	Mordath = Cast<AMordath>(MeshComp->GetOwner());
 
 	if (!Mordath)
+	{
+		MordathGhost = Cast<AMordathGhost>(MeshComp->GetOwner());
+
+		AttackRadius = MordathGhost->GetAttackRadius();
+
+		if (MordathGhost->IsShortAttacking())
+			AttackDamage = MordathGhost->GetShortAttackDamage();
+		else if (MordathGhost->IsLongAttacking())
+			AttackDamage = MordathGhost->GetLongAttackDamage();
+		else if (MordathGhost->IsSpecialAttacking())
+			AttackDamage = MordathGhost->GetSpecialAttackDamage();
+
 		return;
+	}
 
 #if !UE_BUILD_SHIPPING
 	if (Mordath->Debug.bShowRaycasts)
@@ -56,11 +70,19 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 		bIsHit = true;
 
 		// Apply hit stop
-		Mordath->PauseAnimsWithTimer();
+		if (Mordath)
+			Mordath->PauseAnimsWithTimer();
+		else if (MordathGhost)
+			MordathGhost->PauseAnimsWithTimer();
 
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
-		if (!Mordath->IsDamaged() && !Mordath->IsStunned())
+		if (Mordath && !Mordath->IsDamaged() && !Mordath->IsStunned())
+		{
+			// Play sound effect
+			PlayHitSound(MeshComp);
+		}
+		else if(MordathGhost)
 		{
 			// Play sound effect
 			PlayHitSound(MeshComp);
