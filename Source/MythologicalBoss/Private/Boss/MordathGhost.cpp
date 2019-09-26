@@ -2,6 +2,8 @@
 
 #include "MordathGhost.h"
 
+#include "Ylva.h"
+
 #include "Boss/MordathAnimInstance.h"
 #include "Boss/BossAIController.h"
 
@@ -39,6 +41,7 @@ AMordathGhost::AMordathGhost() : AOverthroneCharacter()
 
 		GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -190.0f));
 		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+		GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 		if (AnimBP.Succeeded())
 			GetMesh()->AnimClass = AnimBP.Class;
@@ -98,6 +101,7 @@ AMordathGhost::AMordathGhost() : AOverthroneCharacter()
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(140.0f, true);
 	GetCapsuleComponent()->SetCapsuleRadius(90.0f, true);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
@@ -116,31 +120,37 @@ void AMordathGhost::BeginPlay()
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 
+	DistanceToPlayer = GetDistanceToPlayer();
+
 	const int32& RandomNumber = FMath::RandRange(0, 2);
 	switch (RandomNumber)
 	{
 	case 0:
 		CurrentStageData = StageOneData;
+		MordathAnimInstance->CurrentStage = Stage_1;
 	break;
 
 	case 1:
 		CurrentStageData = StageTwoData;
-	break;
+		MordathAnimInstance->CurrentStage = Stage_2;
+		break;
 
 	case 2:
 		CurrentStageData = StageThreeData;
-	break;
+		MordathAnimInstance->CurrentStage = Stage_2;
+		break;
 
 	default:
+		MordathAnimInstance->CurrentStage = Stage_1;
 		CurrentStageData = StageOneData;
 	break;
 	}
 
-	FSM->Start();
-
 	CurrentStageData->Init();
 
 	ChooseCombo();
+
+	FSM->Start();
 }
 
 void AMordathGhost::Tick(const float DeltaSeconds)
@@ -157,6 +167,9 @@ void AMordathGhost::Tick(const float DeltaSeconds)
 
 	DistanceToPlayer = GetDistanceToPlayer();
 	DirectionToPlayer = GetDirectionToPlayer();
+	CurrentMovementSpeed = GetMovementSpeed();
+
+	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->ForwardInput = ForwardInput;
@@ -168,6 +181,17 @@ void AMordathGhost::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	BossAIController = Cast<ABossAIController>(NewController);
+}
+
+float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (DamageCauser->IsA(AYlva::StaticClass()))
+	{
+		if (!bIsDead)
+			FSM->PushState("Death");
+	}
+
+	return DamageAmount;
 }
 
 void AMordathGhost::FacePlayer()
@@ -202,27 +226,25 @@ void AMordathGhost::UpdateFollowState()
 {
 	FacePlayer();
 
-	if (DistanceToPlayer < CurrentStageData->GetMidRangeRadius())
+	if (DistanceToPlayer < CurrentStageData->GetMidRangeRadius() && IsDelayingAttack())
 	{
 		FSM->PushState("Thinking");
 		return;
 	}
 
 	// Move towards the player
-	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
+	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
 	{
-		if (!IsDelayingAttack())
-		{
-			MoveForward();
-		}
-		else
-			FSM->PushState("Thinking");
-	}
-	else
-	{
+		if (!IsAttacking())
+			ChooseAttack();
+
 		CurrentMovementSpeed = 0.0f;
 		ForwardInput = 0.0f;
 		RightInput = 0.0f;
+	}
+	else
+	{
+		MoveForward();
 	}
 }
 
@@ -234,8 +256,6 @@ void AMordathGhost::OnExitFollowState()
 #pragma region Think
 void AMordathGhost::OnEnterThinkState()
 {
-	MovementComponent->MaxWalkSpeed = CurrentStageData->GetWalkSpeed();
-
 	ChooseMovementDirection();
 
 	ThinkTime = CurrentStageData->ThinkStateData.CalculateThinkTime();
@@ -441,8 +461,6 @@ void AMordathGhost::OnEnterDeathState()
 	GameState->BossData.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
-	GameState->BossData.OnDeath.Broadcast();
-
 	OnDeath();
 }
 
@@ -476,14 +494,61 @@ FVector AMordathGhost::GetDirectionToPlayer() const
 
 void AMordathGhost::ChooseMovementDirection()
 {
+	MoveDirection = FMath::RandRange(0, 1);
 }
 
 void AMordathGhost::ChooseCombo()
 {
+	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
+		ComboIndex = FMath::RandRange(0, CachedCombos.Num() - 1);
+
+	if (CachedCombos.Num() > 0)
+	{
+		// Is the combo data asset valid at 'Index'
+		if (CachedCombos[ComboIndex])
+		{
+			ChosenCombo = CachedCombos[ComboIndex];
+
+			ChosenCombo->Init();
+			CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
+
+			CachedCombos.Remove(ChosenCombo);
+		}
+
+		MovementComponent->MaxWalkSpeed = GetMovementSpeed();
+	}
+	else
+	{
+		ComboIndex = 0;
+
+		CachedCombos = CurrentStageData->ComboSettings.Combos;
+
+		ChooseCombo();
+	}
 }
 
 void AMordathGhost::NextAttack()
 {
+	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAttack())
+	{
+		const float Min = FMath::Clamp(ChosenCombo->GetAttackDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
+		const float Max = FMath::Clamp(ChosenCombo->GetAttackDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
+		const float NewDelay = FMath::RandRange(Min, Max);
+
+		if (NewDelay > 0.0f)
+		{
+			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetAttackDelayTimer(), this, &AMordathGhost::NextAttack, NewDelay);
+			MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed / 2.0f;
+		}
+		else
+		{
+			ChosenCombo->NextAttack();
+		}
+
+		return;
+	}
+
+	ChosenCombo->NextAttack();
 }
 
 bool AMordathGhost::IsDelayingAttack() const
@@ -539,6 +604,49 @@ bool AMordathGhost::HasFinishedAttack() const
 	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Attack->AttackMontage);
 }
 
+bool AMordathGhost::IsAttacking() const
+{
+	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
+}
+
+bool AMordathGhost::IsShortAttacking() const
+{
+	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5;
+}
+
+bool AMordathGhost::IsLongAttacking() const
+{
+	return FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8;
+}
+
+bool AMordathGhost::IsSpecialAttacking() const
+{
+	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11;
+}
+
+float AMordathGhost::GetMovementSpeed() const
+{
+	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
+		return CurrentStageData->GetWalkSpeed();
+
+	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
+		return CurrentStageData->GetRunSpeed();
+
+	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
+		return CurrentStageData->GetRunSpeed();
+
+	return CurrentStageData->GetRunSpeed();
+}
+
+void AMordathGhost::PauseAnimsWithTimer()
+{
+	if (CurrentStageData->IsHitStopEnabled())
+	{
+		PauseAnims();
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordathGhost::UnPauseAnims, CurrentStageData->GetHitStopTime());
+	}
+}
+
 void AMordathGhost::PlayAttackMontage()
 {
 	PlayAnimMontage(CurrentAttackData->Attack->AttackMontage, 1.0f, FName("Anticipation"));
@@ -554,34 +662,64 @@ void AMordathGhost::StopAttackMontage()
 
 void AMordathGhost::ChooseAttack()
 {
-	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
-		ComboIndex = FMath::RandRange(0, CachedCombos.Num() - 1);
+	if (IsAttacking())
+		return;
 
-	if (CachedCombos.Num() > 0)
+	CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
+
+	// Choose the current attack from the attack data
+	switch (CurrentAttackData->Attack->AttackType)
 	{
-		// Is the combo data asset valid at 'Index'
-		if (CachedCombos[ComboIndex])
-		{
-			ChosenCombo = CachedCombos[ComboIndex];
+	case ShortAttack_1:
+		FSM->PushState("Light Attack 1");
+		break;
 
-			ChosenCombo->Init();
-			CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
+	case ShortAttack_2:
+		FSM->PushState("Light Attack 2");
+		break;
 
-			CachedCombos.Remove(ChosenCombo);
-		}
+	case ShortAttack_3:
+		FSM->PushState("Light Attack 3");
+		break;
 
-		MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-	}
-	else
-	{
-		ComboIndex = 0;
+	case LongAttack_1:
+		FSM->PushState("Heavy Attack 1");
+		break;
 
-		CachedCombos = CurrentStageData->ComboSettings.Combos;
+	case LongAttack_2:
+		FSM->PushState("Heavy Attack 2");
+		break;
 
-		ChooseCombo();
+	case LongAttack_3:
+		FSM->PushState("Heavy Attack 3");
+		break;
+
+	default:
+		break;
 	}
 }
 
 void AMordathGhost::EncirclePlayer()
 {
+	MovementComponent->MaxWalkSpeed = CurrentStageData->GetWalkSpeed();
+
+	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
+	{
+		MoveRight();
+	}
+	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(300.0f))
+	{
+		MoveRight(-1.0f);
+	}
+	else
+	{
+		if (MoveDirection == 1)
+		{
+			MoveRight();
+		}
+		else
+		{
+			MoveRight(-1.0f);
+		}
+	}
 }

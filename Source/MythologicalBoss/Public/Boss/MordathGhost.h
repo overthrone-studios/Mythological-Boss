@@ -42,11 +42,34 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
 
+	bool IsAttacking() const override;
+
+	// Returns true if we are light attacking
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsShortAttacking() const;
+
+	// Returns true if we are heavy attacking
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsLongAttacking() const;
+
+	// Returns true if we are special attacking
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsSpecialAttacking() const;
+
+	// Returns the movement speed based on the current range/distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		float GetMovementSpeed() const override;
+
+	// Pause current animation, triggers a reset timer when called
+	void PauseAnimsWithTimer();
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
 
 	void PossessedBy(AController* NewController) override;
+
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	void FacePlayer();
 
