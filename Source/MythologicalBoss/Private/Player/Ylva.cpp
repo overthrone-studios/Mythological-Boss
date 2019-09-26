@@ -880,8 +880,6 @@ void AYlva::BeginTakeDamage(float DamageAmount)
 
 void AYlva::ApplyDamage(const float DamageAmount)
 {
-	ULog::Info(CUR_CLASS_FUNC, true);
-
 	// Pop the active state that's not Idle or Block
 	if (FSM->GetActiveStateName() != "Idle" &&
 		FSM->GetActiveStateName() != "Block")
@@ -1655,6 +1653,7 @@ void AYlva::OnExitBlockingState()
 	bIsHit = false;
 	YlvaAnimInstance->bIsBlocking = false;
 
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 #pragma endregion
