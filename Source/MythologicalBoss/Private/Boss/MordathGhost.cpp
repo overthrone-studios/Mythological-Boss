@@ -122,29 +122,8 @@ void AMordathGhost::BeginPlay()
 
 	DistanceToPlayer = GetDistanceToPlayer();
 
-	const int32& RandomNumber = FMath::RandRange(0, 2);
-	switch (RandomNumber)
-	{
-	case 0:
-		CurrentStageData = StageOneData;
-		MordathAnimInstance->CurrentStage = Stage_1;
-	break;
-
-	case 1:
-		CurrentStageData = StageTwoData;
-		MordathAnimInstance->CurrentStage = Stage_2;
-		break;
-
-	case 2:
-		CurrentStageData = StageThreeData;
-		MordathAnimInstance->CurrentStage = Stage_2;
-		break;
-
-	default:
-		MordathAnimInstance->CurrentStage = Stage_1;
-		CurrentStageData = StageOneData;
-	break;
-	}
+	CurrentStageData = StageOneData;
+	MordathAnimInstance->CurrentStage = Stage_1;
 
 	CurrentStageData->Init();
 
