@@ -17,6 +17,7 @@
 
 #include "Boss/BossAIController.h"
 #include "Boss/MordathAnimInstance.h"
+#include "Boss/MordathGhost.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -41,7 +42,6 @@
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
-#include "Kismet/KismetMaterialLibrary.h"
 
 AMordath::AMordath()
 {
@@ -363,7 +363,6 @@ void AMordath::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	//FlashIndicator->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "spine03_jnt");
 }
 
 void AMordath::PossessedBy(AController* NewController)
@@ -1702,7 +1701,7 @@ void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead
-	if (FSM->GetActiveStateName() == "Death" || AnimInstance->bIsHit)
+	if (FSM->GetActiveStateName() == "Death" || AnimInstance->bIsHit || DamageCauser->IsA(AMordathGhost::StaticClass()))
 		return DamageAmount;
 
 	BeginTakeDamage(DamageAmount);
