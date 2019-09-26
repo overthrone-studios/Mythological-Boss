@@ -171,7 +171,7 @@ protected:
 	FTimeline HealthLossTimeline;
 
 	// The float curve to use when taking damage
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		class UCurveFloat* HealthLossCurve;
 
 	// The skeletal mesh representing the character
