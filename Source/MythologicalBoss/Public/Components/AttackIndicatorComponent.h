@@ -3,24 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/ActorComponent.h"
 #include "Components/TimelineComponent.h"
-#include "FlashIndicatorComponent.generated.h"
+#include "AttackIndicatorComponent.generated.h"
 
-/**
- * Flashes whenever an attack is about to happen
- */
-UCLASS()
-class MYTHOLOGICALBOSS_API UFlashIndicatorComponent final : public UStaticMeshComponent
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class MYTHOLOGICALBOSS_API UAttackIndicatorComponent final : public UActorComponent
 {
 	GENERATED_BODY()
-	
+
 public:
-	UFlashIndicatorComponent();
+	UAttackIndicatorComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Flash Indicator")
 		void Flash(const FLinearColor& FlashColor);
-	
+
 protected:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -37,10 +35,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Flash Settings")
 		class UCurveFloat* FlashCurve;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Flash Settings", meta = (ClampMin = 0.0f))
-		float FlashSpeed = 2.0f;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Flash Settings", meta = (ClampMin = 0))
+		uint8 MaterialIndex = 0;
 
 private:
+	class ACharacter* Owner;
+
 	class UMaterialInstanceDynamic* MID_FlashIndicator;
 
 	FLinearColor CurrentColor;
