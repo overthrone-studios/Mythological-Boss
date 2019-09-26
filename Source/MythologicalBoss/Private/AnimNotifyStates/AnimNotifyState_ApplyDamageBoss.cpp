@@ -17,6 +17,9 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	{
 		MordathGhost = Cast<AMordathGhost>(MeshComp->GetOwner());
 
+		if (!MordathGhost)
+			return;
+
 		AttackRadius = MordathGhost->GetAttackRadius();
 
 		if (MordathGhost->IsShortAttacking())
