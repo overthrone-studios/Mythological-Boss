@@ -33,6 +33,12 @@ FString UOverthroneEnums::MordathAttackTypeToString(const EAttackType_Mordath& E
 	case SpecialAttack_3:
 		return FString("Special Attack 3");
 
+	case Kick:
+		return FString("Kick");
+		
+	case BackHand:
+		return FString("BackHand");
+
 	default:
 		return FString("None");
 	}

@@ -93,6 +93,8 @@ AMordath::AMordath()
 	FSM->AddState(17, "Beaten");
 	FSM->AddState(18, "Teleport");
 	FSM->AddState(19, "Retreat");
+	FSM->AddState(20, "Kick");
+	FSM->AddState(21, "Recover");
 
 	// Bind state events to our functions
 	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -162,6 +164,14 @@ AMordath::AMordath()
 	FSM->GetState(19)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRetreatState);
 	FSM->GetState(19)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRetreatState);
 	FSM->GetState(19)->OnExitState.AddDynamic(this, &AMordath::OnExitRetreatState);
+
+	FSM->GetState(20)->OnEnterState.AddDynamic(this, &AMordath::OnEnterKickState);
+	FSM->GetState(20)->OnUpdateState.AddDynamic(this, &AMordath::UpdateKickState);
+	FSM->GetState(20)->OnExitState.AddDynamic(this, &AMordath::OnExitKickState);
+
+	FSM->GetState(21)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRecoverState);
+	FSM->GetState(21)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRecoverState);
+	FSM->GetState(21)->OnExitState.AddDynamic(this, &AMordath::OnExitRecoverState);
 
 	FSM->InitState(0);
 
@@ -234,18 +244,6 @@ AMordath::AMordath()
 
 	// Flash indicator static mesh component
 	FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
-	//FlashIndicator->SetupAttachment(GetMesh(), "spine03_jnt");
-	//FlashIndicator->SetRelativeLocation(FVector(0.0f));
-	//FlashIndicator->SetRelativeRotation(FRotator(0.0f));
-	//FlashIndicator->SetWorldScale3D(FVector(0.0f));
-	//FlashIndicator->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//FlashIndicator->SetCollisionProfileName("NoCollision");
-	//FlashIndicator->bVisible = false;
-
-	//const auto SphereMesh = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Sphere.Sphere'")));
-
-	//if (SphereMesh)
-	//	FlashIndicator->SetStaticMesh(SphereMesh);
 }
 
 void AMordath::BeginPlay()
@@ -271,10 +269,6 @@ void AMordath::BeginPlay()
 	SendInfo();
 
 	TimerManager->SetTimer(TH_UpdateInfo, this, &AMordath::SendInfo, 0.05f, true);
-
-	//MID_FlashIndicator = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, MI_FlashIndicator);
-	//MID_FlashIndicator->SetScalarParameterValue("Opacity", 0.0f);
-	//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 
 	// Begin the state machines
 	FSM->Start();
@@ -538,6 +532,74 @@ void AMordath::OnExitRetreatState()
 
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+}
+#pragma endregion  
+
+#pragma region Kick
+void AMordath::OnEnterKickState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->bCanKick = true;
+}
+
+void AMordath::UpdateKickState()
+{
+	if (CurrentAttackData->Attack->AttackType == Kick)
+		FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
+	else
+		FacePlayer(DefaultRotationSpeed);
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	{
+		NextAttack();
+
+		FSM->PopState();
+	}
+}
+
+void AMordath::OnExitKickState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	MordathAnimInstance->bCanKick = false;
+}
+#pragma endregion  
+
+#pragma region Recover
+void AMordath::OnEnterRecoverState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	MordathAnimInstance->bIsRecovering = true;
+}
+
+void AMordath::UpdateRecoverState()
+{
+	if (MordathAnimInstance->RecoverLoopCounter >= CurrentStageData->GetRecoverLoops())
+	{
+		if (MordathAnimInstance->bIsRecovering)
+		{
+			MordathAnimInstance->bIsRecovering = false;
+			return;
+		}
+
+		if (!MordathAnimInstance->bIsRecovering && AnimInstance->AnimTimeRemaining < 0.1f)
+			FSM->PopState();
+	}
+}
+
+void AMordath::OnExitRecoverState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	MordathAnimInstance->bIsRecovering = false;
 }
 #pragma endregion  
 
@@ -885,10 +947,11 @@ void AMordath::OnEnterStunnedState()
 
 void AMordath::UpdateStunnedState()
 {
-	const float Uptime = FSM->GetActiveStateUptime();
-
-	if (Uptime > CurrentStageData->Combat.StunDuration)
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	{
 		FSM->PopState();
+		FSM->PushState("Recover");
+	}
 }
 
 void AMordath::OnExitStunnedState()
@@ -898,6 +961,7 @@ void AMordath::OnExitStunnedState()
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
+	MordathAnimInstance->RecoverLoopCounter = 0;
 	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
 
@@ -1016,17 +1080,19 @@ void AMordath::OnEnterTeleportState()
 	MordathAnimInstance->bCanTeleport = true;
 
 	TeleportationComponent->GenerateTeleportTime();
-	TeleportationComponent->StartCooldown();
 }
 
 void AMordath::UpdateTeleportState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
 
-	if (Uptime > TeleportationComponent->GetTeleportTime())
+	if (Uptime > TeleportationComponent->GetTeleportTime() && !TeleportationComponent->IsCoolingDown())
 	{
 		if (CurrentAttackData->bCanTeleportWithAttack)
+		{
+			TeleportationComponent->StartCooldown();
 			SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, GameState->GetTeleportRadius(), GameState->PlayArea));
+		}
 
 		FSM->PopState();
 	}
@@ -1168,10 +1234,18 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange()
 {
-	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned()))
+	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking()))
 	{
-		DashType = Dash_Backward;
-		FSM->PushState("Dash");
+		const uint8 bWantsKick = FMath::RandRange(0, 1);
+		if (bWantsKick == 1 && IsInSecondStage())
+		{
+			FSM->PushState("Kick");
+		}
+		else
+		{
+			DashType = Dash_Backward;
+			FSM->PushState("Dash");
+		}
 	}
 
 	if (DistanceToPlayer > CurrentStageData->GetSuperCloseRangeRadius())
@@ -1600,33 +1674,23 @@ void AMordath::ChooseAttack()
 
 	CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
 
-	//MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
-
 	// Do a flash to indicate what kind of attack this is
 	switch (CurrentAttackData->Attack->CounterType)
 	{
 	case Parryable:
 		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
-		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Yellow);
-		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	case Blockable:
 		FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
-		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::White);
-		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	case ParryableBlockable:
 		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
-		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Yellow);
-		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	case NoCounter:
 		FlashIndicator->Flash(CurrentStageData->Combat.NoCounterFlashColor);
-		//MID_FlashIndicator->SetVectorParameterValue("Color", FColor::Red);
-		//SKMComponent->SetMaterial(0, MID_FlashIndicator);
 	break;
 
 	default:
@@ -1661,6 +1725,15 @@ void AMordath::ChooseAttack()
 
 		case LongAttack_3:
 			FSM->PushState("Heavy Attack 3");
+		break;
+
+		case Kick:
+			FSM->PushState("Kick");
+		break;
+
+		case BackHand:
+			ULog::Warning("Back Hand attack not implemented!", true);
+			//FSM->PushState("BackHand");
 		break;
 
 		default:
@@ -1802,6 +1875,11 @@ bool AMordath::IsStunned() const
 	return FSM->GetActiveStateID() == 14;
 }
 
+bool AMordath::IsKicking() const
+{
+	return FSM->GetActiveStateID() == 20;
+}
+
 void AMordath::ChooseMovementDirection()
 {
 	MoveDirection = FMath::RandRange(0, 1);
@@ -1813,11 +1891,11 @@ void AMordath::EncirclePlayer()
 
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
 	{
-		MoveRight();
+		MoveRight(-1.0f);
 	}
 	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(300.0f))
 	{
-		MoveRight(-1.0f);
+		MoveRight();
 	}
 	else
 	{
@@ -1996,7 +2074,7 @@ bool AMordath::WantsMoveRight() const
 
 bool AMordath::IsRecovering() const
 {
-	return FSM->GetActiveStateID() == 17;
+	return FSM->GetActiveStateID() == 21;
 }
 
 bool AMordath::HasFinishedAttack() const

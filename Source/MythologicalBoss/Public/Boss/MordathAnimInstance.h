@@ -25,6 +25,9 @@ public:
 		uint8 bIsBeaten : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bCanKick : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bWantsSideStepDash : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
@@ -37,10 +40,16 @@ public:
 		uint8 bCanLaugh : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
+		uint8 bIsRecovering : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanTeleport : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bIsThinking : 1;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Misc")
+		uint8 RecoverLoopCounter = 0;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		TEnumAsByte<EBossStage> CurrentStage = Stage_1;

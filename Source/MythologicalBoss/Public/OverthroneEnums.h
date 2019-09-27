@@ -50,7 +50,9 @@ enum EAttackType_Mordath
 	LongAttack_3,
 	SpecialAttack_1,
 	SpecialAttack_2,
-	SpecialAttack_3
+	SpecialAttack_3,
+	Kick,
+	BackHand,
 };
 
 UENUM()

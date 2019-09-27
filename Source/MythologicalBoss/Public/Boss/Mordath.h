@@ -149,6 +149,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsStunned() const;
 
+	// Returns true if we are kicking the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsKicking() const;
+
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
@@ -430,6 +434,24 @@ protected:
 		UFUNCTION()
 			void OnExitRetreatState();
 		#pragma endregion 
+
+	#pragma region Kick
+		UFUNCTION()
+			void OnEnterKickState();
+		UFUNCTION()
+			void UpdateKickState();
+		UFUNCTION()
+			void OnExitKickState();
+	#pragma endregion 
+
+	#pragma region Recover
+		UFUNCTION()
+			void OnEnterRecoverState();
+		UFUNCTION()
+			void UpdateRecoverState();
+		UFUNCTION()
+			void OnExitRecoverState();
+	#pragma endregion 
 	#pragma endregion
 
 	#pragma region Range States
