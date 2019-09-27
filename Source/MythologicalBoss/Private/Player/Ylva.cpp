@@ -895,13 +895,6 @@ void AYlva::ApplyDamage(const float DamageAmount)
 		return;
 	}
 
-	if (GameState->HasBossTakenDamage() && GameState->IsBossAttacking())
-	{
-		FSM->PushState("Damaged");
-		ULog::Yes("Player: ", true);
-		return;
-	}
-
 	if (bGodMode || IsParrying())
 		return;
 
