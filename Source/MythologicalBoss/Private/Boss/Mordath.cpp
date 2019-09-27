@@ -545,7 +545,10 @@ void AMordath::OnEnterKickState()
 
 void AMordath::UpdateKickState()
 {
-	FacePlayer(DefaultRotationSpeed);
+	if (CurrentAttackData->Attack->AttackType == Kick)
+		FacePlayerBasedOnMontageSection(CurrentAttackData->Attack->AttackMontage);
+	else
+		FacePlayer(DefaultRotationSpeed);
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
