@@ -1276,6 +1276,8 @@ void AMordath::OnExitFirstStage()
 
 	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+
+	FSM->PopState();
 }
 #pragma endregion 
 
@@ -1338,6 +1340,8 @@ void AMordath::OnExitSecondStage()
 
 	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+
+	FSM->PopState();
 }
 #pragma endregion 
 
@@ -1350,6 +1354,8 @@ void AMordath::OnEnterThirdStage()
 
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
+
+	FSM->PopState();
 
 	MordathAnimInstance->CurrentStage = Stage_3;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
@@ -1800,7 +1806,8 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 
 	if (CurrentMontageSection == "Anticipation")
 	{
-		FacePlayer(CurrentAttackData->Attack->AnticipationRotationSpeed);
+		FacePlayer(CurrentAttackData->Attack->Anticipation.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(Montage, CurrentAttackData->Attack->Anticipation.PlayRate);
 	}
 	else if (CurrentMontageSection == "Pinnacle")
 	{
@@ -1821,14 +1828,19 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 	}
 	else if (CurrentMontageSection == "Contact")
 	{
-		FacePlayer(CurrentAttackData->Attack->ContactRotationSpeed);
+		FacePlayer(CurrentAttackData->Attack->Contact.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(Montage, CurrentAttackData->Attack->Contact.PlayRate);
 	}
 	else if (CurrentMontageSection == "Recovery")
 	{
-		FacePlayer(CurrentAttackData->Attack->RecoveryRotationSpeed);
+		FacePlayer(CurrentAttackData->Attack->Recovery.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(Montage, CurrentAttackData->Attack->Contact.PlayRate);
 	}
 	else
+	{
 		FacePlayer(DefaultRotationSpeed);
+		AnimInstance->Montage_SetPlayRate(Montage, 1.0f);
+	}
 }
 
 void AMordath::SendInfo()

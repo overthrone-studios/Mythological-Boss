@@ -7,6 +7,21 @@
 #include "OverthroneEnums.h"
 #include "AttackData.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FMordathMontageSectionData
+{
+	GENERATED_BODY()
+
+	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float RotationSpeed = 10.0f;
+
+	// The rate/speed of the animation (0.0 = No rate, 1.0 = Normal, 2.0+ = Fast)
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float PlayRate = 1.0f;
+};
+
 /**
  * An asset that holds attack data for the boss
  */
@@ -31,17 +46,14 @@ public:
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EAttackCounters_Mordath> CounterType;
 	
-	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
-		float AnticipationRotationSpeed = 10.0f;
+	UPROPERTY(EditInstanceOnly)
+		FMordathMontageSectionData Anticipation;
 
-	// How fast do we rotate while in the contact section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
-		float ContactRotationSpeed = 5.0f;
+	UPROPERTY(EditInstanceOnly)
+		FMordathMontageSectionData Contact;
 
-	// How fast do we rotate while in the recovery section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
-		float RecoveryRotationSpeed = 3.0f;
+	UPROPERTY(EditInstanceOnly)
+		FMordathMontageSectionData Recovery;
 
 	// Should we snap to the player's location at the pinnacle section of the anim montage?
 	UPROPERTY(EditInstanceOnly)
