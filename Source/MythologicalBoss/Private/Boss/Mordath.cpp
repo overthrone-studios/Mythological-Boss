@@ -90,7 +90,7 @@ AMordath::AMordath()
 	FSM->AddState(14, "Stunned");
 	FSM->AddState(15, "Laugh");
 	FSM->AddState(16, "Dash");
-	FSM->AddState(17, "Beaten");
+	//FSM->AddState(17, "Beaten");
 	FSM->AddState(18, "Teleport");
 	FSM->AddState(19, "Retreat");
 	FSM->AddState(20, "Kick");
@@ -152,10 +152,6 @@ AMordath::AMordath()
 	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
 	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
 	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashState);
-
-	FSM->GetState(17)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBeatenState);
-	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBeatenState);
-	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitBeatenState);
 
 	FSM->GetState(18)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTeleportState);
 	FSM->GetState(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
@@ -877,6 +873,7 @@ void AMordath::OnEnterDamagedState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
+	GameState->BossData.bHasTakenDamage = true;
 	AnimInstance->bIsHit = true;
 }
 
@@ -891,6 +888,7 @@ void AMordath::OnExitDamagedState()
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	AnimInstance->bIsHit = false;
+	GameState->BossData.bHasTakenDamage = false;
 
 	if (ChosenCombo)
 		NextAttack();
@@ -942,6 +940,7 @@ void AMordath::OnEnterStunnedState()
 
 	StopAttackMontage();
 
+	GameState->BossData.bHasTakenDamage = true;
 	MordathAnimInstance->bIsStunned = true;
 }
 
@@ -961,6 +960,7 @@ void AMordath::OnExitStunnedState()
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
+	GameState->BossData.bHasTakenDamage = false;
 	MordathAnimInstance->RecoverLoopCounter = 0;
 	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
@@ -1036,39 +1036,6 @@ void AMordath::OnExitDashState()
 
 	MordathAnimInstance->bIsDashingForward = false;
 	MordathAnimInstance->bIsDashingBackward = false;
-}
-#pragma endregion
-
-#pragma region Beaten
-void AMordath::OnEnterBeatenState()
-{
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
-	//const FVector2D PointOnCircle = FMath::RandPointInCircle(100.0f);
-	//World->SpawnActor<APotionBase>(HealthPotion, FVector(PointOnCircle.X, PointOnCircle.Y, 170.0f), FRotator(0.0f));
-
-	MordathAnimInstance->bIsBeaten = true;
-}
-
-void AMordath::UpdateBeatenState()
-{
-	const float Uptime = FSM->GetActiveStateUptime();
-
-	// If the recover time has finished, go back to previous state
-	if (Uptime >= CurrentStageData->Combat.InvincibilityTimeAfterDamage)
-	{
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitBeatenState()
-{
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
-	MordathAnimInstance->bIsBeaten = false;
 }
 #pragma endregion
 
@@ -1515,8 +1482,6 @@ void AMordath::DestroySelf()
 void AMordath::PlayAttackMontage()
 {
 	PlayAnimMontage(CurrentAttackData->Attack->AttackMontage, 1.0f, FName("Anticipation"));
-
-	GameState->BossData.CurrentCounterType = CurrentAttackData->Attack->CounterType;
 }
 
 void AMordath::StopAttackMontage()
@@ -1525,6 +1490,8 @@ void AMordath::StopAttackMontage()
 		StopAnimMontage(CurrentAttackData->Attack->AttackMontage);
 
 	CurrentMontageSection = "None";
+	GameState->BossData.CurrentAttackType = EATM_None;
+	GameState->BossData.CurrentCounterType = EACM_None;
 }
 
 void AMordath::UpdateCharacterInfo()
@@ -1560,6 +1527,13 @@ void AMordath::ApplyDamage(const float DamageAmount)
 	if (Debug.bLogHits)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 #endif
+
+	if (GameState->IsPlayerAttacking() && GameState->HasPlayerTakenDamage())
+	{
+		FSM->PushState("Damaged");
+		ULog::Yes("Boss: ", true);
+		return;
+	}
 
 	UpdateDamageValueInMainHUD(DamageAmount);
 
@@ -1780,31 +1754,31 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
-	if (!AnimInstance->bIsHit && HitCounter < CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility))
+	if (!AnimInstance->bIsHit /*&& HitCounter < CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility)*/)
 	{
 		ApplyDamage(DamageAmount);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
-	if (HitCounter == CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility))
-	{
-		// Reset our hits
-		HitCounter = 0;
-
-		// Become invincible and set a timer to disable invincibility after 'X' seconds
-		EnableInvincibility();
-		TimerManager->SetTimer(TH_Invincibility, this, &AMordath::DisableInvincibility, CurrentStageData->Combat.InvincibilityTimeAfterDamage);
-
-		// Cancel our current animation and enter the downed state
-		FSM->PushState("Beaten");
-
-		UpdateDamageValueInMainHUD(DamageAmount);
-
-		UpdateHealth(DamageAmount);
-
-		// Handled in blueprints
-		OnAfterTakeDamage();
-	}
+	//if (HitCounter == CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility))
+	//{
+	//	// Reset our hits
+	//	HitCounter = 0;
+	//
+	//	// Become invincible and set a timer to disable invincibility after 'X' seconds
+	//	//EnableInvincibility();
+	//	//TimerManager->SetTimer(TH_Invincibility, this, &AMordath::DisableInvincibility, CurrentStageData->Combat.InvincibilityTimeAfterDamage);
+	//
+	//	// Cancel our current animation and enter the downed state
+	//	//FSM->PushState("Beaten");
+	//
+	//	UpdateDamageValueInMainHUD(DamageAmount);
+	//
+	//	UpdateHealth(DamageAmount);
+	//
+	//	// Handled in blueprints
+	//	OnAfterTakeDamage();
+	//}
 
 	EndTakeDamage();
 

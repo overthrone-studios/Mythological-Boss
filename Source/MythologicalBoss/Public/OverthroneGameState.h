@@ -44,6 +44,7 @@ struct FCharacterData
 	FOnLowHealthSignature OnLowHealth;
 
 	uint8 bIsDead : 1;
+	uint8 bHasTakenDamage : 1;
 
 	EBossRanges CurrentRange = Mid;
 };
@@ -82,6 +83,8 @@ struct FPlayerData : public FCharacterData
 	float TeleportRadius = 0.0f;
 
 	uint8 bParrySucceeded : 1;
+
+	EAttackType_Player CurrentAttackType;
 
 	FOnLowStaminaSignature OnLowStamina;
 };
@@ -153,6 +156,18 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE bool IsPlayerDead() const { return PlayerData.bIsDead; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
+		FORCEINLINE bool IsPlayerAttacking() const { return PlayerData.CurrentAttackType != EATP_None; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
+		FORCEINLINE bool IsBossAttacking() const { return BossData.CurrentAttackType != EATM_None; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
+		FORCEINLINE bool HasPlayerTakenDamage() const { return PlayerData.bHasTakenDamage; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
+		FORCEINLINE bool HasBossTakenDamage() const { return BossData.bHasTakenDamage; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		FORCEINLINE bool IsBossAttackParryable() const { return BossData.CurrentCounterType == Parryable || BossData.CurrentCounterType == ParryableBlockable; }

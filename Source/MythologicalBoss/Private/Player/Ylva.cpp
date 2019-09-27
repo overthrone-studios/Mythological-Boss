@@ -876,6 +876,7 @@ void AYlva::StopBlocking()
 
 void AYlva::BeginTakeDamage(float DamageAmount)
 {
+	GameState->PlayerData.bHasTakenDamage = true;
 }
 
 void AYlva::ApplyDamage(const float DamageAmount)
@@ -891,6 +892,13 @@ void AYlva::ApplyDamage(const float DamageAmount)
 	{
 		FSM->PopState();
 		FSM->PushState("Parry");
+		return;
+	}
+
+	if (GameState->HasBossTakenDamage() && GameState->IsBossAttacking())
+	{
+		FSM->PushState("Damaged");
+		ULog::Yes("Player: ", true);
 		return;
 	}
 
@@ -1503,8 +1511,6 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 {
 	bIsHit = true;
 	GameState->PlayerData.bParrySucceeded = true;
-
-	//ULog::Bool(GameState->PlayerData.bParrySucceeded, true);
 }
 #pragma endregion
 
@@ -1666,6 +1672,8 @@ void AYlva::OnEnterDamagedState()
 	if (MovementSettings.bStopMovingWhenDamaged)
 		MovementComponent->SetMovementMode(MOVE_None);
 
+	GameState->PlayerData.bHasTakenDamage = true;
+
 	StopAnimMontage();
 	AttackComboComponent->ClearCurrentAttack();
 
@@ -1692,6 +1700,8 @@ void AYlva::OnExitDamagedState()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	GameState->PlayerData.bHasTakenDamage = false;
 
 	YlvaAnimInstance->bIsHitByNoCounter = false;
 	AnimInstance->bIsHit = false;
