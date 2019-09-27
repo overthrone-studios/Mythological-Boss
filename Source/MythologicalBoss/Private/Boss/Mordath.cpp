@@ -1528,13 +1528,6 @@ void AMordath::ApplyDamage(const float DamageAmount)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 #endif
 
-	if (GameState->IsPlayerAttacking() && GameState->HasPlayerTakenDamage() && !IsRecovering())
-	{
-		FSM->PushState("Damaged");
-		ULog::Yes("Boss: ", true);
-		return;
-	}
-
 	UpdateDamageValueInMainHUD(DamageAmount);
 
 	// Apply hit stop
