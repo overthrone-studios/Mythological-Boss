@@ -200,34 +200,37 @@ public:
 		float GetHitStopTime();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetCloseRangeRadius() { return AcceptanceRadius; }
+		FORCEINLINE float GetCloseRangeRadius() const { return AcceptanceRadius; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetSuperCloseRangeRadius() { return SuperCloseRadius; }
+		FORCEINLINE float GetSuperCloseRangeRadius() const { return SuperCloseRadius; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetMidRangeRadius() { return MidRangeRadius; }
+		FORCEINLINE float GetMidRangeRadius() const { return MidRangeRadius; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetSuperCloseRangeTime() { return SuperCloseRangeTime; }
+		FORCEINLINE float GetSuperCloseRangeTime() const { return SuperCloseRangeTime; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetWalkSpeed() { return MovementSettings.WalkSpeed; }
+		FORCEINLINE float GetWalkSpeed() const { return MovementSettings.WalkSpeed; }
 	
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetRunSpeed() { return MovementSettings.RunSpeed; }
+		FORCEINLINE float GetRunSpeed() const { return MovementSettings.RunSpeed; }
 	
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetDashDistanceThreshold() { return MovementSettings.DashAtDistance; }
+		FORCEINLINE float GetDashDistanceThreshold() const { return MovementSettings.DashAtDistance; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE float GetAttackDamageMultiplier() { return DamageMultiplierOnSuperCloseRange; }
+		FORCEINLINE float GetAttackDamageMultiplier() const { return DamageMultiplierOnSuperCloseRange; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE FCameraShakeData& GetDamagedShake() { return CameraShakes.Damaged; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE FCameraShakeData& GetStunShake() { return CameraShakes.Stun; }
+
+	UFUNCTION(BlueprintPure, Category = "Mordath")
+		FORCEINLINE uint8 GetRecoverLoops() const { return RecoverLoops; }
 
 	// Holds the data relating to the 'Think' state
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
@@ -263,6 +266,10 @@ protected:
 	// How long (in seconds) should the boss stay close to the player before dashing away?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float SuperCloseRangeTime = 2.0f;
+
+	// How many loops should we do when recovering
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0))
+		uint8 RecoverLoops = 1;
 
 	// Mordath's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")
