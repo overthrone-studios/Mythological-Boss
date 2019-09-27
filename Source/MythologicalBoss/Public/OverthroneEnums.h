@@ -36,7 +36,7 @@ enum EAttackType_Player
 	Light,
 	Heavy,
 	Special,
-	None
+	EATP_None
 };
 
 UENUM()
@@ -53,6 +53,7 @@ enum EAttackType_Mordath
 	SpecialAttack_3,
 	Kick,
 	BackHand,
+	EATM_None
 };
 
 UENUM()
@@ -61,7 +62,8 @@ enum EAttackCounters_Mordath
 	Parryable,
 	Blockable,
 	ParryableBlockable,
-	NoCounter
+	NoCounter,
+	EACM_None
 };
 
 UENUM()

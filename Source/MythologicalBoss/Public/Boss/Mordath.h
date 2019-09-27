@@ -408,15 +408,6 @@ protected:
 			void OnExitDashState();
 		#pragma endregion 
 
-		#pragma region Beaten
-		UFUNCTION()
-			void OnEnterBeatenState();
-		UFUNCTION()
-			void UpdateBeatenState();
-		UFUNCTION()
-			void OnExitBeatenState();
-		#pragma endregion 
-
 		#pragma region Teleport
 		UFUNCTION()
 			void OnEnterTeleportState();

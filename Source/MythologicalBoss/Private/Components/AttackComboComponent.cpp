@@ -55,7 +55,7 @@ void UAttackComboComponent::BeginPlay()
 	Owner = GetOwner();
 
 	OriginalComboMultiplier = ComboMultiplier;
-	CurrentAttack = None;
+	CurrentAttack = EATP_None;
 }
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player InAttackType)
@@ -94,7 +94,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player
 		CurrentAttackAnim = AdvanceCombo_Internal(Special);
 	break;
 
-	case None:
+	case EATP_None:
 		CurrentAttackAnim = nullptr;
 	break;
 	}
@@ -153,7 +153,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 		SpecialAttackIndex++;
 	break;
 
-	case None:
+	case EATP_None:
 		MontageToReturn = nullptr;
 	break;	
 	}
@@ -198,7 +198,7 @@ int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class 
 			ULog::Number(AttackIndex, "Special Attack Index: ", true);
 	break;
 
-	case None:
+	case EATP_None:
 	break;
 	}
 
@@ -224,7 +224,7 @@ void UAttackComboComponent::ResetCombo()
 	if (bLogAttackChain)
 		LogAttackChain();
 
-	CurrentAttack = None;
+	CurrentAttack = EATP_None;
 
 	// Save our attack chain
 	PreviousCombo = Combo;
@@ -243,7 +243,7 @@ void UAttackComboComponent::ResetCombo()
 
 void UAttackComboComponent::ClearCurrentAttack()
 {
-	CurrentAttack = None;
+	CurrentAttack = EATP_None;
 }
 
 void UAttackComboComponent::LogAttackChain()
@@ -264,7 +264,7 @@ void UAttackComboComponent::LogAttackChain()
 				ULog::Success("Special", true);
 			break;
 
-			case None:
+			case EATP_None:
 			break;
 
 			default: 
