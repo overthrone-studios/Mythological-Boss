@@ -1746,6 +1746,15 @@ void AMordath::ChooseAttack()
 			FSM->PushState("Heavy Attack 3");
 		break;
 
+		case Kick:
+			FSM->PushState("Kick");
+		break;
+
+		case BackHand:
+			ULog::Warning("Back Hand attack not implemented!", true);
+			//FSM->PushState("BackHand");
+		break;
+
 		default:
 		break;
 	}
