@@ -77,10 +77,11 @@ enum EAttackCounters_Mordath
 UENUM()
 enum EBossRange_Mordath
 {
-	SuperClose,
 	Close,
 	Mid,
-	Far
+	Far,
+	SuperClose,
+	AnyRange
 };
 
 /**

@@ -159,7 +159,7 @@ public:
 
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool HasFinishedAttack() const;
+		bool HasFinishedAction() const;
 
 	// Returns true if we are transitioning to the next stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -229,13 +229,13 @@ protected:
 		void DestroySelf();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void PlayAttackMontage();
+		void PlayActionMontage();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void StopAttackMontage();
+		void StopActionMontage();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ChooseAttack();
+		void ChooseAction();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
 		float GetDistanceToPlayer() const;
@@ -410,6 +410,15 @@ protected:
 			void UpdateDashState();
 		UFUNCTION()
 			void OnExitDashState();
+		#pragma endregion 
+
+		#pragma region Dash Combat
+		UFUNCTION()
+			void OnEnterDashCombatState();
+		UFUNCTION()
+			void UpdateDashCombatState();
+		UFUNCTION()
+			void OnExitDashCombatState();
 		#pragma endregion 
 
 		#pragma region Teleport

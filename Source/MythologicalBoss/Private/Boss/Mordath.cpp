@@ -76,12 +76,12 @@ AMordath::AMordath()
 	FSM->AddState(0, "Idle");
 	FSM->AddState(1, "Follow");
 	FSM->AddState(2, "Thinking");
-	FSM->AddState(3, "Light Attack 1");
-	FSM->AddState(4, "Light Attack 2");
-	FSM->AddState(5, "Light Attack 3");
-	FSM->AddState(6, "Heavy Attack 1");
-	FSM->AddState(7, "Heavy Attack 2");
-	FSM->AddState(8, "Heavy Attack 3");
+	FSM->AddState(3, "Short Attack 1");
+	FSM->AddState(4, "Short Attack 2");
+	FSM->AddState(5, "Short Attack 3");
+	FSM->AddState(6, "Long Attack 1");
+	FSM->AddState(7, "Long Attack 2");
+	FSM->AddState(8, "Long Attack 3");
 	FSM->AddState(9, "Special Attack 1");
 	FSM->AddState(10, "Special Attack 2");
 	FSM->AddState(11, "Special Attack 3");
@@ -90,7 +90,7 @@ AMordath::AMordath()
 	FSM->AddState(14, "Stunned");
 	FSM->AddState(15, "Laugh");
 	FSM->AddState(16, "Dash");
-	//FSM->AddState(17, "Beaten");
+	FSM->AddState(17, "Dash Combat");
 	FSM->AddState(18, "Teleport");
 	FSM->AddState(19, "Retreat");
 	FSM->AddState(20, "Kick");
@@ -152,6 +152,10 @@ AMordath::AMordath()
 	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
 	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
 	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashState);
+
+	FSM->GetState(17)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashCombatState);
+	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashCombatState);
+	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitDashCombatState);
 
 	FSM->GetState(18)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTeleportState);
 	FSM->GetState(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
@@ -334,18 +338,19 @@ void AMordath::Tick(const float DeltaTime)
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 12, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Current Attack: " + UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Current Counter: " + UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 13, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 12, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString()/*UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)*/);
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString()/*UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType)*/);
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Combo: " + ChosenCombo->GetName());
 #endif
 }
 
@@ -416,17 +421,17 @@ void AMordath::OnEnterFollowState()
 			ChooseCombo();
 	}
 
-	const uint8 bWantsDashForward = FMath::RandRange(0, 1);
-	if (bWantsDashForward && !IsDashing() && DistanceToPlayer > CurrentStageData->GetDashDistanceThreshold() && !DashComponent->IsCooldownActive())
-	{
-		if (IsMidRange())
-			DashType = Dash_Forward;
-		else if (IsCloseRange() || IsSuperCloseRange())
-			DashType = Dash_Backward;
-
-		FSM->PushState("Dash");
-		return;
-	}
+	//const uint8 bWantsDashForward = FMath::RandRange(0, 1);
+	//if (bWantsDashForward && !IsDashing() && DistanceToPlayer > CurrentStageData->GetDashDistanceThreshold() && !DashComponent->IsCooldownActive())
+	//{
+	//	if (IsMidRange())
+	//		DashType = Dash_Forward;
+	//	else if (IsCloseRange() || IsSuperCloseRange())
+	//		DashType = Dash_Backward;
+	//
+	//	FSM->PushState("Dash");
+	//	return;
+	//}
 
 	ChooseMovementDirection();
 }
@@ -660,12 +665,12 @@ void AMordath::OnExitThinkState()
 }
 #pragma endregion 
 
-#pragma region Light Attack 1
+#pragma region Short Attack 1
 void AMordath::OnEnterShortAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAttackMontage();
+	PlayActionMontage();
 }
 
 void AMordath::UpdateShortAttack1State()
@@ -673,7 +678,7 @@ void AMordath::UpdateShortAttack1State()
 	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
 	
 	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
+	if (HasFinishedAction())
 	{
 		NextAction();
 
@@ -689,16 +694,16 @@ void AMordath::OnExitShortAttack1State()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	StopActionMontage();
 }
 #pragma endregion
 
-#pragma region Light Attack 2
+#pragma region Short Attack 2
 void AMordath::OnEnterShortAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAttackMontage();
+	PlayActionMontage();
 }
 
 void AMordath::UpdateShortAttack2State()
@@ -706,7 +711,7 @@ void AMordath::UpdateShortAttack2State()
 	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
 
 	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
+	if (HasFinishedAction())
 	{
 		NextAction();
 
@@ -722,16 +727,16 @@ void AMordath::OnExitShortAttack2State()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	StopActionMontage();
 }
 #pragma endregion
 
-#pragma region Light Attack 3
+#pragma region Short Attack 3
 void AMordath::OnEnterShortAttack3State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAttackMontage();
+	PlayActionMontage();
 }
 
 void AMordath::UpdateShortAttack3State()
@@ -739,7 +744,7 @@ void AMordath::UpdateShortAttack3State()
 	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
 
 	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
+	if (HasFinishedAction())
 	{
 		NextAction();
 
@@ -755,11 +760,11 @@ void AMordath::OnExitShortAttack3State()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	StopActionMontage();
 }
-#pragma endregion 
+#pragma endregion
 
-#pragma region Heavy Attack 1
+#pragma region Long Attack 1
 void AMordath::OnEnterLongAttack1State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
@@ -802,12 +807,12 @@ void AMordath::OnExitLongAttack1State()
 }
 #pragma endregion
 
-#pragma region Heavy Attack 2
+#pragma region Long Attack 2
 void AMordath::OnEnterLongAttack2State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAttackMontage();
+	PlayActionMontage();
 }
 
 void AMordath::UpdateLongAttack2State()
@@ -815,7 +820,7 @@ void AMordath::UpdateLongAttack2State()
 	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
 
 	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
+	if (HasFinishedAction())
 	{
 		NextAction();
 
@@ -831,16 +836,16 @@ void AMordath::OnExitLongAttack2State()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	StopActionMontage();
 }
 #pragma endregion
 
-#pragma region Heavy Attack 3
+#pragma region Long Attack 3
 void AMordath::OnEnterLongAttack3State()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayAttackMontage();
+	PlayActionMontage();
 }
 
 void AMordath::UpdateLongAttack3State()
@@ -848,7 +853,7 @@ void AMordath::UpdateLongAttack3State()
 	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
 
 	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
+	if (HasFinishedAction())
 	{
 		NextAction();
 
@@ -864,7 +869,7 @@ void AMordath::OnExitLongAttack3State()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	StopActionMontage();
 }
 #pragma endregion
 
@@ -938,7 +943,7 @@ void AMordath::OnEnterStunnedState()
 	// Reset hit count
 	HitCounter = 0;
 
-	StopAttackMontage();
+	StopActionMontage();
 
 	GameState->BossData.bHasTakenDamage = true;
 	MordathAnimInstance->bIsStunned = true;
@@ -1036,6 +1041,39 @@ void AMordath::OnExitDashState()
 
 	MordathAnimInstance->bIsDashingForward = false;
 	MordathAnimInstance->bIsDashingBackward = false;
+}
+#pragma endregion
+
+#pragma region Dash Combat
+void AMordath::OnEnterDashCombatState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	// Reset hit count
+	HitCounter = 0;
+
+	PlayActionMontage();
+}
+
+void AMordath::UpdateDashCombatState()
+{
+	if (HasFinishedAction())
+	{
+		NextAction();
+		
+		FSM->PopState();
+	}
+}
+
+void AMordath::OnExitDashCombatState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopActionMontage();
 }
 #pragma endregion
 
@@ -1158,7 +1196,7 @@ void AMordath::UpdateFarRange()
 	if (IsInFirstStage() && Uptime > CurrentStageData->ComboSettings.FarRangeAttackDelay)
 	{
 		if (!IsRecovering())
-			FSM->PushState("Heavy Attack 1");
+			FSM->PushState("Long Attack 1");
 	}
 	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->ComboSettings.FarRangeAttackDelay)
 	{
@@ -1167,7 +1205,7 @@ void AMordath::UpdateFarRange()
 		if (bWantsLongAttack)
 		{
 			if (!IsRecovering())
-				FSM->PushState("Heavy Attack 1");
+				FSM->PushState("Long Attack 1");
 		}
 		else
 		{
@@ -1208,7 +1246,7 @@ void AMordath::UpdateSuperCloseRange()
 		{
 			FSM->PushState("Kick");
 		}
-		else
+		else if (!IsDashing())
 		{
 			DashType = Dash_Backward;
 			FSM->PushState("Dash");
@@ -1266,7 +1304,9 @@ void AMordath::UpdateFirstStage()
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAction())
-			ChooseAttack();
+		{
+			ChooseAction();
+		}
 	}
 }
 
@@ -1330,7 +1370,7 @@ void AMordath::UpdateSecondStage()
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAction())
-			ChooseAttack();
+			ChooseAction();
 	}
 }
 
@@ -1389,7 +1429,7 @@ void AMordath::UpdateThirdStage()
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNewCombo() && !IsDelayingAction())
-			ChooseAttack();
+			ChooseAction();
 	}
 }
 
@@ -1424,7 +1464,7 @@ void AMordath::OnAttackParryed()
 {
 	if ((CurrentActionData->Action->CounterType == Parryable || CurrentActionData->Action->CounterType == ParryableBlockable)  && !IsStunned())
 	{
-		StopAttackMontage();
+		StopActionMontage();
 
 		FSM->PopState();
 		FSM->PushState("Stunned");
@@ -1438,7 +1478,7 @@ void AMordath::OnAttackBlocked()
 {
 	if ((CurrentActionData->Action->CounterType == Blockable || CurrentActionData->Action->CounterType == ParryableBlockable) && !IsDamaged())
 	{
-		StopAttackMontage();
+		StopActionMontage();
 
 		FSM->PopState();
 		FSM->PushState("Damaged");
@@ -1485,15 +1525,15 @@ void AMordath::DestroySelf()
 	Destroy();
 }
 
-void AMordath::PlayAttackMontage()
+void AMordath::PlayActionMontage()
 {
-	PlayAnimMontage(CurrentActionData->Action->ActionMontage, 1.0f, FName("Anticipation"));
+	PlayAnimMontage(CurrentActionData->Action->ActionMontage);
 }
 
-void AMordath::StopAttackMontage()
+void AMordath::StopActionMontage()
 {
-	if (!HasFinishedAttack() && !GameState->IsPlayerDead())
-		StopAnimMontage(CurrentActionData->Action->ActionMontage);
+	if (!GameState->IsPlayerDead())
+		StopAnimMontage();
 
 	CurrentMontageSection = "None";
 	GameState->BossData.CurrentActionType = ATM_None;
@@ -1640,7 +1680,7 @@ void AMordath::ChooseComboWithDelay()
 	MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 }
 
-void AMordath::ChooseAttack()
+void AMordath::ChooseAction()
 {
 	if (IsAttacking())
 		return;
@@ -1677,27 +1717,27 @@ void AMordath::ChooseAttack()
 	switch (CurrentActionData->Action->ActionType)
 	{
 		case ATM_ShortAttack_1:
-			FSM->PushState("Light Attack 1");
+			FSM->PushState("Short Attack 1");
 		break;
 
 		case ATM_ShortAttack_2:
-			FSM->PushState("Light Attack 2");
+			FSM->PushState("Short Attack 2");
 		break;
 
 		case ATM_ShortAttack_3:
-			FSM->PushState("Light Attack 3");
+			FSM->PushState("Short Attack 3");
 		break;
 
 		case ATM_LongAttack_1:
-			FSM->PushState("Heavy Attack 1");
+			FSM->PushState("Long Attack 1");
 		break;
 
 		case ATM_LongAttack_2:
-			FSM->PushState("Heavy Attack 2");
+			FSM->PushState("Long Attack 2");
 		break;
 
 		case ATM_LongAttack_3:
-			FSM->PushState("Heavy Attack 3");
+			FSM->PushState("Long Attack 3");
 		break;
 
 		case ATM_Kick:
@@ -1710,16 +1750,21 @@ void AMordath::ChooseAttack()
 		break;
 
 		case ATM_Dash_Forward:
+			FSM->PushState("Dash Combat");
 		break;
 
 		case ATM_Dash_Backward:
+			FSM->PushState("Dash Combat");
 		break;
 
 		case ATM_Dash_Left:
+			FSM->PushState("Dash Combat");
 		break;
 
 		case ATM_Dash_Right:
+			FSM->PushState("Dash Combat");
 		break;
+
 		default:
 		break;
 	}
@@ -1907,7 +1952,7 @@ void AMordath::ResetMeshScale()
 
 bool AMordath::CanAttack() const
 {
-	return IsCloseRange() && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged();
+	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange) && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged();
 }
 
 void AMordath::ResetAttackDamage()
@@ -2020,7 +2065,7 @@ bool AMordath::IsSuperCloseRange() const
 
 bool AMordath::IsCloseRange() const
 {
-	return RangeFSM->GetActiveStateID() == 0 || RangeFSM->GetActiveStateID() == 3;
+	return RangeFSM->GetActiveStateID() == 0;
 }
 
 bool AMordath::IsMidRange() const
@@ -2053,7 +2098,7 @@ bool AMordath::IsDelayingAction() const
 
 bool AMordath::IsDashing() const
 {
-	return FSM->GetActiveStateID() == 16;
+	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17;
 }
 
 bool AMordath::IsDamaged() const
@@ -2071,7 +2116,7 @@ bool AMordath::IsRecovering() const
 	return FSM->GetActiveStateID() == 21;
 }
 
-bool AMordath::HasFinishedAttack() const
+bool AMordath::HasFinishedAction() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentActionData->Action->ActionMontage);
 }
@@ -2187,4 +2232,5 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Current Counter: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Lock-on Location: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Action Damage: ", FColor::Green, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Combo: ", FColor::Yellow, YPadding);
 }

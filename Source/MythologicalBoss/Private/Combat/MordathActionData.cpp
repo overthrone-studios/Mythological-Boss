@@ -15,6 +15,9 @@ FString UMordathActionData::GetCounterTypeAsString() const
 	case NoCounter:
 		return FString("No Counter");
 
+	case ParryableBlockable:
+		return FString("Parryable and Blockable");
+
 	default:
 		return FString("None");
 	}

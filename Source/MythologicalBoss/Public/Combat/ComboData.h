@@ -13,13 +13,17 @@ struct FComboData_Action
 {
 	GENERATED_BODY()
 
-	// The list of attacks to go through sequentially
+	// The action to execute
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
 		UMordathActionData* Action;
 
 	// Can we teleport before we do this action?
 	UPROPERTY(EditInstanceOnly)
 		uint8 bCanTeleportWithAction : 1;
+
+	// The range that this action can be executed at
+	UPROPERTY(EditInstanceOnly)
+		TEnumAsByte<EBossRange_Mordath> RangeToExecute = Close;
 };
 
 /**
