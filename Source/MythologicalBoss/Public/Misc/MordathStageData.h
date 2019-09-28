@@ -100,14 +100,6 @@ struct FComboSettings
 	// A list of combos the boss character will choose from when in the first stage
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UComboData*> Combos;
-
-	// The animation montage to play when in far range on stage 1
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
-		class UAnimMontage* FarRangeAttackAnim = nullptr;
-
-	// The amount of time (in seconds) we wait before initiating the long attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		float FarRangeAttackDelay = 1.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -125,9 +117,20 @@ struct FCombatSettings_Mordath : public FCombatSettings
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditInstanceOnly)
 		FAttackSettings_Mordath AttackSettings;
+
+	// The animation montage to play when in far range on stage 1
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		UMordathActionData* FarRangeActionData = nullptr;
+
+	// The amount of time (in seconds) we wait before initiating the long attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		float FarRangeAttackDelay = 1.0f;
+
+	// The animation montage to play when the player is behind us
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		UMordathActionData* BackHandActionData = nullptr;
 
 	// Maximum hits that can be taken before becoming invincible
 	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0))

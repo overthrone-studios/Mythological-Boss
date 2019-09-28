@@ -31,6 +31,10 @@ struct FMordathMontagePinnacleData
 	UPROPERTY(EditInstanceOnly)
 		uint8 bSnapToPlayerLocation : 1;
 
+	// Should we snap our rotation to face the player?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bSnapRotation : 1;
+
 	// The distance from the player to snap to
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation", ClampMin = 0.0f))
 		float DistanceFromPlayer = 200.0f;
@@ -45,7 +49,7 @@ struct FMordathMontagePinnacleData
 };
 
 /**
- * An asset that holds attack data for the boss
+ * An asset that holds action data for Mordath
  */
 UCLASS()
 class MYTHOLOGICALBOSS_API UMordathActionData final : public UDataAsset

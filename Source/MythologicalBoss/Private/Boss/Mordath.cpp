@@ -294,7 +294,7 @@ void AMordath::BeginPlay()
 
 	ChooseCombo();
 
-	ResetAttackDamage();
+	ResetActionDamage();
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->SetHiddenInGame(false);
@@ -444,6 +444,15 @@ void AMordath::OnEnterFollowState()
 	//	FSM->PushState("Dash");
 	//	return;
 	//}
+
+	if (IsSuperCloseRange() && FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < 0.3f && 
+		(CurrentActionData->Action->ActionType != ATM_Dash_Forward && CurrentActionData->Action->ActionType != ATM_Dash_Backward &&
+		CurrentActionData->Action->ActionType != ATM_Dash_Left && CurrentActionData->Action->ActionType != ATM_Dash_Right))
+	{
+		ULog::Yes("Can back hand?", true);
+		FSM->PushState("Back Hand");
+		return;
+	}
 
 	ChooseMovementDirection();
 }
@@ -607,7 +616,7 @@ void AMordath::OnEnterKickState()
 void AMordath::UpdateKickState()
 {
 	if (CurrentActionData->Action->ActionType == ATM_Kick)
-		FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
+		FacePlayerBasedOnActionData(CurrentActionData->Action);
 	else
 		FacePlayer(DefaultRotationSpeed);
 
@@ -735,7 +744,7 @@ void AMordath::OnEnterShortAttack1State()
 
 void AMordath::UpdateShortAttack1State()
 {
-	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
+	FacePlayerBasedOnActionData(CurrentActionData->Action);
 	
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAction())
@@ -768,7 +777,7 @@ void AMordath::OnEnterShortAttack2State()
 
 void AMordath::UpdateShortAttack2State()
 {
-	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
+	FacePlayerBasedOnActionData(CurrentActionData->Action);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAction())
@@ -801,7 +810,7 @@ void AMordath::OnEnterShortAttack3State()
 
 void AMordath::UpdateShortAttack3State()
 {
-	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
+	FacePlayerBasedOnActionData(CurrentActionData->Action);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAction())
@@ -831,8 +840,8 @@ void AMordath::OnEnterLongAttack1State()
 
 	GameState->BossData.CurrentActionType = ATM_LongAttack_1;
 
-	CurrentLongAttackMontage = CurrentStageData->ComboSettings.FarRangeAttackAnim;
-	PlayAnimMontage(CurrentStageData->ComboSettings.FarRangeAttackAnim, 1.0f, FName("Anticipation"));
+	CurrentLongAttackMontage = CurrentStageData->Combat.FarRangeActionData->ActionMontage;
+	PlayAnimMontage(CurrentLongAttackMontage);
 }
 
 void AMordath::UpdateLongAttack1State()
@@ -877,7 +886,7 @@ void AMordath::OnEnterLongAttack2State()
 
 void AMordath::UpdateLongAttack2State()
 {
-	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
+	FacePlayerBasedOnActionData(CurrentActionData->Action);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAction())
@@ -910,7 +919,7 @@ void AMordath::OnEnterLongAttack3State()
 
 void AMordath::UpdateLongAttack3State()
 {
-	FacePlayerBasedOnMontageSection(CurrentActionData->Action->ActionMontage);
+	FacePlayerBasedOnActionData(CurrentActionData->Action);
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAction())
@@ -1207,15 +1216,17 @@ void AMordath::OnEnterBackHandState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 
-	PlayActionMontage();
+	PlayAnimMontage(CurrentStageData->Combat.BackHandActionData->ActionMontage);
+
+	ActionDamage = CurrentStageData->Combat.BackHandActionData->ActionDamage;
 }
 
 void AMordath::UpdateBackHandState()
 {
-	if (HasFinishedAction())
+	FacePlayerBasedOnActionData(CurrentStageData->Combat.BackHandActionData);
+
+	if (HasFinishedAction(CurrentStageData->Combat.BackHandActionData->ActionMontage))
 	{
-		NextAction();
-		
 		FSM->PopState();
 	}
 }
@@ -1228,7 +1239,9 @@ void AMordath::OnExitBackHandState()
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
 	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
+	StopAnimMontage(CurrentStageData->Combat.BackHandActionData->ActionMontage);
+
+	ResetActionDamage();
 }
 #pragma endregion
 
@@ -1348,12 +1361,12 @@ void AMordath::UpdateFarRange()
 	if (IsTeleporting())
 		return;
 
-	if (IsInFirstStage() && Uptime > CurrentStageData->ComboSettings.FarRangeAttackDelay)
+	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay)
 	{
 		if (!IsRecovering())
 			FSM->PushState("Long Attack 1");
 	}
-	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->ComboSettings.FarRangeAttackDelay)
+	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay)
 	{
 		const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
 		
@@ -1394,7 +1407,7 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange()
 {
-	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired()))
+	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand()))
 	{
 		const uint8 bWantsKick = FMath::RandRange(0, 1);
 		if (bWantsKick == 1 && IsInSecondStage())
@@ -1419,7 +1432,7 @@ void AMordath::OnExitSuperCloseRange()
 	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 
-	ResetAttackDamage();
+	ResetActionDamage();
 }
 #pragma endregion 
 #pragma endregion
@@ -1867,6 +1880,7 @@ void AMordath::ChooseAction()
 
 	GameState->BossData.CurrentActionType = CurrentActionData->Action->ActionType;
 	GameState->BossData.CurrentCounterType = CurrentActionData->Action->CounterType;
+	ActionDamage = CurrentActionData->Action->ActionDamage;
 
 	// Choose the current attack from the attack data
 	switch (CurrentActionData->Action->ActionType)
@@ -2025,46 +2039,47 @@ void AMordath::FacePlayer()
 	SetActorRotation(FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll));
 }
 
-void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
+void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* ActionData)
 {
-	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(Montage);
+	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(ActionData->ActionMontage);
 
 	if (CurrentMontageSection == "Anticipation")
 	{
-		FacePlayer(CurrentActionData->Action->Anticipation.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(Montage, CurrentActionData->Action->Anticipation.PlayRate);
+		FacePlayer(ActionData->Anticipation.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Anticipation.PlayRate);
 	}
 	else if (CurrentMontageSection == "Pinnacle")
 	{
-		if (CurrentActionData->Action->Pinnacle.bSnapToPlayerLocation)
+		if (ActionData->Pinnacle.bSnapToPlayerLocation)
 		{
 			FVector NewLocation;
 
-			if (CurrentActionData->Action->Pinnacle.bSmooth)
-				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * CurrentActionData->Action->Pinnacle.DistanceFromPlayer, CurrentActionData->Action->Pinnacle.Speed * World->DeltaTimeSeconds);
+			if (ActionData->Pinnacle.bSmooth)
+				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * ActionData->Pinnacle.DistanceFromPlayer, CurrentActionData->Action->Pinnacle.Speed * World->DeltaTimeSeconds);
 			else
-				NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * CurrentActionData->Action->Pinnacle.DistanceFromPlayer;
+				NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * ActionData->Pinnacle.DistanceFromPlayer;
 
 			NewLocation.Z = CurrentLocation.Z;
 			SetActorLocation(NewLocation);
 		}
 
-		FacePlayer();
+		if (ActionData->Pinnacle.bSnapRotation)
+			FacePlayer();
 	}
 	else if (CurrentMontageSection == "Contact")
 	{
-		FacePlayer(CurrentActionData->Action->Contact.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(Montage, CurrentActionData->Action->Contact.PlayRate);
+		FacePlayer(ActionData->Contact.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
 	}
 	else if (CurrentMontageSection == "Recovery")
 	{
-		FacePlayer(CurrentActionData->Action->Recovery.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(Montage, CurrentActionData->Action->Contact.PlayRate);
+		FacePlayer(ActionData->Recovery.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
 	}
 	else
 	{
 		FacePlayer(DefaultRotationSpeed);
-		AnimInstance->Montage_SetPlayRate(Montage, 1.0f);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, 1.0f);
 	}
 }
 
@@ -2125,7 +2140,7 @@ bool AMordath::CanAttack() const
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
 }
 
-void AMordath::ResetAttackDamage()
+void AMordath::ResetActionDamage()
 {
 	ActionDamage = CurrentActionData->Action->ActionDamage;
 }
@@ -2295,6 +2310,11 @@ bool AMordath::HasFinishedAction() const
 	return !AnimInstance->Montage_IsPlaying(CurrentActionData->Action->ActionMontage);
 }
 
+bool AMordath::HasFinishedAction(UAnimMontage* ActionMontage) const
+{
+	return !AnimInstance->Montage_IsPlaying(ActionMontage);
+}
+
 bool AMordath::IsTransitioning() const
 {
 	return AnimInstance->Montage_IsPlaying(Stage2_Transition) || AnimInstance->Montage_IsPlaying(Stage3_Transition);
@@ -2303,6 +2323,11 @@ bool AMordath::IsTransitioning() const
 bool AMordath::IsTired() const
 {
 	return FSM->GetActiveStateID() == 23;
+}
+
+bool AMordath::IsDoingBackHand() const
+{
+	return FSM->GetActiveStateID() == 24;
 }
 
 bool AMordath::IsTeleporting() const
@@ -2348,7 +2373,7 @@ float AMordath::GetMovementSpeed() const
 
 float AMordath::GetActionDamage() const
 {
-	return CurrentActionData->Action->ActionDamage;
+	return ActionDamage;
 }
 
 float AMordath::GetShortAttackDamage() const

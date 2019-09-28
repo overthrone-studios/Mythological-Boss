@@ -161,9 +161,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsKicking() const;
 
-	// Returns true if we have finished playing our current attack montage
+	// Returns true if we have finished playing our current action montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAction() const;
+
+	// Returns true if we have finished playing our current action montage
+	bool HasFinishedAction(class UAnimMontage* ActionMontage) const;
 
 	// Returns true if we are transitioning to the next stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -172,6 +175,10 @@ public:
 	// Returns true if we are tired
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTired() const;
+
+	// Returns true if we are currently doing a back hand attack
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsDoingBackHand() const;
 
 	// Returns true if we are teleporting to another location
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -218,7 +225,7 @@ protected:
 	void FacePlayer();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
-		void FacePlayerBasedOnMontageSection(class UAnimMontage* Montage);
+		void FacePlayerBasedOnActionData(const class UMordathActionData* ActionData);
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseComboWithDelay();
@@ -264,7 +271,7 @@ protected:
 		bool CanAttack() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ResetAttackDamage();
+		void ResetActionDamage();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void IncreaseAttackDamage(const float& Multiplier);
