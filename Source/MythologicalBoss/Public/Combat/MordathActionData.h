@@ -44,7 +44,7 @@ struct FMordathMontagePinnacleData
 		uint8 bSmooth : 1;
 
 	// How fast we smoothly snap to the player's location
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bLerp", ClampMin = 0.0f))
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSmooth", ClampMin = 0.0f))
 		float Speed = 10.0f;
 };
 
