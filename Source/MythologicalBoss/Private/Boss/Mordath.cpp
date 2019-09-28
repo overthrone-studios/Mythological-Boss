@@ -459,101 +459,82 @@ void AMordath::UpdateFollowState()
 
 	FacePlayer(DefaultRotationSpeed);
 
-	if (IsWaitingForNewCombo() && DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
+	if (IsWaitingForNewCombo() && IsSuperCloseRange())
 	{
 		FSM->PushState("Retreat");
 		return;
 	}
 
-	if (IsWaitingForNewCombo() && DistanceToPlayer < CurrentStageData->GetMidRangeRadius())
+	if (IsWaitingForNewCombo() && IsCloseRange())
 	{
 		FSM->PushState("Thinking");
 		return;
 	}
 
-	// Move towards the player
-	//if (!IsCloseRange())
-	//{
-		if (!IsDelayingAction())
+	// Decide a direction to move in
+	if (!IsDelayingAction())
+	{
+		switch (CurrentActionData->RangeToExecute)
 		{
-			switch (CurrentActionData->RangeToExecute)
+		case SuperClose:
+			if (IsCloseRange() || IsMidRange() || IsFarRange())
 			{
-			case SuperClose:
-				if (IsCloseRange() || IsMidRange() || IsFarRange())
-				{
-					MoveForward();
-				}
-				else
-				{
-					CurrentMovementSpeed = 0.0f;
-					ForwardInput = 0.0f;
-					RightInput = 0.0f;
-				}
-			break;
-
-			case Close:
-				if (IsSuperCloseRange())
-				{
-					MoveForward(-1);
-				}
-				else if (IsMidRange() || IsFarRange())
-				{
-					MoveForward();
-				}
-				else
-				{
-					CurrentMovementSpeed = 0.0f;
-					ForwardInput = 0.0f;
-					RightInput = 0.0f;
-				}
-			break;
-
-			case Mid:
-				if (IsSuperCloseRange() || IsCloseRange())
-				{
-					MoveForward(-1);
-				}
-				else if (IsFarRange())
-				{
-					MoveForward();
-				}
-				else
-				{
-					CurrentMovementSpeed = 0.0f;
-					ForwardInput = 0.0f;
-					RightInput = 0.0f;					
-				}
-			break;
-
-			case Far:
-				if (IsSuperCloseRange() || IsCloseRange() || IsMidRange())
-				{
-					MoveForward(-1);
-				}
-				else
-				{
-					CurrentMovementSpeed = 0.0f;
-					ForwardInput = 0.0f;
-					RightInput = 0.0f;							
-				}
-			break;
-
-			default:
-				CurrentMovementSpeed = 0.0f;
-				ForwardInput = 0.0f;
-				RightInput = 0.0f;	
-			break;
+				MoveForward();
 			}
+			else
+			{
+				StopMoving();
+			}
+		break;
+
+		case Close:
+			if (IsSuperCloseRange())
+			{
+				MoveForward(-1);
+			}
+			else if (IsMidRange() || IsFarRange())
+			{
+				MoveForward();
+			}
+			else
+			{
+				StopMoving();
+			}
+		break;
+
+		case Mid:
+			if (IsSuperCloseRange() || IsCloseRange())
+			{
+				MoveForward(-1);
+			}
+			else if (IsFarRange())
+			{
+				MoveForward();
+			}
+			else
+			{
+				StopMoving();
+			}
+		break;
+
+		case Far:
+			if (IsSuperCloseRange() || IsCloseRange() || IsMidRange())
+			{
+				MoveForward(-1);
+			}
+			else
+			{
+				StopMoving();
+			}
+		break;
+
+		default:
+			StopMoving();
+		break;
 		}
-		else
-			FSM->PushState("Thinking");
-	//}
-	//else
-	//{
-	//	CurrentMovementSpeed = 0.0f;
-	//	ForwardInput = 0.0f;
-	//	RightInput = 0.0f;
-	//}
+	}
+	else
+		FSM->PushState("Thinking");
 }
 
 void AMordath::OnExitFollowState()
@@ -2152,6 +2133,13 @@ void AMordath::ResetAttackDamage()
 void AMordath::IncreaseAttackDamage(const float& Multiplier)
 {
 	ActionDamage *= Multiplier;
+}
+
+void AMordath::StopMoving()
+{
+	CurrentMovementSpeed = 0.0f;
+	ForwardInput = 0.0f;
+	RightInput = 0.0f;
 }
 
 float AMordath::GetDistanceToPlayer() const

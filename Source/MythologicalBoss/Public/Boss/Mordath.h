@@ -269,6 +269,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void IncreaseAttackDamage(const float& Multiplier);
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
+		void StopMoving();
+
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
