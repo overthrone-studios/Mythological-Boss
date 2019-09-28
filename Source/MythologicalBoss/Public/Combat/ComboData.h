@@ -4,22 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "AttackData.h"
+#include "MordathActionData.h"
 #include "TimerManager.h"
 #include "ComboData.generated.h"
 
 USTRUCT(BlueprintType)
-struct FComboData_Attack
+struct FComboData_Action
 {
 	GENERATED_BODY()
 
 	// The list of attacks to go through sequentially
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
-		UAttackData* Attack;
+		UMordathActionData* Action;
 
-	// Can we teleport before we attack?
+	// Can we teleport before we do this action?
 	UPROPERTY(EditInstanceOnly)
-		uint8 bCanTeleportWithAttack : 1;
+		uint8 bCanTeleportWithAction : 1;
 };
 
 /**
@@ -35,50 +35,50 @@ public:
 		void Init();
 
 	UFUNCTION(BlueprintCallable, Category = "Combo Data")
-		void NextAttack();
+		void NextAction();
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		bool IsAtLastAttack();
+		bool IsAtLastAction();
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		bool IsDelayEnabled();
 	
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		float GetAttackDelayTime();
+		float GetActionDelayTime();
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		float GetDeviation();
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		FTimerHandle& GetAttackDelayTimer();
+		FTimerHandle& GetActionDelayTimer();
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		int32 GetCurrentAttackIndex() const { return AttackIndex; }
+		int32 GetCurrentActionIndex() const { return ActionIndex; }
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
-		FComboData_Attack& GetCurrentAttackData() { return CurrentAttack; }
+		FComboData_Action& GetCurrentActionData() { return CurrentAction; }
 
 protected:
-	// Should we wait between attacks?
+	// Should we wait between actions?
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
-		uint8 bDelayBetweenAttacks : 1;
+		uint8 bDelayBetweenActions : 1;
 
 	// The amount of time (in seconds) we should wait
-	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenAttacks", ClampMin = 0.0f, ClampMax = 100.0f))
+	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenActions", ClampMin = 0.0f))
 		float Delay = 1.0f;
 
 	// Adds a random range to Delay
-	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenAttacks", ClampMin = 0.0f, ClampMax = 100.0f))
+	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenActions", ClampMin = 0.0f))
 		float RandomDeviation = 0.0f;
 
-	// The list of attacks to go through sequentially
+	// The list of actions to go through sequentially
 	UPROPERTY(EditInstanceOnly, Category = "Combos")
-		TArray<FComboData_Attack> Attacks;
+		TArray<FComboData_Action> Actions;
 
-	FComboData_Attack CurrentAttack;
+	FComboData_Action CurrentAction;
 
 private:
-	int32 AttackIndex = 0;
+	int32 ActionIndex = 0;
 
-	FTimerHandle AttackDelayTimerHandle;
+	FTimerHandle TH_ActionDelay;
 };

@@ -6,37 +6,37 @@ FString UOverthroneEnums::MordathAttackTypeToString(const EActionType_Mordath& E
 {
 	switch (Enum)
 	{
-	case ShortAttack_1:
+	case ATM_ShortAttack_1:
 		return FString("Short Attack 1");
 
-	case ShortAttack_2:
+	case ATM_ShortAttack_2:
 		return FString("Short Attack 2");
 
-	case ShortAttack_3:
+	case ATM_ShortAttack_3:
 		return FString("Short Attack 3");
 
-	case LongAttack_1:
+	case ATM_LongAttack_1:
 		return FString("Long Attack 1");
 
-	case LongAttack_2:
+	case ATM_LongAttack_2:
 		return FString("Long Attack 2");
 
-	case LongAttack_3:
+	case ATM_LongAttack_3:
 		return FString("Long Attack 3");
 
-	case SpecialAttack_1:
+	case ATM_SpecialAttack_1:
 		return FString("Special Attack 1");
 
-	case SpecialAttack_2:
+	case ATM_SpecialAttack_2:
 		return FString("Special Attack 2");
 
-	case SpecialAttack_3:
+	case ATM_SpecialAttack_3:
 		return FString("Special Attack 3");
 
-	case Kick:
+	case ATM_Kick:
 		return FString("Kick");
 		
-	case BackHand:
+	case ATM_BackHand:
 		return FString("BackHand");
 
 	default:

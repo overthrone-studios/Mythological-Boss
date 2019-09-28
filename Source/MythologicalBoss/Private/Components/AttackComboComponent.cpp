@@ -19,13 +19,13 @@ FString UAttackComboComponent::GetCurrentAttackAsString() const
 {
 	switch (CurrentAttack)
 	{
-	case Light:
+	case ATP_Light:
 		return FString("Light");
 
-	case Heavy:
+	case ATP_Heavy:
 		return FString("Heavy");
 
-	case Special:
+	case ATP_Special:
 		return FString("Special");
 
 	default:
@@ -55,7 +55,7 @@ void UAttackComboComponent::BeginPlay()
 	Owner = GetOwner();
 
 	OriginalComboMultiplier = ComboMultiplier;
-	CurrentAttack = EATP_None;
+	CurrentAttack = ATP_None;
 }
 
 class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player InAttackType)
@@ -64,37 +64,37 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player
 
 	switch (InAttackType)
 	{
-	case Light:
+	case ATP_Light:
 		if (LightAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Light Attacks list", true);
 			return nullptr;
 		}
 
-		CurrentAttackAnim = AdvanceCombo_Internal(Light);
+		CurrentAttackAnim = AdvanceCombo_Internal(ATP_Light);
 	break;
 
-	case Heavy:
+	case ATP_Heavy:
 		if (HeavyAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Heavy Attacks list", true);
 			return nullptr;
 		}
 
-		CurrentAttackAnim = AdvanceCombo_Internal(Heavy);
+		CurrentAttackAnim = AdvanceCombo_Internal(ATP_Heavy);
 	break;
 
-	case Special:
+	case ATP_Special:
 		if (SpecialAttacks.List.Num() == 0)
 		{
 			ULog::Error("Could not advance the combo tree. There must be at least 1 attack in the Special Attacks list", true);
 			return nullptr;
 		}
 
-		CurrentAttackAnim = AdvanceCombo_Internal(Special);
+		CurrentAttackAnim = AdvanceCombo_Internal(ATP_Special);
 	break;
 
-	case EATP_None:
+	case ATP_None:
 		CurrentAttackAnim = nullptr;
 	break;
 	}
@@ -132,28 +132,28 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	// Choose the attack
 	switch (InAttackType)
 	{
-	case Light:
-		AdvanceAttack(LightAttackIndex, LightAttacks.List, Light);
+	case ATP_Light:
+		AdvanceAttack(LightAttackIndex, LightAttacks.List, ATP_Light);
 		MontageToReturn = GetCurrentLightAttackAnim();
 
 		LightAttackIndex++;
 	break;
 
-	case Heavy:
-		AdvanceAttack(HeavyAttackIndex, HeavyAttacks.List, Heavy);
+	case ATP_Heavy:
+		AdvanceAttack(HeavyAttackIndex, HeavyAttacks.List, ATP_Heavy);
 		MontageToReturn = GetCurrentHeavyAttackAnim();
 
 		HeavyAttackIndex++;
 	break;
 
-	case Special:
-		AdvanceAttack(SpecialAttackIndex, SpecialAttacks.List, Special);
+	case ATP_Special:
+		AdvanceAttack(SpecialAttackIndex, SpecialAttacks.List, ATP_Special);
 		MontageToReturn = GetCurrentSpecialAttackAnim();
 
 		SpecialAttackIndex++;
 	break;
 
-	case EATP_None:
+	case ATP_None:
 		MontageToReturn = nullptr;
 	break;	
 	}
@@ -177,28 +177,28 @@ int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class 
 
 	switch (InAttackType)
 	{
-	case Light:
+	case ATP_Light:
 		DelayAttack(LightAttacks.AttackDelay); 
 
 		if (bLogAttackIndex)
 			ULog::Number(AttackIndex, "Light Attack Index: ", true);
 	break;
 
-	case Heavy:
+	case ATP_Heavy:
 		DelayAttack(HeavyAttacks.AttackDelay); 
 
 		if (bLogAttackIndex)
 			ULog::Number(AttackIndex, "Heavy Attack Index: ", true);
 	break;
 
-	case Special:
+	case ATP_Special:
 		DelayAttack(SpecialAttacks.AttackDelay); 
 
 		if (bLogAttackIndex)
 			ULog::Number(AttackIndex, "Special Attack Index: ", true);
 	break;
 
-	case EATP_None:
+	case ATP_None:
 	break;
 	}
 
@@ -224,7 +224,7 @@ void UAttackComboComponent::ResetCombo()
 	if (bLogAttackChain)
 		LogAttackChain();
 
-	CurrentAttack = EATP_None;
+	CurrentAttack = ATP_None;
 
 	// Save our attack chain
 	PreviousCombo = Combo;
@@ -243,7 +243,7 @@ void UAttackComboComponent::ResetCombo()
 
 void UAttackComboComponent::ClearCurrentAttack()
 {
-	CurrentAttack = EATP_None;
+	CurrentAttack = ATP_None;
 }
 
 void UAttackComboComponent::LogAttackChain()
@@ -252,19 +252,19 @@ void UAttackComboComponent::LogAttackChain()
 	{
 		switch (Attack)
 		{
-			case Light:
+			case ATP_Light:
 				ULog::Success("Light", true);
 			break;
 
-			case Heavy:
+			case ATP_Heavy:
 				ULog::Success("Heavy", true);
 			break;
 
-			case Special:
+			case ATP_Special:
 				ULog::Success("Special", true);
 			break;
 
-			case EATP_None:
+			case ATP_None:
 			break;
 
 			default: 

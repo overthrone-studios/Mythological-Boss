@@ -4,34 +4,34 @@
 
 void UComboData::Init()
 {
-	AttackIndex = 0;
-	CurrentAttack = Attacks[0];
+	ActionIndex = 0;
+	CurrentAction = Actions[0];
 }
 
-void UComboData::NextAttack()
+void UComboData::NextAction()
 {
-	AttackIndex++;
+	ActionIndex++;
 
-	if (AttackIndex >= Attacks.Num())
-		AttackIndex = Attacks.Num();
+	if (ActionIndex >= Actions.Num())
+		ActionIndex = Actions.Num();
 
-	if (AttackIndex < Attacks.Num())
+	if (ActionIndex < Actions.Num())
 	{
-		CurrentAttack = Attacks[AttackIndex];
+		CurrentAction = Actions[ActionIndex];
 	}
 }
 
-bool UComboData::IsAtLastAttack()
+bool UComboData::IsAtLastAction()
 {
-	return AttackIndex == Attacks.Num();
+	return ActionIndex == Actions.Num();
 }
 
 bool UComboData::IsDelayEnabled()
 {
-	return bDelayBetweenAttacks;
+	return bDelayBetweenActions;
 }
 
-float UComboData::GetAttackDelayTime()
+float UComboData::GetActionDelayTime()
 {
 	return Delay;
 }
@@ -41,7 +41,7 @@ float UComboData::GetDeviation()
 	return RandomDeviation;
 }
 
-FTimerHandle& UComboData::GetAttackDelayTimer()
+FTimerHandle& UComboData::GetActionDelayTimer()
 {
-	return AttackDelayTimerHandle;
+	return TH_ActionDelay;
 }

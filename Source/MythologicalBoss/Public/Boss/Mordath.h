@@ -55,6 +55,10 @@ public:
 
 	void AddDebugMessages() override;
 
+	// Returns the current action damage value
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		float GetActionDamage() const;
+
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetShortAttackDamage() const;
@@ -135,7 +139,7 @@ public:
 
 	// Returns true if we are delaying our current attack
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsDelayingAttack() const;
+		bool IsDelayingAction() const;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -214,7 +218,7 @@ protected:
 		void ChooseCombo();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void NextAttack();
+		void NextAction();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void UpdateDamageValueInMainHUD(float DamageAmount) const;
@@ -594,6 +598,7 @@ private:
 
 	float DefaultRotationSpeed = 10.0f;
 
+	float ActionDamage = 0.0f;
 	float ShortAttackDamage = 0.0f;
 	float LongAttackDamage = 0.0f;
 	float SpecialAttackDamage = 0.0f;
@@ -606,7 +611,7 @@ private:
 
 	EDashType_Mordath DashType;
 
-	FComboData_Attack* CurrentAttackData;
+	FComboData_Action* CurrentActionData;
 
 	FName CurrentMontageSection = "None";
 

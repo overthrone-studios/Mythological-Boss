@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Engine/GameInstance.h"
-#include "Combat/AttackData.h"
+#include "Combat/MordathActionData.h"
 #include "OverthroneEnums.h"
 #include "OverthroneGameInstance.generated.h"
 

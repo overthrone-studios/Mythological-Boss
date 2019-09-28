@@ -231,7 +231,7 @@ private:
 	float DistanceToPlayer = 0.0f;
 	FVector DirectionToPlayer;
 
-	FComboData_Attack* CurrentAttackData;
+	FComboData_Action* CurrentAttackData;
 
 	FName CurrentMontageSection = "None";
 

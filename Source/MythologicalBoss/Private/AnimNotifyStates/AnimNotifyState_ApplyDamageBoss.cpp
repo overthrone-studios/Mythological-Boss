@@ -48,6 +48,8 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	else if (Mordath->IsSpecialAttacking())
 		AttackDamage = Mordath->GetSpecialAttackDamage();
 
+	AttackDamage = Mordath->GetActionDamage();
+
 #if !UE_BUILD_SHIPPING
 	if (HitSoundData && HitSoundData->HitSounds.Num() == 0)
 		ULog::Warning("No hit sounds specified in " + Animation->GetName(), true);

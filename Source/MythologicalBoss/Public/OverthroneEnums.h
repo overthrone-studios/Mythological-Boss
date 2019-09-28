@@ -33,27 +33,35 @@ enum EBossStage_Mordath
 UENUM()
 enum EAttackType_Player
 {
-	Light,
-	Heavy,
-	Special,
-	EATP_None UMETA(DisplayName="None")
+	ATP_Light,
+	ATP_Heavy,
+	ATP_Special,
+	ATP_None UMETA(DisplayName="None")
 };
 
 UENUM()
 enum EActionType_Mordath
 {
-	ShortAttack_1,
-	ShortAttack_2,
-	ShortAttack_3,
-	LongAttack_1,
-	LongAttack_2,
-	LongAttack_3,
-	SpecialAttack_1,
-	SpecialAttack_2,
-	SpecialAttack_3,
-	Kick,
-	BackHand,
-	EATM_None UMETA(DisplayName="None")
+	ATM_ShortAttack_1	UMETA(DisplayName="Short Attack 1"),
+	ATM_ShortAttack_2	UMETA(DisplayName="Short Attack 2"),
+	ATM_ShortAttack_3	UMETA(DisplayName="Short Attack 3"),
+	ATM_LongAttack_1	UMETA(DisplayName="Long Attack 1"),
+	ATM_LongAttack_2	UMETA(DisplayName="Long Attack 2"),
+	ATM_LongAttack_3	UMETA(DisplayName="Long Attack 3"),
+	ATM_SpecialAttack_1 UMETA(DisplayName="Special Attack 1"),
+	ATM_SpecialAttack_2 UMETA(DisplayName="Special Attack 2"),
+	ATM_SpecialAttack_3 UMETA(DisplayName="Special Attack 3"),
+	ATM_Kick			UMETA(DisplayName="Kick"),
+	ATM_BackHand		UMETA(DisplayName="Back Hand"),
+	ATM_Strafe_Left		UMETA(DisplayName="Strafe Left"),
+	ATM_Strafe_Right	UMETA(DisplayName="Strafe Right"),
+	ATM_Dash_Forward	UMETA(DisplayName="Dash Forward"),
+	ATM_Dash_Backward	UMETA(DisplayName="Dash Backward"),
+	ATM_Dash_Left		UMETA(DisplayName="Dash Left"),
+	ATM_Dash_Right		UMETA(DisplayName="Dash Right"),
+	ATM_Teleport		UMETA(DisplayName="Teleport"),
+	ATM_Tired			UMETA(DisplayName="Tired"),
+	ATM_None			UMETA(DisplayName="None")
 };
 
 UENUM()
@@ -63,11 +71,11 @@ enum EAttackCounters_Mordath
 	Blockable,
 	ParryableBlockable,
 	NoCounter,
-	EACM_None UMETA(DisplayName="None")
+	ACM_None UMETA(DisplayName="None")
 };
 
 UENUM()
-enum EBossRanges
+enum EBossRange_Mordath
 {
 	SuperClose,
 	Close,

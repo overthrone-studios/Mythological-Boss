@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "OverthroneEnums.h"
-#include "AttackData.generated.h"
+#include "MordathActionData.generated.h"
 
 
 USTRUCT(BlueprintType)
@@ -26,32 +26,39 @@ struct FMordathMontageSectionData
  * An asset that holds attack data for the boss
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API UAttackData final : public UDataAsset
+class MYTHOLOGICALBOSS_API UMordathActionData final : public UDataAsset
 {
 	GENERATED_BODY()
 	
 public:
 	FString GetCounterTypeAsString() const;
-	FString GetCurrentAttackAsString() const;
+	FString GetCurrentActionAsString() const;
 
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
-		TEnumAsByte<EActionType_Mordath> AttackType;
+		TEnumAsByte<EActionType_Mordath> ActionType;
 
 	// The attack animation montage to play
 	UPROPERTY(EditInstanceOnly)
-		class UAnimMontage* AttackMontage;
+		class UAnimMontage* ActionMontage;
+
+	// The amount of damage to deal while executing this action
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float ActionDamage = 20.0f;
 
 	// What type of counter can this attack be countered by the player?
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EAttackCounters_Mordath> CounterType;
 	
+	// The data to use while in the Anticipation section of the animation
 	UPROPERTY(EditInstanceOnly)
 		FMordathMontageSectionData Anticipation;
 
+	// The data to use while in the Contact section of the animation
 	UPROPERTY(EditInstanceOnly)
 		FMordathMontageSectionData Contact;
 
+	// The data to use while in the Recovery section of the animation
 	UPROPERTY(EditInstanceOnly)
 		FMordathMontageSectionData Recovery;
 

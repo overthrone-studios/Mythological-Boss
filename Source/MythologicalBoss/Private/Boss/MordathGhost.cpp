@@ -193,7 +193,7 @@ void AMordathGhost::OnEnterFollowState()
 		return;
 	}
 
-	if (ChosenCombo->IsAtLastAttack())
+	if (ChosenCombo->IsAtLastAction())
 	{
 		ChooseCombo();
 	}
@@ -353,7 +353,7 @@ void AMordathGhost::OnExitShortAttack3State()
 #pragma region Heavy Attack 1
 void AMordathGhost::OnEnterLongAttack1State()
 {
-	GameState->BossData.CurrentAttackType = LongAttack_1;
+	GameState->BossData.CurrentActionType = ATM_LongAttack_1;
 
 	CurrentLongAttackMontage = CurrentStageData->ComboSettings.FarRangeAttackAnim;
 	PlayAnimMontage(CurrentStageData->ComboSettings.FarRangeAttackAnim, 1.0f, FName("Anticipation"));
@@ -489,7 +489,7 @@ void AMordathGhost::ChooseCombo()
 			ChosenCombo = CachedCombos[ComboIndex];
 
 			ChosenCombo->Init();
-			CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
+			CurrentAttackData = &ChosenCombo->GetCurrentActionData();
 
 			CachedCombos.Remove(ChosenCombo);
 		}
@@ -510,29 +510,29 @@ void AMordathGhost::NextAttack()
 {
 	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAttack())
 	{
-		const float Min = FMath::Clamp(ChosenCombo->GetAttackDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
-		const float Max = FMath::Clamp(ChosenCombo->GetAttackDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
+		const float Min = FMath::Clamp(ChosenCombo->GetActionDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
+		const float Max = FMath::Clamp(ChosenCombo->GetActionDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
 		const float NewDelay = FMath::RandRange(Min, Max);
 
 		if (NewDelay > 0.0f)
 		{
-			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetAttackDelayTimer(), this, &AMordathGhost::NextAttack, NewDelay);
+			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetActionDelayTimer(), this, &AMordathGhost::NextAttack, NewDelay);
 			MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed / 2.0f;
 		}
 		else
 		{
-			ChosenCombo->NextAttack();
+			ChosenCombo->NextAction();
 		}
 
 		return;
 	}
 
-	ChosenCombo->NextAttack();
+	ChosenCombo->NextAction();
 }
 
 bool AMordathGhost::IsDelayingAttack() const
 {
-	return TimerManager->IsTimerActive(ChosenCombo->GetAttackDelayTimer());
+	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
 }
 
 void AMordathGhost::MoveForward(float Scale)
@@ -580,7 +580,7 @@ bool AMordathGhost::IsFarRange() const
 
 bool AMordathGhost::HasFinishedAttack() const
 {
-	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Attack->AttackMontage);
+	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Action->ActionMontage);
 }
 
 bool AMordathGhost::IsAttacking() const
@@ -628,13 +628,13 @@ void AMordathGhost::PauseAnimsWithTimer()
 
 void AMordathGhost::PlayAttackMontage()
 {
-	PlayAnimMontage(CurrentAttackData->Attack->AttackMontage, 1.0f, FName("Anticipation"));
+	PlayAnimMontage(CurrentAttackData->Action->ActionMontage, 1.0f, FName("Anticipation"));
 }
 
 void AMordathGhost::StopAttackMontage()
 {
 	if (!HasFinishedAttack() && !GameState->IsPlayerDead())
-		StopAnimMontage(CurrentAttackData->Attack->AttackMontage);
+		StopAnimMontage(CurrentAttackData->Action->ActionMontage);
 
 	CurrentMontageSection = "None";
 }
@@ -644,32 +644,32 @@ void AMordathGhost::ChooseAttack()
 	if (IsAttacking())
 		return;
 
-	CurrentAttackData = &ChosenCombo->GetCurrentAttackData();
+	CurrentAttackData = &ChosenCombo->GetCurrentActionData();
 
 	// Choose the current attack from the attack data
-	switch (CurrentAttackData->Attack->AttackType)
+	switch (CurrentAttackData->Action->ActionType)
 	{
-	case ShortAttack_1:
+	case ATM_ShortAttack_1:
 		FSM->PushState("Light Attack 1");
 		break;
 
-	case ShortAttack_2:
+	case ATM_ShortAttack_2:
 		FSM->PushState("Light Attack 2");
 		break;
 
-	case ShortAttack_3:
+	case ATM_ShortAttack_3:
 		FSM->PushState("Light Attack 3");
 		break;
 
-	case LongAttack_1:
+	case ATM_LongAttack_1:
 		FSM->PushState("Heavy Attack 1");
 		break;
 
-	case LongAttack_2:
+	case ATM_LongAttack_2:
 		FSM->PushState("Heavy Attack 2");
 		break;
 
-	case LongAttack_3:
+	case ATM_LongAttack_3:
 		FSM->PushState("Heavy Attack 3");
 		break;
 

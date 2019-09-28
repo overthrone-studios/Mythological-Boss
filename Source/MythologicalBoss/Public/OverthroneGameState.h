@@ -46,7 +46,7 @@ struct FCharacterData
 	uint8 bIsDead : 1;
 	uint8 bHasTakenDamage : 1;
 
-	EBossRanges CurrentRange = Mid;
+	EBossRange_Mordath CurrentRange = Mid;
 };
 
 USTRUCT()
@@ -105,7 +105,7 @@ struct FBossData : public FCharacterData
 
 	FVector LockOnBoneLocation;
 
-	EActionType_Mordath CurrentAttackType;
+	EActionType_Mordath CurrentActionType;
 	EAttackCounters_Mordath CurrentCounterType;
 
 	FOnAttackParryedSignature OnAttackParryed;
@@ -158,10 +158,10 @@ public:
 		FORCEINLINE bool IsPlayerDead() const { return PlayerData.bIsDead; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
-		FORCEINLINE bool IsPlayerAttacking() const { return PlayerData.CurrentAttackType != EATP_None; }
+		FORCEINLINE bool IsPlayerAttacking() const { return PlayerData.CurrentAttackType != ATP_None; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
-		FORCEINLINE bool IsBossAttacking() const { return BossData.CurrentAttackType != EATM_None; }
+		FORCEINLINE bool IsBossAttacking() const { return BossData.CurrentActionType != ATM_None; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE bool HasPlayerTakenDamage() const { return PlayerData.bHasTakenDamage; }
@@ -179,7 +179,7 @@ public:
 		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == NoCounter; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
-		FORCEINLINE EActionType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentAttackType; }
+		FORCEINLINE EActionType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentActionType; }
 
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")

@@ -661,7 +661,7 @@ void AYlva::LightAttack()
 	if (IsAttacking() && AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackSettings.LightAttackQueueTriggerTime && AttackQueue.IsEmpty())
 	{
 		AttackQueue.Pop();
-		AttackQueue.Enqueue(Light);
+		AttackQueue.Enqueue(ATP_Light);
 
 		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
 			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
@@ -678,7 +678,7 @@ void AYlva::LightAttack()
 
 	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
 	{
-		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Light);
+		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Light);
 
 		BeginLightAttack(AttackMontageToPlay);
 	}
@@ -717,7 +717,7 @@ void AYlva::HeavyAttack()
 	if (IsAttacking() && AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackSettings.HeavyAttackQueueTriggerTime && AttackQueue.IsEmpty())
 	{
 		AttackQueue.Pop();
-		AttackQueue.Enqueue(Heavy);
+		AttackQueue.Enqueue(ATP_Heavy);
 		
 		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
 			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
@@ -734,7 +734,7 @@ void AYlva::HeavyAttack()
 
 	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
 	{
-		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(Heavy);
+		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Heavy);
 
 		BeginHeavyAttack(AttackMontageToPlay);
 	}
@@ -766,11 +766,11 @@ void AYlva::Attack_Queued()
 	
 	switch (AttackType)
 	{
-	case Light:
+	case ATP_Light:
 		LightAttack();
 	break;
 
-	case Heavy:
+	case ATP_Heavy:
 		HeavyAttack();
 	break;
 
@@ -1913,12 +1913,12 @@ void AYlva::SpawnGhost()
 
 bool AYlva::IsLightAttacking() const
 {
-	return AttackComboComponent->GetCurrentAttack() == Light;
+	return AttackComboComponent->GetCurrentAttack() == ATP_Light;
 }
 
 bool AYlva::IsHeavyAttacking() const
 {
-	return AttackComboComponent->GetCurrentAttack() == Heavy;
+	return AttackComboComponent->GetCurrentAttack() == ATP_Heavy;
 }
 
 bool AYlva::IsAttacking() const
