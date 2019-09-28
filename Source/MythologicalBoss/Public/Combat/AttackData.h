@@ -36,7 +36,7 @@ public:
 
 	// The attack to execute
 	UPROPERTY(EditInstanceOnly)
-		TEnumAsByte<EAttackType_Mordath> AttackType;
+		TEnumAsByte<EActionType_Mordath> AttackType;
 
 	// The attack animation montage to play
 	UPROPERTY(EditInstanceOnly)

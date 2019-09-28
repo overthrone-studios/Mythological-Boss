@@ -2,7 +2,7 @@
 
 #include "OverthroneEnums.h"
 
-FString UOverthroneEnums::MordathAttackTypeToString(const EAttackType_Mordath& Enum)
+FString UOverthroneEnums::MordathAttackTypeToString(const EActionType_Mordath& Enum)
 {
 	switch (Enum)
 	{

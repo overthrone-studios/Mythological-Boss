@@ -52,7 +52,7 @@ public:
 		uint8 RecoverLoopCounter = 0;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-		TEnumAsByte<EBossStage> CurrentStage = Stage_1;
+		TEnumAsByte<EBossStage_Mordath> CurrentStage = Stage_1;
 
 protected:
 	void NativeInitializeAnimation() override;

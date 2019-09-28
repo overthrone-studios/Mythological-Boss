@@ -170,7 +170,7 @@ public:
 		float GetMovementSpeed() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void EnterStage(EBossStage InStage);
+		void EnterStage(EBossStage_Mordath InStage);
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();

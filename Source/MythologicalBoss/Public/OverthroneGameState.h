@@ -105,7 +105,7 @@ struct FBossData : public FCharacterData
 
 	FVector LockOnBoneLocation;
 
-	EAttackType_Mordath CurrentAttackType;
+	EActionType_Mordath CurrentAttackType;
 	EAttackCounters_Mordath CurrentCounterType;
 
 	FOnAttackParryedSignature OnAttackParryed;
@@ -127,7 +127,7 @@ class MYTHOLOGICALBOSS_API AOverthroneGameState final : public AGameStateBase
 public:
 	// Trigger a boss stage
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
-		void EnterBossStage(EBossStage InBossStage);
+		void EnterBossStage(EBossStage_Mordath InBossStage);
 
 	// Restarts the current boss battle game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
@@ -179,7 +179,7 @@ public:
 		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == NoCounter; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
-		FORCEINLINE EAttackType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentAttackType; }
+		FORCEINLINE EActionType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentAttackType; }
 
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")

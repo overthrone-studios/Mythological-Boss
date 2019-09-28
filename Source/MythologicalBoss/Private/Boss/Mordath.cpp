@@ -2132,7 +2132,7 @@ float AMordath::GetRecentDamage() const
 	return CurrentStageData->GetRecentDamage();
 }
 
-void AMordath::EnterStage(const EBossStage InStage)
+void AMordath::EnterStage(const EBossStage_Mordath InStage)
 {
 	switch (InStage)
 	{

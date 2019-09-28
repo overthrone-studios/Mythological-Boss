@@ -23,7 +23,7 @@ enum EDashType_Mordath
 };
 
 UENUM(BlueprintType)
-enum EBossStage
+enum EBossStage_Mordath
 {
 	Stage_1,
 	Stage_2,
@@ -36,11 +36,11 @@ enum EAttackType_Player
 	Light,
 	Heavy,
 	Special,
-	EATP_None
+	EATP_None UMETA(DisplayName="None")
 };
 
 UENUM()
-enum EAttackType_Mordath
+enum EActionType_Mordath
 {
 	ShortAttack_1,
 	ShortAttack_2,
@@ -53,7 +53,7 @@ enum EAttackType_Mordath
 	SpecialAttack_3,
 	Kick,
 	BackHand,
-	EATM_None
+	EATM_None UMETA(DisplayName="None")
 };
 
 UENUM()
@@ -63,7 +63,7 @@ enum EAttackCounters_Mordath
 	Blockable,
 	ParryableBlockable,
 	NoCounter,
-	EACM_None
+	EACM_None UMETA(DisplayName="None")
 };
 
 UENUM()
@@ -84,6 +84,6 @@ public:
 	UOverthroneEnums() = default;
 	~UOverthroneEnums() = default;
 
-	static FString MordathAttackTypeToString(const EAttackType_Mordath& Enum);
+	static FString MordathAttackTypeToString(const EActionType_Mordath& Enum);
 	static FString MordathAttackCounterTypeToString(const EAttackCounters_Mordath& Enum);
 };

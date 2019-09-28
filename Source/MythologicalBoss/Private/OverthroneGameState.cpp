@@ -8,7 +8,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
-void AOverthroneGameState::EnterBossStage(const EBossStage InBossStage)
+void AOverthroneGameState::EnterBossStage(const EBossStage_Mordath InBossStage)
 {
 	switch (InBossStage)
 	{
