@@ -169,6 +169,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTransitioning() const;
 
+	// Returns true if we are tired
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsTired() const;
+
 	// Returns true if we are teleporting to another location
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTeleporting() const;
@@ -434,6 +438,24 @@ protected:
 			void OnExitStrafeState();
 		#pragma endregion 
 
+		#pragma region Tired
+		UFUNCTION()
+			void OnEnterTiredState();
+		UFUNCTION()
+			void UpdateTiredState();
+		UFUNCTION()
+			void OnExitTiredState();
+		#pragma endregion 
+
+		#pragma region Back Hand
+		UFUNCTION()
+			void OnEnterBackHandState();
+		UFUNCTION()
+			void UpdateBackHandState();
+		UFUNCTION()
+			void OnExitBackHandState();
+		#pragma endregion 
+
 		#pragma region Teleport
 		UFUNCTION()
 			void OnEnterTeleportState();
@@ -594,6 +616,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float DeathTime = 2.0f;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
+		float MaxTimeToExecuteAction = 5.0f;
+
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
 	// Our custom AI controller
@@ -621,9 +646,6 @@ private:
 	float DefaultRotationSpeed = 10.0f;
 
 	float ActionDamage = 0.0f;
-	float ShortAttackDamage = 0.0f;
-	float LongAttackDamage = 0.0f;
-	float SpecialAttackDamage = 0.0f;
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;

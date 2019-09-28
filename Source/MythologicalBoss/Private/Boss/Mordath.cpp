@@ -96,6 +96,8 @@ AMordath::AMordath()
 	FSM->AddState(20, "Kick");
 	FSM->AddState(21, "Recover");
 	FSM->AddState(22, "Strafe");
+	FSM->AddState(23, "Tired");
+	FSM->AddState(24, "Back Hand");
 
 	// Bind state events to our functions
 	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -177,6 +179,14 @@ AMordath::AMordath()
 	FSM->GetState(22)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStrafeState);
 	FSM->GetState(22)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStrafeState);
 	FSM->GetState(22)->OnExitState.AddDynamic(this, &AMordath::OnExitStrafeState);
+
+	FSM->GetState(23)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTiredState);
+	FSM->GetState(23)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTiredState);
+	FSM->GetState(23)->OnExitState.AddDynamic(this, &AMordath::OnExitTiredState);
+
+	FSM->GetState(24)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBackHandState);
+	FSM->GetState(24)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBackHandState);
+	FSM->GetState(24)->OnExitState.AddDynamic(this, &AMordath::OnExitBackHandState);
 
 	FSM->InitState(0);
 
@@ -281,7 +291,6 @@ void AMordath::BeginPlay()
 	StageFSM->Start();
 
 	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-	CurrentStageData->Init();
 
 	ChooseCombo();
 
@@ -301,8 +310,8 @@ void AMordath::Tick(const float DeltaTime)
 	if (bIsDead)
 	{
 		AnimInstance->MovementSpeed = 0.0f;
-		AnimInstance->ForwardInput = ForwardInput;
-		AnimInstance->RightInput = RightInput;
+		AnimInstance->ForwardInput = 0.0f;
+		AnimInstance->RightInput = 0.0f;
 		return;
 	}
 	
@@ -343,14 +352,12 @@ void AMordath::Tick(const float DeltaTime)
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 13, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 12, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Short Attack Damage: " + FString::SanitizeFloat(ShortAttackDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Long Attack Damage: " + FString::SanitizeFloat(LongAttackDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString()/*UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString()/*UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType)*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
@@ -465,21 +472,88 @@ void AMordath::UpdateFollowState()
 	}
 
 	// Move towards the player
-	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
-	{
+	//if (!IsCloseRange())
+	//{
 		if (!IsDelayingAction())
 		{
-			MoveForward();
+			switch (CurrentActionData->RangeToExecute)
+			{
+			case SuperClose:
+				if (IsCloseRange() || IsMidRange() || IsFarRange())
+				{
+					MoveForward();
+				}
+				else
+				{
+					CurrentMovementSpeed = 0.0f;
+					ForwardInput = 0.0f;
+					RightInput = 0.0f;
+				}
+			break;
+
+			case Close:
+				if (IsSuperCloseRange())
+				{
+					MoveForward(-1);
+				}
+				else if (IsMidRange() || IsFarRange())
+				{
+					MoveForward();
+				}
+				else
+				{
+					CurrentMovementSpeed = 0.0f;
+					ForwardInput = 0.0f;
+					RightInput = 0.0f;
+				}
+			break;
+
+			case Mid:
+				if (IsSuperCloseRange() || IsCloseRange())
+				{
+					MoveForward(-1);
+				}
+				else if (IsFarRange())
+				{
+					MoveForward();
+				}
+				else
+				{
+					CurrentMovementSpeed = 0.0f;
+					ForwardInput = 0.0f;
+					RightInput = 0.0f;					
+				}
+			break;
+
+			case Far:
+				if (IsSuperCloseRange() || IsCloseRange() || IsMidRange())
+				{
+					MoveForward(-1);
+				}
+				else
+				{
+					CurrentMovementSpeed = 0.0f;
+					ForwardInput = 0.0f;
+					RightInput = 0.0f;							
+				}
+			break;
+
+			default:
+				CurrentMovementSpeed = 0.0f;
+				ForwardInput = 0.0f;
+				RightInput = 0.0f;	
+			break;
+			}
 		}
 		else
 			FSM->PushState("Thinking");
-	}
-	else
-	{
-		CurrentMovementSpeed = 0.0f;
-		ForwardInput = 0.0f;
-		RightInput = 0.0f;
-	}
+	//}
+	//else
+	//{
+	//	CurrentMovementSpeed = 0.0f;
+	//	ForwardInput = 0.0f;
+	//	RightInput = 0.0f;
+	//}
 }
 
 void AMordath::OnExitFollowState()
@@ -1117,6 +1191,66 @@ void AMordath::OnExitStrafeState()
 }
 #pragma endregion
 
+#pragma region Tired
+void AMordath::OnEnterTiredState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	PlayActionMontage();
+}
+
+void AMordath::UpdateTiredState()
+{
+	if (HasFinishedAction())
+	{
+		NextAction();
+		
+		FSM->PopState();
+	}
+}
+
+void AMordath::OnExitTiredState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopActionMontage();
+}
+#pragma endregion
+
+#pragma region Back Hand
+void AMordath::OnEnterBackHandState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	PlayActionMontage();
+}
+
+void AMordath::UpdateBackHandState()
+{
+	if (HasFinishedAction())
+	{
+		NextAction();
+		
+		FSM->PopState();
+	}
+}
+
+void AMordath::OnExitBackHandState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopActionMontage();
+}
+#pragma endregion
+
 #pragma region Teleport
 void AMordath::OnEnterTeleportState()
 {
@@ -1279,7 +1413,7 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange()
 {
-	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking()))
+	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired()))
 	{
 		const uint8 bWantsKick = FMath::RandRange(0, 1);
 		if (bWantsKick == 1 && IsInSecondStage())
@@ -1486,7 +1620,7 @@ void AMordath::OnExitThirdStage()
 #pragma region Events
 void AMordath::OnLowHealth()
 {
-	ChangeHitboxSize(CurrentStageData->GetAttackRadiusOnLowHealth());
+	ChangeHitboxSize(CurrentStageData->GetAttackRadius() / 2.0f);
 }
 
 void AMordath::OnPlayerDeath()
@@ -1785,8 +1919,7 @@ void AMordath::ChooseAction()
 		break;
 
 		case ATM_BackHand:
-			ULog::Warning("Back Hand attack not implemented!", true);
-			//FSM->PushState("BackHand");
+			FSM->PushState("Back Hand");
 		break;
 
 		case ATM_Dash_Forward:
@@ -1811,6 +1944,14 @@ void AMordath::ChooseAction()
 
 		case ATM_Strafe_Right:
 			FSM->PushState("Strafe");
+		break;
+
+		case ATM_Teleport:
+			FSM->PushState("Teleport");
+		break;
+
+		case ATM_Tired:
+			FSM->PushState("Tired");
 		break;
 
 		default:
@@ -1890,7 +2031,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 
 void AMordath::ChangeHitboxSize(const float NewRadius)
 {
-	CurrentStageData->SetAttackRadius(NewRadius);
 }
 
 void AMordath::FacePlayer(const float RotationSpeed)
@@ -1915,14 +2055,14 @@ void AMordath::FacePlayerBasedOnMontageSection(class UAnimMontage* Montage)
 	}
 	else if (CurrentMontageSection == "Pinnacle")
 	{
-		if (CurrentActionData->Action->bSnapToPlayerLocation)
+		if (CurrentActionData->Action->Pinnacle.bSnapToPlayerLocation)
 		{
 			FVector NewLocation;
 
-			if (CurrentActionData->Action->bLerp)
-				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * CurrentActionData->Action->DistanceFromPlayer, CurrentActionData->Action->LerpSpeed * World->DeltaTimeSeconds);
+			if (CurrentActionData->Action->Pinnacle.bSmooth)
+				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * CurrentActionData->Action->Pinnacle.DistanceFromPlayer, CurrentActionData->Action->Pinnacle.Speed * World->DeltaTimeSeconds);
 			else
-				NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * CurrentActionData->Action->DistanceFromPlayer;
+				NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * CurrentActionData->Action->Pinnacle.DistanceFromPlayer;
 
 			NewLocation.Z = CurrentLocation.Z;
 			SetActorLocation(NewLocation);
@@ -2000,25 +2140,18 @@ void AMordath::ResetMeshScale()
 
 bool AMordath::CanAttack() const
 {
-	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange) && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
+	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange || FSM->GetActiveStateUptime() > MaxTimeToExecuteAction) &&
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
 }
 
 void AMordath::ResetAttackDamage()
 {
 	ActionDamage = CurrentActionData->Action->ActionDamage;
-
-	ShortAttackDamage = CurrentStageData->GetShortAttackDamage();
-	LongAttackDamage = CurrentStageData->GetLongAttackDamage();
-	SpecialAttackDamage = CurrentStageData->GetSpecialAttackDamage();
 }
 
 void AMordath::IncreaseAttackDamage(const float& Multiplier)
 {
 	ActionDamage *= Multiplier;
-
-	ShortAttackDamage *= Multiplier;
-	LongAttackDamage *= Multiplier;
-	SpecialAttackDamage *= Multiplier;
 }
 
 float AMordath::GetDistanceToPlayer() const
@@ -2179,6 +2312,11 @@ bool AMordath::IsTransitioning() const
 	return AnimInstance->Montage_IsPlaying(Stage2_Transition) || AnimInstance->Montage_IsPlaying(Stage3_Transition);
 }
 
+bool AMordath::IsTired() const
+{
+	return FSM->GetActiveStateID() == 23;
+}
+
 bool AMordath::IsTeleporting() const
 {
 	return FSM->GetActiveStateID() == 18;
@@ -2227,17 +2365,17 @@ float AMordath::GetActionDamage() const
 
 float AMordath::GetShortAttackDamage() const
 {
-	return ShortAttackDamage;
+	return 0.0f;
 }
 
 float AMordath::GetLongAttackDamage() const
 {
-	return LongAttackDamage;
+	return 0.0f;
 }
 
 float AMordath::GetSpecialAttackDamage() const
 {
-	return SpecialAttackDamage;
+	return 0.0f;
 }
 
 float AMordath::GetAttackRadius() const
@@ -2279,8 +2417,6 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Movement Speed: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Distance To Player: ", FColor::Cyan, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Direction To Player: ", FColor::Cyan, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Short Attack Damage: ", FColor::Green, YPadding);
-	OverthroneHUD->AddOnScreenDebugMessage("Long Attack Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Attack: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Counter: ", FColor::Yellow, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Lock-on Location: ", FColor::Green, YPadding);

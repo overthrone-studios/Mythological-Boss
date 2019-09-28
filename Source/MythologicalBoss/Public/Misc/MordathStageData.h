@@ -111,13 +111,13 @@ struct FComboSettings
 };
 
 USTRUCT(BlueprintType)
-struct FAttackSettings_Mordath : public FAttackSettings
+struct FAttackSettings_Mordath
 {
 	GENERATED_BODY()
 
-	// The attack damage we deal when heavy attacking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 10000.0f))
-		float SpecialAttackDamage = 60.0f;
+	// The radius of the capsule collision
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
+		float AttackRadius = 40.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -125,25 +125,17 @@ struct FCombatSettings_Mordath : public FCombatSettings
 {
 	GENERATED_BODY()
 
-protected:
-	// Settings that affect Mordath's attack values
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Attack")
+public:
+	UPROPERTY(EditInstanceOnly)
 		FAttackSettings_Mordath AttackSettings;
 
-public:
-	FAttackSettings_Mordath& GetAttackSettings() { return AttackSettings; }
-
-	// The amount of time in seconds this boss should be stunned for
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 10.0f))
-		float StunDuration = 0.8f;
-
 	// Maximum hits that can be taken before becoming invincible
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0, ClampMax = 100))
-		uint8 MaxHitsBeforeInvincibility = 3;
+	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0))
+	//	uint8 MaxHitsBeforeInvincibility = 3;
 
-	// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-		float InvincibilityTimeAfterDamage = 1.5f;
+	//// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
+	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
+	//	float InvincibilityTimeAfterDamage = 1.5f;
 
 	float RecentDamage = 0.0f;
 };
@@ -157,26 +149,8 @@ class MYTHOLOGICALBOSS_API UMordathStageData final : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void Init();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetShortAttackDamage();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetLongAttackDamage();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetSpecialAttackDamage();
-
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetAttackRadius();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetAttackRadiusOnLowHealth();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void SetAttackRadius(const float& NewRadius);
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetRecentDamage();

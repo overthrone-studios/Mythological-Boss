@@ -22,6 +22,28 @@ struct FMordathMontageSectionData
 		float PlayRate = 1.0f;
 };
 
+USTRUCT(BlueprintType)
+struct FMordathMontagePinnacleData
+{
+	GENERATED_BODY()
+
+	// Should we snap to the player's location at the pinnacle section of the anim montage?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bSnapToPlayerLocation : 1;
+
+	// The distance from the player to snap to
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation", ClampMin = 0.0f))
+		float DistanceFromPlayer = 200.0f;
+
+	// Should we smoothly lerp to the snap location?
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation"))
+		uint8 bSmooth : 1;
+
+	// How fast we smoothly snap to the player's location
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bLerp", ClampMin = 0.0f))
+		float Speed = 10.0f;
+};
+
 /**
  * An asset that holds attack data for the boss
  */
@@ -54,6 +76,10 @@ public:
 	UPROPERTY(EditInstanceOnly)
 		FMordathMontageSectionData Anticipation;
 
+	// The data to use while in the Pinnacle section of the animation
+	UPROPERTY(EditInstanceOnly)
+		FMordathMontagePinnacleData Pinnacle;
+
 	// The data to use while in the Contact section of the animation
 	UPROPERTY(EditInstanceOnly)
 		FMordathMontageSectionData Contact;
@@ -61,20 +87,4 @@ public:
 	// The data to use while in the Recovery section of the animation
 	UPROPERTY(EditInstanceOnly)
 		FMordathMontageSectionData Recovery;
-
-	// Should we snap to the player's location at the pinnacle section of the anim montage?
-	UPROPERTY(EditInstanceOnly)
-		uint8 bSnapToPlayerLocation : 1;
-
-	// The distance from the player to snap to
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation", ClampMin = 0.0f))
-		float DistanceFromPlayer = 200.0f;
-
-	// Should we smoothly lerp to the snap location?
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation"))
-		uint8 bLerp : 1;
-
-	// How fast we smoothly snap to the player's location
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bLerp", ClampMin = 0.0f))
-		float LerpSpeed = 10.0f;
 };

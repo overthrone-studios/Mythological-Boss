@@ -125,8 +125,6 @@ void AMordathGhost::BeginPlay()
 	CurrentStageData = StageOneData;
 	MordathAnimInstance->CurrentStage = Stage_1;
 
-	CurrentStageData->Init();
-
 	ChooseCombo();
 
 	FSM->Start();
@@ -555,17 +553,17 @@ void AMordathGhost::MoveRight(float Scale)
 
 float AMordathGhost::GetShortAttackDamage() const
 {
-	return CurrentStageData->GetShortAttackDamage();
+	return CurrentAttackData->Action->ActionDamage;
 }
 
 float AMordathGhost::GetLongAttackDamage() const
 {
-	return CurrentStageData->GetLongAttackDamage();
+	return CurrentAttackData->Action->ActionDamage;
 }
 
 float AMordathGhost::GetSpecialAttackDamage() const
 {
-	return CurrentStageData->GetSpecialAttackDamage();
+	return CurrentAttackData->Action->ActionDamage;
 }
 
 float AMordathGhost::GetAttackRadius() const

@@ -18,40 +18,9 @@ float FRetreatStateData::CalculateRetreatTime()
 	return FMath::Clamp(FMath::FRandRange(Min, Max), 0.0f, Max);
 }
 
-void UMordathStageData::Init()
-{
-	Combat.GetAttackSettings().OriginalLightAttackDamage = Combat.GetAttackSettings().LightAttackDamage;
-	Combat.GetAttackSettings().OriginalHeavyAttackDamage = Combat.GetAttackSettings().HeavyAttackDamage;
-}
-
-float UMordathStageData::GetShortAttackDamage()
-{
-	return Combat.GetAttackSettings().LightAttackDamage;
-}
-
-float UMordathStageData::GetLongAttackDamage()
-{
-	return Combat.GetAttackSettings().HeavyAttackDamage;
-}
-
-float UMordathStageData::GetSpecialAttackDamage()
-{
-	return Combat.GetAttackSettings().SpecialAttackDamage;
-}
-
 float UMordathStageData::GetAttackRadius()
 {
-	return Combat.GetAttackSettings().AttackRadius;
-}
-
-float UMordathStageData::GetAttackRadiusOnLowHealth()
-{
-	return Combat.GetAttackSettings().AttackRadiusOnLowHealth;
-}
-
-void UMordathStageData::SetAttackRadius(const float& NewRadius)
-{
-	Combat.GetAttackSettings().AttackRadius = NewRadius;
+	return Combat.AttackSettings.AttackRadius;
 }
 
 float UMordathStageData::GetRecentDamage()
