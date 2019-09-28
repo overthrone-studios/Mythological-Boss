@@ -902,12 +902,21 @@ void AYlva::ApplyDamage(const float DamageAmount)
 	switch (FSM->GetActiveStateID())
 	{
 		case 4 /*Block*/:
-			// Enter shield hit state
-			FSM->PopState();
-			FSM->PushState("Shield Hit");
-
 			// Shake the camera
 			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
+
+			// Are we not facing the boss
+			if (FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) < 0.3f)
+			{
+				FSM->PushState("Damaged");
+
+				UpdateHealth(DamageAmount);
+
+				return;
+			}
+
+			FSM->PopState();
+			FSM->PushState("Shield Hit");
 
 			// Update stats
 			if (StaminaComponent->IsLowStamina() || GameState->IsBossAttackNoCounter() || GameState->IsBossAttackParryable())
@@ -1933,7 +1942,8 @@ bool AYlva::IsChargeAttacking() const
 
 bool AYlva::IsParrySuccessful() const
 {
-	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame;
+	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
+		FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) > 0.3f;
 }
 
 bool AYlva::IsDashing() const
