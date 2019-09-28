@@ -145,18 +145,6 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
 		float InvincibilityTimeAfterDamage = 1.5f;
 
-	// The flash color to set when our current attack has no counter
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FLinearColor NoCounterFlashColor = FLinearColor(1.0f, 0.0f, 0.0f, 0.2f);
-
-	// The flash color to set when our current attack has is parryable
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FLinearColor ParryableFlashColor = FLinearColor(1.0f, 1.0f, 0.0f, 0.2f);
-
-	// The flash color to set when our current attack has is blockable
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FLinearColor BlockableFlashColor = FLinearColor(1.0f, 1.0f, 1.0f, 0.2f);
-
 	float RecentDamage = 0.0f;
 };
 

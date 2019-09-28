@@ -1691,19 +1691,19 @@ void AMordath::ChooseAction()
 	switch (CurrentActionData->Action->CounterType)
 	{
 	case Parryable:
-		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
+		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 
 	case Blockable:
-		FlashIndicator->Flash(CurrentStageData->Combat.BlockableFlashColor);
+		FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
 	break;
 
 	case ParryableBlockable:
-		FlashIndicator->Flash(CurrentStageData->Combat.ParryableFlashColor);
+		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 
 	case NoCounter:
-		FlashIndicator->Flash(CurrentStageData->Combat.NoCounterFlashColor);
+		FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
 	break;
 
 	default:
