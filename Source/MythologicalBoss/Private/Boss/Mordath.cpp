@@ -95,6 +95,7 @@ AMordath::AMordath()
 	FSM->AddState(19, "Retreat");
 	FSM->AddState(20, "Kick");
 	FSM->AddState(21, "Recover");
+	FSM->AddState(22, "Strafe");
 
 	// Bind state events to our functions
 	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
@@ -172,6 +173,10 @@ AMordath::AMordath()
 	FSM->GetState(21)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRecoverState);
 	FSM->GetState(21)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRecoverState);
 	FSM->GetState(21)->OnExitState.AddDynamic(this, &AMordath::OnExitRecoverState);
+
+	FSM->GetState(22)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStrafeState);
+	FSM->GetState(22)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStrafeState);
+	FSM->GetState(22)->OnExitState.AddDynamic(this, &AMordath::OnExitStrafeState);
 
 	FSM->InitState(0);
 
@@ -1057,6 +1062,8 @@ void AMordath::OnEnterDashCombatState()
 
 void AMordath::UpdateDashCombatState()
 {
+	FacePlayer(DefaultRotationSpeed);
+
 	if (HasFinishedAction())
 	{
 		NextAction();
@@ -1066,6 +1073,39 @@ void AMordath::UpdateDashCombatState()
 }
 
 void AMordath::OnExitDashCombatState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopActionMontage();
+}
+
+#pragma endregion
+
+#pragma region Strafe
+void AMordath::OnEnterStrafeState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+
+	PlayActionMontage();
+}
+
+void AMordath::UpdateStrafeState()
+{
+	FacePlayer(DefaultRotationSpeed);
+
+	if (HasFinishedAction())
+	{
+		NextAction();
+		
+		FSM->PopState();
+	}
+}
+
+void AMordath::OnExitStrafeState()
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
@@ -1765,6 +1805,14 @@ void AMordath::ChooseAction()
 			FSM->PushState("Dash Combat");
 		break;
 
+		case ATM_Strafe_Left:
+			FSM->PushState("Strafe");
+		break;
+
+		case ATM_Strafe_Right:
+			FSM->PushState("Strafe");
+		break;
+
 		default:
 		break;
 	}
@@ -1952,7 +2000,7 @@ void AMordath::ResetMeshScale()
 
 bool AMordath::CanAttack() const
 {
-	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange) && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged();
+	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange) && !IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
 }
 
 void AMordath::ResetAttackDamage()
@@ -2099,6 +2147,11 @@ bool AMordath::IsDelayingAction() const
 bool AMordath::IsDashing() const
 {
 	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17;
+}
+
+bool AMordath::IsStrafing() const
+{
+	return FSM->GetActiveStateID() == 22;
 }
 
 bool AMordath::IsDamaged() const

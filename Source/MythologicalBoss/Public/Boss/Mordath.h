@@ -145,6 +145,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDashing() const;
 
+	// Returns true if we are currently strafing left or right
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsStrafing() const;
+
 	// Returns true if we are damaged by the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDamaged() const;
@@ -419,6 +423,15 @@ protected:
 			void UpdateDashCombatState();
 		UFUNCTION()
 			void OnExitDashCombatState();
+		#pragma endregion 
+
+		#pragma region Strafe
+		UFUNCTION()
+			void OnEnterStrafeState();
+		UFUNCTION()
+			void UpdateStrafeState();
+		UFUNCTION()
+			void OnExitStrafeState();
 		#pragma endregion 
 
 		#pragma region Teleport
