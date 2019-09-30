@@ -991,7 +991,7 @@ void AYlva::StopRunning()
 	if (bIsDead || bCanRun)
 		return;
 
-	if (LockOnSettings.bLockedOn)
+	if (IsLockedOn())
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	else
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -1009,6 +1009,15 @@ void AYlva::Dash()
 	{
 		StopAnimMontage();
 		AttackComboComponent->ClearCurrentAttack();
+	}
+
+	if (IsRunning())
+	{
+		bWasRunning = true;
+	}
+	else
+	{
+		bWasRunning = false;
 	}
 
 	if ((bIsDead || IsChargeAttacking() || IsBlocking()) && TimerManager->IsTimerActive(TH_DashQueue))
@@ -1065,7 +1074,7 @@ void AYlva::Dash_Queued()
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead
-	if (GameState->BossData.Health <= 0.0f || bIsDead)
+	if (GameState->BossData.bIsDead || bIsDead)
 		return;
 
 	LockOnSettings.bLockedOn = !LockOnSettings.bLockedOn;
@@ -1609,15 +1618,15 @@ void AYlva::OnExitRunState()
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 
-	YlvaAnimInstance->bIsRunning = false;
-
 	if (IsLockedOn())
 	{
-		MovementComponent->bUseControllerDesiredRotation = true;
 		MovementComponent->bOrientRotationToMovement = false;
+		MovementComponent->bUseControllerDesiredRotation = true;
 	}
 
-	if (LockOnSettings.bLockedOn)
+	YlvaAnimInstance->bIsRunning = bWasRunning;
+
+	if (IsLockedOn())
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	else
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
@@ -1794,6 +1803,13 @@ void AYlva::OnEnterDashState()
 		EnableInvincibility();
 
 	AnimInstance->bIsDashing = true;
+	YlvaAnimInstance->bIsRunning = bWasRunning;
+
+	if (IsLockedOn())
+	{
+		MovementComponent->bUseControllerDesiredRotation = false;
+		MovementComponent->bOrientRotationToMovement = true;
+	}
 
 	LockedForwardInput = ForwardInput;
 	LockedRightInput = RightInput;
@@ -1819,7 +1835,14 @@ void AYlva::OnExitDashState()
 
 	DisableInvincibility();
 
+	if (IsLockedOn())
+	{
+		MovementComponent->bUseControllerDesiredRotation = true;
+		MovementComponent->bOrientRotationToMovement = false;
+	}
+
 	AnimInstance->bIsDashing = false;
+	bWasRunning = false;
 
 	if (!DashQueue.IsEmpty())
 	{
@@ -1946,7 +1969,7 @@ bool AYlva::IsChargeAttacking() const
 bool AYlva::IsParrySuccessful() const
 {
 	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
-		FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) > 0.3f;
+		FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) > 0.5f;
 }
 
 bool AYlva::IsDashing() const

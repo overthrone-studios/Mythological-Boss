@@ -884,6 +884,8 @@ private:
 
 	uint8 MaxDashInQueue = 1;
 
+	uint8 bWasRunning : 1;
+
 	uint8 bGodMode : 1;
 	uint8 bCanDash : 1;
 
