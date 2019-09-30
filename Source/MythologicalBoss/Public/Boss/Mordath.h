@@ -303,6 +303,27 @@ protected:
 		void OnAfterTakeDamage();
 	#pragma endregion 
 
+	UFUNCTION()
+		void OnEnterAnyState();
+	UFUNCTION()
+		void UpdateAnyState();
+	UFUNCTION()
+		void OnExitAnyState();
+
+	UFUNCTION()
+		void OnEnterAnyRangeState();
+	UFUNCTION()
+		void UpdateAnyRangeState();
+	UFUNCTION()
+		void OnExitAnyRangeState();
+
+	UFUNCTION()
+		void OnEnterAnyStageState();
+	UFUNCTION()
+		void UpdateAnyStageState();
+	UFUNCTION()
+		void OnExitAnyStageState();
+
 	#pragma region Boss States
 		#pragma region Idle
 		UFUNCTION()

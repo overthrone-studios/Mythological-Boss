@@ -99,6 +99,10 @@ AMordath::AMordath()
 	FSM->AddState(23, "Tired");
 	FSM->AddState(24, "Back Hand");
 
+	FSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyState);
+	FSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyState);
+	FSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyState);
+
 	// Bind state events to our functions
 	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
 	FSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateIdleState);
@@ -197,6 +201,10 @@ AMordath::AMordath()
 	RangeFSM->AddState(2, "Far");
 	RangeFSM->AddState(3, "Super Close");
 
+	RangeFSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyRangeState);
+	RangeFSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyRangeState);
+	RangeFSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyRangeState);
+
 	RangeFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseRange);
 	RangeFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseRange);
 	RangeFSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseRange);
@@ -220,6 +228,10 @@ AMordath::AMordath()
 	StageFSM->AddState(0, "Stage 1");
 	StageFSM->AddState(1, "Stage 2");
 	StageFSM->AddState(2, "Stage 3");
+
+	StageFSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyStageState);
+	StageFSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyStageState);
+	StageFSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyStageState);
 
 	StageFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFirstStage);
 	StageFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFirstStage);
@@ -327,10 +339,6 @@ void AMordath::Tick(const float DeltaTime)
 	AnimInstance->RightInput = RightInput;
 
 #if !UE_BUILD_SHIPPING
-	// Main FSM
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Range FSM
 	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
 	FSMVisualizer->UpdateStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
@@ -379,11 +387,69 @@ void AMordath::PossessedBy(AController* NewController)
 	BossAIController = Cast<ABossAIController>(NewController);
 }
 
+#pragma region Any States
+void AMordath::OnEnterAnyState()
+{
+	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateAnyState()
+{
+	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+}
+
+void AMordath::OnExitAnyState()
+{
+	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+}
+
+void AMordath::OnEnterAnyRangeState()
+{
+	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateAnyRangeState()
+{
+	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
+}
+
+void AMordath::OnExitAnyRangeState()
+{
+	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
+}
+
+void AMordath::OnEnterAnyStageState()
+{
+	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+}
+
+void AMordath::UpdateAnyStageState()
+{
+	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdateStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+}
+
+void AMordath::OnExitAnyStageState()
+{
+	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
+
+	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+}
+#pragma endregion
+
 #pragma region Boss States
 #pragma region Idle
 void AMordath::OnEnterIdleState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
 void AMordath::UpdateIdleState()
@@ -401,18 +467,13 @@ void AMordath::UpdateIdleState()
 
 void AMordath::OnExitIdleState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 
 #pragma region Follow
 void AMordath::OnEnterFollowState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MovementComponent->SetMovementMode(MOVE_Walking);
 	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 
@@ -548,18 +609,13 @@ void AMordath::UpdateFollowState()
 
 void AMordath::OnExitFollowState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 
 #pragma region Retreat
 void AMordath::OnEnterRetreatState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MovementComponent->MaxWalkSpeed = CurrentStageData->GetRunSpeed() / 2.0f;
 
 	RetreatTime = CurrentStageData->RetreatStateData.CalculateRetreatTime();
@@ -598,18 +654,12 @@ void AMordath::UpdateRetreatState()
 
 void AMordath::OnExitRetreatState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 }
 #pragma endregion  
 
 #pragma region Kick
 void AMordath::OnEnterKickState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MordathAnimInstance->bCanKick = true;
 }
 
@@ -630,11 +680,6 @@ void AMordath::UpdateKickState()
 
 void AMordath::OnExitKickState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	MordathAnimInstance->bCanKick = false;
 }
 #pragma endregion  
@@ -642,8 +687,6 @@ void AMordath::OnExitKickState()
 #pragma region Recover
 void AMordath::OnEnterRecoverState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MordathAnimInstance->bIsRecovering = true;
 }
 
@@ -664,11 +707,6 @@ void AMordath::UpdateRecoverState()
 
 void AMordath::OnExitRecoverState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	MordathAnimInstance->bIsRecovering = false;
 }
 #pragma endregion  
@@ -676,8 +714,6 @@ void AMordath::OnExitRecoverState()
 #pragma region Think
 void AMordath::OnEnterThinkState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MovementComponent->MaxWalkSpeed = CurrentStageData->GetWalkSpeed();
 
 	ChooseMovementDirection();
@@ -725,11 +761,6 @@ void AMordath::UpdateThinkState()
 
 void AMordath::OnExitThinkState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	MordathAnimInstance->bIsThinking = false;
 }
 #pragma endregion 
@@ -737,8 +768,6 @@ void AMordath::OnExitThinkState()
 #pragma region Short Attack 1
 void AMordath::OnEnterShortAttack1State()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -757,11 +786,6 @@ void AMordath::UpdateShortAttack1State()
 
 void AMordath::OnExitShortAttack1State()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -770,8 +794,6 @@ void AMordath::OnExitShortAttack1State()
 #pragma region Short Attack 2
 void AMordath::OnEnterShortAttack2State()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -790,11 +812,6 @@ void AMordath::UpdateShortAttack2State()
 
 void AMordath::OnExitShortAttack2State()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -803,8 +820,6 @@ void AMordath::OnExitShortAttack2State()
 #pragma region Short Attack 3
 void AMordath::OnEnterShortAttack3State()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -823,11 +838,6 @@ void AMordath::UpdateShortAttack3State()
 
 void AMordath::OnExitShortAttack3State()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -836,8 +846,6 @@ void AMordath::OnExitShortAttack3State()
 #pragma region Long Attack 1
 void AMordath::OnEnterLongAttack1State()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	GameState->BossData.CurrentActionType = ATM_LongAttack_1;
 
 	CurrentLongAttackMontage = CurrentStageData->Combat.FarRangeActionData->ActionMontage;
@@ -864,11 +872,6 @@ void AMordath::UpdateLongAttack1State()
 
 void AMordath::OnExitLongAttack1State()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage(CurrentLongAttackMontage);
 
@@ -879,8 +882,6 @@ void AMordath::OnExitLongAttack1State()
 #pragma region Long Attack 2
 void AMordath::OnEnterLongAttack2State()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -899,11 +900,6 @@ void AMordath::UpdateLongAttack2State()
 
 void AMordath::OnExitLongAttack2State()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -912,8 +908,6 @@ void AMordath::OnExitLongAttack2State()
 #pragma region Long Attack 3
 void AMordath::OnEnterLongAttack3State()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -932,11 +926,6 @@ void AMordath::UpdateLongAttack3State()
 
 void AMordath::OnExitLongAttack3State()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -945,8 +934,6 @@ void AMordath::OnExitLongAttack3State()
 #pragma region Damaged
 void AMordath::OnEnterDamagedState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	GameState->BossData.bHasTakenDamage = true;
 	AnimInstance->bIsHit = true;
 }
@@ -959,8 +946,6 @@ void AMordath::UpdateDamagedState()
 
 void AMordath::OnExitDamagedState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
 	AnimInstance->bIsHit = false;
 	GameState->BossData.bHasTakenDamage = false;
 
@@ -972,8 +957,6 @@ void AMordath::OnExitDamagedState()
 #pragma region Death
 void AMordath::OnEnterDeathState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	bIsDead = true;
 	GameState->BossData.bIsDead = true;
 	AnimInstance->bIsDead = true;
@@ -996,8 +979,6 @@ void AMordath::UpdateDeathState()
 
 void AMordath::OnExitDeathState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
 	bIsDead = false;
 	GameState->BossData.bIsDead = false;
 	AnimInstance->bIsDead = false;
@@ -1007,8 +988,6 @@ void AMordath::OnExitDeathState()
 #pragma region Stunned
 void AMordath::OnEnterStunnedState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	// Reset hit count
 	HitCounter = 0;
 
@@ -1029,11 +1008,6 @@ void AMordath::UpdateStunnedState()
 
 void AMordath::OnExitStunnedState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	GameState->BossData.bHasTakenDamage = false;
 	MordathAnimInstance->RecoverLoopCounter = 0;
 	GameState->PlayerData.bParrySucceeded = false;
@@ -1047,8 +1021,6 @@ void AMordath::OnExitStunnedState()
 #pragma region Laugh
 void AMordath::OnEnterLaughState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MordathAnimInstance->bCanLaugh = true;
 }
 
@@ -1058,11 +1030,6 @@ void AMordath::UpdateLaughState()
 
 void AMordath::OnExitLaughState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	MordathAnimInstance->bCanLaugh = false;
 }
 #pragma endregion
@@ -1070,8 +1037,6 @@ void AMordath::OnExitLaughState()
 #pragma region Dash
 void AMordath::OnEnterDashState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	DashComponent->StartCooldown();
 
 	FacePlayer();
@@ -1103,11 +1068,6 @@ void AMordath::UpdateDashState()
 
 void AMordath::OnExitDashState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	MordathAnimInstance->bIsDashingForward = false;
 	MordathAnimInstance->bIsDashingBackward = false;
 }
@@ -1116,8 +1076,6 @@ void AMordath::OnExitDashState()
 #pragma region Dash Combat
 void AMordath::OnEnterDashCombatState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	// Reset hit count
 	HitCounter = 0;
 
@@ -1138,11 +1096,6 @@ void AMordath::UpdateDashCombatState()
 
 void AMordath::OnExitDashCombatState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -1152,8 +1105,6 @@ void AMordath::OnExitDashCombatState()
 #pragma region Strafe
 void AMordath::OnEnterStrafeState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -1171,11 +1122,6 @@ void AMordath::UpdateStrafeState()
 
 void AMordath::OnExitStrafeState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -1184,8 +1130,6 @@ void AMordath::OnExitStrafeState()
 #pragma region Tired
 void AMordath::OnEnterTiredState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayActionMontage();
 }
 
@@ -1201,11 +1145,6 @@ void AMordath::UpdateTiredState()
 
 void AMordath::OnExitTiredState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 }
@@ -1214,8 +1153,6 @@ void AMordath::OnExitTiredState()
 #pragma region Back Hand
 void AMordath::OnEnterBackHandState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	PlayAnimMontage(CurrentStageData->Combat.BackHandActionData->ActionMontage);
 
 	ActionDamage = CurrentStageData->Combat.BackHandActionData->ActionDamage;
@@ -1233,11 +1170,6 @@ void AMordath::UpdateBackHandState()
 
 void AMordath::OnExitBackHandState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage(CurrentStageData->Combat.BackHandActionData->ActionMontage);
 
@@ -1248,8 +1180,6 @@ void AMordath::OnExitBackHandState()
 #pragma region Teleport
 void AMordath::OnEnterTeleportState()
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
-
 	MordathAnimInstance->bCanTeleport = true;
 
 	TeleportationComponent->GenerateTeleportTime();
@@ -1273,11 +1203,6 @@ void AMordath::UpdateTeleportState()
 
 void AMordath::OnExitTeleportState()
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
-
 	MordathAnimInstance->bCanTeleport = false;
 }
 #pragma endregion  
@@ -1287,8 +1212,6 @@ void AMordath::OnExitTeleportState()
 #pragma region Close Range
 void AMordath::OnEnterCloseRange()
 {
-	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
 	GameState->PlayerData.CurrentRange = Close;
 }
 
@@ -1303,18 +1226,12 @@ void AMordath::UpdateCloseRange()
 
 void AMordath::OnExitCloseRange()
 {
-	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
 #pragma region Mid Range
 void AMordath::OnEnterMidRange()
 {
-	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
 	CurrentMovementSpeed = GetMovementSpeed();
 
 	GameState->PlayerData.CurrentRange = Mid;
@@ -1331,18 +1248,12 @@ void AMordath::UpdateMidRange()
 
 void AMordath::OnExitMidRange()
 {
-	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
 #pragma region Far Range
 void AMordath::OnEnterFarRange()
 {
-	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
 	CurrentMovementSpeed = GetMovementSpeed();
 
 	GameState->PlayerData.CurrentRange = Far;
@@ -1388,18 +1299,12 @@ void AMordath::UpdateFarRange()
 
 void AMordath::OnExitFarRange()
 {
-	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
 }
 #pragma endregion 
 
 #pragma region Super Close
 void AMordath::OnEnterSuperCloseRange()
 {
-	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
-
 	GameState->PlayerData.CurrentRange = SuperClose;
 
 	IncreaseAttackDamage(CurrentStageData->GetAttackDamageMultiplier());
@@ -1427,11 +1332,6 @@ void AMordath::UpdateSuperCloseRange()
 
 void AMordath::OnExitSuperCloseRange()
 {
-	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
-
 	ResetActionDamage();
 }
 #pragma endregion 
@@ -1441,8 +1341,6 @@ void AMordath::OnExitSuperCloseRange()
 #pragma region Stage 1
 void AMordath::OnEnterFirstStage()
 {
-	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
-
 	CurrentStageData = StageOneData;
 
 	MordathAnimInstance->CurrentStage = Stage_1;
@@ -1480,11 +1378,6 @@ void AMordath::UpdateFirstStage()
 
 void AMordath::OnExitFirstStage()
 {
-	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
-
 	FSM->PopState();
 }
 #pragma endregion 
@@ -1492,8 +1385,6 @@ void AMordath::OnExitFirstStage()
 #pragma region Stage 2
 void AMordath::OnEnterSecondStage()
 {
-	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
-
 	CurrentStageData = StageTwoData;
 
 	if (Stage2_Transition)
@@ -1544,11 +1435,6 @@ void AMordath::UpdateSecondStage()
 
 void AMordath::OnExitSecondStage()
 {
-	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
-
 	FSM->PopState();
 }
 #pragma endregion 
@@ -1556,8 +1442,6 @@ void AMordath::OnExitSecondStage()
 #pragma region Stage 3
 void AMordath::OnEnterThirdStage()
 {
-	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
-
 	CurrentStageData = StageThreeData;
 
 	if (Stage3_Transition)
@@ -1603,10 +1487,6 @@ void AMordath::UpdateThirdStage()
 
 void AMordath::OnExitThirdStage()
 {
-	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
-
-	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
 }
 #pragma endregion   
 #pragma endregion
