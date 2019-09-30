@@ -857,6 +857,8 @@ void AYlva::Block()
 		FSM->GetActiveStateID() != 20 /*Damaged*/ &&
 		FSM->GetActiveStateID() != 22 /*Parry*/)
 	{
+		YlvaAnimInstance->bIsBlocking = true;
+
 		FSM->PopState();
 		FSM->PushState("Block");
 	}
@@ -870,6 +872,8 @@ void AYlva::StopBlocking()
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 	bUseControllerRotationYaw = false;
 	
+	YlvaAnimInstance->bIsBlocking = false;
+
 	if (!IsParrying())
 		FSM->PopState();
 }
@@ -1659,7 +1663,6 @@ void AYlva::OnExitBlockingState()
 	bUseControllerRotationYaw = false;
 
 	bIsHit = false;
-	YlvaAnimInstance->bIsBlocking = false;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
