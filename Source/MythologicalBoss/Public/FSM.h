@@ -5,6 +5,10 @@
 #include "Components/ActorComponent.h"
 #include "FSM.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterAnyStateSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitAnyStateSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateAnyStateSignature);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterStateSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitStateSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateStateSignature);
@@ -22,11 +26,11 @@ struct FState
 		Frames = 0;
 	}
 
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable)
 		FOnEnterStateSignature OnEnterState;
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable)
 		FOnExitStateSignature OnExitState;
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable)
 		FOnUpdateStateSignature OnUpdateState;
 
 	int32 ID;
@@ -43,6 +47,15 @@ class MYTHOLOGICALBOSS_API UFSM : public UActorComponent
 
 public:	
 	UFSM();
+
+	UPROPERTY(BlueprintAssignable, Category = "FSM")
+		FOnEnterAnyStateSignature OnEnterAnyState;
+
+	UPROPERTY(BlueprintAssignable, Category = "FSM")
+		FOnExitAnyStateSignature OnExitAnyState;
+	
+	UPROPERTY(BlueprintAssignable, Category = "FSM")
+		FOnUpdateAnyStateSignature OnUpdateAnyState;
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void Start();
