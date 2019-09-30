@@ -676,6 +676,13 @@ protected:
 		void OnLightAttackComboCompleted();
 	#pragma endregion
 
+	UFUNCTION()
+		void OnEnterAnyState();
+	UFUNCTION()
+		void UpdateAnyState();
+	UFUNCTION()
+		void OnExitAnyState();
+
 	#pragma region Player States
 		#pragma region Idle
 		UFUNCTION()
