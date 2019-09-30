@@ -602,15 +602,15 @@ void AYlva::CalculateRollLean(const float DeltaTime)
 
 void AYlva::CalculatePitchLean(const float DeltaTime)
 {
-	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking() && FSM->GetActiveStateID() != 5 /*Death*/)
+	if (FSM->GetActiveStateID() != 1 /*Walk*/ && FSM->GetActiveStateID() != 2 /*Run*/ && !IsAttacking() && FSM->GetActiveStateID() != 5 /*Death*/ && FVector::DotProduct(GetActorForwardVector(), FollowCamera->GetForwardVector()) > 0.5f)
 	{
-		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 5.0f);
+		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 2.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
 	}
 	else
 	{
-		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 10.0f);
-		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount;
+		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 1.0f);
+		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
 	}
 }
 
