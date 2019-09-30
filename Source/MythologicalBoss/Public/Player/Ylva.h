@@ -866,6 +866,7 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
 		class UYlvaAnimInstance* YlvaAnimInstance{};
+
 private:
 	TQueue<EAttackType_Player> AttackQueue;
 	TQueue<uint8> DashQueue;
@@ -876,8 +877,6 @@ private:
 	FRotator ControlRotation;
 	FRotator DirectionToBoss;
 	float DistanceToBoss;
-
-	float LockedRightInput = 0.0f, LockedForwardInput = 0.0f;
 
 	float PlayerLeanRollAmount = 0.0f;
 	float PlayerLeanPitchAmount = 0.0f;

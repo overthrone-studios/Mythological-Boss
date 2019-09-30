@@ -271,7 +271,7 @@ void AYlva::Tick(const float DeltaTime)
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->MovementDirection = CalculateDirection();
 
-	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection();
+	YlvaAnimInstance->bIsMoving = IsMovingInAnyDirection() && !IsAttacking();
 
 	CalculateRollLean(DeltaTime);
 	CalculatePitchLean(DeltaTime);
@@ -321,6 +321,9 @@ void AYlva::Tick(const float DeltaTime)
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation, TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(4, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 
@@ -415,17 +418,17 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AYlva::MoveForward(const float Value)
 {
-	if (IsDashing() && !IsAttacking() || bIsDead || IsMoveInputIgnored())
+	ForwardInput = Value;
+
+	if (IsDashing() || bIsDead || IsMoveInputIgnored())
 		return;
 
 	if (!IsAttacking())
 	{
-		ForwardInput = Value;
 		AnimInstance->ForwardInput = ForwardInput;
 	}
 	else
 	{
-		ForwardInput = 0.0f;
 		AnimInstance->ForwardInput = 0.0f;
 	}
 
@@ -441,23 +444,21 @@ void AYlva::MoveForward(const float Value)
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
-
-	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
 }
 
 void AYlva::MoveRight(const float Value)
 {
-	if (IsDashing() && !IsAttacking() || bIsDead || IsMoveInputIgnored())
+	RightInput = Value;
+
+	if (IsDashing() || bIsDead || IsMoveInputIgnored())
 		return;
 
 	if (!IsAttacking())
 	{
-		RightInput = Value;
 		AnimInstance->RightInput = RightInput;
 	}
 	else
 	{
-		RightInput = 0.0f;
 		AnimInstance->RightInput = 0.0f;
 	}
 
@@ -481,8 +482,6 @@ void AYlva::MoveRight(const float Value)
 		RightMovementStart = CurrentLocation;
 		RightMovementEnd = CurrentLocation;
 	}
-
-	OverthroneHUD->UpdateOnScreenDebugMessage(3, "Player Right Input: " + FString::SanitizeFloat(RightInput));
 }
 
 void AYlva::AddControllerYawInput(const float Val)
@@ -1005,6 +1004,9 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
+	AnimInstance->ForwardInput = ForwardInput;
+	AnimInstance->RightInput = RightInput;
+
 	if (IsAttacking())
 	{
 		StopAnimMontage();
@@ -1012,13 +1014,9 @@ void AYlva::Dash()
 	}
 
 	if (IsRunning())
-	{
 		bWasRunning = true;
-	}
 	else
-	{
 		bWasRunning = false;
-	}
 
 	if ((bIsDead || IsChargeAttacking() || IsBlocking()) && TimerManager->IsTimerActive(TH_DashQueue))
 		return;
@@ -1810,16 +1808,10 @@ void AYlva::OnEnterDashState()
 		MovementComponent->bUseControllerDesiredRotation = false;
 		MovementComponent->bOrientRotationToMovement = true;
 	}
-
-	LockedForwardInput = ForwardInput;
-	LockedRightInput = RightInput;
 }
 
 void AYlva::UpdateDashState()
 {
-	ForwardInput = LockedForwardInput;
-	RightInput = LockedRightInput;
-
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
 		FSM->PopState();
