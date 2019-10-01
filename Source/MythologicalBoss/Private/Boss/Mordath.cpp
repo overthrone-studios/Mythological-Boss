@@ -1715,24 +1715,34 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 {
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(ActionData->ActionMontage);
 
+	const auto SnapToPlayerLocation = [&](const FMontageActionData_Base& MontageActionData)
+	{
+		FVector NewLocation;
+
+		if (MontageActionData.bSmooth)
+			NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+		else
+			NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer;
+
+		NewLocation.Z = CurrentLocation.Z;
+		SetActorLocation(NewLocation);
+	};
+
 	if (CurrentMontageSection == "Anticipation")
 	{
 		FacePlayer(ActionData->Anticipation.RotationSpeed);
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Anticipation.PlayRate);
+
+		if (ActionData->Anticipation.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Anticipation);
+		}
 	}
 	else if (CurrentMontageSection == "Pinnacle")
 	{
 		if (ActionData->Pinnacle.bSnapToPlayerLocation)
 		{
-			FVector NewLocation;
-
-			if (ActionData->Pinnacle.bSmooth)
-				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * ActionData->Pinnacle.DistanceFromPlayer, CurrentActionData->Action->Pinnacle.Speed * World->DeltaTimeSeconds);
-			else
-				NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * ActionData->Pinnacle.DistanceFromPlayer;
-
-			NewLocation.Z = CurrentLocation.Z;
-			SetActorLocation(NewLocation);
+			SnapToPlayerLocation(ActionData->Pinnacle);
 		}
 
 		if (ActionData->Pinnacle.bSnapRotation)
@@ -1742,11 +1752,21 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 	{
 		FacePlayer(ActionData->Contact.RotationSpeed);
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
+
+		if (ActionData->Contact.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Contact);
+		}
 	}
 	else if (CurrentMontageSection == "Recovery")
 	{
 		FacePlayer(ActionData->Recovery.RotationSpeed);
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
+
+		if (ActionData->Recovery.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Recovery);
+		}
 	}
 }
 

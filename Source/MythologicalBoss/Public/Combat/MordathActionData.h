@@ -7,9 +7,30 @@
 #include "OverthroneEnums.h"
 #include "MordathActionData.generated.h"
 
+USTRUCT(BlueprintType)
+struct FMontageActionData_Base
+{
+	GENERATED_BODY()
+
+	// Should we snap to the player's location at the pinnacle section of the anim montage?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bSnapToPlayerLocation : 1;
+
+	// The distance from the player to snap to
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation", ClampMin = 0.0f))
+		float DistanceFromPlayer = 200.0f;
+
+	// Should we smoothly lerp to the snap location?
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation"))
+		uint8 bSmooth : 1;
+
+	// How fast we smoothly snap to the player's location
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSmooth", ClampMin = 0.0f))
+		float Speed = 10.0f;
+};
 
 USTRUCT(BlueprintType)
-struct FMontageSectionData_Mordath
+struct FMontageActionData_Mordath : public FMontageActionData_Base
 {
 	GENERATED_BODY()
 
@@ -23,29 +44,13 @@ struct FMontageSectionData_Mordath
 };
 
 USTRUCT(BlueprintType)
-struct FMontagePinnacleData_Mordath
+struct FMontagePinnacleData_Mordath : public FMontageActionData_Base
 {
 	GENERATED_BODY()
-
-	// Should we snap to the player's location at the pinnacle section of the anim montage?
-	UPROPERTY(EditInstanceOnly)
-		uint8 bSnapToPlayerLocation : 1;
 
 	// Should we snap our rotation to face the player?
 	UPROPERTY(EditInstanceOnly)
 		uint8 bSnapRotation : 1;
-
-	// The distance from the player to snap to
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation", ClampMin = 0.0f))
-		float DistanceFromPlayer = 200.0f;
-
-	// Should we smoothly lerp to the snap location?
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation"))
-		uint8 bSmooth : 1;
-
-	// How fast we smoothly snap to the player's location
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSmooth", ClampMin = 0.0f))
-		float Speed = 10.0f;
 };
 
 /**
@@ -82,7 +87,7 @@ public:
 
 	// The data to use while in the Anticipation section of the animation
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
-		FMontageSectionData_Mordath Anticipation;
+		FMontageActionData_Mordath Anticipation;
 
 	// The data to use while in the Pinnacle section of the animation
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
@@ -90,11 +95,11 @@ public:
 
 	// The data to use while in the Contact section of the animation
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
-		FMontageSectionData_Mordath Contact;
+		FMontageActionData_Mordath Contact;
 
 	// The data to use while in the Recovery section of the animation
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
-		FMontageSectionData_Mordath Recovery;
+		FMontageActionData_Mordath Recovery;
 
 //private:
 //	FTimerHandle TH_ActionExpiry;
