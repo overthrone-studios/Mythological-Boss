@@ -24,6 +24,12 @@ struct FComboData_Action
 	// The range that this action can be executed at
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EBossRange_Mordath> RangeToExecute = Close;
+
+	// The maximum amount of time left (in seconds) to execute this action
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float ExecutionTime = 5.0f;
+
+	FTimerHandle TH_ExecutionExpiry;
 };
 
 /**

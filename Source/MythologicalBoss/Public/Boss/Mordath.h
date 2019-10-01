@@ -153,6 +153,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDamaged() const;
 
+	// Returns true if we are currently thinking
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsThinking() const;
+
 	// Returns true if we are currently stunned by an attack
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsStunned() const;
@@ -639,10 +643,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
 
-	// The material to update when an attack is about to happen
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", DisplayName = "Flash Indicator Material")
-	//	class UMaterialInstance* MI_FlashIndicator;
-
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageOneData;
@@ -655,14 +655,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageThreeData;
 
-	// How long (in seconds) should the boss stay dead before being destroyed?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
-		float DeathTime = 2.0f;
-
+	// How long (in seconds) should we stay dead before being destroyed?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
-		float MaxTimeToExecuteAction = 5.0f;
-
-	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
+		float DeathTime = 2.0f;
 
 	// Our custom AI controller
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | AI")
@@ -686,8 +681,6 @@ private:
 	void MoveForward(float Scale = 1.0f);
 	void MoveRight(float Scale = 1.0f);
 
-	float DefaultRotationSpeed = 10.0f;
-
 	float ActionDamage = 0.0f;
 
 	float ThinkTime = 0.0f;
@@ -700,21 +693,15 @@ private:
 
 	FName CurrentMontageSection = "None";
 
-	uint8 MoveDirection = 0;
-
-	FTimerHandle TH_UpdateInfo;
-
-	FTimerHandle TH_ComboDelay;
-	FTimerHandle TH_Invincibility;
-
-	FTimerHandle TH_FlashIndicator;
-
-	FTimerHandle TH_ExecutionExpiry;
-
 	class UAnimMontage* CurrentLongAttackMontage;
 	class UMordathActionData* SuperCloseRange_ActionData;
 
 	class UMordathStageData* CurrentStageData;
 
 	class AOverthroneCharacter* PlayerCharacter;
+
+	// Timer handles
+	FTimerHandle TH_UpdateInfo;
+
+	FTimerHandle TH_ComboDelay;
 };

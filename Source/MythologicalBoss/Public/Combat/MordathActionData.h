@@ -9,7 +9,7 @@
 
 
 USTRUCT(BlueprintType)
-struct FMordathMontageSectionData
+struct FMontageSectionData_Mordath
 {
 	GENERATED_BODY()
 
@@ -23,7 +23,7 @@ struct FMordathMontageSectionData
 };
 
 USTRUCT(BlueprintType)
-struct FMordathMontagePinnacleData
+struct FMontagePinnacleData_Mordath
 {
 	GENERATED_BODY()
 
@@ -78,17 +78,20 @@ public:
 	
 	// The data to use while in the Anticipation section of the animation
 	UPROPERTY(EditInstanceOnly)
-		FMordathMontageSectionData Anticipation;
+		FMontageSectionData_Mordath Anticipation;
 
 	// The data to use while in the Pinnacle section of the animation
 	UPROPERTY(EditInstanceOnly)
-		FMordathMontagePinnacleData Pinnacle;
+		FMontagePinnacleData_Mordath Pinnacle;
 
 	// The data to use while in the Contact section of the animation
 	UPROPERTY(EditInstanceOnly)
-		FMordathMontageSectionData Contact;
+		FMontageSectionData_Mordath Contact;
 
 	// The data to use while in the Recovery section of the animation
 	UPROPERTY(EditInstanceOnly)
-		FMordathMontageSectionData Recovery;
+		FMontageSectionData_Mordath Recovery;
+
+//private:
+//	FTimerHandle TH_ActionExpiry;
 };

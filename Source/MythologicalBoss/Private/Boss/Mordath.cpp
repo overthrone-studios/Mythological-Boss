@@ -43,6 +43,10 @@
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
 
+constexpr float GDefaultRotationSpeed = 10.0f;
+
+static bool GWantsMoveRight = true;
+
 AMordath::AMordath()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -458,7 +462,7 @@ void AMordath::UpdateIdleState()
 	if (GameState->PlayerData.bIsDead)
 		return;
 
-	FacePlayer(DefaultRotationSpeed);
+	FacePlayer(GDefaultRotationSpeed);
 
 	ForwardInput = 0.0f;
 	RightInput = 0.0f;
@@ -528,7 +532,7 @@ void AMordath::UpdateFollowState()
 		return;
 	}
 
-	FacePlayer(DefaultRotationSpeed);
+	FacePlayer(GDefaultRotationSpeed);
 
 	if (IsWaitingForNewCombo() && IsSuperCloseRange())
 	{
@@ -638,7 +642,7 @@ void AMordath::UpdateRetreatState()
 		return;
 	}
 
-	FacePlayer(DefaultRotationSpeed);
+	FacePlayer(GDefaultRotationSpeed);
 
 	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
 		FSM->PopState();
@@ -669,7 +673,7 @@ void AMordath::UpdateKickState()
 	if (CurrentActionData->Action->ActionType == ATM_Kick)
 		FacePlayerBasedOnActionData(CurrentActionData->Action);
 	else
-		FacePlayer(DefaultRotationSpeed);
+		FacePlayer(GDefaultRotationSpeed);
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
@@ -741,7 +745,7 @@ void AMordath::UpdateThinkState()
 		return;
 	}
 
-	FacePlayer(DefaultRotationSpeed);
+	FacePlayer(GDefaultRotationSpeed);
 
 	if (AnimInstance->AnimTimeRemaining > 0.2f)
 		EncirclePlayer();
@@ -882,7 +886,7 @@ void AMordath::UpdateLongAttack1State()
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
 
 	if (CurrentMontageSection != "Recovery")
-		FacePlayer(DefaultRotationSpeed);
+		FacePlayer(GDefaultRotationSpeed);
 	else
 		FacePlayer(0.5f);
 
@@ -1064,13 +1068,13 @@ void AMordath::OnEnterDashState()
 {
 	DashComponent->StartCooldown();
 
-	FacePlayer();
-
 	PlayAnimMontage(SuperCloseRange_ActionData->ActionMontage);
 }
 
 void AMordath::UpdateDashState()
 {
+	FacePlayer();
+
 	if (!AnimInstance->Montage_IsPlaying(SuperCloseRange_ActionData->ActionMontage))
 	{
 		FSM->PopState();
@@ -1094,7 +1098,7 @@ void AMordath::OnEnterDashCombatState()
 
 void AMordath::UpdateDashCombatState()
 {
-	FacePlayer(DefaultRotationSpeed);
+	FacePlayer(GDefaultRotationSpeed);
 
 	if (HasFinishedAction())
 	{
@@ -1120,7 +1124,7 @@ void AMordath::OnEnterStrafeState()
 
 void AMordath::UpdateStrafeState()
 {
-	FacePlayer(DefaultRotationSpeed);
+	FacePlayer(GDefaultRotationSpeed);
 
 	if (HasFinishedAction())
 	{
@@ -1320,14 +1324,14 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange()
 {
-	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand()))
+	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsThinking()))
 	{
 		const uint8 bWantsKick = FMath::RandRange(0, 1);
 		if (bWantsKick == 1 && IsInSecondStage())
 		{
 			FSM->PushState("Kick");
 		}
-		else if (!IsDashing())
+		else if (!IsDashing() && !DashComponent->IsCooldownActive())
 		{
 			FSM->PushState("Dash");
 		}
@@ -1653,6 +1657,8 @@ void AMordath::EndTakeDamage()
 
 void AMordath::ChooseCombo()
 {
+	static int8 ComboIndex = 0;
+
 	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
 		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
 
@@ -1670,6 +1676,8 @@ void AMordath::ChooseCombo()
 
 			ChosenCombo->Init();
 			CurrentActionData = &ChosenCombo->GetCurrentActionData();
+			
+			TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, CurrentActionData->ExecutionTime, false);
 
 			CachedCombos.Remove(ChosenCombo);
 		}
@@ -1767,6 +1775,7 @@ void AMordath::ChooseAction()
 	break;
 	}
 
+	// Update data
 	GameState->BossData.CurrentActionType = CurrentActionData->Action->ActionType;
 	GameState->BossData.CurrentCounterType = CurrentActionData->Action->CounterType;
 	ActionDamage = CurrentActionData->Action->ActionDamage;
@@ -1841,8 +1850,6 @@ void AMordath::ChooseAction()
 		default:
 		break;
 	}
-
-	//TimerManager->SetTimer(TH_ExecutionExpiry, MaxTimeToExecuteAction, false);
 }
 
 void AMordath::NextAction()
@@ -1861,12 +1868,14 @@ void AMordath::NextAction()
 		else
 		{
 			ChosenCombo->NextAction();
+			TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, CurrentActionData->ExecutionTime, false);
 		}
 
 		return;
 	}
 
 	ChosenCombo->NextAction();
+	TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, CurrentActionData->ExecutionTime, false);
 }
 
 void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
@@ -1987,7 +1996,7 @@ bool AMordath::IsKicking() const
 
 void AMordath::ChooseMovementDirection()
 {
-	MoveDirection = FMath::RandRange(0, 1);
+	GWantsMoveRight = FMath::RandBool();
 }
 
 void AMordath::EncirclePlayer()
@@ -2024,7 +2033,7 @@ bool AMordath::CanAttack() const
 {
 	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || 
 			CurrentActionData->RangeToExecute == AnyRange || 
-			FSM->GetActiveStateUptime() > MaxTimeToExecuteAction || 
+			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
 }
@@ -2193,9 +2202,14 @@ bool AMordath::IsDamaged() const
 	return FSM->GetActiveStateID() == 12;
 }
 
+bool AMordath::IsThinking() const
+{
+	return FSM->GetActiveStateID() == 2;
+}
+
 bool AMordath::WantsMoveRight() const
 {
-	return MoveDirection == 1;
+	return GWantsMoveRight == 1;
 }
 
 bool AMordath::IsRecovering() const
@@ -2235,7 +2249,7 @@ bool AMordath::IsTeleporting() const
 
 bool AMordath::IsExecutionTimeExpired() const
 {
-	return !TimerManager->IsTimerActive(TH_ExecutionExpiry);
+	return !TimerManager->IsTimerActive(CurrentActionData->TH_ExecutionExpiry);
 }
 
 void AMordath::MoveForward(float Scale)
