@@ -46,6 +46,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		bool IsDelayEnabled();
+
+	UFUNCTION(BlueprintPure, Category = "Combo Data")
+		bool WantsToExecuteNonStop();
 	
 	UFUNCTION(BlueprintPure, Category = "Combo Data")
 		float GetActionDelayTime();
@@ -74,6 +77,10 @@ protected:
 	// Adds a random range to Delay
 	UPROPERTY(EditInstanceOnly, Category = "Combos", meta = (EditCondition = "bDelayBetweenActions", ClampMin = 0.0f))
 		float RandomDeviation = 0.0f;
+
+	// Should we execute each action in the list non-stop?
+	UPROPERTY(EditInstanceOnly, Category = "Combos")
+		uint8 bNonStop : 1;
 
 	// The list of actions to go through sequentially
 	UPROPERTY(EditInstanceOnly, Category = "Combos")

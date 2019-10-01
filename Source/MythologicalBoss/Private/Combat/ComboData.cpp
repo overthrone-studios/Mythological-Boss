@@ -31,6 +31,11 @@ bool UComboData::IsDelayEnabled()
 	return bDelayBetweenActions;
 }
 
+bool UComboData::WantsToExecuteNonStop()
+{
+	return bNonStop;
+}
+
 float UComboData::GetActionDelayTime()
 {
 	return Delay;

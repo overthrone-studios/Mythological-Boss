@@ -98,7 +98,7 @@ AMordath::AMordath()
 	FSM->AddState(22, "Strafe");
 	FSM->AddState(23, "Tired");
 	FSM->AddState(24, "Back Hand");
-	//FSM->AddState(25, "Action");
+	FSM->AddState(25, "Action");
 
 	FSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyState);
 	FSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyState);
@@ -193,9 +193,9 @@ AMordath::AMordath()
 	FSM->GetState(24)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBackHandState);
 	FSM->GetState(24)->OnExitState.AddDynamic(this, &AMordath::OnExitBackHandState);
 
-	//FSM->GetState(25)->OnEnterState.AddDynamic(this, &AMordath::OnEnterActionState);
-	//FSM->GetState(25)->OnUpdateState.AddDynamic(this, &AMordath::UpdateActionState);
-	//FSM->GetState(25)->OnExitState.AddDynamic(this, &AMordath::OnExitActionState);
+	FSM->GetState(25)->OnEnterState.AddDynamic(this, &AMordath::OnEnterActionState);
+	FSM->GetState(25)->OnUpdateState.AddDynamic(this, &AMordath::UpdateActionState);
+	FSM->GetState(25)->OnExitState.AddDynamic(this, &AMordath::OnExitActionState);
 
 	FSM->InitState(0);
 
@@ -381,12 +381,6 @@ void AMordath::Tick(const float DeltaTime)
 #endif
 }
 
-void AMordath::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-
-}
-
 void AMordath::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -513,7 +507,7 @@ void AMordath::OnEnterFollowState()
 	//	return;
 	//}
 
-	if (IsSuperCloseRange() && FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < 0.3f && 
+	if (IsSuperCloseRange() && FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < -0.3f && 
 		(CurrentActionData->Action->ActionType != ATM_Dash_Forward && CurrentActionData->Action->ActionType != ATM_Dash_Backward &&
 		CurrentActionData->Action->ActionType != ATM_Dash_Left && CurrentActionData->Action->ActionType != ATM_Dash_Right))
 	{
@@ -769,6 +763,30 @@ void AMordath::UpdateThinkState()
 void AMordath::OnExitThinkState()
 {
 	MordathAnimInstance->bIsThinking = false;
+}
+#pragma endregion 
+
+#pragma region Action
+void AMordath::OnEnterActionState()
+{
+	PlayActionMontage();
+}
+
+void AMordath::UpdateActionState()
+{
+	FacePlayerBasedOnActionData(CurrentActionData->Action);
+	
+	// If action animation has finished, go back to previous state
+	if (HasFinishedAction())
+		FSM->PopState();
+}
+
+void AMordath::OnExitActionState()
+{
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopActionMontage();
+
+	NextAction();
 }
 #pragma endregion 
 
@@ -1046,26 +1064,7 @@ void AMordath::OnEnterDashState()
 {
 	DashComponent->StartCooldown();
 
-	//FacePlayer();
-
-	//// Reset hit count
-	//HitCounter = 0;
-
-	//switch (DashType)
-	//{
-	//case Dash_Forward:
-	//	MordathAnimInstance->bIsDashingForward = true;
-	//break;
-
-	//case Dash_Backward:
-	//	MordathAnimInstance->bIsDashingBackward = true;
-	//break;
-
-	//default:
-	//	MordathAnimInstance->bIsDashingForward = false;
-	//	MordathAnimInstance->bIsDashingBackward = true;
-	//break;
-	//}
+	FacePlayer();
 
 	PlayAnimMontage(SuperCloseRange_ActionData->ActionMontage);
 }
@@ -1076,16 +1075,10 @@ void AMordath::UpdateDashState()
 	{
 		FSM->PopState();
 	}
-
-	//if (AnimInstance->AnimTimeRemaining < 0.1f)
-	//	FSM->PopState();
 }
 
 void AMordath::OnExitDashState()
 {
-	MordathAnimInstance->bIsDashingForward = false;
-	MordathAnimInstance->bIsDashingBackward = false;
-
 	StopAnimMontage();
 }
 #pragma endregion
@@ -1153,17 +1146,15 @@ void AMordath::OnEnterTiredState()
 void AMordath::UpdateTiredState()
 {
 	if (HasFinishedAction())
-	{
-		NextAction();
-		
 		FSM->PopState();
-	}
 }
 
 void AMordath::OnExitTiredState()
 {
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
+
+	NextAction();
 }
 #pragma endregion
 
@@ -1338,7 +1329,6 @@ void AMordath::UpdateSuperCloseRange()
 		}
 		else if (!IsDashing())
 		{
-			DashType = Dash_Backward;
 			FSM->PushState("Dash");
 		}
 	}
@@ -1785,15 +1775,15 @@ void AMordath::ChooseAction()
 	switch (CurrentActionData->Action->ActionType)
 	{
 		case ATM_ShortAttack_1:
-			FSM->PushState("Short Attack 1");
+			FSM->PushState("Action");
 		break;
 
 		case ATM_ShortAttack_2:
-			FSM->PushState("Short Attack 2");
+			FSM->PushState("Action");
 		break;
 
 		case ATM_ShortAttack_3:
-			FSM->PushState("Short Attack 3");
+			FSM->PushState("Action");
 		break;
 
 		case ATM_LongAttack_1:
@@ -1801,11 +1791,11 @@ void AMordath::ChooseAction()
 		break;
 
 		case ATM_LongAttack_2:
-			FSM->PushState("Long Attack 2");
+			FSM->PushState("Action");
 		break;
 
 		case ATM_LongAttack_3:
-			FSM->PushState("Long Attack 3");
+			FSM->PushState("Action");
 		break;
 
 		case ATM_Kick:
@@ -1852,8 +1842,7 @@ void AMordath::ChooseAction()
 		break;
 	}
 
-	TimerManager->SetTimer(TH_ExecutionExpiry, MaxTimeToExecuteAction, false);
-	ULog::Info("Timer set", true);
+	//TimerManager->SetTimer(TH_ExecutionExpiry, MaxTimeToExecuteAction, false);
 }
 
 void AMordath::NextAction()
@@ -1978,11 +1967,6 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 		FacePlayer(ActionData->Recovery.RotationSpeed);
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
 	}
-	else
-	{
-		FacePlayer(DefaultRotationSpeed);
-		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, 1.0f);
-	}
 }
 
 void AMordath::SendInfo()
@@ -2038,7 +2022,10 @@ void AMordath::ResetMeshScale()
 
 bool AMordath::CanAttack() const
 {
-	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange || IsExecutionTimeExpired()) &&
+	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || 
+			CurrentActionData->RangeToExecute == AnyRange || 
+			FSM->GetActiveStateUptime() > MaxTimeToExecuteAction || 
+			ChosenCombo->WantsToExecuteNonStop()) &&
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
 }
 
@@ -2116,17 +2103,26 @@ bool AMordath::IsAttacking() const
 
 bool AMordath::IsShortAttacking() const
 {
-	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5;
+	return	FSM->GetActiveStateID() == 25 && 
+			GameState->BossData.CurrentActionType == ATM_ShortAttack_1 || 
+			GameState->BossData.CurrentActionType == ATM_ShortAttack_2 || 
+			GameState->BossData.CurrentActionType == ATM_ShortAttack_3 /*FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5*/;
 }
 
 bool AMordath::IsLongAttacking() const
 {
-	return FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8;
+	return	FSM->GetActiveStateID() == 25 && 
+			GameState->BossData.CurrentActionType == ATM_LongAttack_1 || 
+			GameState->BossData.CurrentActionType == ATM_LongAttack_2 || 
+			GameState->BossData.CurrentActionType == ATM_LongAttack_3/*FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8*/;
 }
 
 bool AMordath::IsSpecialAttacking() const
 {
-	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11;
+	return FSM->GetActiveStateID() == 25 && 
+			GameState->BossData.CurrentActionType == ATM_SpecialAttack_1 || 
+			GameState->BossData.CurrentActionType == ATM_SpecialAttack_2 || 
+			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3/* FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11*/;
 }
 
 bool AMordath::IsInFirstStage() const

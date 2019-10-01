@@ -205,7 +205,6 @@ public:
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
-	void OnConstruction(const FTransform& Transform) override;
 	void PossessedBy(AController* NewController) override;
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -354,6 +353,15 @@ protected:
 			void UpdateThinkState();
 		UFUNCTION()
 			void OnExitThinkState();
+		#pragma endregion 
+
+		#pragma region Action
+		UFUNCTION()
+			void OnEnterActionState();
+		UFUNCTION()
+			void UpdateActionState();
+		UFUNCTION()
+			void OnExitActionState();
 		#pragma endregion 
 
 		#pragma region Light Attack 1
@@ -687,8 +695,6 @@ private:
 
 	float DistanceToPlayer = 0.0f;
 	FVector DirectionToPlayer;
-
-	EDashType_Mordath DashType;
 
 	FComboData_Action* CurrentActionData;
 
