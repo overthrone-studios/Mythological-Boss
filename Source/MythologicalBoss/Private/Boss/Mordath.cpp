@@ -1284,12 +1284,12 @@ void AMordath::UpdateFarRange()
 	if (IsTeleporting())
 		return;
 
-	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay)
+	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
 		if (!IsRecovering())
 			FSM->PushState("Long Attack 1");
 	}
-	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay)
+	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
 		const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
 		
@@ -1300,7 +1300,7 @@ void AMordath::UpdateFarRange()
 		}
 		else
 		{
-			if (CurrentActionData->bCanTeleportWithAction && !TeleportationComponent->IsCoolingDown())
+			if (CurrentActionData->bCanTeleportWithAction && !TeleportationComponent->IsCoolingDown() && !IsTired())
 			{
 				FSM->PopState();
 				FSM->PushState("Teleport");
@@ -1779,6 +1779,8 @@ void AMordath::ChooseAction()
 	GameState->BossData.CurrentActionType = CurrentActionData->Action->ActionType;
 	GameState->BossData.CurrentCounterType = CurrentActionData->Action->CounterType;
 	ActionDamage = CurrentActionData->Action->ActionDamage;
+
+	//ExecuteAction(CurrentActionData->Action);
 
 	// Choose the current attack from the attack data
 	switch (CurrentActionData->Action->ActionType)
