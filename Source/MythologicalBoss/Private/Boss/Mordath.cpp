@@ -78,15 +78,15 @@ AMordath::AMordath()
 	FSM->AddState(0, "Idle");
 	FSM->AddState(1, "Follow");
 	FSM->AddState(2, "Thinking");
-	FSM->AddState(3, "Short Attack 1");
-	FSM->AddState(4, "Short Attack 2");
-	FSM->AddState(5, "Short Attack 3");
-	FSM->AddState(6, "Long Attack 1");
-	FSM->AddState(7, "Long Attack 2");
-	FSM->AddState(8, "Long Attack 3");
-	FSM->AddState(9, "Special Attack 1");
-	FSM->AddState(10, "Special Attack 2");
-	FSM->AddState(11, "Special Attack 3");
+	//FSM->AddState(3, "Short Attack 1");
+	//FSM->AddState(4, "Short Attack 2");
+	//FSM->AddState(5, "Short Attack 3");
+	//FSM->AddState(6, "Long Attack 1");
+	//FSM->AddState(7, "Long Attack 2");
+	//FSM->AddState(8, "Long Attack 3");
+	//FSM->AddState(9, "Special Attack 1");
+	//FSM->AddState(10, "Special Attack 2");
+	//FSM->AddState(11, "Special Attack 3");
 	FSM->AddState(12, "Damaged");
 	FSM->AddState(13, "Death");
 	FSM->AddState(14, "Stunned");
@@ -118,30 +118,6 @@ AMordath::AMordath()
 	FSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThinkState);
 	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThinkState);
 	FSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThinkState);
-
-	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterShortAttack1State);
-	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateShortAttack1State);
-	FSM->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitShortAttack1State);
-
-	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AMordath::OnEnterShortAttack2State);
-	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AMordath::UpdateShortAttack2State);
-	FSM->GetState(4)->OnExitState.AddDynamic(this, &AMordath::OnExitShortAttack2State);
-
-	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AMordath::OnEnterShortAttack3State);
-	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AMordath::UpdateShortAttack3State);
-	FSM->GetState(5)->OnExitState.AddDynamic(this, &AMordath::OnExitShortAttack3State);
-
-	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLongAttack1State);
-	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLongAttack1State);
-	FSM->GetState(6)->OnExitState.AddDynamic(this, &AMordath::OnExitLongAttack1State);
-
-	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLongAttack2State);
-	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLongAttack2State);
-	FSM->GetState(7)->OnExitState.AddDynamic(this, &AMordath::OnExitLongAttack2State);
-
-	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLongAttack3State);
-	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLongAttack3State);
-	FSM->GetState(8)->OnExitState.AddDynamic(this, &AMordath::OnExitLongAttack3State);
 
 	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
@@ -549,7 +525,7 @@ void AMordath::UpdateFollowState()
 	{
 		switch (CurrentActionData->RangeToExecute)
 		{
-		case SuperClose:
+		case BRM_SuperClose:
 			if (IsCloseRange() || IsMidRange() || IsFarRange())
 			{
 				MoveForward();
@@ -560,7 +536,7 @@ void AMordath::UpdateFollowState()
 			}
 		break;
 
-		case Close:
+		case BRM_Close:
 			if (IsSuperCloseRange())
 			{
 				MoveForward(-1);
@@ -575,7 +551,7 @@ void AMordath::UpdateFollowState()
 			}
 		break;
 
-		case Mid:
+		case BRM_Mid:
 			if (IsSuperCloseRange() || IsCloseRange())
 			{
 				MoveForward(-1);
@@ -590,7 +566,7 @@ void AMordath::UpdateFollowState()
 			}
 		break;
 
-		case Far:
+		case BRM_Far:
 			if (IsSuperCloseRange() || IsCloseRange() || IsMidRange())
 			{
 				MoveForward(-1);
@@ -796,172 +772,6 @@ void AMordath::OnExitActionState()
 	NextAction();
 }
 #pragma endregion 
-
-#pragma region Short Attack 1
-void AMordath::OnEnterShortAttack1State()
-{
-	PlayActionMontage();
-}
-
-void AMordath::UpdateShortAttack1State()
-{
-	FacePlayerBasedOnActionData(CurrentActionData->Action);
-	
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAction())
-	{
-		NextAction();
-
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitShortAttack1State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-}
-#pragma endregion
-
-#pragma region Short Attack 2
-void AMordath::OnEnterShortAttack2State()
-{
-	PlayActionMontage();
-}
-
-void AMordath::UpdateShortAttack2State()
-{
-	FacePlayerBasedOnActionData(CurrentActionData->Action);
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAction())
-	{
-		NextAction();
-
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitShortAttack2State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-}
-#pragma endregion
-
-#pragma region Short Attack 3
-void AMordath::OnEnterShortAttack3State()
-{
-	PlayActionMontage();
-}
-
-void AMordath::UpdateShortAttack3State()
-{
-	FacePlayerBasedOnActionData(CurrentActionData->Action);
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAction())
-	{
-		NextAction();
-
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitShortAttack3State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-}
-#pragma endregion
-
-#pragma region Long Attack 1
-void AMordath::OnEnterLongAttack1State()
-{
-	GameState->BossData.CurrentActionType = ATM_LongAttack_1;
-
-	CurrentLongAttackMontage = CurrentStageData->Combat.FarRangeActionData->ActionMontage;
-	PlayAnimMontage(CurrentLongAttackMontage);
-}
-
-void AMordath::UpdateLongAttack1State()
-{
-	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
-
-	if (CurrentMontageSection != "Recovery")
-		FacePlayer();
-	else
-		FacePlayer(0.5f);
-
-	// If attack animation has finished, go back to previous state
-	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
-	{
-		NextAction();
-
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitLongAttack1State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAnimMontage(CurrentLongAttackMontage);
-
-	CurrentLongAttackMontage = nullptr;
-}
-#pragma endregion
-
-#pragma region Long Attack 2
-void AMordath::OnEnterLongAttack2State()
-{
-	PlayActionMontage();
-}
-
-void AMordath::UpdateLongAttack2State()
-{
-	FacePlayerBasedOnActionData(CurrentActionData->Action);
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAction())
-	{
-		NextAction();
-
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitLongAttack2State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-}
-#pragma endregion
-
-#pragma region Long Attack 3
-void AMordath::OnEnterLongAttack3State()
-{
-	PlayActionMontage();
-}
-
-void AMordath::UpdateLongAttack3State()
-{
-	FacePlayerBasedOnActionData(CurrentActionData->Action);
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAction())
-	{
-		NextAction();
-
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitLongAttack3State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-}
-#pragma endregion
 
 #pragma region Damaged
 void AMordath::OnEnterDamagedState()
@@ -1227,7 +1037,7 @@ void AMordath::OnExitTeleportState()
 #pragma region Close Range
 void AMordath::OnEnterCloseRange()
 {
-	GameState->PlayerData.CurrentRange = Close;
+	GameState->PlayerData.CurrentRange = BRM_Close;
 }
 
 void AMordath::UpdateCloseRange()
@@ -1249,7 +1059,7 @@ void AMordath::OnEnterMidRange()
 {
 	CurrentMovementSpeed = GetMovementSpeed();
 
-	GameState->PlayerData.CurrentRange = Mid;
+	GameState->PlayerData.CurrentRange = BRM_Mid;
 }
 
 void AMordath::UpdateMidRange()
@@ -1271,7 +1081,7 @@ void AMordath::OnEnterFarRange()
 {
 	CurrentMovementSpeed = GetMovementSpeed();
 
-	GameState->PlayerData.CurrentRange = Far;
+	GameState->PlayerData.CurrentRange = BRM_Far;
 }
 
 void AMordath::UpdateFarRange()
@@ -1322,7 +1132,7 @@ void AMordath::OnExitFarRange()
 #pragma region Super Close
 void AMordath::OnEnterSuperCloseRange()
 {
-	GameState->PlayerData.CurrentRange = SuperClose;
+	GameState->PlayerData.CurrentRange = BRM_SuperClose;
 
 	IncreaseAttackDamage(CurrentStageData->GetAttackDamageMultiplier());
 }
@@ -1528,7 +1338,7 @@ void AMordath::OnPlayerDeath()
 
 void AMordath::OnAttackParryed()
 {
-	if ((CurrentActionData->Action->CounterType == Parryable || CurrentActionData->Action->CounterType == ParryableBlockable)  && !IsStunned())
+	if ((CurrentActionData->Action->CounterType == ACM_Parryable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable)  && !IsStunned())
 	{
 		StopActionMontage();
 
@@ -1542,7 +1352,7 @@ void AMordath::OnAttackParryed()
 
 void AMordath::OnAttackBlocked()
 {
-	if ((CurrentActionData->Action->CounterType == Blockable || CurrentActionData->Action->CounterType == ParryableBlockable) && !IsDamaged())
+	if ((CurrentActionData->Action->CounterType == ACM_Blockable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable) && !IsDamaged())
 	{
 		StopActionMontage();
 
@@ -1765,19 +1575,19 @@ void AMordath::ChooseAction()
 	// Do a flash to indicate what kind of attack this is
 	switch (CurrentActionData->Action->CounterType)
 	{
-	case Parryable:
+	case ACM_Parryable:
 		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 
-	case Blockable:
+	case ACM_Blockable:
 		FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
 	break;
 
-	case ParryableBlockable:
+	case ACM_ParryableBlockable:
 		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 
-	case NoCounter:
+	case ACM_NoCounter:
 		FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
 	break;
 
@@ -1982,7 +1792,7 @@ void AMordath::ResetMeshScale()
 bool AMordath::CanAttack() const
 {
 	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || 
-			CurrentActionData->RangeToExecute == AnyRange || 
+			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
@@ -2062,26 +1872,26 @@ bool AMordath::IsAttacking() const
 
 bool AMordath::IsShortAttacking() const
 {
-	return	FSM->GetActiveStateID() == 25 && 
+	return false/*FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_ShortAttack_3 /*FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5*/;
+			GameState->BossData.CurrentActionType == ATM_ShortAttack_3 FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5*/;
 }
 
 bool AMordath::IsLongAttacking() const
 {
-	return	FSM->GetActiveStateID() == 25 && 
+	return false/*FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_LongAttack_3/*FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8*/;
+			GameState->BossData.CurrentActionType == ATM_LongAttack_3FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8*/;
 }
 
 bool AMordath::IsSpecialAttacking() const
 {
-	return FSM->GetActiveStateID() == 25 && 
+	return false /*FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3/* FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11*/;
+			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3 FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11*/;
 }
 
 bool AMordath::IsInFirstStage() const

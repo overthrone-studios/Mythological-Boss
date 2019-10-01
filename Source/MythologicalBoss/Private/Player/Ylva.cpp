@@ -307,11 +307,11 @@ void AYlva::Tick(const float DeltaTime)
 		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
 	}
 
-	if ((GameState->PlayerData.CurrentRange == Close || GameState->PlayerData.CurrentRange == SuperClose) && IsAttacking())
+	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
 
-		if (GameState->PlayerData.CurrentRange == SuperClose)
+		if (GameState->PlayerData.CurrentRange == BRM_SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
 		FaceBoss(DeltaTime, RotationSpeed);
@@ -508,7 +508,7 @@ void AYlva::LookUpAtRate(const float Rate)
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead or while dashing
-	if (bIsDead || IsDashing() && GameState->BossData.CurrentCounterType == NoCounter)
+	if (bIsDead || IsDashing() && GameState->BossData.CurrentCounterType == ACM_NoCounter)
 	{
 		return DamageAmount;
 	}
@@ -1687,7 +1687,7 @@ void AYlva::OnEnterDamagedState()
 	StopAnimMontage();
 	AttackComboComponent->ClearCurrentAttack();
 
-	if (GameState->BossData.CurrentCounterType == NoCounter)
+	if (GameState->BossData.CurrentCounterType == ACM_NoCounter)
 		YlvaAnimInstance->bIsHitByNoCounter = true;
 	else
 		AnimInstance->bIsHit = true;
@@ -1751,7 +1751,7 @@ void AYlva::OnExitDeathState()
 #pragma region Shield Hit
 void AYlva::OnEnterShieldHitState()
 {
-	if (GameState->BossData.CurrentCounterType == NoCounter)
+	if (GameState->BossData.CurrentCounterType == ACM_NoCounter)
 	{
 		AttackComboComponent->ClearCurrentAttack();
 		YlvaAnimInstance->bIsHitByNoCounter = true;
@@ -1784,7 +1784,7 @@ void AYlva::OnExitShieldHitState()
 #pragma region Dash
 void AYlva::OnEnterDashState()
 {
-	if (GameState->BossData.CurrentCounterType == NoCounter)
+	if (GameState->BossData.CurrentCounterType == ACM_NoCounter)
 		EnableInvincibility();
 
 	AnimInstance->bIsDashing = true;

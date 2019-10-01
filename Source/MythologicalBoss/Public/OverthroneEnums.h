@@ -13,15 +13,6 @@ enum EBuildConfig
 	ShippingBuild
 };
 
-UENUM()
-enum EDashType_Mordath
-{
-	Dash_Forward,
-	Dash_Backward,
-	Dash_Left,
-	Dash_Right
-};
-
 UENUM(BlueprintType)
 enum EBossStage_Mordath
 {
@@ -33,10 +24,10 @@ enum EBossStage_Mordath
 UENUM()
 enum EAttackType_Player
 {
-	ATP_Light,
-	ATP_Heavy,
-	ATP_Special,
-	ATP_None UMETA(DisplayName="None")
+	ATP_Light		UMETA(DisplayName="Light"),
+	ATP_Heavy		UMETA(DisplayName="Heavy"),
+	ATP_Special		UMETA(DisplayName="Special"),
+	ATP_None		UMETA(DisplayName="None")
 };
 
 UENUM()
@@ -53,6 +44,8 @@ enum EActionType_Mordath
 	ATM_SpecialAttack_3 UMETA(DisplayName="Special Attack 3"),
 	ATM_Kick			UMETA(DisplayName="Kick"),
 	ATM_BackHand		UMETA(DisplayName="Back Hand"),
+	ATM_Walk_Forward	UMETA(DisplayName="Walk Forward"),
+	ATM_Walk_Backward	UMETA(DisplayName="Walk Backward"),
 	ATM_Strafe_Left		UMETA(DisplayName="Strafe Left"),
 	ATM_Strafe_Right	UMETA(DisplayName="Strafe Right"),
 	ATM_Dash_Forward	UMETA(DisplayName="Dash Forward"),
@@ -61,27 +54,28 @@ enum EActionType_Mordath
 	ATM_Dash_Right		UMETA(DisplayName="Dash Right"),
 	ATM_Teleport		UMETA(DisplayName="Teleport"),
 	ATM_Tired			UMETA(DisplayName="Tired"),
+	ATM_Other			UMETA(DisplayName="Other"),
 	ATM_None			UMETA(DisplayName="None")
 };
 
 UENUM()
 enum EAttackCounters_Mordath
 {
-	Parryable,
-	Blockable,
-	ParryableBlockable,
-	NoCounter,
-	ACM_None UMETA(DisplayName="None")
+	ACM_Parryable			UMETA(DisplayName="Parryable"),
+	ACM_Blockable			UMETA(DisplayName="Blockable"),
+	ACM_ParryableBlockable	UMETA(DisplayName="Parryable and Blockable"),
+	ACM_NoCounter			UMETA(DisplayName="No Counter"),
+	ACM_None				UMETA(DisplayName="None")
 };
 
 UENUM()
 enum EBossRange_Mordath
 {
-	Close,
-	Mid,
-	Far,
-	SuperClose,
-	AnyRange
+	BRM_Close				UMETA(DisplayName="Close"),
+	BRM_Mid					UMETA(DisplayName="Mid"),
+	BRM_Far					UMETA(DisplayName="Far"),
+	BRM_SuperClose			UMETA(DisplayName="Super Close"),
+	BRM_AnyRange			UMETA(DisplayName="Any Range")
 };
 
 /**

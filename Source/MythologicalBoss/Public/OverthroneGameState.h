@@ -31,7 +31,7 @@ struct FCharacterData
 
 		bIsDead = false;
 
-		CurrentRange = Mid;
+		CurrentRange = BRM_Mid;
 	}
 
 	FVector Location{};
@@ -46,7 +46,7 @@ struct FCharacterData
 	uint8 bIsDead : 1;
 	uint8 bHasTakenDamage : 1;
 
-	EBossRange_Mordath CurrentRange = Mid;
+	EBossRange_Mordath CurrentRange = BRM_Mid;
 };
 
 USTRUCT()
@@ -100,7 +100,7 @@ struct FBossData : public FCharacterData
 	{
 		Super::ResetData();
 
-		CurrentCounterType = NoCounter;
+		CurrentCounterType = ACM_NoCounter;
 	}
 
 	FVector LockOnBoneLocation;
@@ -170,13 +170,13 @@ public:
 		FORCEINLINE bool HasBossTakenDamage() const { return BossData.bHasTakenDamage; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
-		FORCEINLINE bool IsBossAttackParryable() const { return BossData.CurrentCounterType == Parryable || BossData.CurrentCounterType == ParryableBlockable; }
+		FORCEINLINE bool IsBossAttackParryable() const { return BossData.CurrentCounterType == ACM_Parryable || BossData.CurrentCounterType == ACM_ParryableBlockable; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
-		FORCEINLINE bool IsBossAttackBlockable() const { return BossData.CurrentCounterType == Blockable; }
+		FORCEINLINE bool IsBossAttackBlockable() const { return BossData.CurrentCounterType == ACM_Blockable; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
-		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == NoCounter; }
+		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == ACM_NoCounter; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		FORCEINLINE EActionType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentActionType; }

@@ -6,16 +6,16 @@ FString UMordathActionData::GetCounterTypeAsString() const
 {
 	switch (CounterType)
 	{
-	case Parryable:
+	case ACM_Parryable:
 		return FString("Parryable");
 
-	case Blockable:
+	case ACM_Blockable:
 		return FString("Blockable");
 
-	case NoCounter:
+	case ACM_NoCounter:
 		return FString("No Counter");
 
-	case ParryableBlockable:
+	case ACM_ParryableBlockable:
 		return FString("Parryable and Blockable");
 
 	default:
@@ -61,6 +61,12 @@ FString UMordathActionData::GetCurrentActionAsString() const
 	case ATM_BackHand:
 		return FString("Back Hand");
 
+	case ATM_Walk_Forward:
+		return FString("Walk Forward");
+
+	case ATM_Walk_Backward:
+		return FString("Walk Backward");
+
 	case ATM_Strafe_Left:
 		return FString("Strafe Left");
 
@@ -84,6 +90,9 @@ FString UMordathActionData::GetCurrentActionAsString() const
 
 	case ATM_Tired:
 		return FString("Tired");
+
+	case ATM_Other:
+		return FString("Other");
 
 	default:
 		return FString("None");

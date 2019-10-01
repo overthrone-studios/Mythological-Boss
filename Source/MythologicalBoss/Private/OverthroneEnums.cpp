@@ -48,13 +48,13 @@ FString UOverthroneEnums::MordathAttackCounterTypeToString(const EAttackCounters
 {
 	switch (Enum)
 	{
-	case Blockable:
+	case ACM_Blockable:
 		return FString("Blockable");
 
-	case Parryable:
+	case ACM_Parryable:
 		return FString("Parryable");
 
-	case NoCounter:
+	case ACM_NoCounter:
 		return FString("NoCounter");
 
 	default:

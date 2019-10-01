@@ -373,60 +373,6 @@ protected:
 			void OnExitActionState();
 		#pragma endregion 
 
-		#pragma region Light Attack 1
-		UFUNCTION()
-			void OnEnterShortAttack1State();
-		UFUNCTION()
-			void UpdateShortAttack1State();
-		UFUNCTION()
-			void OnExitShortAttack1State();
-		#pragma endregion 
-
-		#pragma region Light Attack 2
-		UFUNCTION()
-			void OnEnterShortAttack2State();
-		UFUNCTION()
-			void UpdateShortAttack2State();
-		UFUNCTION()
-			void OnExitShortAttack2State();
-		#pragma endregion 
-
-		#pragma region Light Attack 3
-		UFUNCTION()
-			void OnEnterShortAttack3State();
-		UFUNCTION()
-			void UpdateShortAttack3State();
-		UFUNCTION()
-			void OnExitShortAttack3State();
-		#pragma endregion 
-
-		#pragma region Heavy Attack 1
-		UFUNCTION()
-			void OnEnterLongAttack1State();
-		UFUNCTION()
-			void UpdateLongAttack1State();
-		UFUNCTION()
-			void OnExitLongAttack1State();
-		#pragma endregion 
-
-		#pragma region Heavy Attack 2
-		UFUNCTION()
-			void OnEnterLongAttack2State();
-		UFUNCTION()
-			void UpdateLongAttack2State();
-		UFUNCTION()
-			void OnExitLongAttack2State();
-		#pragma endregion 
-
-		#pragma region Heavy Attack 3
-		UFUNCTION()
-			void OnEnterLongAttack3State();
-		UFUNCTION()
-			void UpdateLongAttack3State();
-		UFUNCTION()
-			void OnExitLongAttack3State();
-		#pragma endregion 
-
 		#pragma region Damaged
 		UFUNCTION()
 			void OnEnterDamagedState();
