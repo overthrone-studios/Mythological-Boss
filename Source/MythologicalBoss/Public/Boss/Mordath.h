@@ -184,6 +184,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTeleporting() const;
 
+	// Returns true if the time to execute has been reached
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsExecutionTimeExpired() const;
+
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
@@ -699,7 +703,10 @@ private:
 
 	FTimerHandle TH_FlashIndicator;
 
+	FTimerHandle TH_ExecutionExpiry;
+
 	class UAnimMontage* CurrentLongAttackMontage;
+	class UMordathActionData* SuperCloseRange_ActionData;
 
 	class UMordathStageData* CurrentStageData;
 

@@ -98,6 +98,7 @@ AMordath::AMordath()
 	FSM->AddState(22, "Strafe");
 	FSM->AddState(23, "Tired");
 	FSM->AddState(24, "Back Hand");
+	//FSM->AddState(25, "Action");
 
 	FSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyState);
 	FSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyState);
@@ -191,6 +192,10 @@ AMordath::AMordath()
 	FSM->GetState(24)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBackHandState);
 	FSM->GetState(24)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBackHandState);
 	FSM->GetState(24)->OnExitState.AddDynamic(this, &AMordath::OnExitBackHandState);
+
+	//FSM->GetState(25)->OnEnterState.AddDynamic(this, &AMordath::OnEnterActionState);
+	//FSM->GetState(25)->OnUpdateState.AddDynamic(this, &AMordath::UpdateActionState);
+	//FSM->GetState(25)->OnExitState.AddDynamic(this, &AMordath::OnExitActionState);
 
 	FSM->InitState(0);
 
@@ -307,6 +312,8 @@ void AMordath::BeginPlay()
 	ChooseCombo();
 
 	ResetActionDamage();
+
+	SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
 
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->SetHiddenInGame(false);
@@ -1039,37 +1046,47 @@ void AMordath::OnEnterDashState()
 {
 	DashComponent->StartCooldown();
 
-	FacePlayer();
+	//FacePlayer();
 
-	// Reset hit count
-	HitCounter = 0;
+	//// Reset hit count
+	//HitCounter = 0;
 
-	switch (DashType)
-	{
-	case Dash_Forward:
-		MordathAnimInstance->bIsDashingForward = true;
-	break;
+	//switch (DashType)
+	//{
+	//case Dash_Forward:
+	//	MordathAnimInstance->bIsDashingForward = true;
+	//break;
 
-	case Dash_Backward:
-		MordathAnimInstance->bIsDashingBackward = true;
-	break;
+	//case Dash_Backward:
+	//	MordathAnimInstance->bIsDashingBackward = true;
+	//break;
 
-	default:
-		MordathAnimInstance->bIsDashing = true;
-	break;
-	}
+	//default:
+	//	MordathAnimInstance->bIsDashingForward = false;
+	//	MordathAnimInstance->bIsDashingBackward = true;
+	//break;
+	//}
+
+	PlayAnimMontage(SuperCloseRange_ActionData->ActionMontage);
 }
 
 void AMordath::UpdateDashState()
 {
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(SuperCloseRange_ActionData->ActionMontage))
+	{
 		FSM->PopState();
+	}
+
+	//if (AnimInstance->AnimTimeRemaining < 0.1f)
+	//	FSM->PopState();
 }
 
 void AMordath::OnExitDashState()
 {
 	MordathAnimInstance->bIsDashingForward = false;
 	MordathAnimInstance->bIsDashingBackward = false;
+
+	StopAnimMontage();
 }
 #pragma endregion
 
@@ -1389,6 +1406,8 @@ void AMordath::OnEnterSecondStage()
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
+
+	SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
 
 	MordathAnimInstance->CurrentStage = Stage_2;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
@@ -1832,6 +1851,9 @@ void AMordath::ChooseAction()
 		default:
 		break;
 	}
+
+	TimerManager->SetTimer(TH_ExecutionExpiry, MaxTimeToExecuteAction, false);
+	ULog::Info("Timer set", true);
 }
 
 void AMordath::NextAction()
@@ -2016,7 +2038,7 @@ void AMordath::ResetMeshScale()
 
 bool AMordath::CanAttack() const
 {
-	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange || FSM->GetActiveStateUptime() > MaxTimeToExecuteAction) &&
+	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || CurrentActionData->RangeToExecute == AnyRange || IsExecutionTimeExpired()) &&
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
 }
 
@@ -2213,6 +2235,11 @@ bool AMordath::IsDoingBackHand() const
 bool AMordath::IsTeleporting() const
 {
 	return FSM->GetActiveStateID() == 18;
+}
+
+bool AMordath::IsExecutionTimeExpired() const
+{
+	return !TimerManager->IsTimerActive(TH_ExecutionExpiry);
 }
 
 void AMordath::MoveForward(float Scale)

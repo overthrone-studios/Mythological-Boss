@@ -132,6 +132,10 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		UMordathActionData* BackHandActionData = nullptr;
 
+	// The animation montage to play when the player is super close to us
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		UMordathActionData* SuperCloseRangeActionData = nullptr;
+
 	// Maximum hits that can be taken before becoming invincible
 	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0))
 	//	uint8 MaxHitsBeforeInvincibility = 3;
