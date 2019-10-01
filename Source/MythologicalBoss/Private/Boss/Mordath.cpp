@@ -43,8 +43,6 @@
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
 
-constexpr float GDefaultRotationSpeed = 10.0f;
-
 static bool GWantsMoveRight = true;
 
 AMordath::AMordath()
@@ -462,7 +460,7 @@ void AMordath::UpdateIdleState()
 	if (GameState->PlayerData.bIsDead)
 		return;
 
-	FacePlayer(GDefaultRotationSpeed);
+	FacePlayer();
 
 	ForwardInput = 0.0f;
 	RightInput = 0.0f;
@@ -532,7 +530,7 @@ void AMordath::UpdateFollowState()
 		return;
 	}
 
-	FacePlayer(GDefaultRotationSpeed);
+	FacePlayer();
 
 	if (IsWaitingForNewCombo() && IsSuperCloseRange())
 	{
@@ -642,7 +640,7 @@ void AMordath::UpdateRetreatState()
 		return;
 	}
 
-	FacePlayer(GDefaultRotationSpeed);
+	FacePlayer();
 
 	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
 		FSM->PopState();
@@ -673,7 +671,7 @@ void AMordath::UpdateKickState()
 	if (CurrentActionData->Action->ActionType == ATM_Kick)
 		FacePlayerBasedOnActionData(CurrentActionData->Action);
 	else
-		FacePlayer(GDefaultRotationSpeed);
+		FacePlayer();
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
@@ -745,7 +743,7 @@ void AMordath::UpdateThinkState()
 		return;
 	}
 
-	FacePlayer(GDefaultRotationSpeed);
+	FacePlayer();
 
 	if (AnimInstance->AnimTimeRemaining > 0.2f)
 		EncirclePlayer();
@@ -778,9 +776,14 @@ void AMordath::OnEnterActionState()
 
 void AMordath::UpdateActionState()
 {
-	FacePlayerBasedOnActionData(CurrentActionData->Action);
+	StopMoving();
+
+	if (CurrentActionData->Action->bConstantlyFacePlayer)
+		FacePlayer();
+	else
+		FacePlayerBasedOnActionData(CurrentActionData->Action);
 	
-	// If action animation has finished, go back to previous state
+	// If action has finished, go back to previous state
 	if (HasFinishedAction())
 		FSM->PopState();
 }
@@ -886,7 +889,7 @@ void AMordath::UpdateLongAttack1State()
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
 
 	if (CurrentMontageSection != "Recovery")
-		FacePlayer(GDefaultRotationSpeed);
+		FacePlayer();
 	else
 		FacePlayer(0.5f);
 
@@ -1073,7 +1076,7 @@ void AMordath::OnEnterDashState()
 
 void AMordath::UpdateDashState()
 {
-	FacePlayer();
+	FacePlayer_Instant();
 
 	if (!AnimInstance->Montage_IsPlaying(SuperCloseRange_ActionData->ActionMontage))
 	{
@@ -1098,7 +1101,7 @@ void AMordath::OnEnterDashCombatState()
 
 void AMordath::UpdateDashCombatState()
 {
-	FacePlayer(GDefaultRotationSpeed);
+	FacePlayer();
 
 	if (HasFinishedAction())
 	{
@@ -1124,7 +1127,7 @@ void AMordath::OnEnterStrafeState()
 
 void AMordath::UpdateStrafeState()
 {
-	FacePlayer(GDefaultRotationSpeed);
+	FacePlayer();
 
 	if (HasFinishedAction())
 	{
@@ -1287,7 +1290,8 @@ void AMordath::UpdateFarRange()
 	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
 		if (!IsRecovering())
-			FSM->PushState("Long Attack 1");
+			ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
+			//FSM->PushState("Long Attack 1");
 	}
 	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
@@ -1296,7 +1300,8 @@ void AMordath::UpdateFarRange()
 		if (bWantsLongAttack)
 		{
 			if (!IsRecovering())
-				FSM->PushState("Long Attack 1");
+				ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
+				//FSM->PushState("Long Attack 1");
 		}
 		else
 		{
@@ -1591,6 +1596,11 @@ void AMordath::PlayActionMontage()
 	PlayAnimMontage(CurrentActionData->Action->ActionMontage);
 }
 
+void AMordath::PlayActionMontage(UMordathActionData* ActionData)
+{
+	PlayAnimMontage(ActionData->ActionMontage);
+}
+
 void AMordath::StopActionMontage()
 {
 	if (!GameState->IsPlayerDead())
@@ -1780,78 +1790,7 @@ void AMordath::ChooseAction()
 	GameState->BossData.CurrentCounterType = CurrentActionData->Action->CounterType;
 	ActionDamage = CurrentActionData->Action->ActionDamage;
 
-	//ExecuteAction(CurrentActionData->Action);
-
-	// Choose the current attack from the attack data
-	switch (CurrentActionData->Action->ActionType)
-	{
-		case ATM_ShortAttack_1:
-			FSM->PushState("Action");
-		break;
-
-		case ATM_ShortAttack_2:
-			FSM->PushState("Action");
-		break;
-
-		case ATM_ShortAttack_3:
-			FSM->PushState("Action");
-		break;
-
-		case ATM_LongAttack_1:
-			FSM->PushState("Long Attack 1");
-		break;
-
-		case ATM_LongAttack_2:
-			FSM->PushState("Action");
-		break;
-
-		case ATM_LongAttack_3:
-			FSM->PushState("Action");
-		break;
-
-		case ATM_Kick:
-			FSM->PushState("Kick");
-		break;
-
-		case ATM_BackHand:
-			FSM->PushState("Back Hand");
-		break;
-
-		case ATM_Dash_Forward:
-			FSM->PushState("Dash Combat");
-		break;
-
-		case ATM_Dash_Backward:
-			FSM->PushState("Dash Combat");
-		break;
-
-		case ATM_Dash_Left:
-			FSM->PushState("Dash Combat");
-		break;
-
-		case ATM_Dash_Right:
-			FSM->PushState("Dash Combat");
-		break;
-
-		case ATM_Strafe_Left:
-			FSM->PushState("Strafe");
-		break;
-
-		case ATM_Strafe_Right:
-			FSM->PushState("Strafe");
-		break;
-
-		case ATM_Teleport:
-			FSM->PushState("Teleport");
-		break;
-
-		case ATM_Tired:
-			FSM->PushState("Tired");
-		break;
-
-		default:
-		break;
-	}
+	ExecuteAction(CurrentActionData->Action);
 }
 
 void AMordath::NextAction()
@@ -1884,6 +1823,15 @@ void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
 {
 	MainHUD->FadeInDamageValue();
 	MainHUD->UpdateDamageValue(DamageAmount);
+}
+
+void AMordath::ExecuteAction(UMordathActionData* ActionData)
+{
+	StopMoving();
+
+	CurrentActionData->Action = ActionData;
+
+	FSM->PushState("Action");
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -1936,7 +1884,7 @@ void AMordath::FacePlayer(const float RotationSpeed)
 		SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
 }
 
-void AMordath::FacePlayer()
+void AMordath::FacePlayer_Instant()
 {
 	SetActorRotation(FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll));
 }
@@ -1966,7 +1914,7 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 		}
 
 		if (ActionData->Pinnacle.bSnapRotation)
-			FacePlayer();
+			FacePlayer_Instant();
 	}
 	else if (CurrentMontageSection == "Contact")
 	{
@@ -2191,7 +2139,7 @@ bool AMordath::IsDelayingAction() const
 
 bool AMordath::IsDashing() const
 {
-	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17;
+	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17 || FSM->GetActiveStateID() == 25 && (CurrentActionData->Action->ActionType == ATM_Dash_Backward || CurrentActionData->Action->ActionType == ATM_Dash_Forward || CurrentActionData->Action->ActionType == ATM_Dash_Left || CurrentActionData->Action->ActionType == ATM_Dash_Right);
 }
 
 bool AMordath::IsStrafing() const
@@ -2236,7 +2184,7 @@ bool AMordath::IsTransitioning() const
 
 bool AMordath::IsTired() const
 {
-	return FSM->GetActiveStateID() == 23;
+	return FSM->GetActiveStateID() == 25 && CurrentActionData->Action->ActionType == ATM_Tired;
 }
 
 bool AMordath::IsDoingBackHand() const

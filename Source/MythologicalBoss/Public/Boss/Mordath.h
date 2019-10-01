@@ -227,9 +227,9 @@ protected:
 	void EndTakeDamage() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
-		void FacePlayer(float RotationSpeed);
+		void FacePlayer(float RotationSpeed = 10.0f);
 
-	void FacePlayer();
+	void FacePlayer_Instant();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayerBasedOnActionData(const class UMordathActionData* ActionData);
@@ -245,6 +245,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void UpdateDamageValueInMainHUD(float DamageAmount) const;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void ExecuteAction(class UMordathActionData* ActionData);
+
 	void Die() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
@@ -252,6 +255,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void PlayActionMontage();
+
+	void PlayActionMontage(class UMordathActionData* ActionData);
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void StopActionMontage();

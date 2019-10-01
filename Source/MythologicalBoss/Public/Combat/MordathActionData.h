@@ -76,20 +76,24 @@ public:
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EAttackCounters_Mordath> CounterType;
 	
+	// Should we constantly face the player during this action?
+	UPROPERTY(EditInstanceOnly, DisplayName = "Always Face Player?")
+		uint8 bConstantlyFacePlayer : 1;
+
 	// The data to use while in the Anticipation section of the animation
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
 		FMontageSectionData_Mordath Anticipation;
 
 	// The data to use while in the Pinnacle section of the animation
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
 		FMontagePinnacleData_Mordath Pinnacle;
 
 	// The data to use while in the Contact section of the animation
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
 		FMontageSectionData_Mordath Contact;
 
 	// The data to use while in the Recovery section of the animation
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
 		FMontageSectionData_Mordath Recovery;
 
 //private:
