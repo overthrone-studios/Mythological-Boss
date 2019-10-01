@@ -1528,7 +1528,7 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 }
 #pragma endregion
 
-#pragma region Player States
+#pragma region Any States
 void AYlva::OnEnterAnyState()
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
@@ -1538,6 +1538,9 @@ void AYlva::UpdateAnyState()
 {
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	//if (HealthComponent->IsLowHealth())
+	//	FollowCamera->PostProcessSettings.VignetteIntensity = FMath::Clamp(FMath::Sin(World->RealTimeSeconds * 2.0f), 0.5f, 0.7f);
 }
 
 void AYlva::OnExitAnyState()
