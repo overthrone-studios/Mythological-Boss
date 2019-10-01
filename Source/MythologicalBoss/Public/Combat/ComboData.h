@@ -14,8 +14,12 @@ struct FComboData_Action
 	GENERATED_BODY()
 
 	// The action to execute
-	UPROPERTY(EditInstanceOnly, Category = "Combos")
+	UPROPERTY(EditInstanceOnly)
 		UMordathActionData* Action;
+
+	// The action to execute when ExecutionTime has expired (If this is null/empty, just execute the current action)
+	UPROPERTY(EditInstanceOnly)
+		UMordathActionData* FailSafeAction;
 
 	// Can we teleport before we do this action?
 	UPROPERTY(EditInstanceOnly)
@@ -28,6 +32,8 @@ struct FComboData_Action
 	// The maximum amount of time left (in seconds) to execute this action
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float ExecutionTime = 5.0f;
+
+	uint8 bExecutionTimeExpired : 1;
 
 	FTimerHandle TH_ExecutionExpiry;
 };

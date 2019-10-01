@@ -226,6 +226,8 @@ protected:
 	void ApplyDamage(float DamageAmount) override;
 	void EndTakeDamage() override;
 
+	void OnExecutionTimeExpired();
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayer(float RotationSpeed = 10.0f);
 
@@ -290,6 +292,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void StopMoving();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void StartExecutionExpiryTimer();
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0

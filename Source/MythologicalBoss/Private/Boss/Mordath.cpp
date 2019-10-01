@@ -1416,6 +1416,8 @@ void AMordath::StopActionMontage()
 	if (!GameState->IsPlayerDead())
 		StopAnimMontage();
 
+	CurrentActionData->bExecutionTimeExpired = false;
+
 	CurrentMontageSection = "None";
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
@@ -1475,6 +1477,11 @@ void AMordath::EndTakeDamage()
 	}
 }
 
+void AMordath::OnExecutionTimeExpired()
+{
+	CurrentActionData->bExecutionTimeExpired = true;
+}
+
 void AMordath::ChooseCombo()
 {
 	static int8 ComboIndex = 0;
@@ -1497,7 +1504,7 @@ void AMordath::ChooseCombo()
 			ChosenCombo->Init();
 			CurrentActionData = &ChosenCombo->GetCurrentActionData();
 			
-			TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, CurrentActionData->ExecutionTime, false);
+			StartExecutionExpiryTimer();
 
 			CachedCombos.Remove(ChosenCombo);
 		}
@@ -1572,8 +1579,13 @@ void AMordath::ChooseAction()
 
 	CurrentActionData = &ChosenCombo->GetCurrentActionData();
 
+	UMordathActionData* ActionDataToUse = CurrentActionData->Action;
+
+	if (CurrentActionData->bExecutionTimeExpired && CurrentActionData->FailSafeAction)
+		ActionDataToUse = CurrentActionData->FailSafeAction;
+
 	// Do a flash to indicate what kind of attack this is
-	switch (CurrentActionData->Action->CounterType)
+	switch (ActionDataToUse->CounterType)
 	{
 	case ACM_Parryable:
 		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
@@ -1600,7 +1612,7 @@ void AMordath::ChooseAction()
 	GameState->BossData.CurrentCounterType = CurrentActionData->Action->CounterType;
 	ActionDamage = CurrentActionData->Action->ActionDamage;
 
-	ExecuteAction(CurrentActionData->Action);
+	ExecuteAction(ActionDataToUse);
 }
 
 void AMordath::NextAction()
@@ -1619,14 +1631,14 @@ void AMordath::NextAction()
 		else
 		{
 			ChosenCombo->NextAction();
-			TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, CurrentActionData->ExecutionTime, false);
+			StartExecutionExpiryTimer();
 		}
 
 		return;
 	}
 
 	ChosenCombo->NextAction();
-	TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, CurrentActionData->ExecutionTime, false);
+	StartExecutionExpiryTimer();
 }
 
 void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
@@ -1813,6 +1825,11 @@ void AMordath::StopMoving()
 	CurrentMovementSpeed = 0.0f;
 	ForwardInput = 0.0f;
 	RightInput = 0.0f;
+}
+
+void AMordath::StartExecutionExpiryTimer()
+{
+	TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, this, &AMordath::OnExecutionTimeExpired, CurrentActionData->ExecutionTime, false);
 }
 
 float AMordath::GetDistanceToPlayer() const
