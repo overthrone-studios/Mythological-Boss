@@ -1872,26 +1872,26 @@ bool AMordath::IsAttacking() const
 
 bool AMordath::IsShortAttacking() const
 {
-	return false/*FSM->GetActiveStateID() == 25 && 
+	return FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_ShortAttack_3 FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5*/;
+			GameState->BossData.CurrentActionType == ATM_ShortAttack_3 /* FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5*/;
 }
 
 bool AMordath::IsLongAttacking() const
 {
-	return false/*FSM->GetActiveStateID() == 25 && 
+	return FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_LongAttack_3FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8*/;
+			GameState->BossData.CurrentActionType == ATM_LongAttack_3/*FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8*/;
 }
 
 bool AMordath::IsSpecialAttacking() const
 {
-	return false /*FSM->GetActiveStateID() == 25 && 
+	return FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3 FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11*/;
+			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3 /*FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11*/;
 }
 
 bool AMordath::IsInFirstStage() const

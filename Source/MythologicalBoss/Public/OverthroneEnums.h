@@ -65,7 +65,8 @@ enum EAttackCounters_Mordath
 	ACM_Blockable			UMETA(DisplayName="Blockable"),
 	ACM_ParryableBlockable	UMETA(DisplayName="Parryable and Blockable"),
 	ACM_NoCounter			UMETA(DisplayName="No Counter"),
-	ACM_None				UMETA(DisplayName="None")
+	ACM_None				UMETA(DisplayName="None"),
+	ACM_Max
 };
 
 UENUM()

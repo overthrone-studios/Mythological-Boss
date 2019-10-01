@@ -74,7 +74,7 @@ public:
 
 	// What type of counter can this attack be countered by the player?
 	UPROPERTY(EditInstanceOnly)
-		TEnumAsByte<EAttackCounters_Mordath> CounterType;
+		TEnumAsByte<EAttackCounters_Mordath> CounterType = ACM_None;
 	
 	// Should we constantly face the player during this action?
 	UPROPERTY(EditInstanceOnly, DisplayName = "Always Face Player?")
