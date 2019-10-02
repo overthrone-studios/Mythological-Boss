@@ -34,7 +34,7 @@ struct FMontageActionData_Mordath : public FMontageActionData_Base
 {
 	GENERATED_BODY()
 
-	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = Instant, 10.0+ = Fast)
+	// How fast do we rotate while in the anticipation section of the anim montage above? (0.0 = No rotation, 1.0 = Slow, 10.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float RotationSpeed = 10.0f;
 
