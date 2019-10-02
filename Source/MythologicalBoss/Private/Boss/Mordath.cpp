@@ -1761,7 +1761,7 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 	else if (CurrentMontageSection == "Recovery")
 	{
 		FacePlayer(ActionData->Recovery.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Recovery.PlayRate);
 
 		if (ActionData->Recovery.bSnapToPlayerLocation)
 		{
