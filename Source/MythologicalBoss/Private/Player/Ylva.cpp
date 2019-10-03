@@ -1140,6 +1140,7 @@ void AYlva::DisableControllerRotationYaw()
 }
 #pragma endregion
 
+#if !UE_BUILD_SHIPPING
 #pragma region Debug
 void AYlva::Debug_Die()
 {
@@ -1255,6 +1256,7 @@ void AYlva::ShowNoHUD()
 	OverthroneHUD->bHideDebugText = !OverthroneHUD->bHideDebugText;
 }
 #pragma endregion
+#endif
 
 #pragma region Stamina
 void AYlva::RegenerateStamina(const float Rate)
@@ -1511,7 +1513,7 @@ void AYlva::StartParryEvent()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
-	if (!TimerManager->IsTimerActive(TH_ParryEventExpiry))
+	if (!TimerManager->IsTimerActive(TH_ParryEventExpiry) && Combat.ParrySettings.ParryCameraAnim)
 		TimerManager->SetTimer(TH_ParryEventExpiry, this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 

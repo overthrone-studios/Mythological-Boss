@@ -508,6 +508,7 @@ protected:
 		void DisableLockOn();
 	#pragma endregion
 
+#if !UE_BUILD_SHIPPING
 	#pragma region Debug
 	// Kill the player
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
@@ -561,6 +562,7 @@ protected:
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
 		void ShowNoHUD();
 	#pragma endregion
+#endif
 
 	#pragma region Stamina
 	// Called every frame
