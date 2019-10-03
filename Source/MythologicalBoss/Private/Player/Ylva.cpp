@@ -1865,7 +1865,7 @@ void AYlva::UpdateParryState()
 
 void AYlva::OnExitParryState()
 {
-	if (Combat.ParrySettings.ParryCameraAnimInst->CurTime == 0.0f)
+	if (Combat.ParrySettings.ParryCameraAnimInst && Combat.ParrySettings.ParryCameraAnimInst->CurTime == 0.0f)
 		Combat.ParrySettings.ParryCameraAnimInst->Stop();
 
 	Combat.ParrySettings.ParryCameraAnimInst = nullptr;	
