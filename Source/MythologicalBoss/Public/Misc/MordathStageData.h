@@ -199,7 +199,7 @@ public:
 		FORCEINLINE FCameraShakeData& GetStunShake() { return CameraShakes.Stun; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE uint8 GetRecoverTime() const { return RecoverTime; }
+		FORCEINLINE float GetRecoverTime() const { return RecoverTime; }
 
 	// Holds the data relating to the 'Think' state
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
@@ -236,7 +236,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.01f, ClampMax = 100000.0f))
 		float SuperCloseRangeTime = 2.0f;
 
-	// How many loops should we do when recovering
+	// How long (in seconds) should the boss stay in the recovery state after we've been parried?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
 		float RecoverTime = 1.0f;
 
