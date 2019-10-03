@@ -511,56 +511,43 @@ protected:
 #if !UE_BUILD_SHIPPING
 	#pragma region Debug
 	// Kill the player
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
-		void Debug_Die();
+	void Debug_Die();
 
 	// Reset the player's achievements
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
-		void Debug_ResetFeats();
+	void Debug_ResetFeats();
 
 	// Give the player full health
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
-		void Debug_MaxHealth();
+	void Debug_MaxHealth();
 
 	// Give the player full stamina
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
-		void Debug_RefillStamina();
+	void Debug_RefillStamina();
 
 	// Give the player full charge
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
-		void Debug_MaxCharge();
+	void Debug_MaxCharge();
 
 	// Buff overall player stats
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Debug")
-		void Debug_ToggleBuff();
+	void Debug_ToggleBuff();
 
 	// Called via input to trigger boss stage 1 behaviour
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void Debug_BossStage1();
+	void Debug_BossStage1();
 	
 	// Called via input to trigger boss stage 2 behaviour
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void Debug_BossStage2();
+	void Debug_BossStage2();
 	
 	// Called via input to trigger boss stage 3 behaviour
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void Debug_BossStage3();
+	void Debug_BossStage3();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void ShowPlayerFSMVisualizer();
+	void ShowPlayerFSMVisualizer();
 
 	// Called via input to show the Boss FSM Visualizer widget
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void ShowBossFSMVisualizer();
+	void ShowBossFSMVisualizer();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void ShowMainHUD();
+	void ShowMainHUD();
 
 	// Called via input to show the FSM Visualizer widget
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Debug")
-		void ShowNoHUD();
+	void ShowNoHUD();
 	#pragma endregion
 #endif
 
