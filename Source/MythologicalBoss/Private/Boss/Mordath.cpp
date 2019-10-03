@@ -671,16 +671,9 @@ void AMordath::OnEnterRecoverState()
 
 void AMordath::UpdateRecoverState()
 {
-	if (MordathAnimInstance->RecoverLoopCounter >= CurrentStageData->GetRecoverLoops())
+	if (FSM->GetActiveStateUptime() > CurrentStageData->GetRecoverTime())
 	{
-		if (MordathAnimInstance->bIsRecovering)
-		{
-			MordathAnimInstance->bIsRecovering = false;
-			return;
-		}
-
-		if (!MordathAnimInstance->bIsRecovering && AnimInstance->AnimTimeRemaining < 0.1f)
-			FSM->PopState();
+		FSM->PopState();
 	}
 }
 
@@ -851,7 +844,6 @@ void AMordath::UpdateStunnedState()
 void AMordath::OnExitStunnedState()
 {
 	GameState->BossData.bHasTakenDamage = false;
-	MordathAnimInstance->RecoverLoopCounter = 0;
 	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
 

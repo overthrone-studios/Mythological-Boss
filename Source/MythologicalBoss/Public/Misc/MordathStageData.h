@@ -199,7 +199,7 @@ public:
 		FORCEINLINE FCameraShakeData& GetStunShake() { return CameraShakes.Stun; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
-		FORCEINLINE uint8 GetRecoverLoops() const { return RecoverLoops; }
+		FORCEINLINE uint8 GetRecoverTime() const { return RecoverTime; }
 
 	// Holds the data relating to the 'Think' state
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
@@ -237,8 +237,8 @@ protected:
 		float SuperCloseRangeTime = 2.0f;
 
 	// How many loops should we do when recovering
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0))
-		uint8 RecoverLoops = 1;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
+		float RecoverTime = 1.0f;
 
 	// Mordath's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")

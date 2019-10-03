@@ -48,9 +48,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bIsThinking : 1;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Misc")
-		uint8 RecoverLoopCounter = 0;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		TEnumAsByte<EBossStage_Mordath> CurrentStage = Stage_1;
 
