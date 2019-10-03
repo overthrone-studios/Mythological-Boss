@@ -22,7 +22,7 @@ struct FMontageActionData_Base
 		uint8 bSmoothSnap : 1;
 
 	// The type of blending to use
-	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSnapToPlayerLocation"))
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition="bSmoothSnap"))
 		EAlphaBlendOption BlendOption;
 
 	// How fast we smoothly snap to the player's location

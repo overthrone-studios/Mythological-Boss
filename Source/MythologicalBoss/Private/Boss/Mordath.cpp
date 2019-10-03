@@ -1719,7 +1719,63 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 		FVector NewLocation;
 
 		if (MontageActionData.bSmoothSnap)
-			NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+		{
+			switch (MontageActionData.BlendOption)
+			{
+			case EAlphaBlendOption::Linear:
+				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::Cubic:
+				NewLocation = FMath::CubicInterp(CurrentLocation, CurrentLocation.GetSafeNormal(), GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, GameState->PlayerData.Location.GetSafeNormal(), MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::Sinusoidal:
+				NewLocation = FMath::InterpSinIn(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::QuadraticInOut:
+				NewLocation = FMath::InterpEaseInOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds, 2);
+			break;
+
+			case EAlphaBlendOption::QuarticInOut:
+				NewLocation = FMath::InterpEaseInOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds, 4);
+			break;
+
+			case EAlphaBlendOption::QuinticInOut:
+				NewLocation = FMath::InterpEaseInOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds, 5);
+			break;
+
+			case EAlphaBlendOption::CircularIn:
+				NewLocation = FMath::InterpCircularIn(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::CircularOut:
+				NewLocation = FMath::InterpCircularOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::CircularInOut:
+				NewLocation = FMath::InterpCircularInOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::ExpIn:
+				NewLocation = FMath::InterpExpoIn(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::ExpOut:
+				NewLocation = FMath::InterpExpoOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			case EAlphaBlendOption::ExpInOut:
+				NewLocation = FMath::InterpExpoInOut(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+
+			default:
+				NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
+			break;
+			}
+			
+		}
 		else
 			NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer;
 
