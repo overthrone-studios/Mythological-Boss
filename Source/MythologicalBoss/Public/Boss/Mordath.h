@@ -199,6 +199,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void EnterStage(EBossStage_Mordath InStage);
 
+	UFUNCTION(BlueprintPure, Category = "Mordath")
+		class UForceFeedbackEffect* GetCurrentForceFeedbackEffect() const;
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 

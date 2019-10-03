@@ -268,6 +268,14 @@ bool AOverthroneCharacter::HasMovedLeftBy(float Distance)
 	return false;
 }
 
+void AOverthroneCharacter::VibrateController(class UForceFeedbackEffect* ForceFeedbackToPlay, const float Intensity, const float Duration, const bool bLeftSide, const bool bRightSide)
+{
+	if (ForceFeedbackToPlay)
+		PlayerController->ClientPlayForceFeedback(ForceFeedbackToPlay, false, true, ForceFeedbackToPlay->GetFName());
+	else
+		PlayerController->PlayDynamicForceFeedback(Intensity, Duration, bLeftSide, bLeftSide, bRightSide, bRightSide, EDynamicForceFeedbackAction::Start);
+}
+
 bool AOverthroneCharacter::IsAttacking() const
 {
 	return false;

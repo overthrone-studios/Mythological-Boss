@@ -7,6 +7,7 @@
 #include "Mordath.h"
 #include "Log.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/ForceFeedbackAttenuation.h"
 #include "MordathGhost.h"
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
@@ -69,6 +70,9 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 
 	if (HitComponent)
 		HitComponent->OnComponentHit.Broadcast(HitResult.GetComponent(), Mordath, MeshComp, HitResult.ImpactNormal, HitResult);
+
+	if (HitActor)
+		UGameplayStatics::SpawnForceFeedbackAtLocation(MeshComp, Mordath->GetCurrentForceFeedbackEffect(), HitResult.Location);
 
 	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged))
 	{

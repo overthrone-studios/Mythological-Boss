@@ -11,7 +11,7 @@ void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshCo
 
 	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), true, {}, DebugTrace, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
-	if (!bIsHit)
+	if (HitResult.bBlockingHit && !bIsHit)
 	{
 		OnHit(MeshComp);
 	}

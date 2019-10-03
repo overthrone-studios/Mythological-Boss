@@ -192,6 +192,7 @@ void AYlva::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController->SetInputMode(FInputModeGameOnly());
+	PlayerController->bForceFeedbackEnabled = true;
 
 	InitTimeline(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
 	InitTimeline(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
@@ -680,6 +681,8 @@ void AYlva::LightAttack()
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Light);
 
+		CurrentForceFeedback = Combat.LightAttackForce;
+
 		BeginLightAttack(AttackMontageToPlay);
 	}
 }
@@ -735,6 +738,8 @@ void AYlva::HeavyAttack()
 	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Heavy);
+
+		CurrentForceFeedback = Combat.HeavyAttackForce;
 
 		BeginHeavyAttack(AttackMontageToPlay);
 	}
@@ -1379,6 +1384,11 @@ void AYlva::IncreaseCharge()
 
 	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
 		ChargeAttackComponent->DelayChargeLoss();
+}
+
+class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const
+{
+	return CurrentForceFeedback;
 }
 
 void AYlva::DecreaseCharge()

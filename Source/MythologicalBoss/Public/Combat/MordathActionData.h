@@ -106,6 +106,10 @@ public:
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "!bConstantlyFacePlayer"))
 		FMontageActionData_Mordath Recovery;
 
+	// The Force Feedback effect to play when this action has hit something (Can be left empty)
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* ForceFeedbackEffect;
+
 //private:
 //	FTimerHandle TH_ActionExpiry;
 };

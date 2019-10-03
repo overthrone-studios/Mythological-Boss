@@ -58,6 +58,8 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 		Ylva->ApplyHitStop();
 
+		Ylva->VibrateController(Ylva->GetCurrentForceFeedback());
+
 		// Give charge
 		Ylva->IncreaseCharge();
 

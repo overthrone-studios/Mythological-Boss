@@ -219,6 +219,14 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect parry values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FParrySettings_Ylva ParrySettings;
+
+	// The force effect to play when a light attack has been landed on a blocking hit
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* LightAttackForce;
+	
+	// The force effect to play when a heavy attack has been landed on a blocking hit
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* HeavyAttackForce;
 };
 
 /*
@@ -342,6 +350,9 @@ public:
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
+
+	UFUNCTION(BlueprintPure, Category = "Ylva | Feedback")
+		class UForceFeedbackEffect* GetCurrentForceFeedback() const;
 
 	bool HasMovedRightBy(float Distance) override;
 
@@ -906,6 +917,8 @@ private:
 	FTimerHandle TH_AttackQueueExpiry;
 
 	FTimerHandle TH_DashQueue;
+
+	class UForceFeedbackEffect* CurrentForceFeedback;
 
 	class APlayerCameraManager* CameraManager;
 

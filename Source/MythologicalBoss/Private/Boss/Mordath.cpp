@@ -2188,6 +2188,11 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 	}
 }
 
+UForceFeedbackEffect* AMordath::GetCurrentForceFeedbackEffect() const
+{
+	return CurrentActionData->Action->ForceFeedbackEffect;
+}
+
 void AMordath::AddDebugMessages()
 {
 	const float YPadding = 5.0f;
