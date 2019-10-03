@@ -652,6 +652,8 @@ private:
 	class UAnimMontage* CurrentLongAttackMontage;
 	class UMordathActionData* SuperCloseRange_ActionData;
 
+	class UAnimMontage* PreviousActionMontage;
+
 	class UMordathStageData* CurrentStageData;
 
 	class AOverthroneCharacter* PlayerCharacter;

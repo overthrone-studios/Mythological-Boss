@@ -783,6 +783,7 @@ void AMordath::OnExitDamagedState()
 {
 	AnimInstance->bIsHit = false;
 	GameState->BossData.bHasTakenDamage = false;
+	PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
 	if (ChosenCombo)
 		NextAction();
@@ -846,6 +847,8 @@ void AMordath::OnExitStunnedState()
 	GameState->BossData.bHasTakenDamage = false;
 	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
+
+	PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
 	if (ChosenCombo)
 		NextAction();
@@ -1332,7 +1335,8 @@ void AMordath::OnAttackParryed()
 {
 	if ((CurrentActionData->Action->CounterType == ACM_Parryable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable)  && !IsStunned())
 	{
-		AnimInstance->GetCurrentActiveMontage()->BlendOut.SetBlendTime(0.1f);
+		PreviousActionMontage = AnimInstance->GetCurrentActiveMontage();
+		PreviousActionMontage->BlendOut.SetBlendTime(0.1f);
 		StopActionMontage();
 
 		FSM->PopState();
@@ -1347,7 +1351,8 @@ void AMordath::OnAttackBlocked()
 {
 	if ((CurrentActionData->Action->CounterType == ACM_Blockable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable) && !IsDamaged())
 	{
-		AnimInstance->GetCurrentActiveMontage()->BlendOut.SetBlendTime(0.1f);
+		PreviousActionMontage = AnimInstance->GetCurrentActiveMontage();
+		PreviousActionMontage->BlendOut.SetBlendTime(0.1f);
 		StopActionMontage();
 
 		FSM->PopState();
@@ -1713,7 +1718,7 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 	{
 		FVector NewLocation;
 
-		if (MontageActionData.bSmooth)
+		if (MontageActionData.bSmoothSnap)
 			NewLocation = FMath::Lerp(CurrentLocation, GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer, MontageActionData.Speed * World->DeltaTimeSeconds);
 		else
 			NewLocation = GameState->PlayerData.Location - GetActorForwardVector() * MontageActionData.DistanceFromPlayer;
