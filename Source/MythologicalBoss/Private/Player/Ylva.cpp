@@ -415,6 +415,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::N, IE_Pressed, this, &AYlva::Debug_BossStage2);
 	PlayerInputComponent->BindKey(EKeys::M, IE_Pressed, this, &AYlva::Debug_BossStage3);
 	PlayerInputComponent->BindKey(EKeys::J, IE_Pressed, this, &AYlva::SpawnGhost);
+	PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AYlva::Debug_ToggleLowStaminaAnimBlendOut);
 #endif
 }
 
@@ -702,7 +703,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 	}
 
-	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
+	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
 	{
 		PreviousAttackMontageBlendOutTime = AttackMontage->BlendOut.GetBlendTime();
 		PreviousAttackMontageBlendOutTriggerTime = AttackMontage->BlendOutTriggerTime;
@@ -769,7 +770,7 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
 	}
 
-	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
+	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
 	{
 		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
 		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
@@ -896,7 +897,7 @@ void AYlva::StopBlocking()
 	YlvaAnimInstance->bIsBlocking = false;
 
 	if (!IsParrying())
-		FSM->PopState();
+		FSM->PopState("Block");
 }
 
 void AYlva::BeginTakeDamage(float DamageAmount)
@@ -1220,6 +1221,16 @@ void AYlva::Debug_ToggleBuff()
 	}
 }
 
+void AYlva::Debug_ToggleLowStaminaAnimBlendOut()
+{
+	bEnableBlendOutOnLowStamina = !bEnableBlendOutOnLowStamina;
+
+	if (bEnableBlendOutOnLowStamina)
+		OverthroneHUD->GetMasterHUD()->HighlightBox(16);
+	else
+		OverthroneHUD->GetMasterHUD()->UnhighlightBox(16);
+}
+
 void AYlva::Debug_BossStage1()
 {
 	GameState->EnterBossStage(Stage_1);
@@ -1511,7 +1522,7 @@ void AYlva::OnLowStamina()
 {
 	// Todo Implement function
 
-	MovementComponent->MaxWalkSpeed /= 2.0f;
+	//MovementComponent->MaxWalkSpeed /= 2.0f;
 }
 
 void AYlva::OnComboReset_Implementation()
@@ -1534,7 +1545,7 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
-	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
+	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
 	{
 		Montage->BlendOut.SetBlendTime(PreviousAttackMontageBlendOutTime); 
 		Montage->BlendOutTriggerTime = PreviousAttackMontageBlendOutTriggerTime;
@@ -1645,7 +1656,7 @@ void AYlva::UpdateRunState()
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
 
-	if (!IsMovingInAnyDirection() || MovementComponent->MaxWalkSpeed < MovementSettings.RunSpeed || StaminaComponent->IsStaminaEmpty())
+	if (!IsMovingInAnyDirection() || CurrentMovementSpeed <= 0.0f || StaminaComponent->IsStaminaEmpty())
 	{
 		StaminaComponent->DelayRegeneration();
 		FSM->PopState();

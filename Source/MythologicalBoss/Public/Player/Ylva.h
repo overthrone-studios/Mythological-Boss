@@ -543,6 +543,9 @@ protected:
 	// Buff overall player stats
 	void Debug_ToggleBuff();
 
+	// Toggle animation blend out on low stamina
+	void Debug_ToggleLowStaminaAnimBlendOut();
+
 	// Called via input to trigger boss stage 1 behaviour
 	void Debug_BossStage1();
 	
@@ -831,11 +834,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
 		class UCurveFloat* StaminaRegenCurve;
 
-
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f))
+		uint8 bEnableBlendOutOnLowStamina : 1;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
 		float BlendOutTimeOnLowStamina = 1.0f;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
 		float BlendOutTriggerTimeOnLowStamina = 0.2f;
 
 	// The float curve to use when building charge
