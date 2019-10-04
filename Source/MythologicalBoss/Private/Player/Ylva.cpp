@@ -702,11 +702,11 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 
 	}
 
-	PreviousAttackMontageBlendOutTime = AttackMontage->BlendOut.GetBlendTime();
-	PreviousAttackMontageBlendOutTriggerTime = AttackMontage->BlendOutTriggerTime;
-
 	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
 	{
+		PreviousAttackMontageBlendOutTime = AttackMontage->BlendOut.GetBlendTime();
+		PreviousAttackMontageBlendOutTriggerTime = AttackMontage->BlendOutTriggerTime;
+
 		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
 		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
 	}
@@ -1534,8 +1534,11 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
-	Montage->BlendOut.SetBlendTime(PreviousAttackMontageBlendOutTime); 
-	Montage->BlendOutTriggerTime = PreviousAttackMontageBlendOutTriggerTime;
+	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
+	{
+		Montage->BlendOut.SetBlendTime(PreviousAttackMontageBlendOutTime); 
+		Montage->BlendOutTriggerTime = PreviousAttackMontageBlendOutTriggerTime;
+	}
 }
 
 void AYlva::StartParryEvent()
