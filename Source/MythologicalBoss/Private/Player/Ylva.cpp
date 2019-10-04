@@ -1013,16 +1013,12 @@ void AYlva::StopRunning()
 	if (bIsDead || bCanRun)
 		return;
 
-	if (IsLockedOn())
-		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
-	else
-		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-	
 	// Delay stamina regeneration if we were running
 	if (IsRunning())
-		StaminaComponent->DelayRegeneration();
+	{
 
-	FSM->PopState();
+		FSM->PopState("Run");
+	}
 }
 
 void AYlva::Dash()
@@ -1036,10 +1032,7 @@ void AYlva::Dash()
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
-	if (IsRunning())
-		bWasRunning = true;
-	else
-		bWasRunning = false;
+	IsRunning() ? bWasRunning = true : bWasRunning = false;
 
 	if ((bIsDead || IsChargeAttacking() || IsBlocking()) && TimerManager->IsTimerActive(TH_DashQueue))
 		return;
@@ -1115,10 +1108,10 @@ void AYlva::EnableLockOn()
 	YlvaAnimInstance->bIsLockedOn = true;
 	CameraBoom->CameraRotationLagSpeed *= 4;
 
-	if (!IsRunning())
+	if (!IsRunning() && !IsDashing())
 	{
-		MovementComponent->bUseControllerDesiredRotation = true;
 		MovementComponent->bOrientRotationToMovement = false;
+		MovementComponent->bUseControllerDesiredRotation = true;
 
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
 	}
@@ -1129,8 +1122,8 @@ void AYlva::DisableLockOn()
 	LockOnSettings.bLockedOn = false;
 	PlayerController->SetIgnoreLookInput(false);
 	GameState->LockOn->OnToggleLockOn.Broadcast(true);
-	MovementComponent->bUseControllerDesiredRotation = false;
 	MovementComponent->bOrientRotationToMovement = true;
+	MovementComponent->bUseControllerDesiredRotation = false;
 	YlvaAnimInstance->bIsLockedOn = false;
 	CameraBoom->CameraRotationLagSpeed = 20.0f;
 
@@ -1657,13 +1650,14 @@ void AYlva::UpdateRunState()
 
 	if (!IsMovingInAnyDirection() || CurrentMovementSpeed <= 0.0f || StaminaComponent->IsStaminaEmpty())
 	{
-		StaminaComponent->DelayRegeneration();
 		FSM->PopState();
 	}
 }
 
 void AYlva::OnExitRunState()
 {
+	StaminaComponent->DelayRegeneration();
+
 	if (IsLockedOn())
 	{
 		MovementComponent->bOrientRotationToMovement = false;
@@ -1835,8 +1829,8 @@ void AYlva::OnEnterDashState()
 
 	if (IsLockedOn())
 	{
-		MovementComponent->bUseControllerDesiredRotation = false;
 		MovementComponent->bOrientRotationToMovement = true;
+		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
 	AttackComboComponent->ResetCombo();
@@ -1856,8 +1850,8 @@ void AYlva::OnExitDashState()
 
 	if (IsLockedOn())
 	{
-		MovementComponent->bUseControllerDesiredRotation = true;
 		MovementComponent->bOrientRotationToMovement = false;
+		MovementComponent->bUseControllerDesiredRotation = true;
 	}
 
 	AnimInstance->bIsDashing = false;
