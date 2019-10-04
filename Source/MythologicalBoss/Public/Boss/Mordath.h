@@ -602,6 +602,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
 
+	// The color to use when displaying the floating damage text widget
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
+		TMap<int32, FLinearColor> DamageValueColor;
+
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageOneData;

@@ -105,6 +105,8 @@ struct FBossData : public FCharacterData
 
 	FVector LockOnBoneLocation;
 
+	FLinearColor DamageColor = FLinearColor::White;
+
 	EActionType_Mordath CurrentActionType;
 	EAttackCounters_Mordath CurrentCounterType;
 
@@ -180,6 +182,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		FORCEINLINE EActionType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentActionType; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE FLinearColor GetBossDamageColor() const { return BossData.DamageColor; }
 
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")

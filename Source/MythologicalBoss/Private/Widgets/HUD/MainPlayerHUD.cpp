@@ -29,7 +29,7 @@ void UMainPlayerHUD::Init()
 
 void UMainPlayerHUD::UpdateDamageValue(const float DamageAmount) const
 {
-	DamageValueText->SetText(FText::AsNumber(int32(DamageAmount)));
+	DamageValueText->SetText(FText::AsNumber(FMath::RoundToInt(DamageAmount)));
 }
 
 void UMainPlayerHUD::FadeInDamageValue()

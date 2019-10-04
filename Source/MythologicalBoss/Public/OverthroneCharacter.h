@@ -181,9 +181,11 @@ protected:
 	USkeletalMesh* SkeletalMesh;
 
 	// Tracks the amount of hits we've taken
-	uint8 HitCounter = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		uint8 HitCounter = 0;
 
-	uint8 bIsDead : 1;
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		uint8 bIsDead : 1;
 
 	// Cached world pointer
 	UWorld* World{};
@@ -204,7 +206,8 @@ protected:
 		class AOverthroneGameState* GameState{};
 
 	// Cached movement component
-	UCharacterMovementComponent* MovementComponent{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		UCharacterMovementComponent* MovementComponent{};
 
 	// Cached character's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
@@ -215,10 +218,12 @@ protected:
 		class AOverthroneHUD* OverthroneHUD{};
 
 	// To access the main HUD
-	class UMainPlayerHUD* MainHUD{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class UMainPlayerHUD* MainHUD{};
 
 	// To give data to the Visualizer HUD
-	class UFSMVisualizerHUD* FSMVisualizer{};
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class UFSMVisualizerHUD* FSMVisualizer{};
 
 	// To access sockect locations
 	class USkeletalMeshComponent* SKMComponent;
@@ -231,10 +236,17 @@ protected:
 
 	uint8 bWasLowHealthEventTriggered : 1;
 
-	FVector CurrentLocation;
-	FRotator CurrentRotation;
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		FVector CurrentLocation;
 
-	float RightInput = 0.0f, ForwardInput = 0.0f;
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		FRotator CurrentRotation;
 
-	float CurrentMovementSpeed = 0.0f;
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		float ForwardInput = 0.0f;
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		float RightInput = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		float CurrentMovementSpeed = 0.0f;
 };
