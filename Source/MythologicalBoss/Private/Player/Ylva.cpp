@@ -1643,10 +1643,7 @@ void AYlva::OnEnterRunState()
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
-	if (StaminaComponent->IsLowStamina())
-		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed/2.0f;
-	else
-		MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
+	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 }
 
 void AYlva::UpdateRunState()
@@ -1692,6 +1689,8 @@ void AYlva::OnEnterBlockingState()
 	YlvaAnimInstance->bIsBlocking = true;
 
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	AttackComboComponent->ResetCombo();
 }
 
 void AYlva::UpdateBlockingState()
@@ -1837,6 +1836,8 @@ void AYlva::OnEnterDashState()
 		MovementComponent->bUseControllerDesiredRotation = false;
 		MovementComponent->bOrientRotationToMovement = true;
 	}
+
+	AttackComboComponent->ResetCombo();
 }
 
 void AYlva::UpdateDashState()
