@@ -1440,9 +1440,6 @@ void AMordath::ApplyDamage(const float DamageAmount)
 	if (Debug.bLogHits)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
 #endif
-	//if (HitCounter < DamageValueColor.Num())
-	//	GameState->BossData.DamageColor = *DamageValueColor.Find(HitCounter);
-
 	// Determine the color to output based on damaged value
 	TArray<int32> DamageValues;
 	TArray<FLinearColor> ColorValues;
