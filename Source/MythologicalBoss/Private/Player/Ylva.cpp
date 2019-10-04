@@ -1100,10 +1100,7 @@ void AYlva::ToggleLockOn()
 
 	LockOnSettings.bLockedOn = !LockOnSettings.bLockedOn;
 
-	if (LockOnSettings.bLockedOn)
-		EnableLockOn();
-	else
-		DisableLockOn();
+	LockOnSettings.bLockedOn ? EnableLockOn() : DisableLockOn();
 }
 
 void AYlva::EnableLockOn()
@@ -1115,12 +1112,16 @@ void AYlva::EnableLockOn()
 	LockOnSettings.bLockedOn = true;
 	PlayerController->SetIgnoreLookInput(true);
 	GameState->LockOn->OnToggleLockOn.Broadcast(false);
-	MovementComponent->bUseControllerDesiredRotation = true;
-	MovementComponent->bOrientRotationToMovement = false;
 	YlvaAnimInstance->bIsLockedOn = true;
 	CameraBoom->CameraRotationLagSpeed *= 4;
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	if (!IsRunning())
+	{
+		MovementComponent->bUseControllerDesiredRotation = true;
+		MovementComponent->bOrientRotationToMovement = false;
+
+		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	}
 }
 
 void AYlva::DisableLockOn()
@@ -1133,7 +1134,8 @@ void AYlva::DisableLockOn()
 	YlvaAnimInstance->bIsLockedOn = false;
 	CameraBoom->CameraRotationLagSpeed = 20.0f;
 
-	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	if (!IsRunning())
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 #pragma endregion
 
