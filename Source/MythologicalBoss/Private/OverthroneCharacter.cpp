@@ -67,7 +67,7 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 	HealthLossTimeline.TickTimeline(DeltaSeconds);
 
 	if (IsMovingInAnyDirection() && !IsAttacking())
-		CurrentMovementSpeed = MovementComponent->MaxWalkSpeed;
+		CurrentMovementSpeed = GetMovementSpeed();
 	else
 		CurrentMovementSpeed = 0.0f;
 

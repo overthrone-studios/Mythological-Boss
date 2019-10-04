@@ -285,8 +285,6 @@ void AMordath::BeginPlay()
 	RangeFSM->Start();
 	StageFSM->Start();
 
-	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-
 	ChooseCombo();
 
 	ResetActionDamage();
@@ -453,9 +451,6 @@ void AMordath::OnExitIdleState()
 #pragma region Follow
 void AMordath::OnEnterFollowState()
 {
-	MovementComponent->SetMovementMode(MOVE_Walking);
-	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-
 	if (!ChosenCombo)
 	{
 		#if !UE_BUILD_SHIPPING
@@ -595,8 +590,6 @@ void AMordath::OnExitFollowState()
 #pragma region Retreat
 void AMordath::OnEnterRetreatState()
 {
-	MovementComponent->MaxWalkSpeed = CurrentStageData->GetRunSpeed() / 2.0f;
-
 	RetreatTime = CurrentStageData->RetreatStateData.CalculateRetreatTime();
 
 #if !UE_BUILD_SHIPPING
@@ -686,8 +679,6 @@ void AMordath::OnExitRecoverState()
 #pragma region Think
 void AMordath::OnEnterThinkState()
 {
-	MovementComponent->MaxWalkSpeed = CurrentStageData->GetWalkSpeed();
-
 	ChooseMovementDirection();
 
 	ThinkTime = CurrentStageData->ThinkStateData.CalculateThinkTime();
@@ -1052,8 +1043,6 @@ void AMordath::OnExitCloseRange()
 #pragma region Mid Range
 void AMordath::OnEnterMidRange()
 {
-	CurrentMovementSpeed = GetMovementSpeed();
-
 	GameState->PlayerData.CurrentRange = BRM_Mid;
 }
 
@@ -1074,8 +1063,6 @@ void AMordath::OnExitMidRange()
 #pragma region Far Range
 void AMordath::OnEnterFarRange()
 {
-	CurrentMovementSpeed = GetMovementSpeed();
-
 	GameState->PlayerData.CurrentRange = BRM_Far;
 }
 
@@ -1096,7 +1083,6 @@ void AMordath::UpdateFarRange()
 	{
 		if (!IsRecovering())
 			ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
-			//FSM->PushState("Long Attack 1");
 	}
 	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
@@ -1106,7 +1092,6 @@ void AMordath::UpdateFarRange()
 		{
 			if (!IsRecovering())
 				ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
-				//FSM->PushState("Long Attack 1");
 		}
 		else
 		{
@@ -1513,8 +1498,6 @@ void AMordath::ChooseCombo()
 			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
 			#endif
 		}
-
-		MovementComponent->MaxWalkSpeed = GetMovementSpeed();
 	}
 	else
 	{
@@ -1567,8 +1550,6 @@ void AMordath::ChooseComboWithDelay()
 	if (Debug.bLogComboDelayTime)
 		ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
 	#endif
-
-	MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 }
 
 void AMordath::ChooseAction()
@@ -1625,7 +1606,6 @@ void AMordath::NextAction()
 		if (NewDelay > 0.0f)
 		{
 			TimerManager->SetTimer(ChosenCombo->GetActionDelayTimer(), this, &AMordath::NextAction, NewDelay);
-			MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed/2.0f;
 		}
 		else
 		{
@@ -1848,8 +1828,6 @@ void AMordath::ChooseMovementDirection()
 
 void AMordath::EncirclePlayer()
 {
-	MovementComponent->MaxWalkSpeed = CurrentStageData->GetWalkSpeed();
-
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
 	{
 		MoveRight(-1.0f);
