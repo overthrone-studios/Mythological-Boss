@@ -1469,7 +1469,8 @@ void AMordath::ApplyDamage(const float DamageAmount)
 				GameState->BossData.DamageColor = ColorValues.Last();
 				break;
 			}
-
+			
+			GameState->BossData.DamageColor = ColorValues[0];
 			break;
 		}
 	}
