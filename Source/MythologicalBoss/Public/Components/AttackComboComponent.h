@@ -52,6 +52,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
 		void ClearCurrentAttack();
 
+	// Resets the combo tree
+	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
+		void ResetCombo();
+
 	// Returns the array of light attacks
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE TArray<class UAnimMontage*> GetLightAttacks() const { return LightAttacks.List; }
@@ -114,9 +118,6 @@ public:
 
 protected:
 	void BeginPlay() override;
-
-	// Resets the combo tree
-	void ResetCombo();
 
 	// The list of light attacks we can use
 	UPROPERTY(EditInstanceOnly, Category = "Combo")
