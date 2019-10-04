@@ -328,6 +328,10 @@ public:
 	bool IsMovingInAnyDirection() const override;
 
 	// Returns true if we are currently locked on to the boss
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsLowStamina() const;
+
+	// Returns true if we are currently locked on to the boss
 	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		bool IsLockedOn() const;
 
@@ -824,11 +828,18 @@ protected:
 		float RespawnDelay = 1.8f;
 
 	// The float curve to use when regenerating stamina
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Stamina")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
 		class UCurveFloat* StaminaRegenCurve;
 
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f))
+		float BlendOutTimeOnLowStamina = 1.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f))
+		float BlendOutTriggerTimeOnLowStamina = 0.2f;
+
 	// The float curve to use when building charge
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Charge Attack")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Charge Attack")
 		class UCurveFloat* ChargeAttackCurve;
 
 	// The minimum pitch rotation value (in degrees) the camera can rotate
@@ -919,6 +930,9 @@ private:
 	FTimerHandle TH_DashQueue;
 
 	class UForceFeedbackEffect* CurrentForceFeedback;
+
+	float PreviousAttackMontageBlendOutTime = 0.25f;
+	float PreviousAttackMontageBlendOutTriggerTime = 0.1f;
 
 	class APlayerCameraManager* CameraManager;
 

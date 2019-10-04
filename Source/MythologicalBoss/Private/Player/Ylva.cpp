@@ -694,14 +694,24 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 	if (IsLockedOn())
 		MovementComponent->bUseControllerDesiredRotation = false;
 
-	AnimInstance->Montage_Play(AttackMontage);
-
 	Combat.AttackSettings.LightAttackDamage *= AttackComboComponent->GetDamageMultiplier();
 
 	if (!bGodMode)
 	{
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
+
 	}
+
+	PreviousAttackMontageBlendOutTime = AttackMontage->BlendOut.GetBlendTime();
+	PreviousAttackMontageBlendOutTriggerTime = AttackMontage->BlendOutTriggerTime;
+
+	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
+	{
+		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
+		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
+	}
+
+	AnimInstance->Montage_Play(AttackMontage);
 }
 
 void AYlva::HeavyAttack()
@@ -752,14 +762,20 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 	if (IsLockedOn())
 		MovementComponent->bUseControllerDesiredRotation = false;
 
-	AnimInstance->Montage_Play(AttackMontage);
-
 	Combat.AttackSettings.HeavyAttackDamage *= AttackComboComponent->GetDamageMultiplier();
 
 	if (!bGodMode)
 	{
 		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
 	}
+
+	if (StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty())
+	{
+		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
+		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
+	}
+
+	AnimInstance->Montage_Play(AttackMontage);
 }
 
 void AYlva::Attack_Queued()
@@ -1517,6 +1533,9 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 	{
 		AttackComboComponent->ClearCurrentAttack();
 	}
+
+	Montage->BlendOut.SetBlendTime(PreviousAttackMontageBlendOutTime); 
+	Montage->BlendOutTriggerTime = PreviousAttackMontageBlendOutTriggerTime;
 }
 
 void AYlva::StartParryEvent()
@@ -1550,9 +1569,6 @@ void AYlva::UpdateAnyState()
 {
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-
-	//if (HealthComponent->IsLowHealth())
-	//	FollowCamera->PostProcessSettings.VignetteIntensity = FMath::Clamp(FMath::Sin(World->RealTimeSeconds * 2.0f), 0.5f, 0.7f);
 }
 
 void AYlva::OnExitAnyState()
@@ -1982,6 +1998,11 @@ bool AYlva::IsMovingLeft() const
 bool AYlva::IsMovingInAnyDirection() const
 {
 	return IsMovingBackward() || IsMovingForward() || IsMovingRight() || IsMovingLeft() || ForwardInput != 0.0f || RightInput != 0.0f;
+}
+
+bool AYlva::IsLowStamina() const
+{
+	return StaminaComponent->IsLowStamina();
 }
 
 bool AYlva::IsLockedOn() const
