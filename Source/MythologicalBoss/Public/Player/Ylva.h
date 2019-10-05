@@ -180,12 +180,6 @@ struct FParrySettings_Ylva
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UAnimMontage* ParryMontage;
 
-	// The camera animation to play when parry has succeeded
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		class UCameraAnim* ParryCameraAnim;
-
-	class UCameraAnimInst* ParryCameraAnimInst;
-
 	// The sound to play when we've parried an attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UHitSoundData* ParryHitSoundData;
