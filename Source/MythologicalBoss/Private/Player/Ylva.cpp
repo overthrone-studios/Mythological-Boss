@@ -650,6 +650,12 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 	return false;
 }
 
+void AYlva::OnAttackLanded()
+{
+	if (GameState->PlayerData.CurrentAttackType == ATP_Special)
+		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
+}
+
 float AYlva::GetDistanceToBoss() const
 {
 	return FVector::Dist(GameState->BossData.Location, CurrentLocation);
