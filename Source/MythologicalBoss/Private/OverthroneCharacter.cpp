@@ -145,7 +145,7 @@ void AOverthroneCharacter::DisableInvincibility()
 
 void AOverthroneCharacter::OnAttackLanded()
 {
-	check(0 && "You must implement OnAttackLanded()");
+	//check(0 && "You must implement OnAttackLanded()");
 }
 
 void AOverthroneCharacter::ChangeHitboxSize(float NewRadius)
