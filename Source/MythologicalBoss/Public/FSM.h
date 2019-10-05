@@ -117,6 +117,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		bool IsStackEmpty() const;
 
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		FORCEINLINE bool IsMachineRunning() const { return bIsRunning; }
+
 	// Enable debug mode?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FSM")
 		uint8 bDebug : 1;
