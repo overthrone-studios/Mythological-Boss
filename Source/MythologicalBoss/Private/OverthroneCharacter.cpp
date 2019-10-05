@@ -273,12 +273,14 @@ bool AOverthroneCharacter::HasMovedLeftBy(float Distance)
 	return false;
 }
 
-void AOverthroneCharacter::VibrateController(class UForceFeedbackEffect* ForceFeedbackToPlay, const float Intensity, const float Duration, const bool bLeftSide, const bool bRightSide)
+void AOverthroneCharacter::VibrateController(UForceFeedbackEffect* ForceFeedbackToPlay, const bool bLooping, const bool bIgnoreTimeDilation)
 {
-	if (ForceFeedbackToPlay)
-		PlayerController->ClientPlayForceFeedback(ForceFeedbackToPlay, false, true, ForceFeedbackToPlay->GetFName());
-	else
-		PlayerController->PlayDynamicForceFeedback(Intensity, Duration, bLeftSide, bLeftSide, bRightSide, bRightSide, EDynamicForceFeedbackAction::Start);
+	PlayerController->ClientPlayForceFeedback(ForceFeedbackToPlay, bLooping, bIgnoreTimeDilation, ForceFeedbackToPlay->GetFName());
+}
+
+void AOverthroneCharacter::VibrateController( const float Intensity, const float Duration, const bool bLeftSide, const bool bRightSide)
+{
+	PlayerController->PlayDynamicForceFeedback(Intensity, Duration, bLeftSide, bLeftSide, bRightSide, bRightSide, EDynamicForceFeedbackAction::Start);
 }
 
 bool AOverthroneCharacter::IsAttacking() const

@@ -113,6 +113,14 @@ struct FChargeSettings_Ylva
 		class UCameraAnim* ChargeCameraAnim;
 
 	class UCameraAnimInst* ChargeCameraAnimInst;
+
+	// The force effect to play while charging
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* ChargeAttackForce;
+
+	// The force effect to play when we've landed a charge attack hit
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* ChargeAttackEndForce;
 };
 
 USTRUCT(BlueprintType)

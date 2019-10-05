@@ -83,7 +83,9 @@ public:
 		virtual bool HasMovedLeftBy(float Distance);
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		void VibrateController(class UForceFeedbackEffect* ForceFeedbackToPlay = nullptr, float Intensity = 1.0f, float Duration = 0.3f, bool bLeftSide = true, bool bRightSide = true);
+		void VibrateController(class UForceFeedbackEffect* ForceFeedbackToPlay = nullptr, bool bLooping = false, bool bIgnoreTimeDilation = true);
+
+	void VibrateController(float Intensity = 1.0f, float Duration = 0.3f, bool bLeftSide = true, bool bRightSide = true);
 
 protected:
 	// Called when the game starts or when spawned

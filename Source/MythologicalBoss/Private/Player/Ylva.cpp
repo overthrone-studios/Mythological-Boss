@@ -1821,6 +1821,8 @@ void AYlva::UpdateChargeAttackState()
 
 	LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 
+	VibrateController(Combat.ChargeSettings.ChargeAttackForce, true);
+
 	ChargeAttackHoldFrames++;
 
 	PlayerController->ClientPlayCameraShake(CameraShakes.Charge.Shake,CameraShakes.Charge.Intensity);
@@ -1859,6 +1861,7 @@ void AYlva::OnExitChargeAttackState()
 	if (!bHasBeenDamaged)
 	{
 		YlvaAnimInstance->bChargeReleased = true;
+		CurrentForceFeedback = Combat.ChargeSettings.ChargeAttackEndForce;
 	}
 	else
 	{
