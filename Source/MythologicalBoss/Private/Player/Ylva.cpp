@@ -1025,7 +1025,7 @@ void AYlva::Dash()
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
-	// Man, I really wanted to put this in one line, but not XCode is being a dick
+	// Man, I really wanted to put this in one line, but nooooo XCode is being a dick
 	if (IsRunning())
 		bWasRunning = true;
 	else
