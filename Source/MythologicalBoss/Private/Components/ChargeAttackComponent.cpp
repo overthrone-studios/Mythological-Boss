@@ -29,6 +29,11 @@ void UChargeAttackComponent::SetCharge(const float NewChargeAmount)
 
 	Charge = FMath::Clamp(NewChargeAmount, 0.0f, MaxCharge);
 	SmoothedCharge = Charge;
+
+	if (Charge >= GetMaxCharge())
+		OnChargeFilled.Broadcast();
+	else if (Charge <= 0.0f)
+		OnChargeEmpty.Broadcast();
 }
 
 void UChargeAttackComponent::SetSmoothedCharge(const float Value)
@@ -42,6 +47,9 @@ void UChargeAttackComponent::IncreaseCharge(const float Amount)
 
 	Charge = FMath::Clamp(Charge + Amount, 0.0f, MaxCharge);
 	SmoothedCharge = Charge;
+
+	if (Charge >= GetMaxCharge())
+		OnChargeFilled.Broadcast();
 }
 
 void UChargeAttackComponent::DecreaseCharge(const float Amount)
@@ -50,11 +58,16 @@ void UChargeAttackComponent::DecreaseCharge(const float Amount)
 
 	Charge = FMath::Clamp(Charge - Amount, 0.0f, MaxCharge);
 	SmoothedCharge = Charge;
+
+	if (Charge <= 0.0f)
+		OnChargeEmpty.Broadcast();
 }
 
 void UChargeAttackComponent::ResetCharge()
 {
 	InitChargeAttack();
+
+	OnChargeEmpty.Broadcast();
 }
 
 void UChargeAttackComponent::BeginPlay()

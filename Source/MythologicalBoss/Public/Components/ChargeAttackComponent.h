@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "ChargeAttackComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChargeFullSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChargeEmptySignature);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
 class MYTHOLOGICALBOSS_API UChargeAttackComponent final : public UActorComponent
@@ -14,6 +16,9 @@ class MYTHOLOGICALBOSS_API UChargeAttackComponent final : public UActorComponent
 
 public:	
 	UChargeAttackComponent();
+
+	FOnChargeFullSignature OnChargeFilled;
+	FOnChargeEmptySignature OnChargeEmpty;
 
 	// Delay charge loss by the DelayBeforeChargeLoss property
 	UFUNCTION(BlueprintCallable, Category = "Charge Attack")
@@ -103,6 +108,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Charge Attack")
 		void ResetCharge();
 
+	// Gets the material for the full charge meter
+	UFUNCTION(BlueprintCallable, Category = "Charge Attack")
+		class UMaterialInterface* GetFullChargeMaterial() const { return FullChargeMaterial; }
+
 protected:
 	void BeginPlay() override;
 
@@ -157,6 +166,9 @@ protected:
 	// The speed of the charge loss (How fast or slow do we lose charge?)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f))
 		float ChargeLossRate = 30.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Charge Attack")
+		class UMaterialInterface* FullChargeMaterial;
 
 	// The actor's previous charge
 	UPROPERTY(BlueprintReadOnly, Category = "Charge Attack")
