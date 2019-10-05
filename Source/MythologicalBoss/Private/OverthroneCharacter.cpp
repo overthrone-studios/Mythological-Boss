@@ -143,6 +143,11 @@ void AOverthroneCharacter::DisableInvincibility()
 	bCanBeDamaged = true;
 }
 
+void AOverthroneCharacter::OnAttackLanded()
+{
+	check(0 && "You must implement OnAttackLanded()");
+}
+
 void AOverthroneCharacter::ChangeHitboxSize(float NewRadius)
 {
 	check(0 && "You must implement ChangeHitboxSize()");

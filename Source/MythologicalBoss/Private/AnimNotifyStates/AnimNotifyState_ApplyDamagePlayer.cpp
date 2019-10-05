@@ -77,5 +77,7 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 		// Play sound effect
 		PlayHitSound(MeshComp);
+
+		Ylva->OnAttackLanded();
 	}
 }

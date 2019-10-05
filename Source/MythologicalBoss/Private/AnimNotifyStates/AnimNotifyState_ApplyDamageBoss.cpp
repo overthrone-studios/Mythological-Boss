@@ -90,6 +90,8 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 		{
 			// Play sound effect
 			PlayHitSound(MeshComp);
+
+			Mordath->OnAttackLanded();
 		}
 		else if(MordathGhost)
 		{
