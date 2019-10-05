@@ -653,7 +653,9 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 void AYlva::OnAttackLanded()
 {
 	if (GameState->PlayerData.CurrentAttackType == ATP_Special)
+	{
 		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
+	}
 }
 
 float AYlva::GetDistanceToBoss() const
@@ -1721,8 +1723,6 @@ void AYlva::OnExitBlockingState()
 #pragma region Damaged
 void AYlva::OnEnterDamagedState()
 {
-	ULog::Info(CUR_CLASS_FUNC_WITH_LINE, true);
-
 	if (MovementSettings.bStopMovingWhenDamaged)
 		MovementComponent->SetMovementMode(MOVE_None);
 
@@ -2065,7 +2065,7 @@ bool AYlva::IsAttacking() const
 
 bool AYlva::IsChargeAttacking() const
 {
-	return FSM->GetActiveStateID() == 6;
+	return FSM->GetActiveStateID() == 6 || GameState->PlayerData.CurrentAttackType == ATP_Special;
 }
 
 bool AYlva::IsParrySuccessful() const
