@@ -776,7 +776,8 @@ void AMordath::OnExitDamagedState()
 	GameState->BossData.bHasTakenDamage = false;
 
 	// Reset blend out time when we've been damaged
-	PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
+	if (PreviousActionMontage)
+		PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
 	if (ChosenCombo)
 		NextAction();
@@ -842,7 +843,8 @@ void AMordath::OnExitStunnedState()
 	MordathAnimInstance->bIsStunned = false;
 
 	// Reset blend out time when we've been stunned
-	PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
+	if (PreviousActionMontage)
+		PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
 	if (ChosenCombo)
 		NextAction();
