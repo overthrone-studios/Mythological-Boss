@@ -90,4 +90,5 @@ public:
 
 	static FString MordathAttackTypeToString(const EActionType_Mordath& Enum);
 	static FString MordathAttackCounterTypeToString(const EAttackCounters_Mordath& Enum);
+	static FString PlayerAttackTypeToString(const EAttackType_Player& Enum);
 };

@@ -61,3 +61,21 @@ FString UOverthroneEnums::MordathAttackCounterTypeToString(const EAttackCounters
 		return FString("None");
 	}
 }
+
+FString UOverthroneEnums::PlayerAttackTypeToString(const EAttackType_Player& Enum)
+{
+	switch (Enum)
+	{
+	case ATP_Light:
+		return FString("Light");
+
+	case ATP_Heavy:
+		return FString("Heavy");
+
+	case ATP_Special:
+		return FString("Special");
+
+	default:
+		return FString("None");
+	}
+}
