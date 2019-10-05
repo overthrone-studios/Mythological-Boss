@@ -1796,6 +1796,12 @@ void AYlva::OnEnterDeathState()
 
 	//TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
 
+	// Stop all vibrations
+	for (const auto& Effect : PlayerController->ActiveForceFeedbackEffects)
+	{
+		StopVibrateController(Effect.ForceFeedbackEffect);
+	}
+
 	OnDeath();
 }
 
