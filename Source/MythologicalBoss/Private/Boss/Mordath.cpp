@@ -302,11 +302,12 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsDead)
+	if (bIsDead || GameState->PlayerData.bIsDead && !IsAttacking())
 	{
 		AnimInstance->MovementSpeed = 0.0f;
 		AnimInstance->ForwardInput = 0.0f;
 		AnimInstance->RightInput = 0.0f;
+		MordathAnimInstance->CurrentStage = Stage_None;
 		return;
 	}
 	
@@ -829,7 +830,7 @@ void AMordath::OnEnterStunnedState()
 
 void AMordath::UpdateStunnedState()
 {
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (AnimInstance->AnimTimeRemaining < 0.1f/* FSM->GetActiveStateUptime() > CurrentStageData->StunTime*/)
 	{
 		FSM->PopState();
 		FSM->PushState("Recover");
@@ -840,6 +841,7 @@ void AMordath::OnExitStunnedState()
 {
 	GameState->BossData.bHasTakenDamage = false;
 	GameState->PlayerData.bParrySucceeded = false;
+
 	MordathAnimInstance->bIsStunned = false;
 
 	// Reset blend out time when we've been stunned

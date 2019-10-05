@@ -18,7 +18,8 @@ enum EBossStage_Mordath
 {
 	Stage_1,
 	Stage_2,
-	Stage_3
+	Stage_3,
+	Stage_None
 };
 
 UENUM()
