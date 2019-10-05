@@ -774,6 +774,8 @@ void AMordath::OnExitDamagedState()
 {
 	AnimInstance->bIsHit = false;
 	GameState->BossData.bHasTakenDamage = false;
+
+	// Reset blend out time when we've been damaged
 	PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
 	if (ChosenCombo)
@@ -839,6 +841,7 @@ void AMordath::OnExitStunnedState()
 	GameState->PlayerData.bParrySucceeded = false;
 	MordathAnimInstance->bIsStunned = false;
 
+	// Reset blend out time when we've been stunned
 	PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
 	if (ChosenCombo)
@@ -1478,6 +1481,12 @@ void AMordath::ApplyDamage(const float DamageAmount)
 	PauseAnimsWithTimer();
 
 	UpdateHealth(DamageAmount);
+
+	if (GameState->PlayerData.CurrentAttackType == ATP_Special)
+	{
+		FSM->PopState();
+		FSM->PushState("Stunned");
+	}
 
 	// Handled in blueprints
 	OnAfterTakeDamage();
