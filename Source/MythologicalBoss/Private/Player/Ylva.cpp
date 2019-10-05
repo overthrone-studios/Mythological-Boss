@@ -328,7 +328,7 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(5, "Player Health: " + FString::FromInt(HealthComponent->GetCurrentHealth()));
 	OverthroneHUD->UpdateOnScreenDebugMessage(6, "Player Stamina: " + FString::FromInt(StaminaComponent->GetCurrentStamina()));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(8, "Current Attack: " + AttackComboComponent->GetCurrentAttackAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(8, "Current Attack: " + UOverthroneEnums::PlayerAttackTypeToString(GameState->PlayerData.CurrentAttackType)/* AttackComboComponent->GetCurrentAttackAsString()*/);
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(9, "Player Move Direction: " + FString::SanitizeFloat(AnimInstance->MovementDirection));
 
@@ -697,6 +697,7 @@ void AYlva::LightAttack()
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Light);
 
 		CurrentForceFeedback = Combat.LightAttackForce;
+		GameState->PlayerData.CurrentAttackType = AttackComboComponent->GetCurrentAttack();
 
 		BeginLightAttack(AttackMontageToPlay);
 	}
@@ -765,6 +766,7 @@ void AYlva::HeavyAttack()
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Heavy);
 
 		CurrentForceFeedback = Combat.HeavyAttackForce;
+		GameState->PlayerData.CurrentAttackType = AttackComboComponent->GetCurrentAttack();
 
 		BeginHeavyAttack(AttackMontageToPlay);
 	}
@@ -827,7 +829,7 @@ void AYlva::ClearAttackQueue()
 
 void AYlva::ChargeUpAttack()
 {
-	if (!ChargeAttackComponent->IsChargeFull() || FSM->GetActiveStateID() == 6 /*Charge Attack*/)
+	if (!ChargeAttackComponent->IsChargeFull() || IsChargeAttacking())
 		return;
 
 	if (!IsDamaged())
@@ -839,7 +841,7 @@ void AYlva::ChargeUpAttack()
 
 void AYlva::ReleaseChargeAttack()
 {
-	if (YlvaAnimInstance->bChargeReleased && FSM->GetActiveStateID() != 6 /*Charge Attack*/)
+	if (YlvaAnimInstance->bChargeReleased && !IsChargeAttacking())
 		return;
 
 	FSM->PopState("Charge Attack");
@@ -943,7 +945,7 @@ void AYlva::ApplyDamage(const float DamageAmount)
 
 			bHasBeenDamaged = true;
 
-			if (FSM->GetActiveStateID() == 6 /*Charge Attack*/)
+			if (IsChargeAttacking())
 				FSM->PopState();
 
 			// Enter damaged state
@@ -1786,6 +1788,9 @@ void AYlva::OnEnterChargeAttackState()
 	MovementComponent->SetMovementMode(MOVE_None);
 	YlvaAnimInstance->bCanCharge = true;
 
+	GameState->PlayerData.CurrentAttackType = ATP_Special;
+
+
 	if (!Combat.ChargeSettings.ChargeCameraAnimInst)
 	{
 		if (Combat.ChargeSettings.ChargeCameraAnim)
@@ -1820,6 +1825,8 @@ void AYlva::OnExitChargeAttackState()
 {
 	PlayerController->ResetIgnoreLookInput();
 	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	GameState->PlayerData.CurrentAttackType = ATP_None;
 
 	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
 	{
@@ -2048,7 +2055,7 @@ bool AYlva::IsAttacking() const
 
 bool AYlva::IsChargeAttacking() const
 {
-	return ChargeAttackHoldFrames > 1;
+	return FSM->GetActiveStateID() == 6;
 }
 
 bool AYlva::IsParrySuccessful() const
