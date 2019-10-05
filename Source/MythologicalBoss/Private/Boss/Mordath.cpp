@@ -302,7 +302,7 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsDead || GameState->PlayerData.bIsDead && !IsAttacking())
+	if ((bIsDead || GameState->IsPlayerDead()) && !FSM->IsMachineRunning())
 	{
 		AnimInstance->MovementSpeed = 0.0f;
 		AnimInstance->ForwardInput = 0.0f;
@@ -375,6 +375,11 @@ void AMordath::UpdateAnyState()
 {
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	if (GameState->IsPlayerDead() && HasFinishedAction())
+	{
+		FSM->Stop();
+	}
 }
 
 void AMordath::OnExitAnyState()
@@ -1191,7 +1196,8 @@ void AMordath::UpdateFirstStage()
 
 void AMordath::OnExitFirstStage()
 {
-	FSM->PopState();
+	if (!GameState->PlayerData.bIsDead)
+		FSM->PopState();	
 }
 #pragma endregion 
 
@@ -1250,7 +1256,8 @@ void AMordath::UpdateSecondStage()
 
 void AMordath::OnExitSecondStage()
 {
-	FSM->PopState();
+	if (!GameState->PlayerData.bIsDead)
+		FSM->PopState();	
 }
 #pragma endregion 
 
@@ -1262,7 +1269,8 @@ void AMordath::OnEnterThirdStage()
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
 
-	FSM->PopState();
+	if (!GameState->PlayerData.bIsDead)
+		FSM->PopState();	
 
 	MordathAnimInstance->CurrentStage = Stage_3;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
@@ -1316,8 +1324,8 @@ void AMordath::OnPlayerDeath()
 {
 	BossAIController->StopMovement();
 
-	FSM->RemoveAllStatesFromStack();
-	FSM->PushState("Laugh");
+	//FSM->RemoveAllStatesFromStack();
+	//FSM->PushState("Laugh");
 
 	RangeFSM->Stop();
 	StageFSM->Stop();
