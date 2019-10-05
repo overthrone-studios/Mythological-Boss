@@ -857,6 +857,8 @@ void AYlva::FinishChargeAttack()
 {
 	ChargeAttackHoldFrames = 0;
 
+	GameState->PlayerData.CurrentAttackType = ATP_None;
+
 	YlvaAnimInstance->bCanCharge = false;
 	YlvaAnimInstance->bChargeReleased = false;
 }
@@ -1836,8 +1838,6 @@ void AYlva::OnExitChargeAttackState()
 	PlayerController->ResetIgnoreLookInput();
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
-	GameState->PlayerData.CurrentAttackType = ATP_None;
-
 	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
 	{
 		if (Combat.ChargeSettings.ChargeCameraAnimInst)
@@ -1874,7 +1874,7 @@ void AYlva::OnExitChargeAttackState()
 		ResetCharge();
 	}
 
-	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.2f);
+	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.5f);
 }
 #pragma endregion 
 
