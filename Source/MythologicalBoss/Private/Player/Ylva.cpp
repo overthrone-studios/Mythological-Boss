@@ -1995,7 +1995,7 @@ void AYlva::UpdateParryState()
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 4 * FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation /*FMath::Lerp(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 2 * FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f))*/);
 
-	ULog::Number(UGameplayStatics::GetGlobalTimeDilation(this), "Time dilation: ", true);
+	//ULog::Number(UGameplayStatics::GetGlobalTimeDilation(this), "Time dilation: ", true);
 
 	if (UGameplayStatics::GetGlobalTimeDilation(this) >= 1.0f/* AnimInstance->AnimTimeRemaining < 0.1f*/)
 		FSM->PopState();
