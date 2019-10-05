@@ -75,6 +75,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(2, "Run");
 	FSM->AddState(4, "Block");
 	FSM->AddState(5, "Death");
+	FSM->AddState(6, "Charge Attack");
 	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
@@ -104,6 +105,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDeathState);
 	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDeathState);
 	FSM->GetState(5)->OnExitState.AddDynamic(this, &AYlva::OnExitDeathState);
+
+	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AYlva::OnEnterChargeAttackState);
+	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AYlva::UpdateChargeAttackState);
+	FSM->GetState(6)->OnExitState.AddDynamic(this, &AYlva::OnExitChargeAttackState);
 
 	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
 	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
@@ -242,7 +247,6 @@ void AYlva::BeginPlay()
 	// Begin the state machine
 	FSM->Start();
 
-
 #if !UE_BUILD_SHIPPING
 	GetCapsuleComponent()->SetHiddenInGame(false);
 	GetCapsuleComponent()->SetVisibility(true);
@@ -284,15 +288,7 @@ void AYlva::Tick(const float DeltaTime)
 	// Lock-on mechanic
 	if (IsLockedOn())
 	{
-		const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, GameState->BossData.Location);
-		const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
-
-		const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
-		//const float& NewPitch = FMath::Lerp(NewPitch, FMath::GetMappedRangeValueClamped({1500.0f, 200.0f}, {LockOnPitchMin, LockOnPitchMax}, DistanceToBoss), LockOnRotationSpeed * DeltaTime);
-
-		const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
-
-		PlayerController->SetControlRotation(NewRotation);
+		LockOnTo(GameState->BossData.Location, DeltaTime);
 	}
 
 	// Stamina regen mechanic
@@ -505,6 +501,24 @@ void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * LookUpRate * World->DeltaTimeSeconds);
+}
+
+void AYlva::LockOnTo(const FVector& TargetLocation, const float DeltaTime)
+{
+	const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
+	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
+
+	const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
+	//const float& NewPitch = FMath::Lerp(NewPitch, FMath::GetMappedRangeValueClamped({1500.0f, 200.0f}, {LockOnPitchMin, LockOnPitchMax}, DistanceToBoss), LockOnRotationSpeed * DeltaTime);
+
+	const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+
+	PlayerController->SetControlRotation(NewRotation);
+}
+
+void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
+{
+	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 }
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -813,51 +827,22 @@ void AYlva::ClearAttackQueue()
 
 void AYlva::ChargeUpAttack()
 {
-	if (!ChargeAttackComponent->IsChargeFull())
+	if (!ChargeAttackComponent->IsChargeFull() || FSM->GetActiveStateID() == 6 /*Charge Attack*/)
 		return;
 
-	ChargeAttackHoldFrames++;
-
-	PlayerController->ClientPlayCameraShake(CameraShakes.Charge.Shake,CameraShakes.Charge.Intensity);
-
-	// Run once
-	if (IsChargeAttacking())
+	if (!IsDamaged())
 	{
-		MovementComponent->SetMovementMode(MOVE_None);
-		YlvaAnimInstance->bCanCharge = true;
-
-		if (!Combat.ChargeSettings.ChargeCameraAnimInst)
-		{
-			if (Combat.ChargeSettings.ChargeCameraAnim)
-				Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
-		}
-
-		const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess,GetActorForwardVector().Rotation().Yaw,ControlRotation.Roll);
-		PlayerController->SetControlRotation(NewRotation);
-
-		PlayerController->SetIgnoreLookInput(true);
+		FSM->PopState();
+		FSM->PushState("Charge Attack");
 	}
-
-	ULog::Number(ChargeAttackHoldFrames,"Charge Hold: ",true);
 }
 
 void AYlva::ReleaseChargeAttack()
 {
-	if (ChargeAttackComponent->IsChargeFull())
-	{
-		PlayerController->ClientPlayCameraShake(CameraShakes.ChargeEnd.Shake,CameraShakes.ChargeEnd.Intensity);
-		ResetCharge();
-	}
+	if (YlvaAnimInstance->bChargeReleased && FSM->GetActiveStateID() != 6 /*Charge Attack*/)
+		return;
 
-	YlvaAnimInstance->bChargeReleased = true;
-
-	Combat.ChargeSettings.ChargeCameraAnimInst = nullptr;
-
-	PlayerController->ResetIgnoreLookInput();
-
-	TimerManager->SetTimer(TH_ChargeAttackRelease,this,&AYlva::FinishChargeAttack,0.2f);
-
-	MovementComponent->SetMovementMode(MOVE_Walking);
+	FSM->PopState("Charge Attack");
 }
 
 void AYlva::FinishChargeAttack()
@@ -907,9 +892,10 @@ void AYlva::BeginTakeDamage(float DamageAmount)
 
 void AYlva::ApplyDamage(const float DamageAmount)
 {
-	// Pop the active state that's not Idle or Block
+	// Pop the active state that's not Idle or Block or Charge
 	if (FSM->GetActiveStateName() != "Idle" &&
-		FSM->GetActiveStateName() != "Block")
+		FSM->GetActiveStateName() != "Block" &&
+		FSM->GetActiveStateName() != "Charge Attack")
 	{
 		FSM->PopState();
 	}
@@ -954,6 +940,11 @@ void AYlva::ApplyDamage(const float DamageAmount)
 		default:
 			HitCounter++;
 			HitCounter_Persistent++;
+
+			bHasBeenDamaged = true;
+
+			if (FSM->GetActiveStateID() == 6 /*Charge Attack*/)
+				FSM->PopState();
 
 			// Enter damaged state
 			FSM->PushState("Damaged");
@@ -1563,7 +1554,7 @@ void AYlva::FinishParryEvent()
 
 void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	bIsHit = true;
+	bIsParryBoxHit = true;
 	GameState->PlayerData.bParrySucceeded = true;
 }
 #pragma endregion
@@ -1706,7 +1697,7 @@ void AYlva::OnExitBlockingState()
 {
 	bUseControllerRotationYaw = false;
 
-	bIsHit = false;
+	bIsParryBoxHit = false;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -1716,10 +1707,13 @@ void AYlva::OnExitBlockingState()
 #pragma region Damaged
 void AYlva::OnEnterDamagedState()
 {
+	ULog::Info(CUR_CLASS_FUNC_WITH_LINE, true);
+
 	if (MovementSettings.bStopMovingWhenDamaged)
 		MovementComponent->SetMovementMode(MOVE_None);
 
 	GameState->PlayerData.bHasTakenDamage = true;
+	bHasBeenDamaged = true;
 
 	StopAnimMontage();
 	AttackComboComponent->ClearCurrentAttack();
@@ -1735,7 +1729,7 @@ void AYlva::UpdateDamagedState()
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// If hit animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
 
@@ -1744,6 +1738,7 @@ void AYlva::OnExitDamagedState()
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	GameState->PlayerData.bHasTakenDamage = false;
+	bHasBeenDamaged = false;
 
 	YlvaAnimInstance->bIsHitByNoCounter = false;
 	AnimInstance->bIsHit = false;
@@ -1782,6 +1777,87 @@ void AYlva::OnExitDeathState()
 	bIsDead = false;
 	GameState->PlayerData.bIsDead = false;
 	AnimInstance->bIsDead = false;
+}
+#pragma endregion 
+
+#pragma region Charge Attack
+void AYlva::OnEnterChargeAttackState()
+{
+	MovementComponent->SetMovementMode(MOVE_None);
+	YlvaAnimInstance->bCanCharge = true;
+
+	if (!Combat.ChargeSettings.ChargeCameraAnimInst)
+	{
+		if (Combat.ChargeSettings.ChargeCameraAnim)
+			Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
+	}
+
+	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess,GetActorForwardVector().Rotation().Yaw,ControlRotation.Roll);
+	PlayerController->SetControlRotation(NewRotation);
+
+	PlayerController->SetIgnoreLookInput(true);
+}
+
+void AYlva::UpdateChargeAttackState()
+{
+	FaceBoss(World->DeltaTimeSeconds);
+
+	LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+
+	ChargeAttackHoldFrames++;
+
+	PlayerController->ClientPlayCameraShake(CameraShakes.Charge.Shake,CameraShakes.Charge.Intensity);
+
+	if (Combat.ChargeSettings.ChargeCameraAnimInst && Combat.ChargeSettings.ChargeCameraAnimInst->CurTime >= Combat.ChargeSettings.ChargeCameraAnim->AnimLength/2.0f)
+		Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 0.0f;
+
+#if !UE_BUILD_SHIPPING
+	ULog::Number(ChargeAttackHoldFrames, "Charge Hold: ",true);
+#endif
+}
+
+void AYlva::OnExitChargeAttackState()
+{
+	PlayerController->ResetIgnoreLookInput();
+	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
+	{
+		if (Combat.ChargeSettings.ChargeCameraAnimInst)
+			Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 3.0f;
+
+		Combat.ChargeSettings.ChargeCameraAnimInst = nullptr;
+
+		ResetCharge();
+		FinishChargeAttack();
+
+		return;
+	}
+
+	if (Combat.ChargeSettings.ChargeCameraAnimInst)
+		Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 1.0f;
+
+	Combat.ChargeSettings.ChargeCameraAnimInst = nullptr;
+
+	if (!bHasBeenDamaged)
+	{
+		YlvaAnimInstance->bChargeReleased = true;
+	}
+	else
+	{
+		ResetCharge();
+		FinishChargeAttack();
+
+		return;
+	}
+
+	if (ChargeAttackComponent->IsChargeFull())
+	{
+		PlayerController->ClientPlayCameraShake(CameraShakes.ChargeEnd.Shake, CameraShakes.ChargeEnd.Intensity);
+		ResetCharge();
+	}
+
+	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.2f);
 }
 #pragma endregion 
 
@@ -1977,7 +2053,7 @@ bool AYlva::IsChargeAttacking() const
 
 bool AYlva::IsParrySuccessful() const
 {
-	return IsBlocking() && bIsHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
+	return IsBlocking() && bIsParryBoxHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
 		FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) > 0.5f;
 }
 
@@ -2033,17 +2109,12 @@ bool AYlva::IsRunning() const
 
 bool AYlva::IsDamaged() const
 {
-	return FSM->GetActiveStateID() == 20;
+	return FSM->GetActiveStateID() == 20 || bHasBeenDamaged;
 }
 
 bool AYlva::IsParrying() const
 {
 	return FSM->GetActiveStateID() == 22;
-}
-
-void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
-{
-	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 }
 
 void AYlva::ResetGlobalTimeDilation()

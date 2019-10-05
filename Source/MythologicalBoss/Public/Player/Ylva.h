@@ -376,7 +376,6 @@ public:
 
 protected:
 	void BeginPlay() override;
-	void FaceBoss(float DeltaTime, float RotationSpeed);
 	void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
@@ -402,6 +401,10 @@ protected:
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
 	void LookUpAtRate(float Rate);
+
+	void LockOnTo(const FVector& TargetLocation, float DeltaTime);
+
+	void FaceBoss(float DeltaTime, float RotationSpeed = 10.0f);
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -745,6 +748,15 @@ protected:
 			void OnExitDeathState();
 		#pragma endregion 
 
+		#pragma region Charge Attack
+		UFUNCTION()
+			void OnEnterChargeAttackState();
+		UFUNCTION()
+			void UpdateChargeAttackState();
+		UFUNCTION()
+			void OnExitChargeAttackState();
+		#pragma endregion 
+
 		#pragma region Shield Hit
 		UFUNCTION()
 			void OnEnterShieldHitState();
@@ -911,7 +923,9 @@ private:
 	uint8 bGodMode : 1;
 	uint8 bCanDash : 1;
 
-	uint8 bIsHit : 1;
+	uint8 bIsParryBoxHit : 1;
+
+	uint8 bHasBeenDamaged : 1;
 
 	uint8 bCanRun : 1;
 
