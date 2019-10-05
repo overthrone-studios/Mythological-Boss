@@ -1813,6 +1813,8 @@ void AYlva::OnEnterChargeAttackState()
 	PlayerController->SetControlRotation(NewRotation);
 
 	PlayerController->SetIgnoreLookInput(true);
+
+	VibrateController(Combat.ChargeSettings.ChargeAttackForce, true);
 }
 
 void AYlva::UpdateChargeAttackState()
@@ -1820,8 +1822,6 @@ void AYlva::UpdateChargeAttackState()
 	FaceBoss(World->DeltaTimeSeconds);
 
 	LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
-
-	VibrateController(Combat.ChargeSettings.ChargeAttackForce, true);
 
 	ChargeAttackHoldFrames++;
 
@@ -1839,6 +1839,8 @@ void AYlva::OnExitChargeAttackState()
 {
 	PlayerController->ResetIgnoreLookInput();
 	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
 
 	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
 	{

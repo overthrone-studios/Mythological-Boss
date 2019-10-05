@@ -87,6 +87,9 @@ public:
 
 	void VibrateController(float Intensity = 1.0f, float Duration = 0.3f, bool bLeftSide = true, bool bRightSide = true);
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		void StopVibrateController(class UForceFeedbackEffect* ForceFeedbackToStop);
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;

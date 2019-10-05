@@ -283,6 +283,11 @@ void AOverthroneCharacter::VibrateController( const float Intensity, const float
 	PlayerController->PlayDynamicForceFeedback(Intensity, Duration, bLeftSide, bLeftSide, bRightSide, bRightSide, EDynamicForceFeedbackAction::Start);
 }
 
+void AOverthroneCharacter::StopVibrateController(UForceFeedbackEffect* ForceFeedbackToStop)
+{
+	PlayerController->ClientStopForceFeedback(ForceFeedbackToStop, ForceFeedbackToStop->GetFName());
+}
+
 bool AOverthroneCharacter::IsAttacking() const
 {
 	return false;
