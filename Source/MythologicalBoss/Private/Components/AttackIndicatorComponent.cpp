@@ -29,7 +29,7 @@ void UAttackIndicatorComponent::BeginPlay()
 	if (FlashMaterial)
 	{
 		MID_FlashIndicator = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, FlashMaterial);
-		MID_FlashIndicator->SetScalarParameterValue("Opacity", 0.0f);
+		MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
 		Owner->GetMesh()->SetMaterial(MaterialIndex, MID_FlashIndicator);
 	}
 	else
@@ -81,5 +81,6 @@ void UAttackIndicatorComponent::GrowFlash()
 
 void UAttackIndicatorComponent::FinishFlash()
 {
-	MID_FlashIndicator->SetScalarParameterValue("Opacity", 0.0f);
+	MID_FlashIndicator->SetVectorParameterValue("Color", DefaultColor);
+	MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
 }
