@@ -1458,7 +1458,7 @@ void AMordath::ApplyDamage(const float DamageAmount)
 	{
 		if (DamageValues.IsValidIndex(i+1))
 		{
-			if (DamageAmount >= DamageValues[i] && DamageAmount <= DamageValues[i+1])
+			if (DamageAmount >= DamageValues[i] && DamageAmount < DamageValues[i+1])
 			{
 				GameState->BossData.DamageColor = ColorValues[i];
 				break;
