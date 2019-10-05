@@ -1025,7 +1025,11 @@ void AYlva::Dash()
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
-	IsRunning() ? bWasRunning = true : bWasRunning = false;
+	// Man, I really wanted to put this in one line, but not XCode is being a dick
+	if (IsRunning())
+		bWasRunning = true;
+	else
+		bWasRunning = false;
 
 	if ((bIsDead || IsChargeAttacking() || IsBlocking()) && TimerManager->IsTimerActive(TH_DashQueue))
 		return;
