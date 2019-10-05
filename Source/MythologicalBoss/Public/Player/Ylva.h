@@ -677,6 +677,9 @@ protected:
 	UFUNCTION()
 		void OnAttackEnd_Implementation(UAnimMontage* Montage, bool bInterrupted);
 
+	UFUNCTION()
+		void OnChargeMeterFull();
+
 	// Called when we are light attacking
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
 		void OnBeginLightAttack();
@@ -951,6 +954,10 @@ private:
 	FTimerHandle TH_AttackQueueExpiry;
 
 	FTimerHandle TH_DashQueue;
+
+	class UStaticMeshComponent* LSword;
+	class UStaticMeshComponent* RSword;
+	class UMaterialInterface* DefaultSwordMaterial;
 
 	class UForceFeedbackEffect* CurrentForceFeedback;
 

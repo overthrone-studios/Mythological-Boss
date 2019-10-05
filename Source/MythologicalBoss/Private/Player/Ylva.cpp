@@ -171,6 +171,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 
 	// Charge attack component
 	ChargeAttackComponent = CreateDefaultSubobject<UChargeAttackComponent>(FName("Charge Attack Component"));
+	ChargeAttackComponent->OnChargeFilled.AddDynamic(this, &AYlva::OnChargeMeterFull);
 
 	// Attack combo component
 	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
@@ -207,6 +208,10 @@ void AYlva::BeginPlay()
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
+
+	LSword = GetLeftHandSword();
+	RSword = GetRightHandSword();
+	DefaultSwordMaterial = LSword->GetMaterial(0);
 
 	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
 	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
@@ -966,6 +971,12 @@ void AYlva::ApplyDamage(const float DamageAmount)
 
 			UpdateHealth(DamageAmount);
 
+			if (ChargeAttackComponent->IsChargeFull())
+			{
+				LSword->SetMaterial(0, DefaultSwordMaterial);
+				RSword->SetMaterial(0, DefaultSwordMaterial);
+			}
+
 			// Determine whether to reset the charge meter or not
 			if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
 			{
@@ -1554,6 +1565,12 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 	}
 }
 
+void AYlva::OnChargeMeterFull()
+{
+	RSword->SetMaterial(0, ChargeAttackComponent->GetFullChargeMaterial());
+	LSword->SetMaterial(0, ChargeAttackComponent->GetFullChargeMaterial());
+}
+
 void AYlva::StartParryEvent()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
@@ -1841,6 +1858,9 @@ void AYlva::OnExitChargeAttackState()
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
+
+	LSword->SetMaterial(0, DefaultSwordMaterial);
+	RSword->SetMaterial(0, DefaultSwordMaterial);
 
 	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
 	{
