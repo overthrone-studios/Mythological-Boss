@@ -169,6 +169,9 @@ public:
 		float GetHitStopTime();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
+		FORCEINLINE float GetAttackBlockedBlendOutTime() const { return AttackBlockedBlendOutTime; }
+
+	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE float GetCloseRangeRadius() const { return AcceptanceRadius; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
@@ -239,6 +242,10 @@ protected:
 	// How long (in seconds) should the boss stay in the recovery state after we've been parried?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
 		float RecoverTime = 1.0f;
+
+	// How long (in seconds) does it take to blend out from our current animation to a staggered animation
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
+		float AttackBlockedBlendOutTime = 0.1f;
 
 	// Mordath's movement settings
 	UPROPERTY(EditInstanceOnly, Category = "Mordath", DisplayName = "Movement")
