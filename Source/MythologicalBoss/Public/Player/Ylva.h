@@ -532,10 +532,6 @@ protected:
 	// Called via input to pause the game
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Controls")
 		void Pause();
-
-	// Disables the use of controller rotation for yaw axis
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Controls")
-		void DisableControllerRotationYaw();
 	#pragma endregion
 
 	#pragma region LockOn
@@ -952,7 +948,7 @@ private:
 	float DistanceMovedInRightDirection;
 
 	FRotator ControlRotation;
-	FRotator DirectionToBoss;
+	FVector DirectionToBoss;
 	float DistanceToBoss;
 
 	float PlayerLeanRollAmount = 0.0f;

@@ -287,7 +287,7 @@ void AYlva::Tick(const float DeltaTime)
 
 	ControlRotation = GetControlRotation();
 	DistanceToBoss = GetDistanceToBoss();
-	DirectionToBoss = GetDirectionToBoss().Rotation();
+	DirectionToBoss = GetDirectionToBoss();
 	GameState->PlayerData.Location = CurrentLocation;
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
@@ -389,9 +389,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
 
 	PlayerInputComponent->BindAction("Light Attack", IE_Pressed, this, &AYlva::LightAttack);
-	PlayerInputComponent->BindAction("Light Attack", IE_Released, this, &AYlva::DisableControllerRotationYaw);
 	PlayerInputComponent->BindAction("Heavy Attack", IE_Pressed, this, &AYlva::HeavyAttack);
-	PlayerInputComponent->BindAction("Heavy Attack", IE_Released, this, &AYlva::DisableControllerRotationYaw);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AYlva::Run);
 	PlayerInputComponent->BindAction("Run", IE_Repeat, this, &AYlva::UpdateIsRunHeld);
@@ -541,7 +539,7 @@ void AYlva::LockOnTo(const FVector& TargetLocation, const float DeltaTime)
 
 void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
 {
-	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
+	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Rotation().Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 }
 
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -919,14 +917,6 @@ void AYlva::BeginTakeDamage(float DamageAmount)
 
 void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
-	// Pop the active state that's not Idle or Block or Charge
-	if (FSM->GetActiveStateName() != "Idle" &&
-		FSM->GetActiveStateName() != "Block" &&
-		FSM->GetActiveStateName() != "Charge Attack")
-	{
-		FSM->PopState();
-	}
-
 	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
 	{
 		FSM->PopState();
@@ -937,15 +927,15 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	if (bGodMode || IsParrying())
 		return;
 
-	// Test against other states
+	// Test against states
 	switch (FSM->GetActiveStateID())
 	{
 		case 4 /*Block*/:
 			// Shake the camera
 			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
-			// Are we not facing the boss
-			if (FVector::DotProduct(ForwardVector, GetDirectionToBoss()) < 0.3f)
+			// Are we facing away from the boss?
+			if (FVector::DotProduct(ForwardVector, DirectionToBoss) < 0.3f)
 			{
 				FSM->PushState("Damaged");
 
@@ -954,26 +944,30 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				return;
 			}
 
-			FSM->PopState();
 			FSM->PushState("Shield Hit");
 
 			// Update stats
 			if (StaminaComponent->IsLowStamina() || GameState->IsBossAttackNoCounter() || GameState->IsBossAttackParryable())
+			{
+				HitCounter++;
+				bHasBeenDamaged = true;
+				
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+			}
 
 			UpdateStamina(StaminaComponent->GetShieldHitValue());
 		break;
 
 		default:
 			HitCounter++;
-			HitCounter_Persistent++;
 
 			bHasBeenDamaged = true;
 
+			// If we got hit while charge attacking
 			if (IsChargeAttacking())
 				FSM->PopState();
 
-			// Enter damaged state
+			// Determine the damage state to enter in
 			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 				FSM->PushState("Shocked");
 			else
@@ -983,12 +977,6 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
 			UpdateHealth(DamageAmount);
-
-			if (ChargeAttackComponent->IsChargeFull())
-			{
-				LSword->Revert();
-				RSword->Revert();
-			}
 
 			// Determine whether to reset the charge meter or not
 			if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
@@ -1006,7 +994,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 void AYlva::EndTakeDamage()
 {
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
 	{
 		Die();
 	}
@@ -1180,11 +1168,6 @@ void AYlva::Pause()
 		
 		GameState->PauseGame();
 	}
-}
-
-void AYlva::DisableControllerRotationYaw()
-{
-	bUseControllerRotationYaw = false;
 }
 #pragma endregion
 
@@ -1969,7 +1952,7 @@ void AYlva::OnEnterShieldHitState()
 void AYlva::UpdateShieldHitState()
 {
 	// If shield impact animation has finished, go back to previous state
-	if (AnimInstance->AnimTimeRemaining <= 0.1f)
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
 
@@ -1977,6 +1960,8 @@ void AYlva::OnExitShieldHitState()
 {
 	YlvaAnimInstance->bIsHitByNoCounter = false;
 	YlvaAnimInstance->bIsShieldHit = false;
+
+	bHasBeenDamaged = false;
 }
 #pragma endregion 
 
@@ -2134,8 +2119,11 @@ bool AYlva::IsAttacking() const
 
 bool AYlva::IsParrySuccessful() const
 {
-	return IsBlocking() && bIsParryBoxHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
-		FVector::DotProduct(ForwardVector, GetDirectionToBoss()) > 0.5f;
+	return	IsBlocking() && 
+			bIsParryBoxHit && 
+			FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && 
+			FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
+			FVector::DotProduct(ForwardVector, DirectionToBoss) > 0.5f;
 }
 
 bool AYlva::IsMovingForward() const
