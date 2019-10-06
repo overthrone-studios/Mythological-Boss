@@ -702,6 +702,7 @@ void AYlva::LightAttack()
 	if (IsParrying())
 		FinishParryEvent();
 
+	// Queue the attack, if we can
 	if (IsAttacking() && 
 		AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackQueue.LightAttackTriggerTime && 
 		AttackQueue.IsEmpty())
@@ -709,6 +710,7 @@ void AYlva::LightAttack()
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(ATP_Light);
 
+		// Set a timer to clear the attack queue after 'X' seconds. Prevents auto attacking when the difference (in seconds) is too long.
 		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
 			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackQueue.ExpiryTime, false);
 		
@@ -774,6 +776,7 @@ void AYlva::HeavyAttack()
 	if (IsParrying())
 		FinishParryEvent();
 
+	// Queue the attack, if we can
 	if (IsAttacking() && 
 		AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackQueue.HeavyAttackTriggerTime && 
 		AttackQueue.IsEmpty())
@@ -781,6 +784,7 @@ void AYlva::HeavyAttack()
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(ATP_Heavy);
 		
+		// Set a timer to clear the attack queue after 'X' seconds. Prevents auto attacking when the difference (in seconds) is too long.
 		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
 			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackQueue.ExpiryTime, false);
 	
