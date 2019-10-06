@@ -1373,6 +1373,9 @@ void AMordath::OnFirstStageHealth()
 
 void AMordath::OnSecondStageHealth()
 {
+	FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
+	World->SpawnActor(LightningStrikeClass, &NewLocation);
+
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
 
@@ -1382,6 +1385,9 @@ void AMordath::OnSecondStageHealth()
 
 void AMordath::OnThirdStageHealth()
 {
+	FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
+	World->SpawnActor(LightningStrikeClass, &NewLocation);
+
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);
 	StageFSM->PopState(0);

@@ -598,6 +598,10 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 3 Transition Anim")
 		class UAnimMontage* Stage3_Transition;
 
+	// The actor to spawn when transitioning to the next stage
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Lightning Strike Actor")
+		TSubclassOf<AActor> LightningStrikeClass;
+		
 	// The bone name of Mordath's skeleton where the lock-on indiciator should be placed on
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
