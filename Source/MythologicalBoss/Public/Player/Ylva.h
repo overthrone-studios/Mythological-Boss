@@ -955,9 +955,8 @@ private:
 
 	FTimerHandle TH_DashQueue;
 
-	class UStaticMeshComponent* LSword;
-	class UStaticMeshComponent* RSword;
-	class UMaterialInterface* DefaultSwordMaterial;
+	class USwordComponent* LSword;
+	class USwordComponent* RSword;
 
 	class UForceFeedbackEffect* CurrentForceFeedback;
 

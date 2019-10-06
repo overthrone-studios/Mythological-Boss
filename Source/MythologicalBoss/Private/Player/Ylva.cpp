@@ -28,6 +28,7 @@
 #include "Components/ChargeAttackComponent.h"
 #include "Components/DashComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SwordComponent.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -209,9 +210,8 @@ void AYlva::BeginPlay()
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
 
-	LSword = GetLeftHandSword();
-	RSword = GetRightHandSword();
-	DefaultSwordMaterial = LSword->GetMaterial(0);
+	LSword = Cast<USwordComponent>(GetLeftHandSword());
+	RSword = Cast<USwordComponent>(GetRightHandSword());
 
 	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
 	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
@@ -973,8 +973,8 @@ void AYlva::ApplyDamage(const float DamageAmount)
 
 			if (ChargeAttackComponent->IsChargeFull())
 			{
-				LSword->SetMaterial(0, DefaultSwordMaterial);
-				RSword->SetMaterial(0, DefaultSwordMaterial);
+				LSword->Revert();
+				RSword->Revert();
 			}
 
 			// Determine whether to reset the charge meter or not
@@ -1567,8 +1567,8 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 
 void AYlva::OnChargeMeterFull()
 {
-	RSword->SetMaterial(0, ChargeAttackComponent->GetFullChargeMaterial());
-	LSword->SetMaterial(0, ChargeAttackComponent->GetFullChargeMaterial());
+	RSword->Glow();
+	LSword->Glow();
 }
 
 void AYlva::StartParryEvent()
@@ -1865,8 +1865,8 @@ void AYlva::OnExitChargeAttackState()
 
 	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
 
-	LSword->SetMaterial(0, DefaultSwordMaterial);
-	RSword->SetMaterial(0, DefaultSwordMaterial);
+	LSword->Revert();
+	RSword->Revert();
 
 	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
 	{
