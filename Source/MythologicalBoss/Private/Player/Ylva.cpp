@@ -940,7 +940,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	{
 		case 4 /*Block*/:
 			// Shake the camera
-			PlayerController->ClientPlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
+			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
 			// Are we not facing the boss
 			if (FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) < 0.3f)
@@ -978,7 +978,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				FSM->PushState("Damaged");
 
 			// Shake the camera
-			PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
 
 			UpdateHealth(DamageAmount);
 
@@ -1633,7 +1633,7 @@ void AYlva::OnEnterIdleState()
 
 void AYlva::UpdateIdleState()
 {
-	PlayerController->ClientPlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
 
 	if (IsMovingInAnyDirection() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
@@ -1651,7 +1651,7 @@ void AYlva::OnEnterWalkState()
 
 void AYlva::UpdateWalkState()
 {
-	PlayerController->ClientPlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
 	if (!IsMovingInAnyDirection())
 		FSM->PopState();
@@ -1678,7 +1678,7 @@ void AYlva::OnEnterRunState()
 
 void AYlva::UpdateRunState()
 {
-	PlayerController->ClientPlayCameraShake(CameraShakes.Run.Shake, CameraShakes.Run.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Run.Shake, CameraShakes.Run.Intensity);
 
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
@@ -1859,7 +1859,7 @@ void AYlva::UpdateChargeAttackState()
 
 	ChargeAttackHoldFrames++;
 
-	PlayerController->ClientPlayCameraShake(CameraShakes.Charge.Shake,CameraShakes.Charge.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Charge.Shake,CameraShakes.Charge.Intensity);
 
 	if (Combat.ChargeSettings.ChargeCameraAnimInst && Combat.ChargeSettings.ChargeCameraAnimInst->CurTime >= Combat.ChargeSettings.ChargeCameraAnim->AnimLength/2.0f)
 		Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 0.0f;
@@ -1912,7 +1912,7 @@ void AYlva::OnExitChargeAttackState()
 
 	if (ChargeAttackComponent->IsChargeFull())
 	{
-		PlayerController->ClientPlayCameraShake(CameraShakes.ChargeEnd.Shake, CameraShakes.ChargeEnd.Intensity);
+		GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.ChargeEnd.Shake, CameraShakes.ChargeEnd.Intensity);
 		ResetCharge();
 	}
 

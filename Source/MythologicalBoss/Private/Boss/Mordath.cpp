@@ -1343,7 +1343,7 @@ void AMordath::OnAttackParryed()
 		FSM->PushState("Stunned");
 
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CurrentStageData->GetStunShake().Shake, CurrentStageData->GetStunShake().Intensity);
+		GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetStunShake().Shake, CurrentStageData->GetStunShake().Intensity);
 	}
 }
 
@@ -1359,7 +1359,7 @@ void AMordath::OnAttackBlocked()
 		FSM->PushState("Damaged");
 		
 		// Shake the camera
-		PlayerController->ClientPlayCameraShake(CurrentStageData->GetDamagedShake().Shake, CurrentStageData->GetDamagedShake().Intensity);
+		GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetDamagedShake().Shake, CurrentStageData->GetDamagedShake().Intensity);
 	}
 }
 
@@ -1376,6 +1376,8 @@ void AMordath::OnSecondStageHealth()
 	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
 	SpawnLightningStrike(NewLocation);
 
+	//GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetLightningStrikeShake().Shake, CurrentStageData->GetLightningStrikeShake().Intensity);
+
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
 
@@ -1387,6 +1389,8 @@ void AMordath::OnThirdStageHealth()
 {
 	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
 	SpawnLightningStrike(NewLocation);
+
+	//GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetLightningStrikeShake().Shake, CurrentStageData->GetLightningStrikeShake().Intensity);
 
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);
@@ -1450,7 +1454,7 @@ void AMordath::BeginTakeDamage(const float DamageAmount)
 	CurrentStageData->Combat.RecentDamage = DamageAmount;
 
 	// Shake the camera
-	PlayerController->ClientPlayCameraShake(CurrentStageData->GetDamagedShake().Shake, CurrentStageData->GetDamagedShake().Intensity);
+	GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetDamagedShake().Shake, CurrentStageData->GetDamagedShake().Intensity);
 }
 
 void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
