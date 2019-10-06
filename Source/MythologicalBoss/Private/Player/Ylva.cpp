@@ -1336,7 +1336,6 @@ void AYlva::IncreaseStamina(const float Amount)
 
 	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
 	{
-		// Todo update player values
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 		bWasLowStaminaEventTriggered = false;
@@ -1369,7 +1368,6 @@ void AYlva::SetStamina(const float NewStaminaAmount)
 	}
 	else if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
 	{
-		// Todo update player values
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
 		bWasLowStaminaEventTriggered = false;
@@ -1382,7 +1380,6 @@ void AYlva::ResetStamina()
 
 	UpdateCharacterInfo();
 
-	// Todo update player values
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 
@@ -1420,11 +1417,6 @@ void AYlva::IncreaseCharge()
 
 	if (ChargeAttackComponent->CanLoseChargeOvertime() && !ChargeAttackComponent->IsChargeFull())
 		ChargeAttackComponent->DelayChargeLoss();
-}
-
-class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const
-{
-	return CurrentForceFeedback;
 }
 
 void AYlva::DecreaseCharge()
@@ -1530,8 +1522,6 @@ void AYlva::OnBossDeath_Implementation()
 void AYlva::OnLowStamina()
 {
 	// Todo Implement function
-
-	//MovementComponent->MaxWalkSpeed /= 2.0f;
 }
 
 void AYlva::OnComboReset_Implementation()
@@ -2199,6 +2189,11 @@ bool AYlva::IsDamaged() const
 bool AYlva::IsParrying() const
 {
 	return FSM->GetActiveStateID() == 22;
+}
+
+class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const
+{
+	return CurrentForceFeedback;
 }
 
 void AYlva::ResetGlobalTimeDilation()
