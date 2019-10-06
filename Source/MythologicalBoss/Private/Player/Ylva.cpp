@@ -318,10 +318,10 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	// Charge Attack Mechanic
-	if (bChargeKeyPressed)
+	if (bChargeKeyPressed && ChargeAttackComponent->IsChargeFull())
 	{
 		ChargeKeyHeldFrames++;
-		if (ChargeKeyHeldFrames > Combat.ChargeSettings.MaxChargeKeyHeldFrames && !IsChargeAttacking() && ChargeAttackComponent->IsChargeFull())
+		if (ChargeKeyHeldFrames > Combat.ChargeSettings.MaxChargeKeyHeldFrames && !IsChargeAttacking())
 		{
 			FSM->PopState();
 			FSM->PushState(6); // Charge Attack
