@@ -148,6 +148,9 @@ public:
 		void UnPauseGame();
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
+		FORCEINLINE APlayerCameraManager* GetCameraManager() const { return CameraManager; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE float GetTeleportRadius() const { return PlayerData.TeleportRadius; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
@@ -202,6 +205,8 @@ public:
 	FPlayerData PlayerData;
 	FBossData BossData;
 
+	class UCameraShake* CurrentCameraShake;
+
 	FBox PlayArea{};
 
 protected:
@@ -209,4 +214,5 @@ protected:
 
 private:
 	APlayerController* PlayerController{};
+	APlayerCameraManager* CameraManager{};
 };

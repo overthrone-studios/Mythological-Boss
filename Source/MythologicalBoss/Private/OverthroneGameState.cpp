@@ -57,4 +57,5 @@ void AOverthroneGameState::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 }
