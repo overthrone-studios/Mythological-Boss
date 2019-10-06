@@ -84,7 +84,7 @@ struct FPlayerData : public FCharacterData
 
 	uint8 bParrySucceeded : 1;
 
-	EAttackType_Player CurrentAttackType;
+	EAttackType_Player CurrentAttackType = ATP_None;
 
 	FOnLowStaminaSignature OnLowStamina;
 };

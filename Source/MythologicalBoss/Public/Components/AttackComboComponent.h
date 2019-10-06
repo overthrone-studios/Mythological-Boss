@@ -106,7 +106,7 @@ public:
 
 	// Returns true if the delay timer is active
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		bool IsDelaying() const;
+		bool CanAttack() const;
 
 	// Returns true if the combo reset timer is inactive
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")

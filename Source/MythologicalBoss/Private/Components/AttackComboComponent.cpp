@@ -33,9 +33,9 @@ FString UAttackComboComponent::GetCurrentAttackAsString() const
 	}
 }
 
-bool UAttackComboComponent::IsDelaying() const
+bool UAttackComboComponent::CanAttack() const
 {
-	return Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle);
+	return !Owner->GetWorldTimerManager().IsTimerActive(AttackDelayTimerHandle);
 }
 
 bool UAttackComboComponent::IsWaitingForComboReset() const
@@ -207,7 +207,7 @@ int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class 
 
 void UAttackComboComponent::DelayAttack(const float& Delay)
 {
-	if (!IsDelaying())
+	if (CanAttack())
 		Owner->GetWorldTimerManager().SetTimer(AttackDelayTimerHandle, Delay, false);
 }
 

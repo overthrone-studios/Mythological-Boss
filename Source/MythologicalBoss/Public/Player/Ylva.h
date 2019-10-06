@@ -74,6 +74,24 @@ struct FLockOnSettings
 };
 
 USTRUCT(BlueprintType)
+struct FAttackQueue_Ylva
+{
+	GENERATED_BODY()
+
+	// The point in time of the light attack animation where the attack queueing system would queue the next attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
+		float LightAttackTriggerTime = 0.3f;
+
+	// The point in time of the heavy attack animation where the attack queueing system would queue the next attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
+		float HeavyAttackTriggerTime = 0.2f;
+
+	// The amount of time (in seconds) the attack queue will clear itself. If the queue takes longer than the specified time (in seconds), clear the queue.
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
+		float ExpiryTime = 0.8f;
+};
+
+USTRUCT(BlueprintType)
 struct FAttackSettings_Ylva : public FAttackSettings
 {
 	GENERATED_BODY()
@@ -81,18 +99,6 @@ struct FAttackSettings_Ylva : public FAttackSettings
 	// The attack damage we deal when charge attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 		float ChargeAttackDamage = 200.0f;
-
-	// The point in time of the heavy attack animation where the attack queueing system would queue the next attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
-		float LightAttackQueueTriggerTime = 0.3f;
-
-	// The point in time of the light attack animation where the attack queueing system would queue the next attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
-		float HeavyAttackQueueTriggerTime = 0.6f;
-
-	// The amount of time (in seconds) the attack queue will clear itself. If the queue takes longer than the specified time (in seconds), clear the queue.
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.01f))
-		float AttackQueueExpiryTime = 0.5f;
 
 	// The amount of time (in seconds) the attack queue will clear itself. If the queue takes longer than the specified time (in seconds), clear the queue.
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
@@ -213,6 +219,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// Settings that affect Ylva's attack values
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FAttackSettings_Ylva AttackSettings;
+
+	// Settings that affect the attack queue
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FAttackQueue_Ylva AttackQueue;
 
 	// Settings that affect Ylva's charge settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -340,6 +350,14 @@ public:
 	// Returns true if we are currently locked on to the boss
 	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		bool IsLockedOn() const;
+
+	// Returns true if we are currently idling
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsIdle() const;
+
+	// Returns true if we are currently walking
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsWalking() const;
 
 	// Returns true if we are currently blocking
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")

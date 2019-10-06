@@ -215,7 +215,11 @@ protected:
 
 	// Cached movement component
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
-		UCharacterMovementComponent* MovementComponent{};
+		class UCharacterMovementComponent* MovementComponent{};
+
+	// Cached capsule component
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		class UCapsuleComponent* CapsuleComp;
 
 	// Cached character's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
@@ -249,6 +253,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		FRotator CurrentRotation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		FVector ForwardVector;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		FVector RightVector;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		float ForwardInput = 0.0f;

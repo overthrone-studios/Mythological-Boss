@@ -261,13 +261,13 @@ void AYlva::BeginPlay()
 	FSM->Start();
 
 #if !UE_BUILD_SHIPPING
-	GetCapsuleComponent()->SetHiddenInGame(false);
-	GetCapsuleComponent()->SetVisibility(true);
+	CapsuleComp->SetHiddenInGame(false);
+	CapsuleComp->SetVisibility(true);
 
 	ParryCollisionComponent->SetHiddenInGame(false);
 #else
-	GetCapsuleComponent()->SetHiddenInGame(true);
-	GetCapsuleComponent()->SetVisibility(false);
+	CapsuleComponent->SetHiddenInGame(true);
+	CapsuleComponent->SetVisibility(false);
 
 	ParryCollisionComponent->SetHiddenInGame(true);
 #endif
@@ -455,7 +455,7 @@ void AYlva::MoveForward(const float Value)
 		AnimInstance->ForwardInput = 0.0f;
 	}
 
-	if (Controller && ForwardInput != 0.0f)
+	if (ForwardInput != 0.0f)
 	{
 		// Find out which way is forward
 		const FRotator Rotation = ControlRotation;
@@ -485,7 +485,7 @@ void AYlva::MoveRight(const float Value)
 		AnimInstance->RightInput = 0.0f;
 	}
 
-	if (Controller && RightInput != 0.0f)
+	if (RightInput != 0.0f)
 	{
 		// Find out which way is right
 		const FRotator Rotation = ControlRotation;
@@ -533,7 +533,6 @@ void AYlva::LockOnTo(const FVector& TargetLocation, const float DeltaTime)
 	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
 
 	const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
-	//const float& NewPitch = FMath::Lerp(NewPitch, FMath::GetMappedRangeValueClamped({1500.0f, 200.0f}, {LockOnPitchMin, LockOnPitchMax}, DistanceToBoss), LockOnRotationSpeed * DeltaTime);
 
 	const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
@@ -617,7 +616,7 @@ void AYlva::BroadcastLowStamina()
 
 float AYlva::CalculateDirection() const
 {
-	const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), GetCapsuleComponent()->GetComponentRotation());
+	const FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(FollowCamera->GetComponentRotation(), CapsuleComp->GetComponentRotation());
 	const FRotator NewDirection = UKismetMathLibrary::NormalizedDeltaRotator(DeltaRotation, UKismetMathLibrary::MakeRotFromX(FVector(ForwardInput, -RightInput, 0.0f)));
 
 	return NewDirection.GetNormalized().Yaw;
@@ -625,7 +624,7 @@ float AYlva::CalculateDirection() const
 
 void AYlva::CalculateRollLean(const float DeltaTime)
 {
-	if (FSM->GetActiveStateID() != 0 /*Idle*/ && FSM->GetActiveStateID() != 4 /*Block*/ && FSM->GetActiveStateID() != 5 /*Death*/)
+	if (!IsIdle() && !IsBlocking() && !bIsDead)
 	{
 		const float Turn = FMath::Clamp(GetInputAxisValue("Turn"), -1.0f, 1.0f);
 		const float InterpSpeed = IsMovingInAnyDirection() ? 1.0f : 10.0f;
@@ -642,7 +641,7 @@ void AYlva::CalculateRollLean(const float DeltaTime)
 
 void AYlva::CalculatePitchLean(const float DeltaTime)
 {
-	if (!IsMovingInAnyDirection() && !IsAttacking() && !bIsDead && FVector::DotProduct(GetActorForwardVector(), FollowCamera->GetForwardVector()) > 0.5f)
+	if (!IsMovingInAnyDirection() && !IsAttacking() && !bIsDead && FVector::DotProduct(ForwardVector, FollowCamera->GetForwardVector()) > 0.5f)
 	{
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, FollowCamera->GetForwardVector().Rotation().Pitch, DeltaTime, 2.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
@@ -696,41 +695,45 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
-		IsChargeAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking())
 		return;
 
-	FSM->PopState("Block");
-
-	if (FSM->GetActiveStateID() == 22 /*Parry*/)
+	// Finish the parry event early if we decide to attack
+	if (IsParrying())
 		FinishParryEvent();
 
-	if (IsAttacking() && AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackSettings.LightAttackQueueTriggerTime && AttackQueue.IsEmpty())
+	if (IsAttacking() && 
+		AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackQueue.LightAttackTriggerTime && 
+		AttackQueue.IsEmpty())
 	{
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(ATP_Light);
 
 		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
-			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackQueue.ExpiryTime, false);
 		
 		TimerManager->SetTimer(TH_AttackQueue, this, &AYlva::Attack_Queued, 0.1f);
 
-#if !UE_BUILD_SHIPPING
+		#if !UE_BUILD_SHIPPING
 		if (Debug.bLogAttackQueue)
 			ULog::Info(CUR_FUNC + ": Queueing attack...", true);
-#endif
-
+		#endif
 		return;
 	}
 
-	if (StaminaComponent->HasEnoughForLightAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
+	if (StaminaComponent->HasEnoughForLightAttack() && // Do we have enough stamina for light attack?
+		AttackComboComponent->CanAttack() &&
+		!AttackComboComponent->IsAtTreeEnd() && // Are we not at the combo tree's end?
+		!IsDashing() && 
+		AttackQueue.IsEmpty())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Light);
 
 		CurrentForceFeedback = Combat.LightAttackForce;
 		GameState->PlayerData.CurrentAttackType = AttackComboComponent->GetCurrentAttack();
 
+		FSM->PopState();
+		
 		BeginLightAttack(AttackMontageToPlay);
 	}
 }
@@ -747,7 +750,6 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 	if (!bGodMode)
 	{
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
-
 	}
 
 	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
@@ -765,40 +767,44 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead ||
-		FSM->GetActiveStateID() == 20 /*Damaged*/ ||
-		IsChargeAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking())
 		return;
 
-	FSM->PopState("Block");
-
-	if (FSM->GetActiveStateID() == 22 /*Parry*/)
+	// Finish the parry event early if we decide to attack
+	if (IsParrying())
 		FinishParryEvent();
 
-	if (IsAttacking() && AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackSettings.HeavyAttackQueueTriggerTime && AttackQueue.IsEmpty())
+	if (IsAttacking() && 
+		AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackQueue.HeavyAttackTriggerTime && 
+		AttackQueue.IsEmpty())
 	{
 		AttackQueue.Pop();
 		AttackQueue.Enqueue(ATP_Heavy);
 		
 		if (!TimerManager->IsTimerActive(TH_AttackQueueExpiry))
-			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackSettings.AttackQueueExpiryTime, false);
+			TimerManager->SetTimer(TH_AttackQueueExpiry, this, &AYlva::ClearAttackQueue, Combat.AttackQueue.ExpiryTime, false);
 	
 		TimerManager->SetTimer(TH_AttackQueue, this, &AYlva::Attack_Queued, 0.1f);
 
-#if !UE_BUILD_SHIPPING
+		#if !UE_BUILD_SHIPPING
 		if (Debug.bLogAttackQueue)
 			ULog::Info(CUR_FUNC + ": Queueing attack...", true);
-#endif
-	
+		#endif
 		return;
 	}
 
-	if (StaminaComponent->HasEnoughForHeavyAttack() && !AttackComboComponent->IsDelaying() && !AttackComboComponent->IsAtTreeEnd() && !IsDashing() && AttackQueue.IsEmpty())
+	if (StaminaComponent->HasEnoughForHeavyAttack() && // Do we have enough stamina for heavy attack?
+		AttackComboComponent->CanAttack() && 
+		!AttackComboComponent->IsAtTreeEnd() && // Are we not at the combo tree's end?
+		!IsDashing() && 
+		AttackQueue.IsEmpty())
 	{
 		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Heavy);
 
 		CurrentForceFeedback = Combat.HeavyAttackForce;
 		GameState->PlayerData.CurrentAttackType = AttackComboComponent->GetCurrentAttack();
+
+		FSM->PopState();
 
 		BeginHeavyAttack(AttackMontageToPlay);
 	}
@@ -962,7 +968,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
 
 			// Are we not facing the boss
-			if (FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) < 0.3f)
+			if (FVector::DotProduct(ForwardVector, GetDirectionToBoss()) < 0.3f)
 			{
 				FSM->PushState("Damaged");
 
@@ -1585,6 +1591,7 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 
 	if (!bInterrupted)
 	{
+		GameState->PlayerData.CurrentAttackType = ATP_None;
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
@@ -1748,11 +1755,11 @@ void AYlva::UpdateBlockingState()
 	if (FSM->GetActiveStateFrames() > Combat.ParrySettings.MaxParryFrame)
 	{
 		ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	}
 	else
 	{
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	}
 }
 
@@ -1762,7 +1769,7 @@ void AYlva::OnExitBlockingState()
 
 	bIsParryBoxHit = false;
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 #pragma endregion
@@ -1818,7 +1825,7 @@ void AYlva::OnEnterDeathState()
 	if (IsLockedOn())
 		DisableLockOn();
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	MovementComponent->DisableMovement();
 
@@ -1855,14 +1862,13 @@ void AYlva::OnEnterChargeAttackState()
 
 	GameState->PlayerData.CurrentAttackType = ATP_Special;
 
-
 	if (!Combat.ChargeSettings.ChargeCameraAnimInst)
 	{
 		if (Combat.ChargeSettings.ChargeCameraAnim)
 			Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
 	}
 
-	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess,GetActorForwardVector().Rotation().Yaw,ControlRotation.Roll);
+	const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
 	PlayerController->SetControlRotation(NewRotation);
 
 	PlayerController->SetIgnoreLookInput(true);
@@ -2057,7 +2063,7 @@ void AYlva::OnEnterParryState()
 	//		Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
 	//}
 
-	//const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, GetActorForwardVector().Rotation().Yaw, ControlRotation.Roll);
+	//const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
 	//PlayerController->SetControlRotation(NewRotation);
 
 	PlayerController->SetIgnoreLookInput(true);
@@ -2146,20 +2152,10 @@ bool AYlva::IsAttacking() const
 	return IsLightAttacking() || IsHeavyAttacking() || IsChargeAttacking();
 }
 
-bool AYlva::IsChargeAttacking() const
-{
-	return FSM->GetActiveStateID() == 6 || GameState->PlayerData.CurrentAttackType == ATP_Special;
-}
-
 bool AYlva::IsParrySuccessful() const
 {
 	return IsBlocking() && bIsParryBoxHit && FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
-		FVector::DotProduct(GetActorForwardVector(), GetDirectionToBoss()) > 0.5f;
-}
-
-bool AYlva::IsDashing() const
-{
-	return FSM->GetActiveStateID() == 12;
+		FVector::DotProduct(ForwardVector, GetDirectionToBoss()) > 0.5f;
 }
 
 bool AYlva::IsMovingForward() const
@@ -2197,14 +2193,34 @@ bool AYlva::IsLockedOn() const
 	return LockOnSettings.bLockedOn;
 }
 
-bool AYlva::IsBlocking() const
+bool AYlva::IsIdle() const
 {
-	return FSM->GetActiveStateID() == 4;
+	return FSM->GetActiveStateID() == 0;
+}
+
+bool AYlva::IsWalking() const
+{
+	return FSM->GetActiveStateID() == 1;
 }
 
 bool AYlva::IsRunning() const
 {
 	return FSM->GetActiveStateID() == 2;
+}
+
+bool AYlva::IsBlocking() const
+{
+	return FSM->GetActiveStateID() == 4;
+}
+
+bool AYlva::IsChargeAttacking() const
+{
+	return FSM->GetActiveStateID() == 6 || GameState->PlayerData.CurrentAttackType == ATP_Special;
+}
+
+bool AYlva::IsDashing() const
+{
+	return FSM->GetActiveStateID() == 12;
 }
 
 bool AYlva::IsDamaged() const

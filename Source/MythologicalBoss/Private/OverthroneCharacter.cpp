@@ -58,6 +58,7 @@ void AOverthroneCharacter::BeginPlay()
 	GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
 	GameState = UOverthroneFunctionLibrary::GetGameState(this);
 	SKMComponent = GetMesh();
+	CapsuleComp = GetCapsuleComponent();
 }
 
 void AOverthroneCharacter::Tick(const float DeltaSeconds)
@@ -73,6 +74,9 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 
 	CurrentLocation = GetActorLocation();
 	CurrentRotation = GetActorRotation();
+
+	ForwardVector = GetActorForwardVector();
+	RightVector = GetActorRightVector();
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()
