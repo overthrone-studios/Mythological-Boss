@@ -108,6 +108,10 @@ struct FChargeSettings_Ylva
 {
 	GENERATED_BODY()
 
+	// The amount of frames to wait after pressing the 'charge attack' key before intiating the charge attack
+	UPROPERTY(EditInstanceOnly, DisplayName = "Charge Intial Delay Frames")
+		uint8 MaxChargeKeyHeldFrames = 10;
+
 	// The camera animation to play when parry has succeeded
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UCameraAnim* ChargeCameraAnim;
@@ -448,6 +452,9 @@ protected:
 	void Attack_Queued();
 
 	void ClearAttackQueue();
+
+	// Called via input to begin the charge attack event
+	void StartChargeAttack();
 
 	// Called via input when holding down the charge attack key
 	void ChargeUpAttack();
@@ -937,6 +944,9 @@ private:
 	float PlayerLeanPitchAmount = 0.0f;
 
 	uint8 MaxDashInQueue = 1;
+
+	uint8 bChargeKeyPressed : 1;
+	uint8 ChargeKeyHeldFrames = 0;
 
 	uint8 bWasRunning : 1;
 

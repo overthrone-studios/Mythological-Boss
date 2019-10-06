@@ -317,6 +317,17 @@ void AYlva::Tick(const float DeltaTime)
 		DecreaseCharge(ChargeAttackComponent->GetChargeLossRate() * DeltaTime);
 	}
 
+	// Charge Attack Mechanic
+	if (bChargeKeyPressed)
+	{
+		ChargeKeyHeldFrames++;
+		if (ChargeKeyHeldFrames > Combat.ChargeSettings.MaxChargeKeyHeldFrames && !IsChargeAttacking() && ChargeAttackComponent->IsChargeFull())
+		{
+			FSM->PopState();
+			FSM->PushState(6); // Charge Attack
+		}
+	}
+
 	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
@@ -388,7 +399,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AYlva::Dash);
 
-	PlayerInputComponent->BindAction("Charge Attack", IE_Repeat, this, &AYlva::ChargeUpAttack);
+	PlayerInputComponent->BindAction("Charge Attack", IE_Pressed, this, &AYlva::StartChargeAttack);
 	PlayerInputComponent->BindAction("Charge Attack", IE_Released, this, &AYlva::ReleaseChargeAttack);
 
 	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
@@ -848,6 +859,11 @@ void AYlva::ClearAttackQueue()
 #endif
 }
 
+void AYlva::StartChargeAttack()
+{
+	bChargeKeyPressed = true;
+}
+
 void AYlva::ChargeUpAttack()
 {
 	if (!ChargeAttackComponent->IsChargeFull() || IsChargeAttacking())
@@ -862,6 +878,9 @@ void AYlva::ChargeUpAttack()
 
 void AYlva::ReleaseChargeAttack()
 {
+	ChargeKeyHeldFrames = 0;
+	bChargeKeyPressed = false;
+
 	if (YlvaAnimInstance->bChargeReleased && !IsChargeAttacking())
 		return;
 
