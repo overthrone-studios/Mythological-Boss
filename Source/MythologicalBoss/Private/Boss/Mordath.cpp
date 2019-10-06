@@ -292,9 +292,9 @@ void AMordath::BeginPlay()
 	SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
 
 #if !UE_BUILD_SHIPPING
-	GetCapsuleComponent()->SetHiddenInGame(false);
+	CapsuleComp->SetHiddenInGame(false);
 #else
-	GetCapsuleComponent()->SetHiddenInGame(true);
+	CapsuleComp->SetHiddenInGame(true);
 #endif
 }
 
@@ -313,7 +313,6 @@ void AMordath::Tick(const float DeltaTime)
 	
 	GameState->BossData.Location = CurrentLocation;
 	GameState->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
-	//GameState->BossData.LockOnLocation = GameState->BossData.CurrentAttackType == LongAttack_1 ? FMath::Lerp(GameState->BossData.LockOnLocation, GameState->BossData.LockOnBoneLocation, 10* DeltaTime) : FMath::Lerp(GameState->BossData.LockOnLocation, CurrentLocation, 5* DeltaTime);
 
 	DistanceToPlayer = GetDistanceToPlayer();
 	DirectionToPlayer = GetDirectionToPlayer();
@@ -323,14 +322,6 @@ void AMordath::Tick(const float DeltaTime)
 	AnimInstance->RightInput = RightInput;
 
 #if !UE_BUILD_SHIPPING
-	// Range FSM
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
-
-	// Stage FSM
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
-
 	if (Debug.bShowRaycasts)
 	{
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), CurrentStageData->GetSuperCloseRangeRadius(), 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
@@ -474,21 +465,12 @@ void AMordath::OnEnterFollowState()
 			ChooseCombo();
 	}
 
-	//const uint8 bWantsDashForward = FMath::RandRange(0, 1);
-	//if (bWantsDashForward && !IsDashing() && DistanceToPlayer > CurrentStageData->GetDashDistanceThreshold() && !DashComponent->IsCooldownActive())
-	//{
-	//	if (IsMidRange())
-	//		DashType = Dash_Forward;
-	//	else if (IsCloseRange() || IsSuperCloseRange())
-	//		DashType = Dash_Backward;
-	//
-	//	FSM->PushState("Dash");
-	//	return;
-	//}
-
-	if (IsSuperCloseRange() && FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < -0.3f && 
-		(CurrentActionData->Action->ActionType != ATM_Dash_Forward && CurrentActionData->Action->ActionType != ATM_Dash_Backward &&
-		CurrentActionData->Action->ActionType != ATM_Dash_Left && CurrentActionData->Action->ActionType != ATM_Dash_Right))
+	if (IsSuperCloseRange() && 
+		(CurrentActionData->Action->ActionType != ATM_Dash_Forward && 
+		CurrentActionData->Action->ActionType != ATM_Dash_Backward &&
+		CurrentActionData->Action->ActionType != ATM_Dash_Left && 
+		CurrentActionData->Action->ActionType != ATM_Dash_Right) &&
+		FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < -0.3f)
 	{
 		ULog::Yes("Can back hand?", true);
 		FSM->PushState("Back Hand");
@@ -1376,8 +1358,6 @@ void AMordath::OnSecondStageHealth()
 	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
 	SpawnLightningStrike(NewLocation);
 
-	//GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetLightningStrikeShake().Shake, CurrentStageData->GetLightningStrikeShake().Intensity);
-
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
 
@@ -1389,8 +1369,6 @@ void AMordath::OnThirdStageHealth()
 {
 	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
 	SpawnLightningStrike(NewLocation);
-
-	//GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetLightningStrikeShake().Shake, CurrentStageData->GetLightningStrikeShake().Intensity);
 
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);
@@ -1700,37 +1678,16 @@ void AMordath::ExecuteAction(UMordathActionData* ActionData)
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead
-	if (FSM->GetActiveStateName() == "Death" || AnimInstance->bIsHit || DamageCauser->IsA(AMordathGhost::StaticClass()))
+	if (bIsDead || AnimInstance->bIsHit || DamageCauser->IsA(AMordathGhost::StaticClass()))
 		return DamageAmount;
 
 	BeginTakeDamage(DamageAmount);
 
 	// Apply damage once
-	if (!AnimInstance->bIsHit /*&& HitCounter < CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility)*/)
+	if (!AnimInstance->bIsHit)
 	{
 		ApplyDamage(DamageAmount, DamageEvent);
 	}
-
-	// When we have reached the maximum amount of hits we can tolerate, enable invincibility
-	//if (HitCounter == CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility))
-	//{
-	//	// Reset our hits
-	//	HitCounter = 0;
-	//
-	//	// Become invincible and set a timer to disable invincibility after 'X' seconds
-	//	//EnableInvincibility();
-	//	//TimerManager->SetTimer(TH_Invincibility, this, &AMordath::DisableInvincibility, CurrentStageData->Combat.InvincibilityTimeAfterDamage);
-	//
-	//	// Cancel our current animation and enter the downed state
-	//	//FSM->PushState("Beaten");
-	//
-	//	UpdateDamageValueInMainHUD(DamageAmount);
-	//
-	//	UpdateHealth(DamageAmount);
-	//
-	//	// Handled in blueprints
-	//	OnAfterTakeDamage();
-	//}
 
 	EndTakeDamage();
 
@@ -1890,6 +1847,7 @@ void AMordath::ChooseMovementDirection()
 
 void AMordath::EncirclePlayer()
 {
+	// Todo: Remove player input reference
 	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
 	{
 		MoveRight(-1.0f);
@@ -1949,27 +1907,12 @@ void AMordath::StartExecutionExpiryTimer()
 
 float AMordath::GetDistanceToPlayer() const
 {
-	const float Distance = FVector::Dist(CurrentLocation, GameState->PlayerData.Location);
-
-	#if !UE_BUILD_SHIPPING
-	if (Debug.bLogDistance)
-		ULog::DebugMessage(INFO, FString("Distance: ") + FString::SanitizeFloat(Distance), true);
-	#endif
-
-	return Distance;
+	return FVector::Dist(CurrentLocation, GameState->PlayerData.Location);
 }
 
 FVector AMordath::GetDirectionToPlayer() const
 {
-	FVector Direction = GameState->PlayerData.Location - CurrentLocation;
-	Direction.Normalize();
-
-	#if !UE_BUILD_SHIPPING
-	if (Debug.bLogDirection)
-		ULog::DebugMessage(INFO, FString("Direction: ") + Direction.ToString(), true);
-	#endif
-
-	return Direction;
+	return (GameState->PlayerData.Location - CurrentLocation).GetSafeNormal(0.01f);
 }
 
 void AMordath::Die()
@@ -1982,7 +1925,7 @@ void AMordath::Die()
 	MovementComponent->SetMovementMode(MOVE_None);
 	MovementComponent->DisableMovement();
 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
@@ -2007,7 +1950,7 @@ bool AMordath::IsShortAttacking() const
 	return FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_ShortAttack_3 /* FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5*/;
+			GameState->BossData.CurrentActionType == ATM_ShortAttack_3;
 }
 
 bool AMordath::IsLongAttacking() const
@@ -2015,7 +1958,7 @@ bool AMordath::IsLongAttacking() const
 	return FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_LongAttack_3/*FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8*/;
+			GameState->BossData.CurrentActionType == ATM_LongAttack_3;
 }
 
 bool AMordath::IsSpecialAttacking() const
@@ -2023,7 +1966,7 @@ bool AMordath::IsSpecialAttacking() const
 	return FSM->GetActiveStateID() == 25 && 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3 /*FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11*/;
+			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3;
 }
 
 bool AMordath::IsInFirstStage() const
@@ -2185,21 +2128,6 @@ float AMordath::GetActionDamage() const
 	return ActionDamage;
 }
 
-float AMordath::GetShortAttackDamage() const
-{
-	return 0.0f;
-}
-
-float AMordath::GetLongAttackDamage() const
-{
-	return 0.0f;
-}
-
-float AMordath::GetSpecialAttackDamage() const
-{
-	return 0.0f;
-}
-
 float AMordath::GetAttackRadius() const
 {
 	return CurrentStageData->GetAttackRadius();
@@ -2224,6 +2152,9 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 		
 	case Stage_3:
 		SetHealth(HealthComponent->GetDefaultHealth() * ThirdStageHealth);
+	break;
+
+	default:
 	break;
 	}
 }

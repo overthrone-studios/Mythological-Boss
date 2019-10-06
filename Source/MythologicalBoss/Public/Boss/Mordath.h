@@ -59,18 +59,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetActionDamage() const;
 
-	// Returns the light attack damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetShortAttackDamage() const;
-
-	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetLongAttackDamage() const;
-
-	// Returns the special attack damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetSpecialAttackDamage() const;
-
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetAttackRadius() const;

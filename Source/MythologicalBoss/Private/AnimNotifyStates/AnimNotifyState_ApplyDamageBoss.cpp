@@ -7,7 +7,6 @@
 #include "Mordath.h"
 #include "Log.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/ForceFeedbackAttenuation.h"
 #include "MordathGhost.h"
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
@@ -41,14 +40,6 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 #endif
 
 	AttackRadius = Mordath->GetAttackRadius();
-
-	//if (Mordath->IsShortAttacking())
-	//	AttackDamage = Mordath->GetShortAttackDamage();
-	//else if (Mordath->IsLongAttacking())
-	//	AttackDamage = Mordath->GetLongAttackDamage();
-	//else if (Mordath->IsSpecialAttacking())
-	//	AttackDamage = Mordath->GetSpecialAttackDamage();
-
 	AttackDamage = Mordath->GetActionDamage();
 
 #if !UE_BUILD_SHIPPING
