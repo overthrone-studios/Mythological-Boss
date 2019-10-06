@@ -56,6 +56,10 @@ struct FCameraShakes_Mordath
 	// The camera shake to play when we are damaged
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData Stun;
+
+	// The camera shake to play when we are damaged
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData LightningStrike;
 };
 
 USTRUCT(BlueprintType)
@@ -200,6 +204,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE FCameraShakeData& GetStunShake() { return CameraShakes.Stun; }
+
+	UFUNCTION(BlueprintPure, Category = "Mordath")
+		FORCEINLINE FCameraShakeData& GetLightningStrikeShake() { return CameraShakes.LightningStrike; }
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE float GetRecoverTime() const { return RecoverTime; }
