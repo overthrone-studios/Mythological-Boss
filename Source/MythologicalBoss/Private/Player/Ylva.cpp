@@ -1561,15 +1561,11 @@ void AYlva::OnChargeMeterFull()
 void AYlva::StartParryEvent()
 {
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
-
-	//if (!TimerManager->IsTimerActive(TH_ParryEventExpiry) && Combat.ParrySettings.ParryCameraAnim)
-	//	TimerManager->SetTimer(TH_ParryEventExpiry, this, &AYlva::FinishParryEvent, Combat.ParrySettings.ParryCameraAnimInst->CamAnim->AnimLength);
 }
 
 void AYlva::FinishParryEvent()
 {
 	FSM->PopState();
-	FSM->PopState("Block");
 }
 
 void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -2012,15 +2008,6 @@ void AYlva::OnEnterParryState()
 	const int32 RandomIndex = FMath::RandRange(0, Combat.ParrySettings.ParryHitSoundData->HitSounds.Num()-1);
 	UGameplayStatics::PlaySoundAtLocation(this, Combat.ParrySettings.ParryHitSoundData->HitSounds[RandomIndex], CurrentLocation);
 
-	//if (!Combat.ParrySettings.ParryCameraAnimInst)
-	//{
-	//	if (Combat.ParrySettings.ParryCameraAnim)
-	//		Combat.ParrySettings.ParryCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ParrySettings.ParryCameraAnim);
-	//}
-
-	//const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
-	//PlayerController->SetControlRotation(NewRotation);
-
 	PlayerController->SetIgnoreLookInput(true);
 
 	GameState->BossData.OnAttackParryed.Broadcast();
@@ -2030,23 +2017,15 @@ void AYlva::OnEnterParryState()
 
 void AYlva::UpdateParryState()
 {
-	//Combat.ParrySettings.TimeDilationOnSuccessfulParry = FMath::Lerp(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 5 * World->DeltaTimeSeconds);
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 4 * FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
-	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation /*FMath::Lerp(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 2 * FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f))*/);
+	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
 
-	//ULog::Number(UGameplayStatics::GetGlobalTimeDilation(this), "Time dilation: ", true);
-
-	if (UGameplayStatics::GetGlobalTimeDilation(this) >= 1.0f/* AnimInstance->AnimTimeRemaining < 0.1f*/)
+	if (UGameplayStatics::GetGlobalTimeDilation(this) >= 1.0f)
 		FSM->PopState();
 }
 
 void AYlva::OnExitParryState()
 {
-	//if (Combat.ParrySettings.ParryCameraAnimInst && Combat.ParrySettings.ParryCameraAnimInst->CurTime == 0.0f)
-	//	Combat.ParrySettings.ParryCameraAnimInst->Stop();
-	//
-	//Combat.ParrySettings.ParryCameraAnimInst = nullptr;	
-
 	PlayerController->SetIgnoreLookInput(false);
 
 	YlvaAnimInstance->bCanParry = false;
