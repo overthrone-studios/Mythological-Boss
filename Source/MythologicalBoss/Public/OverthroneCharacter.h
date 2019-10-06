@@ -105,7 +105,7 @@ protected:
 		virtual void BeginTakeDamage(float DamageAmount);
 	
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void ApplyDamage(float DamageAmount);
+		virtual void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent);
 	
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void EndTakeDamage();

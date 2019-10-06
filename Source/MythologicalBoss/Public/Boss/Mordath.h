@@ -229,7 +229,7 @@ protected:
 	void FinishStun();
 
 	void BeginTakeDamage(float DamageAmount) override;
-	void ApplyDamage(float DamageAmount) override;
+	void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 	void EndTakeDamage() override;
 
 	void OnExecutionTimeExpired();

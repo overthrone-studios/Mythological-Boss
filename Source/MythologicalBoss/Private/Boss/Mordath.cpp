@@ -1453,7 +1453,7 @@ void AMordath::BeginTakeDamage(const float DamageAmount)
 	PlayerController->ClientPlayCameraShake(CurrentStageData->GetDamagedShake().Shake, CurrentStageData->GetDamagedShake().Intensity);
 }
 
-void AMordath::ApplyDamage(const float DamageAmount)
+void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
 	HitCounter++;
 
@@ -1704,7 +1704,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	// Apply damage once
 	if (!AnimInstance->bIsHit /*&& HitCounter < CurrentStageData->Combat.MaxHitsBeforeInvincibility && !TimerManager->IsTimerActive(TH_Invincibility)*/)
 	{
-		ApplyDamage(DamageAmount);
+		ApplyDamage(DamageAmount, DamageEvent);
 	}
 
 	// When we have reached the maximum amount of hits we can tolerate, enable invincibility

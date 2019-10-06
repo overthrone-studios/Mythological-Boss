@@ -113,7 +113,7 @@ void AOverthroneCharacter::InitTimeline(FTimeline& InTimeline, UCurveFloat* InCu
 	}
 }
 
-void AOverthroneCharacter::ApplyDamage(float DamageAmount)
+void AOverthroneCharacter::ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent)
 {
 	check(0 && "You must implement ApplyDamage()");
 }
