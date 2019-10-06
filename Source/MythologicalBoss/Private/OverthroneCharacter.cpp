@@ -248,12 +248,12 @@ void AOverthroneCharacter::BroadcastLowHealth()
 
 void AOverthroneCharacter::PauseAnims() const
 {
-	GetMesh()->bPauseAnims = true;
+	SKMComponent->bPauseAnims = true;
 }
 
 void AOverthroneCharacter::UnPauseAnims() const
 {
-	GetMesh()->bPauseAnims = false;
+	SKMComponent->bPauseAnims = false;
 }
 
 bool AOverthroneCharacter::IsInvincible() const

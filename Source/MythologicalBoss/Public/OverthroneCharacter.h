@@ -140,9 +140,9 @@ protected:
 
 	// Hit stop functions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		void PauseAnims() const;
+		virtual void PauseAnims() const;
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		void UnPauseAnims() const;
+		virtual void UnPauseAnims() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		bool IsInvincible() const;
