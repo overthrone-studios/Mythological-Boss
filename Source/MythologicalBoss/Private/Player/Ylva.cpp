@@ -874,18 +874,6 @@ void AYlva::StartChargeAttack()
 	bChargeKeyPressed = true;
 }
 
-void AYlva::ChargeUpAttack()
-{
-	if (!ChargeAttackComponent->IsChargeFull() || IsChargeAttacking())
-		return;
-
-	if (!IsDamaged())
-	{
-		FSM->PopState();
-		FSM->PushState("Charge Attack");
-	}
-}
-
 void AYlva::ReleaseChargeAttack()
 {
 	ChargeKeyHeldFrames = 0;

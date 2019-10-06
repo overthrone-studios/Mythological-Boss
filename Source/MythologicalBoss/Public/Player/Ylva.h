@@ -474,9 +474,6 @@ protected:
 	// Called via input to begin the charge attack event
 	void StartChargeAttack();
 
-	// Called via input when holding down the charge attack key
-	void ChargeUpAttack();
-
 	// Called via input when releasing the charge attack key
 	void ReleaseChargeAttack();
 
