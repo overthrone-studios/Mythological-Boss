@@ -35,6 +35,9 @@ public:
 		uint8 bChargeReleased : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsShocked : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsHitByNoCounter : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")

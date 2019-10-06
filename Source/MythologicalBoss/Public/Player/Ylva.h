@@ -477,7 +477,7 @@ protected:
 
 	void BeginTakeDamage(float DamageAmount) override;
 
-	void ApplyDamage(float DamageAmount) override;
+	void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 
 	void EndTakeDamage() override;
 	#pragma endregion
@@ -764,6 +764,15 @@ protected:
 			void OnExitChargeAttackState();
 		#pragma endregion 
 
+		#pragma region Shocked
+		UFUNCTION()
+			void OnEnterShockedState();
+		UFUNCTION()
+			void UpdateShockedState();
+		UFUNCTION()
+			void OnExitShockedState();
+		#pragma endregion 
+
 		#pragma region Shield Hit
 		UFUNCTION()
 			void OnEnterShieldHitState();
@@ -893,6 +902,10 @@ protected:
 	// Configure lock on settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Lock-On")
 		FLockOnSettings LockOnSettings;
+
+	// The amount of time (in seconds) we are electrecuted for when we are hit by a lightning strike
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Electric Shock Time")
+		float ShockTime = 2.0f;
 
 	// Ylva's camera shake settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera")

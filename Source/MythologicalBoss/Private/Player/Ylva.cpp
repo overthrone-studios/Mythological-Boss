@@ -42,9 +42,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "DamageTypes/DmgType_Lightning.h"
+
+#include "Engine/Engine.h"
+
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
-#include "Engine/Engine.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -77,6 +80,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(4, "Block");
 	FSM->AddState(5, "Death");
 	FSM->AddState(6, "Charge Attack");
+	FSM->AddState(7, "Shocked");
 	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
@@ -110,6 +114,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AYlva::OnEnterChargeAttackState);
 	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AYlva::UpdateChargeAttackState);
 	FSM->GetState(6)->OnExitState.AddDynamic(this, &AYlva::OnExitChargeAttackState);
+
+	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShockedState);
+	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShockedState);
+	FSM->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitShockedState);
 
 	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
 	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
@@ -539,7 +547,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 	// Apply damage once
 	if (HealthComponent->GetCurrentHealth() > 0.0f && (!AnimInstance->bIsHit || !YlvaAnimInstance->bIsShieldHit))
 	{
-		ApplyDamage(DamageAmount);
+		ApplyDamage(DamageAmount, DamageEvent);
 	}
 
 	EndTakeDamage();
@@ -907,7 +915,7 @@ void AYlva::BeginTakeDamage(float DamageAmount)
 	GameState->PlayerData.bHasTakenDamage = true;
 }
 
-void AYlva::ApplyDamage(const float DamageAmount)
+void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
 	// Pop the active state that's not Idle or Block or Charge
 	if (FSM->GetActiveStateName() != "Idle" &&
@@ -964,7 +972,10 @@ void AYlva::ApplyDamage(const float DamageAmount)
 				FSM->PopState();
 
 			// Enter damaged state
-			FSM->PushState("Damaged");
+			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
+				FSM->PushState("Shocked");
+			else
+				FSM->PushState("Damaged");
 
 			// Shake the camera
 			PlayerController->ClientPlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
@@ -1906,6 +1917,28 @@ void AYlva::OnExitChargeAttackState()
 	}
 
 	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.5f);
+}
+#pragma endregion 
+
+#pragma region Shocked
+void AYlva::OnEnterShockedState()
+{
+	YlvaAnimInstance->bIsShocked = true;
+
+	MovementComponent->SetMovementMode(MOVE_None);
+}
+
+void AYlva::UpdateShockedState()
+{
+	if (FSM->GetActiveStateUptime() > ShockTime)
+		FSM->PopState();
+}
+
+void AYlva::OnExitShockedState()
+{
+	YlvaAnimInstance->bIsShocked = false;
+
+	MovementComponent->SetMovementMode(MOVE_Walking);
 }
 #pragma endregion 
 
