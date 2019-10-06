@@ -1088,7 +1088,7 @@ void AMordath::UpdateFarRange()
 		return;
 	}
 
-	if (IsTeleporting())
+	if (IsTeleporting() || IsSpecialAttacking())
 		return;
 
 	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
@@ -1373,8 +1373,8 @@ void AMordath::OnFirstStageHealth()
 
 void AMordath::OnSecondStageHealth()
 {
-	FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
-	World->SpawnActor(LightningStrikeClass, &NewLocation);
+	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
+	SpawnLightningStrike(NewLocation);
 
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
@@ -1385,8 +1385,8 @@ void AMordath::OnSecondStageHealth()
 
 void AMordath::OnThirdStageHealth()
 {
-	FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
-	World->SpawnActor(LightningStrikeClass, &NewLocation);
+	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
+	SpawnLightningStrike(NewLocation);
 
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);
@@ -2227,6 +2227,11 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 UForceFeedbackEffect* AMordath::GetCurrentForceFeedbackEffect() const
 {
 	return CurrentActionData->Action->ForceFeedbackEffect;
+}
+
+void AMordath::SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation)
+{
+	World->SpawnActor(LightningStrikeClass, &LocationToSpawn, &Rotation);
 }
 
 void AMordath::AddDebugMessages()

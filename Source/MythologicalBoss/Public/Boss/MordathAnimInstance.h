@@ -53,4 +53,7 @@ public:
 
 protected:
 	void NativeInitializeAnimation() override;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character")
+		class AMordath* Mordath;
 };

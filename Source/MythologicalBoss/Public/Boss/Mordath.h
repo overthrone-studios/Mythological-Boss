@@ -202,6 +202,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		class UForceFeedbackEffect* GetCurrentForceFeedbackEffect() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation = FRotator::ZeroRotator);
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
