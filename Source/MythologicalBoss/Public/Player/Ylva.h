@@ -480,12 +480,6 @@ protected:
 	// Called 0.2 seconds after ReleaseChargeAttack()
 	void FinishChargeAttack();
 
-	// Triggers the parry event to start
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
-		void StartParryEvent();
-
-	void FinishParryEvent();
-
 	UFUNCTION()
 		void OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
@@ -978,8 +972,6 @@ private:
 	uint8 HitCounter_Persistent = 0;
 
 	uint16 ChargeAttackHoldFrames = 0;
-
-	FTimerHandle TH_ParryEventExpiry;
 
 	FTimerHandle TH_ChargeAttackRelease;
 	FTimerHandle TH_ChargeLoss;

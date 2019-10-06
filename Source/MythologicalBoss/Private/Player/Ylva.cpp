@@ -698,7 +698,7 @@ void AYlva::LightAttack()
 
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
-		FinishParryEvent();
+		FSM->PopState();
 
 	// Queue the attack, if we can
 	if (IsAttacking() && 
@@ -772,7 +772,7 @@ void AYlva::HeavyAttack()
 
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
-		FinishParryEvent();
+		FSM->PopState();
 
 	// Queue the attack, if we can
 	if (IsAttacking() && 
@@ -1558,16 +1558,6 @@ void AYlva::OnChargeMeterFull()
 	LSword->Glow();
 }
 
-void AYlva::StartParryEvent()
-{
-	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
-}
-
-void AYlva::FinishParryEvent()
-{
-	FSM->PopState();
-}
-
 void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	bIsParryBoxHit = true;
@@ -2012,7 +2002,7 @@ void AYlva::OnEnterParryState()
 
 	GameState->BossData.OnAttackParryed.Broadcast();
 
-	StartParryEvent();
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 }
 
 void AYlva::UpdateParryState()
@@ -2032,8 +2022,6 @@ void AYlva::OnExitParryState()
 	GameState->PlayerData.bParrySucceeded = false;
 
 	ResetGlobalTimeDilation();
-
-	TimerManager->ClearTimer(TH_ParryEventExpiry);
 }
 #pragma endregion 
 #pragma endregion 
