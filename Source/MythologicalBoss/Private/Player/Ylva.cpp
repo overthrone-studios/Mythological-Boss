@@ -897,20 +897,11 @@ void AYlva::FinishChargeAttack()
 
 void AYlva::Block()
 {
-	if (IsChargeAttacking() || IsDashing())
+	if (bIsDead || IsChargeAttacking() || IsDashing()  || IsDamaged() || IsParrying())
 		return;
 
-	AttackComboComponent->ClearCurrentAttack();
-
-	if (FSM->GetActiveStateID() != 5 /*Death*/ &&
-		FSM->GetActiveStateID() != 20 /*Damaged*/ &&
-		FSM->GetActiveStateID() != 22 /*Parry*/)
-	{
-		YlvaAnimInstance->bIsBlocking = true;
-
-		FSM->PopState();
-		FSM->PushState("Block");
-	}
+	FSM->PopState();
+	FSM->PushState("Block");
 }
 
 void AYlva::StopBlocking()
@@ -918,13 +909,7 @@ void AYlva::StopBlocking()
 	if (bIsDead)
 		return;
 
-	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
-	bUseControllerRotationYaw = false;
-	
-	YlvaAnimInstance->bIsBlocking = false;
-
-	if (!IsParrying())
-		FSM->PopState("Block");
+	FSM->PopState("Block");
 }
 
 void AYlva::BeginTakeDamage(float DamageAmount)
@@ -1731,15 +1716,16 @@ void AYlva::OnExitRunState()
 #pragma region Shield Block
 void AYlva::OnEnterBlockingState()
 {
+	YlvaAnimInstance->bIsBlocking = true;
 	bUseControllerRotationYaw = true;
 
-	AnimInstance->Montage_Play(Combat.BlockSettings.BlockIdle);
-
-	YlvaAnimInstance->bIsBlocking = true;
+	AttackComboComponent->ClearCurrentAttack();
+	AttackComboComponent->ResetCombo();
+	GameState->PlayerData.CurrentAttackType = ATP_None;
 
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-	AttackComboComponent->ResetCombo();
+	AnimInstance->Montage_Play(Combat.BlockSettings.BlockIdle);
 }
 
 void AYlva::UpdateBlockingState()
@@ -1757,6 +1743,8 @@ void AYlva::UpdateBlockingState()
 
 void AYlva::OnExitBlockingState()
 {
+	StopAnimMontage(Combat.BlockSettings.BlockIdle);
+
 	bUseControllerRotationYaw = false;
 
 	bIsParryBoxHit = false;
