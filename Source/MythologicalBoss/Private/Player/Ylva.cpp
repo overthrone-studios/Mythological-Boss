@@ -1964,6 +1964,8 @@ void AYlva::OnEnterDashAttackState()
 	//
 	//PlayerController->SetIgnoreLookInput(true);
 
+	PlayerController->SetIgnoreMoveInput(true);
+
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationWhileAttacking);
 }
 
@@ -1989,6 +1991,8 @@ void AYlva::OnExitDashAttackState()
 	bPerfectlyTimedDash = false;
 
 	GameState->PlayerData.CurrentAttackType = ATP_None;
+
+	PlayerController->ResetIgnoreMoveInput();
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
