@@ -324,6 +324,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsDashing() const;
 
+	// Returns true if we are performing a dash attack
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsDashAttacking() const;
+
 	// Returns true if our forward input is > 0.0f AND our right input == 0.0f
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingForward() const;
@@ -972,6 +976,8 @@ private:
 	uint8 bHasBeenDamaged : 1;
 
 	uint8 bCanRun : 1;
+
+	uint8 bPerfectlyTimedDash : 1;
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;

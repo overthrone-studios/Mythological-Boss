@@ -366,6 +366,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Player Displayed Stamina: " + FString::SanitizeFloat(StaminaComponent->GetSmoothedStamina()));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Moved Right by: " + FString::SanitizeFloat(DistanceMovedInRightDirection));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Distance to Spear: " + FString::SanitizeFloat(FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation)));
 #endif
 }
 
@@ -550,7 +552,7 @@ void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead or while dashing
-	if (bIsDead || IsDashing() && GameState->BossData.CurrentCounterType == ACM_NoCounter)
+	if (bIsDead || bPerfectlyTimedDash || IsDashAttacking() || IsDashing() && GameState->BossData.CurrentCounterType == ACM_NoCounter)
 	{
 		return DamageAmount;
 	}
@@ -698,8 +700,15 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
 		return;
+
+	if (bPerfectlyTimedDash)
+	{
+		FSM->PopState();
+		FSM->PushState("Dash Attack");
+		return;
+	}
 
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
@@ -772,8 +781,15 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() && IsDashAttacking())
 		return;
+
+	if (bPerfectlyTimedDash)
+	{
+		FSM->PopState();
+		FSM->PushState("Dash Attack");
+		return;
+	}
 
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
@@ -900,7 +916,7 @@ void AYlva::FinishChargeAttack()
 
 void AYlva::Block()
 {
-	if (bIsDead || IsChargeAttacking() || IsDashing()  || IsDamaged() || IsParrying())
+	if (bIsDead || IsChargeAttacking() || IsDashing()  || IsDamaged() || IsParrying() || IsDashAttacking())
 		return;
 
 	FSM->PopState();
@@ -1009,7 +1025,7 @@ void AYlva::EndTakeDamage()
 #pragma region Movement
 void AYlva::Run()
 {
-	if (bIsDead || IsChargeAttacking())
+	if (bIsDead || IsChargeAttacking() || IsDashAttacking())
 		return;
 
 	bCanRun = !bCanRun;
@@ -1045,6 +1061,9 @@ void AYlva::Dash()
 {
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
+
+	if (IsDashAttacking())
+		return;
 
 	if (IsAttacking())
 	{
@@ -1918,14 +1937,19 @@ void AYlva::OnEnterDashAttackState()
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+
+	UGameplayStatics::SetGlobalTimeDilation(this, 0.6f);
 }
 
 void AYlva::UpdateDashAttackState()
 {
-	if (FSM->GetActiveStateUptime() < 0.8f)
+	const float& NewTimeDilation = FMath::InterpExpoIn(0.6f, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
+	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
+
+	if (FSM->GetActiveStateUptime() < 0.1f)
 	{
 		FaceBoss(World->DeltaTimeSeconds);
-		LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+		//LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 	}
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
@@ -1936,8 +1960,12 @@ void AYlva::OnExitDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = false;
 
+	bPerfectlyTimedDash = false;
+
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	ResetGlobalTimeDilation();
 }
 #pragma endregion 
 
@@ -1996,6 +2024,20 @@ void AYlva::OnEnterDashState()
 
 void AYlva::UpdateDashState()
 {
+	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f &&
+		GameState->IsBossAttacking() && !bPerfectlyTimedDash && !IsDamaged())
+	{
+		#if !UE_BUILD_SHIPPING
+		ULog::Info("Perfectly timed dash!", true);
+		#endif
+
+		bPerfectlyTimedDash = true;
+
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+
+		UGameplayStatics::SetGlobalTimeDilation(this, 0.2f);
+	}
+
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
 		FSM->PopState();
@@ -2014,6 +2056,16 @@ void AYlva::OnExitDashState()
 
 	AnimInstance->bIsDashing = false;
 	bWasRunning = false;
+
+	if (bPerfectlyTimedDash)
+	{
+		bPerfectlyTimedDash = false;
+
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+		ResetGlobalTimeDilation();
+	}
 
 	if (!DashQueue.IsEmpty())
 	{
@@ -2183,6 +2235,11 @@ bool AYlva::IsDashing() const
 	return FSM->GetActiveStateID() == 12;
 }
 
+bool AYlva::IsDashAttacking() const
+{
+	return FSM->GetActiveStateID() == 8;
+}
+
 bool AYlva::IsDamaged() const
 {
 	return FSM->GetActiveStateID() == 20 || bHasBeenDamaged;
@@ -2277,4 +2334,5 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Moved Right by: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Distance to Spear: ", FColor::Green);
 }
