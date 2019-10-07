@@ -200,6 +200,9 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		FDebug_Mordath Debug;
 
+	// Updated in the AnimNotify state class
+	uint8 bHasAttackBegun : 1;
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;

@@ -42,6 +42,8 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 	AttackRadius = Mordath->GetAttackRadius();
 	AttackDamage = Mordath->GetActionDamage();
 
+	Mordath->bHasAttackBegun = true;
+
 #if !UE_BUILD_SHIPPING
 	if (HitSoundData && HitSoundData->HitSounds.Num() == 0)
 		ULog::Warning("No hit sounds specified in " + Animation->GetName(), true);
@@ -51,6 +53,9 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 void UAnimNotifyState_ApplyDamageBoss::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	bIsHit = false;
+
+	if (Mordath)
+		Mordath->bHasAttackBegun = false;
 }
 
 void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)

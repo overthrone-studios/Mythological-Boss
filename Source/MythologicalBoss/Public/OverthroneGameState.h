@@ -100,10 +100,13 @@ struct FBossData : public FCharacterData
 	{
 		Super::ResetData();
 
-		CurrentCounterType = ACM_NoCounter;
+		CurrentCounterType = ACM_None;
 	}
 
 	FVector LockOnBoneLocation;
+	FVector SpearLocation;
+
+	uint8 bHasAttackBegun : 1;
 
 	FLinearColor DamageColor = FLinearColor::White;
 
@@ -166,7 +169,7 @@ public:
 		FORCEINLINE bool IsPlayerAttacking() const { return PlayerData.CurrentAttackType != ATP_None; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
-		FORCEINLINE bool IsBossAttacking() const { return BossData.CurrentActionType != ATM_None; }
+		FORCEINLINE bool IsBossAttacking() const { return BossData.bHasAttackBegun; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE bool HasPlayerTakenDamage() const { return PlayerData.bHasTakenDamage; }

@@ -726,6 +726,10 @@ void AMordath::UpdateActionState()
 {
 	StopMoving();
 
+	GameState->BossData.bHasAttackBegun = bHasAttackBegun;
+
+	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
+
 	if (CurrentActionData->Action->bConstantlyFacePlayer)
 		FacePlayer();
 	else
