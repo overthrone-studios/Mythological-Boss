@@ -726,7 +726,7 @@ void AMordath::UpdateActionState()
 {
 	StopMoving();
 
-	GameState->BossData.bHasAttackBegun = bHasAttackBegun;
+	GameState->BossData.bHasAttackBegun = bCanBeDodged;
 
 	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
 
@@ -735,6 +735,11 @@ void AMordath::UpdateActionState()
 	else
 		FacePlayerBasedOnActionData(CurrentActionData->Action);
 	
+	if (AnimInstance->Montage_GetPosition(CurrentActionData->Action->ActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
+		AnimInstance->Montage_GetPosition(CurrentActionData->Action->ActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
+		CurrentActionData->Action->bAllowPerfectDash)
+		bCanBeDodged = true;
+
 	// If action has finished, go back to previous state
 	if (HasFinishedAction())
 		FSM->PopState();
@@ -1412,6 +1417,8 @@ void AMordath::StopActionMontage()
 	CurrentMontageSection = "None";
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
+
+	bCanBeDodged = false;
 }
 
 void AMordath::UpdateCharacterInfo()
