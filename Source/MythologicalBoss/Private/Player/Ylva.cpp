@@ -786,7 +786,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() && IsDashAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
 		return;
 
 	if (bPerfectlyTimedDash)
@@ -1939,9 +1939,8 @@ void AYlva::OnExitShockedState()
 void AYlva::OnEnterDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = true;
-	YlvaAnimInstance->bIsDashing = false;
 
-	GameState->PlayerData.CurrentAttackType = ATP_Special;
+	GameState->PlayerData.CurrentAttackType = ATP_Dash;
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
@@ -1953,13 +1952,14 @@ void AYlva::OnEnterDashAttackState()
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
-	//if (!Combat.ChargeSettings.ChargeCameraAnimInst)
+	// Todo: Play dash attack camera animation
+	//if (!Combat.DashAttackSettings.CameraAnimInst)
 	//{
-	//	if (Combat.ChargeSettings.ChargeCameraAnim)
-	//		Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
+	//	if (Combat.DashAttackSettings.CameraAnimInst)
+	//		Combat.DashAttackSettings.CameraAnimInst = CameraManager->PlayCameraAnim(Combat.DashAttackSettings.CameraAnim);
 	//}
 	//
-	//const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
+	//const FRotator NewRotation = FRotator(Combat.DashAttackSettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
 	//PlayerController->SetControlRotation(NewRotation);
 	//
 	//PlayerController->SetIgnoreLookInput(true);
@@ -1985,7 +1985,6 @@ void AYlva::UpdateDashAttackState()
 void AYlva::OnExitDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = false;
-	YlvaAnimInstance->bIsDashing = false;
 
 	bPerfectlyTimedDash = false;
 
@@ -1994,13 +1993,13 @@ void AYlva::OnExitDashAttackState()
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-
+	
 	if (IsLockedOn())
 	{
 		MovementComponent->bOrientRotationToMovement = false;
 		MovementComponent->bUseControllerDesiredRotation = true;
 	}
-
+	
 	ResetGlobalTimeDilation();
 }
 #pragma endregion 
@@ -2060,7 +2059,7 @@ void AYlva::OnEnterDashState()
 
 void AYlva::UpdateDashState()
 {
-	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f &&
+	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 300.0f &&
 		GameState->IsBossAttacking() && !bPerfectlyTimedDash && !IsDamaged())
 	{
 		#if !UE_BUILD_SHIPPING
@@ -2070,9 +2069,6 @@ void AYlva::UpdateDashState()
 		EnableInvincibility();
 
 		bPerfectlyTimedDash = true;
-
-		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 		// Todo: Play sound
 		UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationOnPerfectDash);
@@ -2100,9 +2096,6 @@ void AYlva::OnExitDashState()
 	if (bPerfectlyTimedDash)
 	{
 		bPerfectlyTimedDash = false;
-	
-		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	
 		ResetGlobalTimeDilation();
 	}

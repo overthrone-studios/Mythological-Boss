@@ -115,6 +115,12 @@ struct FDashAttackSettings_Ylva
 {
 	GENERATED_BODY()
 
+	// The camera animation to play when dash has been performed perfectly
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UCameraAnim* CameraAnim;
+
+	class UCameraAnimInst* CameraAnimInst;
+
 	// The attack damage we deal when performing a dash attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 		float DashAttackDamage = 300.0f;
