@@ -1917,10 +1917,17 @@ void AYlva::OnEnterDashAttackState()
 	YlvaAnimInstance->bCanDashAttack = true;
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 }
 
 void AYlva::UpdateDashAttackState()
 {
+	if (FSM->GetActiveStateUptime() < 0.8f)
+	{
+		FaceBoss(World->DeltaTimeSeconds);
+		LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+	}
+
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
@@ -1930,6 +1937,7 @@ void AYlva::OnExitDashAttackState()
 	YlvaAnimInstance->bCanDashAttack = false;
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 }
 #pragma endregion 
 
