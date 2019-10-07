@@ -81,6 +81,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(5, "Death");
 	FSM->AddState(6, "Charge Attack");
 	FSM->AddState(7, "Shocked");
+	FSM->AddState(8, "Dash Attack");
 	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
@@ -118,6 +119,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShockedState);
 	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShockedState);
 	FSM->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitShockedState);
+
+	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashAttackState);
+	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashAttackState);
+	FSM->GetState(8)->OnExitState.AddDynamic(this, &AYlva::OnExitDashAttackState);
 
 	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
 	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
@@ -1903,6 +1908,28 @@ void AYlva::OnExitShockedState()
 	YlvaAnimInstance->bIsShocked = false;
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
+}
+#pragma endregion 
+
+#pragma region Dash Attack
+void AYlva::OnEnterDashAttackState()
+{
+	YlvaAnimInstance->bCanDashAttack = true;
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+}
+
+void AYlva::UpdateDashAttackState()
+{
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
+}
+
+void AYlva::OnExitDashAttackState()
+{
+	YlvaAnimInstance->bCanDashAttack = false;
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 }
 #pragma endregion 
 

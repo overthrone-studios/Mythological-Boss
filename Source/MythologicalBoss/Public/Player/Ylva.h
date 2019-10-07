@@ -785,6 +785,15 @@ protected:
 			void OnExitShockedState();
 		#pragma endregion 
 
+		#pragma region Dash Attack
+		UFUNCTION()
+			void OnEnterDashAttackState();
+		UFUNCTION()
+			void UpdateDashAttackState();
+		UFUNCTION()
+			void OnExitDashAttackState();
+		#pragma endregion 
+
 		#pragma region Shield Hit
 		UFUNCTION()
 			void OnEnterShieldHitState();
