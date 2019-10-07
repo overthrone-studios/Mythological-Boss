@@ -1486,7 +1486,7 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 
 	UpdateHealth(DamageAmount);
 
-	if (GameState->PlayerData.CurrentAttackType == ATP_Special)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Special || GameState->PlayerData.CurrentAttackType == ATP_Dash)
 	{
 		FSM->PopState();
 		FSM->PushState("Stunned");
