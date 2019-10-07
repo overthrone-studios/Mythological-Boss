@@ -109,6 +109,25 @@ struct FAttackSettings_Ylva : public FAttackSettings
 		float SuperCloseRangeAttackRotationSpeed = 2.0f;
 };
 
+
+USTRUCT(BlueprintType)
+struct FDashAttackSettings_Ylva
+{
+	GENERATED_BODY()
+
+	// The attack damage we deal when performing a dash attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float DashAttackDamage = 300.0f;
+
+	// The value to set when we've successfully dashed at the right time when the boss is attacking (0.0 = Time stands still, 0.5 = Half time speed, 1 = Normal time speed)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float TimeDilationOnPerfectDash = 0.2f;
+
+	// The value to set when dash attacking (0.0 = Time stands still, 0.5 = Half time speed, 1 = Normal time speed)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+		float TimeDilationWhileAttacking = 0.6f;
+};
+
 USTRUCT(BlueprintType)
 struct FChargeSettings_Ylva
 {
@@ -224,6 +243,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FAttackQueue_Ylva AttackQueue;
 
+	// Settings that affect Ylva's attack values
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FDashAttackSettings_Ylva DashAttackSettings;
+
 	// Settings that affect Ylva's charge settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FChargeSettings_Ylva ChargeSettings;
@@ -292,6 +315,10 @@ public:
 	// Returns the charge attack damage value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE float GetChargeAttackDamage() const { return Combat.AttackSettings.ChargeAttackDamage; }
+
+	// Returns the dash attack damage value
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		FORCEINLINE float GetDashAttackDamage() const { return Combat.DashAttackSettings.DashAttackDamage; }
 
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
@@ -435,6 +462,7 @@ protected:
 	void LockOnTo(const FVector& TargetLocation, float DeltaTime);
 
 	void FaceBoss(float DeltaTime, float RotationSpeed = 10.0f);
+	void FaceBoss_Instant();
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 

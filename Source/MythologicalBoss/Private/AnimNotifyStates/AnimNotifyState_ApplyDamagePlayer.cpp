@@ -32,6 +32,8 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 		AttackDamage = Ylva->GetHeavyAttackDamage();
 	else if (Ylva->IsChargeAttacking())
 		AttackDamage = Ylva->GetChargeAttackDamage();
+	else if (Ylva->IsDashAttacking())
+		AttackDamage = Ylva->GetDashAttackDamage();
 
 #if !UE_BUILD_SHIPPING
 	if (HitSoundData && HitSoundData->HitSounds.Num() == 0)

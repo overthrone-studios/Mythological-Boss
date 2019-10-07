@@ -549,6 +549,11 @@ void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
 	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Rotation().Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 }
 
+void AYlva::FaceBoss_Instant()
+{
+	SetActorRotation(FRotator(CurrentRotation.Pitch, DirectionToBoss.Rotation().Yaw, CurrentRotation.Roll));
+}
+
 float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead or while dashing
@@ -1934,22 +1939,43 @@ void AYlva::OnExitShockedState()
 void AYlva::OnEnterDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = true;
+	YlvaAnimInstance->bIsDashing = false;
+
+	GameState->PlayerData.CurrentAttackType = ATP_Special;
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 
-	UGameplayStatics::SetGlobalTimeDilation(this, 0.6f);
+	if (IsLockedOn())
+	{
+		MovementComponent->bOrientRotationToMovement = true;
+		MovementComponent->bUseControllerDesiredRotation = false;
+	}
+
+	//if (!Combat.ChargeSettings.ChargeCameraAnimInst)
+	//{
+	//	if (Combat.ChargeSettings.ChargeCameraAnim)
+	//		Combat.ChargeSettings.ChargeCameraAnimInst = CameraManager->PlayCameraAnim(Combat.ChargeSettings.ChargeCameraAnim);
+	//}
+	//
+	//const FRotator NewRotation = FRotator(Combat.ParrySettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
+	//PlayerController->SetControlRotation(NewRotation);
+	//
+	//PlayerController->SetIgnoreLookInput(true);
+
+	UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationWhileAttacking);
 }
 
 void AYlva::UpdateDashAttackState()
 {
-	const float& NewTimeDilation = FMath::InterpExpoIn(0.6f, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
+	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.DashAttackSettings.TimeDilationWhileAttacking, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
 
 	if (FSM->GetActiveStateUptime() < 0.1f)
 	{
-		FaceBoss(World->DeltaTimeSeconds);
-		//LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+		FaceBoss_Instant();
+		LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 	}
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
@@ -1959,11 +1985,21 @@ void AYlva::UpdateDashAttackState()
 void AYlva::OnExitDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = false;
+	YlvaAnimInstance->bIsDashing = false;
 
 	bPerfectlyTimedDash = false;
 
+	GameState->PlayerData.CurrentAttackType = ATP_None;
+
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+
+	if (IsLockedOn())
+	{
+		MovementComponent->bOrientRotationToMovement = false;
+		MovementComponent->bUseControllerDesiredRotation = true;
+	}
 
 	ResetGlobalTimeDilation();
 }
@@ -2031,11 +2067,15 @@ void AYlva::UpdateDashState()
 		ULog::Info("Perfectly timed dash!", true);
 		#endif
 
+		EnableInvincibility();
+
 		bPerfectlyTimedDash = true;
 
+		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
-		UGameplayStatics::SetGlobalTimeDilation(this, 0.2f);
+		// Todo: Play sound
+		UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationOnPerfectDash);
 	}
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
@@ -2060,10 +2100,10 @@ void AYlva::OnExitDashState()
 	if (bPerfectlyTimedDash)
 	{
 		bPerfectlyTimedDash = false;
-
+	
 		CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 		CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-
+	
 		ResetGlobalTimeDilation();
 	}
 
