@@ -953,6 +953,9 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	if (bGodMode || IsParrying())
 		return;
 
+	if (IsDashing() && FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f)
+		return;
+
 	// Test against states
 	switch (FSM->GetActiveStateID())
 	{
@@ -1952,11 +1955,9 @@ void AYlva::OnEnterDashAttackState()
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
-	// Todo: Play dash attack camera animation
 	if (!Combat.DashAttackSettings.CameraAnimInst)
 	{
-		if (Combat.DashAttackSettings.CameraAnimInst)
-			Combat.DashAttackSettings.CameraAnimInst = CameraManager->PlayCameraAnim(Combat.DashAttackSettings.CameraAnim);
+		Combat.DashAttackSettings.CameraAnimInst = CameraManager->PlayCameraAnim(Combat.DashAttackSettings.CameraAnim);
 	}
 	
 	const FRotator NewRotation = FRotator(Combat.DashAttackSettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
@@ -1990,6 +1991,8 @@ void AYlva::OnExitDashAttackState()
 	bPerfectlyTimedDash = false;
 
 	GameState->PlayerData.CurrentAttackType = ATP_None;
+
+	Combat.DashAttackSettings.CameraAnimInst = nullptr;
 
 	PlayerController->ResetIgnoreMoveInput();
 	PlayerController->ResetIgnoreLookInput();
@@ -2063,8 +2066,10 @@ void AYlva::OnEnterDashState()
 
 void AYlva::UpdateDashState()
 {
-	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 300.0f &&
-		GameState->IsBossAttacking() && !bPerfectlyTimedDash && !IsDamaged())
+	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f &&
+		GameState->IsBossAttacking() && 
+		!bPerfectlyTimedDash && 
+		!IsDamaged())
 	{
 		#if !UE_BUILD_SHIPPING
 		ULog::Info("Perfectly timed dash!", true);
