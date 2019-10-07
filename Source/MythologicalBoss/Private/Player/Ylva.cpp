@@ -1953,17 +1953,16 @@ void AYlva::OnEnterDashAttackState()
 	}
 
 	// Todo: Play dash attack camera animation
-	//if (!Combat.DashAttackSettings.CameraAnimInst)
-	//{
-	//	if (Combat.DashAttackSettings.CameraAnimInst)
-	//		Combat.DashAttackSettings.CameraAnimInst = CameraManager->PlayCameraAnim(Combat.DashAttackSettings.CameraAnim);
-	//}
-	//
-	//const FRotator NewRotation = FRotator(Combat.DashAttackSettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
-	//PlayerController->SetControlRotation(NewRotation);
-	//
-	//PlayerController->SetIgnoreLookInput(true);
-
+	if (!Combat.DashAttackSettings.CameraAnimInst)
+	{
+		if (Combat.DashAttackSettings.CameraAnimInst)
+			Combat.DashAttackSettings.CameraAnimInst = CameraManager->PlayCameraAnim(Combat.DashAttackSettings.CameraAnim);
+	}
+	
+	const FRotator NewRotation = FRotator(Combat.DashAttackSettings.CameraPitchOnSuccess, ForwardVector.Rotation().Yaw, ControlRotation.Roll);
+	PlayerController->SetControlRotation(NewRotation);
+	
+	PlayerController->SetIgnoreLookInput(true);
 	PlayerController->SetIgnoreMoveInput(true);
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationWhileAttacking);
@@ -1993,6 +1992,7 @@ void AYlva::OnExitDashAttackState()
 	GameState->PlayerData.CurrentAttackType = ATP_None;
 
 	PlayerController->ResetIgnoreMoveInput();
+	PlayerController->ResetIgnoreLookInput();
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);

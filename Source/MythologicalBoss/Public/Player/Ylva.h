@@ -132,6 +132,10 @@ struct FDashAttackSettings_Ylva
 	// The value to set when dash attacking (0.0 = Time stands still, 0.5 = Half time speed, 1 = Normal time speed)
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float TimeDilationWhileAttacking = 0.6f;
+
+	// The camera pitch to set when starting to dash attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 360.0f))
+		float CameraPitchOnSuccess = 350.0f;
 };
 
 USTRUCT(BlueprintType)
