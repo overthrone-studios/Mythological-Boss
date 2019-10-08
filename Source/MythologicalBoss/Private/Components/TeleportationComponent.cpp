@@ -43,7 +43,7 @@ bool UTeleportationComponent::IsCoolingDown()
 
 FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, const float Radius, const FBox& InBox) const
 {
-	const float T = FMath::RandRange(PI, 2 * PI);
+	const float T = FMath::RandRange(0.0f, 2 * PI);
 
 	FVector NewLocation
 	{
