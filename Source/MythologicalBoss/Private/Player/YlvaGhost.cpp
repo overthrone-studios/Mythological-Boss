@@ -22,6 +22,7 @@ AYlvaGhost::AYlvaGhost()
 	PrimaryActorTick.bCanEverTick = false;
 
 	PoseableMeshComponent = CreateDefaultSubobject<UPoseableMeshComponent>("Poseable Mesh Component");
+	RootComponent = PoseableMeshComponent;
 
 	TL_Opacity = CreateDefaultSubobject<UTimelineComponent>("Opacity Timeline");
 }
