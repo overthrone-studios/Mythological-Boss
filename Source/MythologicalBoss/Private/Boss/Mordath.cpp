@@ -1918,7 +1918,7 @@ void AMordath::StartExecutionExpiryTimer()
 
 float AMordath::GetDistanceToPlayer() const
 {
-	return FVector::Dist(CurrentLocation, GameState->PlayerData.Location);
+	return (GameState->PlayerData.Location - CurrentLocation).Size();
 }
 
 FVector AMordath::GetDirectionToPlayer() const
