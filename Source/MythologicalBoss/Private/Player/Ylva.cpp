@@ -708,7 +708,7 @@ void AYlva::LightAttack()
 	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
 		return;
 
-	if (bPerfectlyTimedDash)
+	if (CanDashAttack())
 	{
 		FSM->PopState();
 		FSM->PushState("Dash Attack");
@@ -789,7 +789,7 @@ void AYlva::HeavyAttack()
 	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
 		return;
 
-	if (bPerfectlyTimedDash)
+	if (CanDashAttack())
 	{
 		FSM->PopState();
 		FSM->PushState("Dash Attack");
@@ -2322,6 +2322,11 @@ bool AYlva::IsDamaged() const
 bool AYlva::IsParrying() const
 {
 	return FSM->GetActiveStateID() == 22;
+}
+
+bool AYlva::CanDashAttack() const
+{
+	return bPerfectlyTimedDash && !IsLowStamina();
 }
 
 class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const

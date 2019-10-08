@@ -416,6 +416,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsParrying() const;
 
+	// Returns true if we are allowed to perform a dash attack
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool CanDashAttack() const;
+
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
