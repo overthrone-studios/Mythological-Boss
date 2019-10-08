@@ -685,7 +685,7 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 
 void AYlva::OnAttackLanded()
 {
-	if (GameState->PlayerData.CurrentAttackType == ATP_Special)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Special && !bIsDead && HealthComponent->GetCurrentHealth() <= 0.0f)
 	{
 		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
 	}
