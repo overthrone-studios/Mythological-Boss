@@ -1745,6 +1745,7 @@ void AYlva::OnExitBlockingState()
 {
 	StopAnimMontage(Combat.BlockSettings.BlockIdle);
 
+	YlvaAnimInstance->bIsBlocking = false;
 	bUseControllerRotationYaw = false;
 
 	bIsParryBoxHit = false;
