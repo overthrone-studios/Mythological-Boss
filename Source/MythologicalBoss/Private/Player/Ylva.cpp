@@ -2093,6 +2093,13 @@ void AYlva::UpdateDashState()
 		UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationOnPerfectDash);
 	}
 
+	// This means we've taken damage while we've performed the perfect dash, so exit this state
+	if (HealthComponent->GetCurrentHealth() != HealthComponent->GetSmoothedHealth() && bPerfectlyTimedDash)
+	{
+		FSM->PopState();
+		return;
+	}
+
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 	{
 		FSM->PopState();
