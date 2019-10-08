@@ -1977,7 +1977,7 @@ void AYlva::OnEnterDashAttackState()
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
 
-	if (!Combat.DashAttackSettings.CameraAnimInst)
+	if (!Combat.DashAttackSettings.CameraAnimInst && Combat.DashAttackSettings.CameraAnim)
 	{
 		Combat.DashAttackSettings.CameraAnimInst = CameraManager->PlayCameraAnim(Combat.DashAttackSettings.CameraAnim);
 	}
