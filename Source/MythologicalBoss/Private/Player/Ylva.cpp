@@ -953,9 +953,6 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	if (bGodMode || IsParrying())
 		return;
 
-	if (IsDashing() && FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f)
-		return;
-
 	// Test against states
 	switch (FSM->GetActiveStateID())
 	{
