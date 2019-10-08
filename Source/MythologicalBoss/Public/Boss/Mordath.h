@@ -652,14 +652,12 @@ private:
 
 	uint8 ThinkingMoveDirection : 1;
 
-	class UAnimMontage* CurrentLongAttackMontage;
 	class UMordathActionData* SuperCloseRange_ActionData;
 
+	class UAnimMontage* CurrentActionMontage;
 	class UAnimMontage* PreviousActionMontage;
 
 	class UMordathStageData* CurrentStageData;
-
-	class AOverthroneCharacter* PlayerCharacter;
 
 	// Timer handles
 	FTimerHandle TH_UpdateInfo;

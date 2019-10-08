@@ -258,7 +258,6 @@ void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
@@ -733,8 +732,8 @@ void AMordath::UpdateActionState()
 	else
 		FacePlayerBasedOnActionData(CurrentActionData->Action);
 	
-	if (AnimInstance->Montage_GetPosition(CurrentActionData->Action->ActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
-		AnimInstance->Montage_GetPosition(CurrentActionData->Action->ActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
+	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
+		AnimInstance->Montage_GetPosition(CurrentActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
 		CurrentActionData->Action->bAllowPerfectDash)
 		bCanBeDodged = true;
 
@@ -992,7 +991,7 @@ void AMordath::OnExitBackHandState()
 #pragma region Teleport
 void AMordath::OnEnterTeleportState()
 {
-	MordathAnimInstance->bCanTeleport = true;
+	PlayActionMontage();
 
 	TeleportationComponent->GenerateTeleportTime();
 }
@@ -1001,13 +1000,13 @@ void AMordath::UpdateTeleportState()
 {
 	const float Uptime = FSM->GetActiveStateUptime();
 
+	if (Uptime >= CurrentActionMontage->SequenceLength - 0.2f)
+		AnimInstance->Montage_Pause();
+
 	if (Uptime > TeleportationComponent->GetTeleportTime() && !TeleportationComponent->IsCoolingDown())
 	{
-		if (CurrentActionData->bCanTeleportWithAction)
-		{
-			TeleportationComponent->StartCooldown();
-			SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, GameState->GetTeleportRadius(), GameState->PlayArea));
-		}
+		TeleportationComponent->StartCooldown();
+		SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, GameState->GetTeleportRadius(), GameState->PlayArea));
 
 		FSM->PopState();
 	}
@@ -1015,7 +1014,9 @@ void AMordath::UpdateTeleportState()
 
 void AMordath::OnExitTeleportState()
 {
-	MordathAnimInstance->bCanTeleport = false;
+	StopActionMontage();
+
+	NextAction();
 }
 #pragma endregion  
 #pragma endregion
@@ -1397,7 +1398,7 @@ void AMordath::DestroySelf()
 
 void AMordath::PlayActionMontage()
 {
-	PlayAnimMontage(CurrentActionData->Action->ActionMontage);
+	PlayAnimMontage(CurrentActionMontage);
 }
 
 void AMordath::PlayActionMontage(UMordathActionData* ActionData)
@@ -1536,6 +1537,7 @@ void AMordath::ChooseCombo()
 
 			ChosenCombo->Init();
 			CurrentActionData = &ChosenCombo->GetCurrentActionData();
+			CurrentActionMontage = CurrentActionData->Action->ActionMontage;
 			
 			StartExecutionExpiryTimer();
 
@@ -1607,6 +1609,7 @@ void AMordath::ChooseAction()
 		return;
 
 	CurrentActionData = &ChosenCombo->GetCurrentActionData();
+	CurrentActionMontage = CurrentActionData->Action->ActionMontage;
 
 	UMordathActionData* ActionDataToUse = CurrentActionData->Action;
 
@@ -1637,9 +1640,9 @@ void AMordath::ChooseAction()
 	}
 
 	// Update data
-	GameState->BossData.CurrentActionType = CurrentActionData->Action->ActionType;
-	GameState->BossData.CurrentCounterType = CurrentActionData->Action->CounterType;
-	ActionDamage = CurrentActionData->Action->ActionDamage;
+	GameState->BossData.CurrentActionType = ActionDataToUse->ActionType;
+	GameState->BossData.CurrentCounterType = ActionDataToUse->CounterType;
+	ActionDamage = ActionDataToUse->ActionDamage;
 
 	ExecuteAction(ActionDataToUse);
 }
@@ -1681,7 +1684,16 @@ void AMordath::ExecuteAction(UMordathActionData* ActionData)
 
 	CurrentActionData->Action = ActionData;
 
-	FSM->PushState("Action");
+	switch (ActionData->ActionType)
+	{
+	case ATM_Teleport:
+		FSM->PushState("Teleport");
+	break;
+
+	default:
+		FSM->PushState("Action");
+	break;
+	}
 }
 
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -2046,7 +2058,7 @@ bool AMordath::IsRecovering() const
 
 bool AMordath::HasFinishedAction() const
 {
-	return !AnimInstance->Montage_IsPlaying(CurrentActionData->Action->ActionMontage);
+	return !AnimInstance->Montage_IsPlaying(CurrentActionMontage);
 }
 
 bool AMordath::HasFinishedAction(UAnimMontage* ActionMontage) const
