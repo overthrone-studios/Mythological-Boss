@@ -384,7 +384,7 @@ public:
 	// Returns true if our forward input or right input != 0.0f
 	bool IsMovingInAnyDirection() const override;
 
-	// Returns true if we are currently locked on to the boss
+	// Returns true if we are low on stamina
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsLowStamina() const;
 
