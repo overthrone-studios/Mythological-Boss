@@ -1095,14 +1095,14 @@ void AMordath::UpdateFarRange()
 			if (!IsRecovering())
 				ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
 		}
-		else
-		{
-			if (CurrentActionData->bCanTeleportWithAction && !TeleportationComponent->IsCoolingDown() && !IsTired())
-			{
-				FSM->PopState();
-				FSM->PushState("Teleport");
-			}
-		}
+		//else
+		//{
+		//	if (CurrentActionData->bCanTeleportWithAction && !TeleportationComponent->IsCoolingDown() && !IsTired())
+		//	{
+		//		FSM->PopState();
+		//		FSM->PushState("Teleport");
+		//	}
+		//}
 	}
 }
 
