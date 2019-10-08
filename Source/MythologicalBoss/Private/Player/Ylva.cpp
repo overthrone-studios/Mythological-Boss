@@ -921,7 +921,7 @@ void AYlva::FinishChargeAttack()
 
 void AYlva::Block()
 {
-	if (bIsDead || IsChargeAttacking() || IsDashing()  || IsDamaged() || IsParrying() || IsDashAttacking())
+	if (bIsDead || IsChargeAttacking() || IsDashing() || IsDamaged() || IsParrying() || IsDashAttacking())
 		return;
 
 	FSM->PopState();
@@ -966,7 +966,13 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			// Are we facing away from the boss?
 			if (FVector::DotProduct(ForwardVector, DirectionToBoss) < 0.3f)
 			{
-				FSM->PushState("Damaged");
+				FSM->PopState();
+
+				// Determine the damage state to enter in
+				if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
+					FSM->PushState("Shocked");
+				else
+					FSM->PushState("Damaged");
 
 				UpdateHealth(DamageAmount);
 				
@@ -976,7 +982,14 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				return;
 			}
 
-			FSM->PushState("Shield Hit");
+			// Determine the damage state to enter in
+			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
+			{
+				FSM->PopState();
+				FSM->PushState("Shocked");
+			}
+			else
+				FSM->PushState("Shield Hit");
 
 			// Update stats
 			if (StaminaComponent->IsLowStamina() || GameState->IsBossAttackNoCounter() || GameState->IsBossAttackParryable())
@@ -1943,6 +1956,8 @@ void AYlva::UpdateShockedState()
 void AYlva::OnExitShockedState()
 {
 	YlvaAnimInstance->bIsShocked = false;
+
+	bHasBeenDamaged = false;
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 }
