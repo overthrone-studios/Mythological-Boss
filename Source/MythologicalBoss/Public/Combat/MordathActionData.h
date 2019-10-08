@@ -90,7 +90,7 @@ public:
 	UPROPERTY(EditInstanceOnly, DisplayName = "Always Face Player?")
 		uint8 bConstantlyFacePlayer : 1;
 
-	// Should we allow the player too perform a perfect dash on this action?
+	// Should we allow the player to perform a perfect dash on this action?
 	UPROPERTY(EditInstanceOnly)
 		uint8 bAllowPerfectDash : 1;
 
