@@ -43,8 +43,6 @@
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
 
-static bool GWantsMoveRight = true;
-
 AMordath::AMordath()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -341,8 +339,8 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString()/*UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)*/);
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString()/*UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType)*/);
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Combo: " + ChosenCombo->GetName());
@@ -1853,36 +1851,19 @@ bool AMordath::IsKicking() const
 
 void AMordath::ChooseMovementDirection()
 {
-	GWantsMoveRight = FMath::RandBool();
+	ThinkingMoveDirection = FMath::RandBool();
 }
 
 void AMordath::EncirclePlayer()
 {
-	// Todo: Remove player input reference
-	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
-	{
-		MoveRight(-1.0f);
-	}
-	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(300.0f))
+	if (WantsMoveRight())
 	{
 		MoveRight();
 	}
 	else
 	{
-		if (WantsMoveRight())
-		{
-			MoveRight();
-		}
-		else
-		{
-			MoveRight(-1.0f);
-		}
+		MoveRight(-1.0f);
 	}
-}
-
-void AMordath::ResetMeshScale()
-{
-	SKMComponent->SetWorldScale3D(FVector(1.3f));
 }
 
 bool AMordath::CanAttack() const
@@ -2055,7 +2036,7 @@ bool AMordath::IsThinking() const
 
 bool AMordath::WantsMoveRight() const
 {
-	return GWantsMoveRight == 1;
+	return ThinkingMoveDirection;
 }
 
 bool AMordath::IsRecovering() const

@@ -274,9 +274,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void EncirclePlayer();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath")
-		void ResetMeshScale();
-
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool CanAttack() const;
 
@@ -652,6 +649,8 @@ private:
 	FComboData_Action* CurrentActionData;
 
 	FName CurrentMontageSection = "None";
+
+	uint8 ThinkingMoveDirection : 1;
 
 	class UAnimMontage* CurrentLongAttackMontage;
 	class UMordathActionData* SuperCloseRange_ActionData;
