@@ -969,6 +969,9 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				FSM->PushState("Damaged");
 
 				UpdateHealth(DamageAmount);
+				
+				LSword->Revert();
+				RSword->Revert();
 
 				return;
 			}
@@ -981,6 +984,9 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				HitCounter++;
 				bHasBeenDamaged = true;
 				
+				LSword->Revert();
+				RSword->Revert();
+
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
 
@@ -1017,6 +1023,9 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			{
 				DecreaseCharge();
 			}
+
+			LSword->Revert();
+			RSword->Revert();
 		break;
 	}
 }
