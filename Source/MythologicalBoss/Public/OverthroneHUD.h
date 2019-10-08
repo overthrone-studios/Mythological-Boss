@@ -56,7 +56,7 @@ protected:
 	class UMasterHUD* MasterHUD{};
 	TSubclassOf<class UHUDBase> HUDWidgetClass;
 
-	float BaseXOffset = 220.0f;
+	float BaseXOffset = 250.0f;
 
 	float YOffset = 30.0f;
 	float YOffsetInterval = 15.0f;

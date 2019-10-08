@@ -332,17 +332,18 @@ void AMordath::Tick(const float DeltaTime)
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Current Montage Section: " + CurrentMontageSection.ToString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Combo: " + ChosenCombo->GetName());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 12, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Current Montage Section: " + CurrentMontageSection.ToString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Combo: " + ChosenCombo->GetName());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Action Montage: " + CurrentMontageName);
 #endif
 }
 
@@ -1176,7 +1177,7 @@ void AMordath::UpdateFirstStage()
 
 	if (CanAttack())
 	{
-		// Decide which attack to choose
+		// Decide an action to choose from
 		if (!IsWaitingForNewCombo() && !IsDelayingAction())
 		{
 			ChooseAction();
@@ -1187,7 +1188,7 @@ void AMordath::UpdateFirstStage()
 void AMordath::OnExitFirstStage()
 {
 	if (!GameState->PlayerData.bIsDead)
-		FSM->PopState();	
+		FSM->PopState();
 }
 #pragma endregion 
 
@@ -1414,6 +1415,8 @@ void AMordath::StopActionMontage()
 	CurrentActionData->bExecutionTimeExpired = false;
 
 	CurrentMontageSection = "None";
+	CurrentMontageName = "None";
+
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
@@ -1449,10 +1452,11 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 {
 	HitCounter++;
 
-#if !UE_BUILD_SHIPPING
+	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogHits)
 		ULog::DebugMessage(INFO, "Hit Count: " + FString::FromInt(HitCounter), true);
-#endif
+	#endif
+
 	// Determine the color to output based on damaged value
 	TArray<int32> DamageValues;
 	TArray<FLinearColor> ColorValues;
@@ -1505,7 +1509,7 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 void AMordath::EndTakeDamage()
 {
 	// Are we dead?
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && FSM->GetActiveStateName() != "Death")
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
 	{
 		Die();
 	}
@@ -1538,6 +1542,10 @@ void AMordath::ChooseCombo()
 			ChosenCombo->Init();
 			CurrentActionData = &ChosenCombo->GetCurrentActionData();
 			CurrentActionMontage = CurrentActionData->Action->ActionMontage;
+
+			FString NewMontageName = CurrentActionMontage->GetName();
+			NewMontageName.RemoveAt(0, 11);
+			CurrentMontageName = NewMontageName;
 			
 			StartExecutionExpiryTimer();
 
@@ -1557,25 +1565,25 @@ void AMordath::ChooseCombo()
 		CachedCombos = CurrentStageData->ComboSettings.Combos;
 
 		#if !UE_BUILD_SHIPPING
-		switch (StageFSM->GetActiveStateID())
+		if (Debug.bLogCurrentStageCombo)
 		{
-		case 0:
-			if (Debug.bLogCurrentStageCombo)
+			switch (StageFSM->GetActiveStateID())
+			{
+			case 0:
 				ULog::Info("Using stage 1 combos", true);
-		break;
+			break;
 
-		case 1:
-			if (Debug.bLogCurrentStageCombo)
+			case 1:
 				ULog::Info("Using stage 2 combos", true);
-		break;
+			break;
 
-		case 2:
-			if (Debug.bLogCurrentStageCombo)
+			case 2:
 				ULog::Info("Using stage 3 combos", true);
-		break;
+			break;
 
-		default:
-		break;
+			default:
+			break;
+			}
 		}
 		#endif
 
@@ -1610,6 +1618,10 @@ void AMordath::ChooseAction()
 
 	CurrentActionData = &ChosenCombo->GetCurrentActionData();
 	CurrentActionMontage = CurrentActionData->Action->ActionMontage;
+
+	FString NewMontageName = CurrentActionMontage->GetName();
+	NewMontageName.RemoveAt(0, 11);
+	CurrentMontageName = NewMontageName;
 
 	UMordathActionData* ActionDataToUse = CurrentActionData->Action;
 
@@ -2189,4 +2201,5 @@ void AMordath::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Lock-on Location: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Action Damage: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Combo: ", FColor::Yellow, YPadding);
+	OverthroneHUD->AddOnScreenDebugMessage("Current Action Montage: ", FColor::Yellow, YPadding);
 }

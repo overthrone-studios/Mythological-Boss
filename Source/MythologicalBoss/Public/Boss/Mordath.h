@@ -649,6 +649,7 @@ private:
 	FComboData_Action* CurrentActionData;
 
 	FName CurrentMontageSection = "None";
+	FString CurrentMontageName = "None";
 
 	uint8 ThinkingMoveDirection : 1;
 
