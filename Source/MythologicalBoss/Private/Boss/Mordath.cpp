@@ -291,8 +291,6 @@ void AMordath::BeginPlay()
 
 	ResetActionDamage();
 
-	//SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
-
 #if !UE_BUILD_SHIPPING
 	CapsuleComp->SetHiddenInGame(false);
 #else
@@ -761,6 +759,13 @@ void AMordath::OnEnterCloseActionState()
 {
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
+	if (!SuperCloseRange_ActionData)
+	{
+		ULog::Error("There are no super close range actions to choose from!", true);
+		FSM->PopState();
+		return;
+	}
+
 	PlayActionMontage(SuperCloseRange_ActionData);
 
 	GameState->BossData.CurrentActionType = SuperCloseRange_ActionData->ActionType;
@@ -1171,7 +1176,8 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
-	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction()))
+	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && 
+		(!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction()))
 	{
 		const bool bWantsKick = FMath::RandBool();
 		if (bWantsKick && (IsInSecondStage() || IsInThirdStage()))
