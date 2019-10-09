@@ -29,6 +29,12 @@ struct FComboData_Action
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float ExecutionTime = 5.0f;
 
+	// The amount of times to loop this action before continuing to the next action, this will not loop fail safe action. (1 = Execute once, 2 = Execute twice, etc.)
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 1))
+		uint8 Loops = 1;
+
+	uint8 ExecutionCount = 0;
+
 	uint8 bExecutionTimeExpired : 1;
 
 	FTimerHandle TH_ExecutionExpiry;

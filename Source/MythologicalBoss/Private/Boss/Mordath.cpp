@@ -720,6 +720,8 @@ void AMordath::OnExitThinkState()
 void AMordath::OnEnterActionState()
 {
 	PlayActionMontage();
+
+	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
 }
 
 void AMordath::UpdateActionState(float Uptime, int32 Frames)
@@ -747,10 +749,21 @@ void AMordath::UpdateActionState(float Uptime, int32 Frames)
 
 void AMordath::OnExitActionState()
 {
+	if (CurrentActionData->bExecutionTimeExpired)
+	{
+		StopActionMontage();
+		NextAction();
+
+		return;
+	}
+
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 
-	NextAction();
+	CurrentActionData->ExecutionCount++;
+
+	if (CurrentActionData->ExecutionCount >= CurrentActionData->Loops)
+		NextAction();
 }
 #pragma endregion 
 
@@ -874,7 +887,8 @@ void AMordath::OnEnterStunnedState()
 	// Reset hit count
 	HitCounter = 0;
 
-	StopActionMontage();
+	StopAnimMontage();
+	//StopActionMontage();
 
 	GameState->BossData.bHasTakenDamage = true;
 	MordathAnimInstance->bIsStunned = true;
@@ -1003,6 +1017,8 @@ void AMordath::OnExitStrafeState()
 void AMordath::OnEnterTiredState()
 {
 	PlayActionMontage();
+
+	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
 }
 
 void AMordath::UpdateTiredState(float Uptime, int32 Frames)
@@ -1051,6 +1067,8 @@ void AMordath::OnExitBackHandState()
 void AMordath::OnEnterTeleportState()
 {
 	PlayActionMontage();
+
+	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
 
 	TeleportationComponent->GenerateTeleportTime();
 }
@@ -1676,16 +1694,17 @@ void AMordath::ChooseAction()
 		return;
 
 	CurrentActionData = &ChosenCombo->GetCurrentActionData();
-	CurrentActionMontage = CurrentActionData->Action->ActionMontage;
-
-	FString NewMontageName = CurrentActionMontage->GetName();
-	NewMontageName.RemoveAt(0, 11);
-	CurrentMontageName = NewMontageName;
 
 	UMordathActionData* ActionDataToUse = CurrentActionData->Action;
 
 	if (CurrentActionData->bExecutionTimeExpired && CurrentActionData->FailSafeAction)
 		ActionDataToUse = CurrentActionData->FailSafeAction;
+
+	CurrentActionMontage = ActionDataToUse->ActionMontage;
+
+	FString NewMontageName = CurrentActionMontage->GetName();
+	NewMontageName.RemoveAt(0, 11);
+	CurrentMontageName = NewMontageName;
 
 	// Do a flash to indicate what kind of attack this is
 	switch (ActionDataToUse->CounterType)
@@ -1759,6 +1778,10 @@ void AMordath::ExecuteAction(UMordathActionData* ActionData)
 	{
 	case ATM_Teleport:
 		FSM->PushState("Teleport");
+	break;
+
+	case ATM_Tired:
+		FSM->PushState("Tired");
 	break;
 
 	default:

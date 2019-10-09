@@ -11,6 +11,7 @@ void UComboData::Init()
 void UComboData::NextAction()
 {
 	ActionIndex++;
+	CurrentAction.ExecutionCount = 0;
 
 	if (ActionIndex >= Actions.Num())
 		ActionIndex = Actions.Num();
