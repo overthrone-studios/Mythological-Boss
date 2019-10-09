@@ -105,75 +105,75 @@ AMordath::AMordath()
 	FSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyState);
 
 	// Bind state events to our functions
-	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
-	FSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateIdleState);
-	FSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitIdleState);
+	FSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterIdleState);
+	FSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateIdleState);
+	FSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordath::OnExitIdleState);
 
-	FSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFollowState);
-	FSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFollowState);
-	FSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitFollowState);
+	FSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFollowState);
+	FSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFollowState);
+	FSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordath::OnExitFollowState);
 
-	FSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThinkState);
-	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThinkState);
-	FSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThinkState);
+	FSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThinkState);
+	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThinkState);
+	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThinkState);
 
-	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
-	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
-	FSM->GetState(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
+	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
+	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
+	FSM->GetStateFromID(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
 
-	FSM->GetState(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDeathState);
-	FSM->GetState(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
-	FSM->GetState(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
+	FSM->GetStateFromID(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDeathState);
+	FSM->GetStateFromID(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDeathState);
+	FSM->GetStateFromID(13)->OnExitState.AddDynamic(this, &AMordath::OnExitDeathState);
 
-	FSM->GetState(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
-	FSM->GetState(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
-	FSM->GetState(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
+	FSM->GetStateFromID(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
+	FSM->GetStateFromID(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
+	FSM->GetStateFromID(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
 
-	FSM->GetState(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLaughState);
-	FSM->GetState(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
-	FSM->GetState(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
+	FSM->GetStateFromID(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLaughState);
+	FSM->GetStateFromID(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
+	FSM->GetStateFromID(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
 
-	FSM->GetState(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
-	FSM->GetState(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
-	FSM->GetState(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashState);
+	FSM->GetStateFromID(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
+	FSM->GetStateFromID(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
+	FSM->GetStateFromID(16)->OnExitState.AddDynamic(this, &AMordath::OnExitDashState);
 
-	FSM->GetState(17)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashCombatState);
-	FSM->GetState(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashCombatState);
-	FSM->GetState(17)->OnExitState.AddDynamic(this, &AMordath::OnExitDashCombatState);
+	FSM->GetStateFromID(17)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashCombatState);
+	FSM->GetStateFromID(17)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashCombatState);
+	FSM->GetStateFromID(17)->OnExitState.AddDynamic(this, &AMordath::OnExitDashCombatState);
 
-	FSM->GetState(18)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTeleportState);
-	FSM->GetState(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
-	FSM->GetState(18)->OnExitState.AddDynamic(this, &AMordath::OnExitTeleportState);
+	FSM->GetStateFromID(18)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTeleportState);
+	FSM->GetStateFromID(18)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTeleportState);
+	FSM->GetStateFromID(18)->OnExitState.AddDynamic(this, &AMordath::OnExitTeleportState);
 
-	FSM->GetState(19)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRetreatState);
-	FSM->GetState(19)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRetreatState);
-	FSM->GetState(19)->OnExitState.AddDynamic(this, &AMordath::OnExitRetreatState);
+	FSM->GetStateFromID(19)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRetreatState);
+	FSM->GetStateFromID(19)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRetreatState);
+	FSM->GetStateFromID(19)->OnExitState.AddDynamic(this, &AMordath::OnExitRetreatState);
 
-	FSM->GetState(20)->OnEnterState.AddDynamic(this, &AMordath::OnEnterKickState);
-	FSM->GetState(20)->OnUpdateState.AddDynamic(this, &AMordath::UpdateKickState);
-	FSM->GetState(20)->OnExitState.AddDynamic(this, &AMordath::OnExitKickState);
+	FSM->GetStateFromID(20)->OnEnterState.AddDynamic(this, &AMordath::OnEnterKickState);
+	FSM->GetStateFromID(20)->OnUpdateState.AddDynamic(this, &AMordath::UpdateKickState);
+	FSM->GetStateFromID(20)->OnExitState.AddDynamic(this, &AMordath::OnExitKickState);
 
-	FSM->GetState(21)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRecoverState);
-	FSM->GetState(21)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRecoverState);
-	FSM->GetState(21)->OnExitState.AddDynamic(this, &AMordath::OnExitRecoverState);
+	FSM->GetStateFromID(21)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRecoverState);
+	FSM->GetStateFromID(21)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRecoverState);
+	FSM->GetStateFromID(21)->OnExitState.AddDynamic(this, &AMordath::OnExitRecoverState);
 
-	FSM->GetState(22)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStrafeState);
-	FSM->GetState(22)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStrafeState);
-	FSM->GetState(22)->OnExitState.AddDynamic(this, &AMordath::OnExitStrafeState);
+	FSM->GetStateFromID(22)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStrafeState);
+	FSM->GetStateFromID(22)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStrafeState);
+	FSM->GetStateFromID(22)->OnExitState.AddDynamic(this, &AMordath::OnExitStrafeState);
 
-	FSM->GetState(23)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTiredState);
-	FSM->GetState(23)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTiredState);
-	FSM->GetState(23)->OnExitState.AddDynamic(this, &AMordath::OnExitTiredState);
+	FSM->GetStateFromID(23)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTiredState);
+	FSM->GetStateFromID(23)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTiredState);
+	FSM->GetStateFromID(23)->OnExitState.AddDynamic(this, &AMordath::OnExitTiredState);
 
-	FSM->GetState(24)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBackHandState);
-	FSM->GetState(24)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBackHandState);
-	FSM->GetState(24)->OnExitState.AddDynamic(this, &AMordath::OnExitBackHandState);
+	FSM->GetStateFromID(24)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBackHandState);
+	FSM->GetStateFromID(24)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBackHandState);
+	FSM->GetStateFromID(24)->OnExitState.AddDynamic(this, &AMordath::OnExitBackHandState);
 
-	FSM->GetState(25)->OnEnterState.AddDynamic(this, &AMordath::OnEnterActionState);
-	FSM->GetState(25)->OnUpdateState.AddDynamic(this, &AMordath::UpdateActionState);
-	FSM->GetState(25)->OnExitState.AddDynamic(this, &AMordath::OnExitActionState);
+	FSM->GetStateFromID(25)->OnEnterState.AddDynamic(this, &AMordath::OnEnterActionState);
+	FSM->GetStateFromID(25)->OnUpdateState.AddDynamic(this, &AMordath::UpdateActionState);
+	FSM->GetStateFromID(25)->OnExitState.AddDynamic(this, &AMordath::OnExitActionState);
 
-	FSM->InitState(0);
+	FSM->InitFSM(0);
 
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
@@ -186,23 +186,23 @@ AMordath::AMordath()
 	RangeFSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyRangeState);
 	RangeFSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyRangeState);
 
-	RangeFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseRange);
-	RangeFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseRange);
-	RangeFSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseRange);
+	RangeFSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseRange);
+	RangeFSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseRange);
+	RangeFSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseRange);
 
-	RangeFSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterMidRange);
-	RangeFSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateMidRange);
-	RangeFSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitMidRange);
+	RangeFSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterMidRange);
+	RangeFSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateMidRange);
+	RangeFSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordath::OnExitMidRange);
 
-	RangeFSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarRange);
-	RangeFSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarRange);
-	RangeFSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitFarRange);
+	RangeFSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarRange);
+	RangeFSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarRange);
+	RangeFSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordath::OnExitFarRange);
 
-	RangeFSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSuperCloseRange);
-	RangeFSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSuperCloseRange);
-	RangeFSM->GetState(3)->OnExitState.AddDynamic(this, &AMordath::OnExitSuperCloseRange);
+	RangeFSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSuperCloseRange);
+	RangeFSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSuperCloseRange);
+	RangeFSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordath::OnExitSuperCloseRange);
 
-	RangeFSM->InitState(0);
+	RangeFSM->InitFSM(0);
 
 	// Create a stage FSM
 	StageFSM = CreateDefaultSubobject<UFSM>(FName("Stage FSM"));
@@ -214,19 +214,19 @@ AMordath::AMordath()
 	StageFSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyStageState);
 	StageFSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyStageState);
 
-	StageFSM->GetState(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFirstStage);
-	StageFSM->GetState(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFirstStage);
-	StageFSM->GetState(0)->OnExitState.AddDynamic(this, &AMordath::OnExitFirstStage);
+	StageFSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFirstStage);
+	StageFSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFirstStage);
+	StageFSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordath::OnExitFirstStage);
 
-	StageFSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSecondStage);
-	StageFSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSecondStage);
-	StageFSM->GetState(1)->OnExitState.AddDynamic(this, &AMordath::OnExitSecondStage);
+	StageFSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSecondStage);
+	StageFSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSecondStage);
+	StageFSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordath::OnExitSecondStage);
 
-	StageFSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThirdStage);
-	StageFSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThirdStage);
-	StageFSM->GetState(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThirdStage);
+	StageFSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThirdStage);
+	StageFSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThirdStage);
+	StageFSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThirdStage);
 
-	StageFSM->InitState(0);
+	StageFSM->InitFSM(0);
 
 	// Configure capsule component
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
@@ -355,15 +355,15 @@ void AMordath::PossessedBy(AController* NewController)
 }
 
 #pragma region Any States
-void AMordath::OnEnterAnyState()
+void AMordath::OnEnterAnyState(int32 ID, FName Name)
 {
-	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(Name.ToString());
 }
 
-void AMordath::UpdateAnyState()
+void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
-	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
+	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
 
 	if (GameState->IsPlayerDead() && HasFinishedAction())
 	{
@@ -371,50 +371,50 @@ void AMordath::UpdateAnyState()
 	}
 }
 
-void AMordath::OnExitAnyState()
+void AMordath::OnExitAnyState(int32 ID, FName Name)
 {
-	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(Name.ToString());
 
-	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), FSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(Name.ToString(), FSM->GetActiveStateFrames());
 }
 
-void AMordath::OnEnterAnyRangeState()
+void AMordath::OnEnterAnyRangeState(int32 ID, FName Name)
 {
-	FSMVisualizer->HighlightState(RangeFSM->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(Name.ToString());
 }
 
-void AMordath::UpdateAnyRangeState()
+void AMordath::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
-	FSMVisualizer->UpdateStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
+	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
+	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
 }
 
-void AMordath::OnExitAnyRangeState()
+void AMordath::OnExitAnyRangeState(int32 ID, FName Name)
 {
-	FSMVisualizer->UnhighlightState(RangeFSM->GetActiveStateName().ToString());
+	FSMVisualizer->UnhighlightState(Name.ToString());
 
-	FSMVisualizer->UpdatePreviousStateUptime(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(RangeFSM->GetActiveStateName().ToString(), RangeFSM->GetActiveStateFrames());
+	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), RangeFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(Name.ToString(), RangeFSM->GetActiveStateFrames());
 }
 
-void AMordath::OnEnterAnyStageState()
+void AMordath::OnEnterAnyStageState(int32 ID, FName Name)
 {
-	FSMVisualizer->HighlightState(StageFSM->GetActiveStateName().ToString());
+	FSMVisualizer->HighlightState(Name.ToString());
 }
 
-void AMordath::UpdateAnyStageState()
+void AMordath::UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
-	FSMVisualizer->UpdateStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdateStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
+	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
 }
 
-void AMordath::OnExitAnyStageState()
+void AMordath::OnExitAnyStageState(int32 ID, FName Name)
 {
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 
-	FSMVisualizer->UpdatePreviousStateUptime(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateUptime());
-	FSMVisualizer->UpdatePreviousStateFrames(StageFSM->GetActiveStateName().ToString(), StageFSM->GetActiveStateFrames());
+	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), StageFSM->GetActiveStateUptime());
+	FSMVisualizer->UpdatePreviousStateFrames(Name.ToString(), StageFSM->GetActiveStateFrames());
 }
 #pragma endregion
 
@@ -424,7 +424,7 @@ void AMordath::OnEnterIdleState()
 {
 }
 
-void AMordath::UpdateIdleState()
+void AMordath::UpdateIdleState(float Uptime, int32 Frames)
 {
 	if (GameState->PlayerData.bIsDead)
 		return;
@@ -478,7 +478,7 @@ void AMordath::OnEnterFollowState()
 	ChooseMovementDirection();
 }
 
-void AMordath::UpdateFollowState()
+void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 {
 	if (IsTransitioning())
 	{
@@ -520,6 +520,7 @@ void AMordath::UpdateFollowState()
 		case BRM_Close:
 			if (IsSuperCloseRange())
 			{
+				ULog::Yes("Super Close?: ", true);
 				MoveForward(-1);
 			}
 			else if (IsMidRange() || IsFarRange())
@@ -584,10 +585,8 @@ void AMordath::OnEnterRetreatState()
 #endif
 }
 
-void AMordath::UpdateRetreatState()
+void AMordath::UpdateRetreatState(float Uptime, int32 Frames)
 {
-	const float Uptime = FSM->GetActiveStateUptime();
-
 	if (IsTransitioning())
 	{
 		BossAIController->StopMovement();
@@ -621,7 +620,7 @@ void AMordath::OnEnterKickState()
 	MordathAnimInstance->bCanKick = true;
 }
 
-void AMordath::UpdateKickState()
+void AMordath::UpdateKickState(float Uptime, int32 Frames)
 {
 	if (CurrentActionData->Action->ActionType == ATM_Kick)
 		FacePlayerBasedOnActionData(CurrentActionData->Action);
@@ -648,9 +647,9 @@ void AMordath::OnEnterRecoverState()
 	MordathAnimInstance->bIsRecovering = true;
 }
 
-void AMordath::UpdateRecoverState()
+void AMordath::UpdateRecoverState(float Uptime, int32 Frames)
 {
-	if (FSM->GetActiveStateUptime() > CurrentStageData->GetRecoverTime())
+	if (Uptime > CurrentStageData->GetRecoverTime())
 	{
 		FSM->PopState();
 	}
@@ -678,10 +677,8 @@ void AMordath::OnEnterThinkState()
 #endif
 }
 
-void AMordath::UpdateThinkState()
+void AMordath::UpdateThinkState(float Uptime, int32 Frames)
 {
-	const float Uptime = FSM->GetActiveStateUptime();
-
 	if (IsTransitioning())
 	{
 		BossAIController->StopMovement();
@@ -720,7 +717,7 @@ void AMordath::OnEnterActionState()
 	PlayActionMontage();
 }
 
-void AMordath::UpdateActionState()
+void AMordath::UpdateActionState(float Uptime, int32 Frames)
 {
 	StopMoving();
 
@@ -759,7 +756,7 @@ void AMordath::OnEnterDamagedState()
 	AnimInstance->bIsHit = true;
 }
 
-void AMordath::UpdateDamagedState()
+void AMordath::UpdateDamagedState(float Uptime, int32 Frames)
 {
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
@@ -796,7 +793,7 @@ void AMordath::OnEnterDeathState()
 	OnDeath();
 }
 
-void AMordath::UpdateDeathState()
+void AMordath::UpdateDeathState(float Uptime, int32 Frames)
 {
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->Stop();
@@ -822,7 +819,7 @@ void AMordath::OnEnterStunnedState()
 	MordathAnimInstance->bIsStunned = true;
 }
 
-void AMordath::UpdateStunnedState()
+void AMordath::UpdateStunnedState(float Uptime, int32 Frames)
 {
 	if (AnimInstance->AnimTimeRemaining < 0.1f/* FSM->GetActiveStateUptime() > CurrentStageData->StunTime*/)
 	{
@@ -853,7 +850,7 @@ void AMordath::OnEnterLaughState()
 	MordathAnimInstance->bCanLaugh = true;
 }
 
-void AMordath::UpdateLaughState()
+void AMordath::UpdateLaughState(float Uptime, int32 Frames)
 {
 }
 
@@ -871,7 +868,7 @@ void AMordath::OnEnterDashState()
 	PlayAnimMontage(SuperCloseRange_ActionData->ActionMontage);
 }
 
-void AMordath::UpdateDashState()
+void AMordath::UpdateDashState(float Uptime, int32 Frames)
 {
 	FacePlayer_Instant();
 
@@ -896,7 +893,7 @@ void AMordath::OnEnterDashCombatState()
 	PlayActionMontage();
 }
 
-void AMordath::UpdateDashCombatState()
+void AMordath::UpdateDashCombatState(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -922,7 +919,7 @@ void AMordath::OnEnterStrafeState()
 	PlayActionMontage();
 }
 
-void AMordath::UpdateStrafeState()
+void AMordath::UpdateStrafeState(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -947,7 +944,7 @@ void AMordath::OnEnterTiredState()
 	PlayActionMontage();
 }
 
-void AMordath::UpdateTiredState()
+void AMordath::UpdateTiredState(float Uptime, int32 Frames)
 {
 	if (HasFinishedAction())
 		FSM->PopState();
@@ -970,7 +967,7 @@ void AMordath::OnEnterBackHandState()
 	ActionDamage = CurrentStageData->Combat.BackHandActionData->ActionDamage;
 }
 
-void AMordath::UpdateBackHandState()
+void AMordath::UpdateBackHandState(float Uptime, int32 Frames)
 {
 	FacePlayerBasedOnActionData(CurrentStageData->Combat.BackHandActionData);
 
@@ -997,10 +994,8 @@ void AMordath::OnEnterTeleportState()
 	TeleportationComponent->GenerateTeleportTime();
 }
 
-void AMordath::UpdateTeleportState()
+void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 {
-	const float Uptime = FSM->GetActiveStateUptime();
-
 	if (Uptime >= CurrentActionMontage->SequenceLength - 0.2f)
 		AnimInstance->Montage_Pause();
 
@@ -1029,7 +1024,7 @@ void AMordath::OnEnterCloseRange()
 	GameState->PlayerData.CurrentRange = BRM_Close;
 }
 
-void AMordath::UpdateCloseRange()
+void AMordath::UpdateCloseRange(float Uptime, int32 Frames)
 {
 	if (DistanceToPlayer < CurrentStageData->GetSuperCloseRangeRadius())
 		RangeFSM->PushState("Super Close");
@@ -1049,7 +1044,7 @@ void AMordath::OnEnterMidRange()
 	GameState->PlayerData.CurrentRange = BRM_Mid;
 }
 
-void AMordath::UpdateMidRange()
+void AMordath::UpdateMidRange(float Uptime, int32 Frames)
 {
 	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
 		RangeFSM->PushState("Close");
@@ -1069,10 +1064,8 @@ void AMordath::OnEnterFarRange()
 	GameState->PlayerData.CurrentRange = BRM_Far;
 }
 
-void AMordath::UpdateFarRange()
+void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 {
-	const float& Uptime = RangeFSM->GetActiveStateUptime();
-
 	if (DistanceToPlayer < CurrentStageData->GetMidRangeRadius())
 	{
 		RangeFSM->PushState("Mid");
@@ -1120,9 +1113,9 @@ void AMordath::OnEnterSuperCloseRange()
 	IncreaseAttackDamage(CurrentStageData->GetAttackDamageMultiplier());
 }
 
-void AMordath::UpdateSuperCloseRange()
+void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
-	if (RangeFSM->GetActiveStateUptime() > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsThinking()))
+	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsThinking()))
 	{
 		const uint8 bWantsKick = FMath::RandRange(0, 1);
 		if (bWantsKick == 1 && IsInSecondStage())
@@ -1156,7 +1149,7 @@ void AMordath::OnEnterFirstStage()
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[0];
 }
 
-void AMordath::UpdateFirstStage()
+void AMordath::UpdateFirstStage(float Uptime, int32 Frames)
 {
 	// Can we enter the second stage?
 	if (HealthComponent->GetCurrentHealth() <= HealthComponent->GetDefaultHealth() * SecondStageHealth)
@@ -1206,7 +1199,7 @@ void AMordath::OnEnterSecondStage()
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
 }
 
-void AMordath::UpdateSecondStage()
+void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 {
 	if (AnimInstance->Montage_IsPlaying(Stage2_Transition))
 		return;
@@ -1267,7 +1260,7 @@ void AMordath::OnEnterThirdStage()
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
 }
 
-void AMordath::UpdateThirdStage()
+void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 {
 	if (AnimInstance->Montage_IsPlaying(Stage3_Transition))
 		return;
@@ -1896,7 +1889,7 @@ bool AMordath::CanAttack() const
 			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
-			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing();
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired();
 }
 
 void AMordath::ResetActionDamage()

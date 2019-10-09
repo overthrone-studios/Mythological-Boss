@@ -5,15 +5,15 @@
 #include "Components/ActorComponent.h"
 #include "FSM.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterAnyStateSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitAnyStateSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateAnyStateSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEnterAnyStateSignature, int32, StateID, FName, StateName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnExitAnyStateSignature, int32, StateID, FName, StateName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnUpdateAnyStateSignature, int32, StateID, FName, StateName, float, StateUptime, int32, StateFrames);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterStateSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitStateSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpdateStateSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateStateSignature, float, StateUptime, int32, Frames);
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FState
 {
 	GENERATED_USTRUCT_BODY()
@@ -26,18 +26,22 @@ struct FState
 		Frames = 0;
 	}
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "State")
 		FOnEnterStateSignature OnEnterState;
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "State")
 		FOnExitStateSignature OnExitState;
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "State")
 		FOnUpdateStateSignature OnUpdateState;
 
-	int32 ID;
-	uint32 Frames;
-	FName Name;
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		int32 ID;
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		int32 Frames;
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		FName Name;
 
-	float Uptime = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+		float Uptime = 0;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -64,11 +68,11 @@ public:
 		void Stop();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
-		void InitState(int32 StateID);
-		void InitState(const FName& StateName);
+		void InitFSM(int32 StateID);
+		void InitFSM(FName StateName);
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
-		void AddState(int32 ID, const FName& StateName);
+		void AddState(int32 ID, FName StateName);
 
 	void PopState();
 
@@ -80,11 +84,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void PushState(int32 StateID);
-		void PushState(const FName& StateName);
+		void PushState(FName StateName);
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void PopState(int32 StateID);
-		void PopState(const FName& StateName);
+		void PopState(FName StateName);
 
 	FORCEINLINE TArray<FState> GetAllStates() const { return States; }
 
@@ -94,13 +98,16 @@ public:
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		FORCEINLINE int32 GetStateCountInStack() const { return Stack.Num(); }
 
-	FState* GetState(int32 StateID);
-	FState* GetState(const FName& StateName);
-	FState* GetStateInStack(int32 StateID);
-	FState* GetStateInStack(const FName& StateName);
+	FState* GetStateFromID(int32 StateID);
+	FState* GetStateFromName(FName StateName);
 
 	FState* GetActiveState() const;
 	FState* GetPreviousState() const;
+
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		FName GetStateName(int32 ID) const;
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		int32 GetStateID(FName StateName) const;
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		int32 GetPreviousStateID() const;
@@ -122,21 +129,39 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		bool DoesStateExistInStack(int32 StateID);
-		bool DoesStateExistInStack(const FName& StateName);
+		bool DoesStateExistInStack(FName StateName);
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
-		bool IsStackEmpty() const;
+		bool DoesStateExist(int32 StateID);
+		bool DoesStateExist(FName StateName);
+
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		FORCEINLINE bool IsStackEmpty() const { return Stack.Num() == 0; }
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		FORCEINLINE bool IsMachineRunning() const { return bIsRunning; }
 
-	// Enable debug mode?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "FSM")
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		FORCEINLINE bool IsMachineInitialized() const { return bHasFSMInitialized; }
+
+	// Toggle debug mode?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FSM")
 		uint8 bDebug : 1;
+
+	// Log the state machines status? (i.e what it's currently doing)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FSM", meta = (EditCondition = "bDebug"))
+		uint8 bLogStatus : 1;
+
+	// Log state machine warnings?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FSM", meta = (EditCondition = "bDebug"))
+		uint8 bLogWarnings : 1;
 
 protected:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void PushState_Internal(FState& State);
+	void PopState_Internal(FState* State);
 
 	TArray<FState*> Stack;
 

@@ -314,32 +314,32 @@ protected:
 	#pragma endregion 
 
 	UFUNCTION()
-		void OnEnterAnyState();
+		void OnEnterAnyState(int32 ID, FName Name);
 	UFUNCTION()
-		void UpdateAnyState();
+		void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
 	UFUNCTION()
-		void OnExitAnyState();
+		void OnExitAnyState(int32 ID, FName Name);
 
 	UFUNCTION()
-		void OnEnterAnyRangeState();
+		void OnEnterAnyRangeState(int32 ID, FName Name);
 	UFUNCTION()
-		void UpdateAnyRangeState();
+		void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames);
 	UFUNCTION()
-		void OnExitAnyRangeState();
+		void OnExitAnyRangeState(int32 ID, FName Name);
 
 	UFUNCTION()
-		void OnEnterAnyStageState();
+		void OnEnterAnyStageState(int32 ID, FName Name);
 	UFUNCTION()
-		void UpdateAnyStageState();
+		void UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames);
 	UFUNCTION()
-		void OnExitAnyStageState();
+		void OnExitAnyStageState(int32 ID, FName Name);
 
 	#pragma region Boss States
 		#pragma region Idle
 		UFUNCTION()
 			void OnEnterIdleState();
 		UFUNCTION()
-			void UpdateIdleState();
+			void UpdateIdleState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitIdleState();
 		#pragma endregion 
@@ -348,7 +348,7 @@ protected:
 		UFUNCTION()
 			void OnEnterFollowState();
 		UFUNCTION()
-			void UpdateFollowState();
+			void UpdateFollowState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitFollowState();
 		#pragma endregion 
@@ -357,7 +357,7 @@ protected:
 		UFUNCTION()
 			void OnEnterThinkState();
 		UFUNCTION()
-			void UpdateThinkState();
+			void UpdateThinkState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitThinkState();
 		#pragma endregion 
@@ -366,7 +366,7 @@ protected:
 		UFUNCTION()
 			void OnEnterActionState();
 		UFUNCTION()
-			void UpdateActionState();
+			void UpdateActionState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitActionState();
 		#pragma endregion 
@@ -375,7 +375,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDamagedState();
 		UFUNCTION()
-			void UpdateDamagedState();
+			void UpdateDamagedState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDamagedState();
 		#pragma endregion 
@@ -384,7 +384,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDeathState();
 		UFUNCTION()
-			void UpdateDeathState();
+			void UpdateDeathState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDeathState();
 		#pragma endregion 
@@ -393,7 +393,7 @@ protected:
 		UFUNCTION()
 			void OnEnterStunnedState();
 		UFUNCTION()
-			void UpdateStunnedState();
+			void UpdateStunnedState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitStunnedState();
 		#pragma endregion 
@@ -402,7 +402,7 @@ protected:
 		UFUNCTION()
 			void OnEnterLaughState();
 		UFUNCTION()
-			void UpdateLaughState();
+			void UpdateLaughState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitLaughState();
 		#pragma endregion 
@@ -411,7 +411,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDashState();
 		UFUNCTION()
-			void UpdateDashState();
+			void UpdateDashState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDashState();
 		#pragma endregion 
@@ -420,7 +420,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDashCombatState();
 		UFUNCTION()
-			void UpdateDashCombatState();
+			void UpdateDashCombatState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDashCombatState();
 		#pragma endregion 
@@ -429,7 +429,7 @@ protected:
 		UFUNCTION()
 			void OnEnterStrafeState();
 		UFUNCTION()
-			void UpdateStrafeState();
+			void UpdateStrafeState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitStrafeState();
 		#pragma endregion 
@@ -438,7 +438,7 @@ protected:
 		UFUNCTION()
 			void OnEnterTiredState();
 		UFUNCTION()
-			void UpdateTiredState();
+			void UpdateTiredState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitTiredState();
 		#pragma endregion 
@@ -447,7 +447,7 @@ protected:
 		UFUNCTION()
 			void OnEnterBackHandState();
 		UFUNCTION()
-			void UpdateBackHandState();
+			void UpdateBackHandState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitBackHandState();
 		#pragma endregion 
@@ -456,7 +456,7 @@ protected:
 		UFUNCTION()
 			void OnEnterTeleportState();
 		UFUNCTION()
-			void UpdateTeleportState();
+			void UpdateTeleportState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitTeleportState();
 		#pragma endregion 
@@ -465,7 +465,7 @@ protected:
 		UFUNCTION()
 			void OnEnterRetreatState();
 		UFUNCTION()
-			void UpdateRetreatState();
+			void UpdateRetreatState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitRetreatState();
 		#pragma endregion 
@@ -474,7 +474,7 @@ protected:
 		UFUNCTION()
 			void OnEnterKickState();
 		UFUNCTION()
-			void UpdateKickState();
+			void UpdateKickState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitKickState();
 	#pragma endregion 
@@ -483,7 +483,7 @@ protected:
 		UFUNCTION()
 			void OnEnterRecoverState();
 		UFUNCTION()
-			void UpdateRecoverState();
+			void UpdateRecoverState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitRecoverState();
 	#pragma endregion 
@@ -494,7 +494,7 @@ protected:
 		UFUNCTION()
 			void OnEnterCloseRange();
 		UFUNCTION()
-			void UpdateCloseRange();
+			void UpdateCloseRange(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitCloseRange();
 		#pragma endregion 
@@ -503,7 +503,7 @@ protected:
 		UFUNCTION()
 			void OnEnterMidRange();
 		UFUNCTION()
-			void UpdateMidRange();
+			void UpdateMidRange(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitMidRange();
 		#pragma endregion 
@@ -512,14 +512,14 @@ protected:
 		UFUNCTION()
 			void OnEnterFarRange();
 		UFUNCTION()
-			void UpdateFarRange();
+			void UpdateFarRange(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitFarRange();
 
 		UFUNCTION()
 			void OnEnterSuperCloseRange();
 		UFUNCTION()
-			void UpdateSuperCloseRange();
+			void UpdateSuperCloseRange(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitSuperCloseRange();
 		#pragma endregion 
@@ -531,7 +531,7 @@ protected:
 	UFUNCTION()
 		void OnEnterFirstStage();
 	UFUNCTION()
-		void UpdateFirstStage();
+		void UpdateFirstStage(float Uptime, int32 Frames);
 	UFUNCTION()
 		void OnExitFirstStage();
 	#pragma endregion 
@@ -540,7 +540,7 @@ protected:
 	UFUNCTION()
 		void OnEnterSecondStage();
 	UFUNCTION()
-		void UpdateSecondStage();
+		void UpdateSecondStage(float Uptime, int32 Frames);
 	UFUNCTION()
 		void OnExitSecondStage();
 	#pragma endregion 
@@ -549,7 +549,7 @@ protected:
 	UFUNCTION()
 		void OnEnterThirdStage();
 	UFUNCTION()
-		void UpdateThirdStage();
+		void UpdateThirdStage(float Uptime, int32 Frames);
 	UFUNCTION()
 		void OnExitThirdStage();
 	#pragma endregion 

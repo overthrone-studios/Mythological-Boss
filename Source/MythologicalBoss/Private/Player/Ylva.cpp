@@ -92,55 +92,55 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->OnExitAnyState.AddDynamic(this, &AYlva::OnExitAnyState);
 
 	// Bind state events to our functions
-	FSM->GetState(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
-	FSM->GetState(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
-	FSM->GetState(0)->OnExitState.AddDynamic(this, &AYlva::OnExitIdleState);
+	FSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AYlva::OnEnterIdleState);
+	FSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AYlva::UpdateIdleState);
+	FSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AYlva::OnExitIdleState);
 
-	FSM->GetState(1)->OnEnterState.AddDynamic(this, &AYlva::OnEnterWalkState);
-	FSM->GetState(1)->OnUpdateState.AddDynamic(this, &AYlva::UpdateWalkState);
-	FSM->GetState(1)->OnExitState.AddDynamic(this, &AYlva::OnExitWalkState);
+	FSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AYlva::OnEnterWalkState);
+	FSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AYlva::UpdateWalkState);
+	FSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AYlva::OnExitWalkState);
 
-	FSM->GetState(2)->OnEnterState.AddDynamic(this, &AYlva::OnEnterRunState);
-	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AYlva::UpdateRunState);
-	FSM->GetState(2)->OnExitState.AddDynamic(this, &AYlva::OnExitRunState);
+	FSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AYlva::OnEnterRunState);
+	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AYlva::UpdateRunState);
+	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AYlva::OnExitRunState);
 
-	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AYlva::OnEnterBlockingState);
-	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AYlva::UpdateBlockingState);
-	FSM->GetState(4)->OnExitState.AddDynamic(this, &AYlva::OnExitBlockingState);
+	FSM->GetStateFromID(4)->OnEnterState.AddDynamic(this, &AYlva::OnEnterBlockingState);
+	FSM->GetStateFromID(4)->OnUpdateState.AddDynamic(this, &AYlva::UpdateBlockingState);
+	FSM->GetStateFromID(4)->OnExitState.AddDynamic(this, &AYlva::OnExitBlockingState);
 
-	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDeathState);
-	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDeathState);
-	FSM->GetState(5)->OnExitState.AddDynamic(this, &AYlva::OnExitDeathState);
+	FSM->GetStateFromID(5)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDeathState);
+	FSM->GetStateFromID(5)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDeathState);
+	FSM->GetStateFromID(5)->OnExitState.AddDynamic(this, &AYlva::OnExitDeathState);
 
-	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AYlva::OnEnterChargeAttackState);
-	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AYlva::UpdateChargeAttackState);
-	FSM->GetState(6)->OnExitState.AddDynamic(this, &AYlva::OnExitChargeAttackState);
+	FSM->GetStateFromID(6)->OnEnterState.AddDynamic(this, &AYlva::OnEnterChargeAttackState);
+	FSM->GetStateFromID(6)->OnUpdateState.AddDynamic(this, &AYlva::UpdateChargeAttackState);
+	FSM->GetStateFromID(6)->OnExitState.AddDynamic(this, &AYlva::OnExitChargeAttackState);
 
-	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShockedState);
-	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShockedState);
-	FSM->GetState(7)->OnExitState.AddDynamic(this, &AYlva::OnExitShockedState);
+	FSM->GetStateFromID(7)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShockedState);
+	FSM->GetStateFromID(7)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShockedState);
+	FSM->GetStateFromID(7)->OnExitState.AddDynamic(this, &AYlva::OnExitShockedState);
 
-	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashAttackState);
-	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashAttackState);
-	FSM->GetState(8)->OnExitState.AddDynamic(this, &AYlva::OnExitDashAttackState);
+	FSM->GetStateFromID(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashAttackState);
+	FSM->GetStateFromID(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashAttackState);
+	FSM->GetStateFromID(8)->OnExitState.AddDynamic(this, &AYlva::OnExitDashAttackState);
 
-	FSM->GetState(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
-	FSM->GetState(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
-	FSM->GetState(12)->OnExitState.AddDynamic(this, &AYlva::OnExitDashState);
+	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
+	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
+	FSM->GetStateFromID(12)->OnExitState.AddDynamic(this, &AYlva::OnExitDashState);
 
-	FSM->GetState(20)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDamagedState);
-	FSM->GetState(20)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDamagedState);
-	FSM->GetState(20)->OnExitState.AddDynamic(this, &AYlva::OnExitDamagedState);
+	FSM->GetStateFromID(20)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDamagedState);
+	FSM->GetStateFromID(20)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDamagedState);
+	FSM->GetStateFromID(20)->OnExitState.AddDynamic(this, &AYlva::OnExitDamagedState);
 
-	FSM->GetState(21)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShieldHitState);
-	FSM->GetState(21)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShieldHitState);
-	FSM->GetState(21)->OnExitState.AddDynamic(this, &AYlva::OnExitShieldHitState);
+	FSM->GetStateFromID(21)->OnEnterState.AddDynamic(this, &AYlva::OnEnterShieldHitState);
+	FSM->GetStateFromID(21)->OnUpdateState.AddDynamic(this, &AYlva::UpdateShieldHitState);
+	FSM->GetStateFromID(21)->OnExitState.AddDynamic(this, &AYlva::OnExitShieldHitState);
 
-	FSM->GetState(22)->OnEnterState.AddDynamic(this, &AYlva::OnEnterParryState);
-	FSM->GetState(22)->OnUpdateState.AddDynamic(this, &AYlva::UpdateParryState);
-	FSM->GetState(22)->OnExitState.AddDynamic(this, &AYlva::OnExitParryState);
+	FSM->GetStateFromID(22)->OnEnterState.AddDynamic(this, &AYlva::OnEnterParryState);
+	FSM->GetStateFromID(22)->OnUpdateState.AddDynamic(this, &AYlva::UpdateParryState);
+	FSM->GetStateFromID(22)->OnExitState.AddDynamic(this, &AYlva::OnExitParryState);
 
-	FSM->InitState(0);
+	FSM->InitFSM(0);
 
 	// Create a camera arm component (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(FName("Camera Arm"));
@@ -1617,18 +1617,18 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 #pragma endregion
 
 #pragma region Any States
-void AYlva::OnEnterAnyState()
+void AYlva::OnEnterAnyState(int32 ID, FName Name)
 {
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
-void AYlva::UpdateAnyState()
+void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
-void AYlva::OnExitAnyState()
+void AYlva::OnExitAnyState(int32 ID, FName Name)
 {
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
@@ -1644,7 +1644,7 @@ void AYlva::OnEnterIdleState()
 	AnimInstance->Montage_Stop(0.3f, Combat.BlockSettings.BlockIdle);
 }
 
-void AYlva::UpdateIdleState()
+void AYlva::UpdateIdleState(float Uptime, int32 Frames)
 {
 	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
 
@@ -1662,7 +1662,7 @@ void AYlva::OnEnterWalkState()
 {
 }
 
-void AYlva::UpdateWalkState()
+void AYlva::UpdateWalkState(float Uptime, int32 Frames)
 {
 	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
 
@@ -1689,7 +1689,7 @@ void AYlva::OnEnterRunState()
 	MovementComponent->MaxWalkSpeed = MovementSettings.RunSpeed;
 }
 
-void AYlva::UpdateRunState()
+void AYlva::UpdateRunState(float Uptime, int32 Frames)
 {
 	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Run.Shake, CameraShakes.Run.Intensity);
 
@@ -1738,7 +1738,7 @@ void AYlva::OnEnterBlockingState()
 	AnimInstance->Montage_Play(Combat.BlockSettings.BlockIdle);
 }
 
-void AYlva::UpdateBlockingState()
+void AYlva::UpdateBlockingState(float Uptime, int32 Frames)
 {
 	if (FSM->GetActiveStateFrames() > Combat.ParrySettings.MaxParryFrame)
 	{
@@ -1783,7 +1783,7 @@ void AYlva::OnEnterDamagedState()
 		AnimInstance->bIsHit = true;
 }
 
-void AYlva::UpdateDamagedState()
+void AYlva::UpdateDamagedState(float Uptime, int32 Frames)
 {
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -1833,7 +1833,7 @@ void AYlva::OnEnterDeathState()
 	OnDeath();
 }
 
-void AYlva::UpdateDeathState()
+void AYlva::UpdateDeathState(float Uptime, int32 Frames)
 {
 }
 
@@ -1867,7 +1867,7 @@ void AYlva::OnEnterChargeAttackState()
 	VibrateController(Combat.ChargeSettings.ChargeAttackForce, true);
 }
 
-void AYlva::UpdateChargeAttackState()
+void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 {
 	FaceBoss(World->DeltaTimeSeconds);
 
@@ -1944,7 +1944,7 @@ void AYlva::OnEnterShockedState()
 	MovementComponent->SetMovementMode(MOVE_None);
 }
 
-void AYlva::UpdateShockedState()
+void AYlva::UpdateShockedState(float Uptime, int32 Frames)
 {
 	if (FSM->GetActiveStateUptime() > ShockTime)
 		FSM->PopState();
@@ -1991,7 +1991,7 @@ void AYlva::OnEnterDashAttackState()
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationWhileAttacking);
 }
 
-void AYlva::UpdateDashAttackState()
+void AYlva::UpdateDashAttackState(float Uptime, int32 Frames)
 {
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.DashAttackSettings.TimeDilationWhileAttacking, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
@@ -2052,7 +2052,7 @@ void AYlva::OnEnterShieldHitState()
 	StaminaComponent->DelayRegeneration();
 }
 
-void AYlva::UpdateShieldHitState()
+void AYlva::UpdateShieldHitState(float Uptime, int32 Frames)
 {
 	// If shield impact animation has finished, go back to previous state
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
@@ -2086,7 +2086,7 @@ void AYlva::OnEnterDashState()
 	AttackComboComponent->ResetCombo();
 }
 
-void AYlva::UpdateDashState()
+void AYlva::UpdateDashState(float Uptime, int32 Frames)
 {
 	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f &&
 		GameState->IsBossAttacking() && 
@@ -2163,7 +2163,7 @@ void AYlva::OnEnterParryState()
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 }
 
-void AYlva::UpdateParryState()
+void AYlva::UpdateParryState(float Uptime, int32 Frames)
 {
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.ParrySettings.TimeDilationOnSuccessfulParry, 1.0f, 4 * FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);

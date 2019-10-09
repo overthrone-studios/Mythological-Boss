@@ -104,86 +104,86 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDelayingAttack() const;
 
-#pragma region Follow
-	UFUNCTION()
-		void OnEnterFollowState();
-	UFUNCTION()
-		void UpdateFollowState();
-	UFUNCTION()
-		void OnExitFollowState();
-#pragma endregion 
+	#pragma region Follow
+		UFUNCTION()
+			void OnEnterFollowState();
+		UFUNCTION()
+			void UpdateFollowState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitFollowState();
+	#pragma endregion 
 
-#pragma region Think
-	UFUNCTION()
-		void OnEnterThinkState();
-	UFUNCTION()
-		void UpdateThinkState();
-	UFUNCTION()
-		void OnExitThinkState();
-#pragma endregion 
+	#pragma region Think
+		UFUNCTION()
+			void OnEnterThinkState();
+		UFUNCTION()
+			void UpdateThinkState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitThinkState();
+	#pragma endregion 
 
-#pragma region Light Attack 1
-	UFUNCTION()
-		void OnEnterShortAttack1State();
-	UFUNCTION()
-		void UpdateShortAttack1State();
-	UFUNCTION()
-		void OnExitShortAttack1State();
-#pragma endregion 
+	#pragma region Light Attack 1
+		UFUNCTION()
+			void OnEnterShortAttack1State();
+		UFUNCTION()
+			void UpdateShortAttack1State(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitShortAttack1State();
+	#pragma endregion 
 
-#pragma region Light Attack 2
-	UFUNCTION()
-		void OnEnterShortAttack2State();
-	UFUNCTION()
-		void UpdateShortAttack2State();
-	UFUNCTION()
-		void OnExitShortAttack2State();
-#pragma endregion 
+	#pragma region Light Attack 2
+		UFUNCTION()
+			void OnEnterShortAttack2State();
+		UFUNCTION()
+			void UpdateShortAttack2State(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitShortAttack2State();
+	#pragma endregion 
 
-#pragma region Light Attack 3
-	UFUNCTION()
-		void OnEnterShortAttack3State();
-	UFUNCTION()
-		void UpdateShortAttack3State();
-	UFUNCTION()
-		void OnExitShortAttack3State();
-#pragma endregion 
+	#pragma region Light Attack 3
+		UFUNCTION()
+			void OnEnterShortAttack3State();
+		UFUNCTION()
+			void UpdateShortAttack3State(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitShortAttack3State();
+	#pragma endregion 
 
-#pragma region Heavy Attack 1
-	UFUNCTION()
-		void OnEnterLongAttack1State();
-	UFUNCTION()
-		void UpdateLongAttack1State();
-	UFUNCTION()
-		void OnExitLongAttack1State();
-#pragma endregion 
+	#pragma region Heavy Attack 1
+		UFUNCTION()
+			void OnEnterLongAttack1State();
+		UFUNCTION()
+			void UpdateLongAttack1State(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitLongAttack1State();
+	#pragma endregion 
 
-#pragma region Heavy Attack 2
-	UFUNCTION()
-		void OnEnterLongAttack2State();
-	UFUNCTION()
-		void UpdateLongAttack2State();
-	UFUNCTION()
-		void OnExitLongAttack2State();
-#pragma endregion 
+	#pragma region Heavy Attack 2
+		UFUNCTION()
+			void OnEnterLongAttack2State();
+		UFUNCTION()
+			void UpdateLongAttack2State(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitLongAttack2State();
+	#pragma endregion 
 
-#pragma region Heavy Attack 3
-	UFUNCTION()
-		void OnEnterLongAttack3State();
-	UFUNCTION()
-		void UpdateLongAttack3State();
-	UFUNCTION()
-		void OnExitLongAttack3State();
-#pragma endregion 
+	#pragma region Heavy Attack 3
+		UFUNCTION()
+			void OnEnterLongAttack3State();
+		UFUNCTION()
+			void UpdateLongAttack3State(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitLongAttack3State();
+	#pragma endregion 
 
-#pragma region Death
-	UFUNCTION()
-		void OnEnterDeathState();
-	UFUNCTION()
-		void UpdateDeathState();
-	UFUNCTION()
-		void OnExitDeathState();
-#pragma endregion 
+	#pragma region Death
+		UFUNCTION()
+			void OnEnterDeathState();
+		UFUNCTION()
+			void UpdateDeathState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitDeathState();
+	#pragma endregion 
 
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")

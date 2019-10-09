@@ -752,18 +752,18 @@ protected:
 	#pragma endregion
 
 	UFUNCTION()
-		void OnEnterAnyState();
+		void OnEnterAnyState(int32 ID, FName Name);
 	UFUNCTION()
-		void UpdateAnyState();
+		void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
 	UFUNCTION()
-		void OnExitAnyState();
+		void OnExitAnyState(int32 ID, FName Name);
 
 	#pragma region Player States
 		#pragma region Idle
 		UFUNCTION()
 			void OnEnterIdleState();
 		UFUNCTION()
-			void UpdateIdleState();
+			void UpdateIdleState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitIdleState();
 		#pragma endregion 
@@ -772,7 +772,7 @@ protected:
 		UFUNCTION()
 			void OnEnterWalkState();
 		UFUNCTION()
-			void UpdateWalkState();
+			void UpdateWalkState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitWalkState();
 		#pragma endregion 
@@ -781,7 +781,7 @@ protected:
 		UFUNCTION()
 			void OnEnterRunState();
 		UFUNCTION()
-			void UpdateRunState();
+			void UpdateRunState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitRunState();
 		#pragma endregion 
@@ -790,7 +790,7 @@ protected:
 		UFUNCTION()
 			void OnEnterBlockingState();
 		UFUNCTION()
-			void UpdateBlockingState();
+			void UpdateBlockingState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitBlockingState();
 		#pragma endregion 
@@ -799,7 +799,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDamagedState();
 		UFUNCTION()
-			void UpdateDamagedState();
+			void UpdateDamagedState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDamagedState();
 		#pragma endregion 
@@ -808,7 +808,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDeathState();
 		UFUNCTION()
-			void UpdateDeathState();
+			void UpdateDeathState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDeathState();
 		#pragma endregion 
@@ -817,7 +817,7 @@ protected:
 		UFUNCTION()
 			void OnEnterChargeAttackState();
 		UFUNCTION()
-			void UpdateChargeAttackState();
+			void UpdateChargeAttackState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitChargeAttackState();
 		#pragma endregion 
@@ -826,7 +826,7 @@ protected:
 		UFUNCTION()
 			void OnEnterShockedState();
 		UFUNCTION()
-			void UpdateShockedState();
+			void UpdateShockedState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitShockedState();
 		#pragma endregion 
@@ -835,7 +835,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDashAttackState();
 		UFUNCTION()
-			void UpdateDashAttackState();
+			void UpdateDashAttackState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDashAttackState();
 		#pragma endregion 
@@ -844,7 +844,7 @@ protected:
 		UFUNCTION()
 			void OnEnterShieldHitState();
 		UFUNCTION()
-			void UpdateShieldHitState();
+			void UpdateShieldHitState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitShieldHitState();
 		#pragma endregion 
@@ -853,7 +853,7 @@ protected:
 		UFUNCTION()
 			void OnEnterDashState();
 		UFUNCTION()
-			void UpdateDashState();
+			void UpdateDashState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDashState();
 		#pragma endregion 
@@ -862,7 +862,7 @@ protected:
 		UFUNCTION()
 			void OnEnterParryState();
 		UFUNCTION()
-			void UpdateParryState();
+			void UpdateParryState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitParryState();
 		#pragma endregion 

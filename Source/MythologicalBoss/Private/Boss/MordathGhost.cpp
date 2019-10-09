@@ -59,43 +59,43 @@ AMordathGhost::AMordathGhost() : AOverthroneCharacter()
 	FSM->AddState(8, "Heavy Attack 3");
 	FSM->AddState(13, "Death");
 
-	FSM->GetState(1)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterFollowState);
-	FSM->GetState(1)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateFollowState);
-	FSM->GetState(1)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitFollowState);
+	FSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterFollowState);
+	FSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateFollowState);
+	FSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitFollowState);
 
-	FSM->GetState(2)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterThinkState);
-	FSM->GetState(2)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateThinkState);
-	FSM->GetState(2)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitThinkState);
+	FSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterThinkState);
+	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateThinkState);
+	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitThinkState);
 
-	FSM->GetState(3)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack1State);
-	FSM->GetState(3)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack1State);
-	FSM->GetState(3)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack1State);
+	FSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack1State);
+	FSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack1State);
+	FSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack1State);
 
-	FSM->GetState(4)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack2State);
-	FSM->GetState(4)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack2State);
-	FSM->GetState(4)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack2State);
+	FSM->GetStateFromID(4)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack2State);
+	FSM->GetStateFromID(4)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack2State);
+	FSM->GetStateFromID(4)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack2State);
 
-	FSM->GetState(5)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack3State);
-	FSM->GetState(5)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack3State);
-	FSM->GetState(5)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack3State);
+	FSM->GetStateFromID(5)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack3State);
+	FSM->GetStateFromID(5)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack3State);
+	FSM->GetStateFromID(5)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack3State);
 
-	FSM->GetState(6)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack1State);
-	FSM->GetState(6)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack1State);
-	FSM->GetState(6)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack1State);
+	FSM->GetStateFromID(6)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack1State);
+	FSM->GetStateFromID(6)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack1State);
+	FSM->GetStateFromID(6)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack1State);
+	
+	FSM->GetStateFromID(7)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack2State);
+	FSM->GetStateFromID(7)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack2State);
+	FSM->GetStateFromID(7)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack2State);
+	
+	FSM->GetStateFromID(8)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack3State);
+	FSM->GetStateFromID(8)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack3State);
+	FSM->GetStateFromID(8)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack3State);
+	
+	FSM->GetStateFromID(13)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterDeathState);
+	FSM->GetStateFromID(13)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateDeathState);
+	FSM->GetStateFromID(13)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitDeathState);
 
-	FSM->GetState(7)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack2State);
-	FSM->GetState(7)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack2State);
-	FSM->GetState(7)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack2State);
-
-	FSM->GetState(8)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack3State);
-	FSM->GetState(8)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack3State);
-	FSM->GetState(8)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack3State);
-
-	FSM->GetState(13)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterDeathState);
-	FSM->GetState(13)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateDeathState);
-	FSM->GetState(13)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitDeathState);
-
-	FSM->InitState(1);
+	FSM->InitFSM(1);
 
 	// Configure capsule component
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
@@ -199,7 +199,7 @@ void AMordathGhost::OnEnterFollowState()
 	ChooseMovementDirection();
 }
 
-void AMordathGhost::UpdateFollowState()
+void AMordathGhost::UpdateFollowState(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -241,10 +241,8 @@ void AMordathGhost::OnEnterThinkState()
 	MordathAnimInstance->bWantsSideStepDash = FMath::RandRange(0, 1);
 }
 
-void AMordathGhost::UpdateThinkState()
+void AMordathGhost::UpdateThinkState(float Uptime, int32 Frames)
 {
-	const float Uptime = FSM->GetActiveStateUptime();
-
 	FacePlayer();
 
 	if (AnimInstance->AnimTimeRemaining > 0.2f)
@@ -276,7 +274,7 @@ void AMordathGhost::OnEnterShortAttack1State()
 	PlayAttackMontage();
 }
 
-void AMordathGhost::UpdateShortAttack1State()
+void AMordathGhost::UpdateShortAttack1State(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -302,7 +300,7 @@ void AMordathGhost::OnEnterShortAttack2State()
 	PlayAttackMontage();
 }
 
-void AMordathGhost::UpdateShortAttack2State()
+void AMordathGhost::UpdateShortAttack2State(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -328,7 +326,7 @@ void AMordathGhost::OnEnterShortAttack3State()
 	PlayAttackMontage();
 }
 
-void AMordathGhost::UpdateShortAttack3State()
+void AMordathGhost::UpdateShortAttack3State(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -357,7 +355,7 @@ void AMordathGhost::OnEnterLongAttack1State()
 	PlayAnimMontage(CurrentLongAttackMontage);
 }
 
-void AMordathGhost::UpdateLongAttack1State()
+void AMordathGhost::UpdateLongAttack1State(float Uptime, int32 Frames)
 {
 	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
 
@@ -385,7 +383,7 @@ void AMordathGhost::OnEnterLongAttack2State()
 	PlayAttackMontage();
 }
 
-void AMordathGhost::UpdateLongAttack2State()
+void AMordathGhost::UpdateLongAttack2State(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -411,7 +409,7 @@ void AMordathGhost::OnEnterLongAttack3State()
 	PlayAttackMontage();
 }
 
-void AMordathGhost::UpdateLongAttack3State()
+void AMordathGhost::UpdateLongAttack3State(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
@@ -441,7 +439,7 @@ void AMordathGhost::OnEnterDeathState()
 	OnDeath();
 }
 
-void AMordathGhost::UpdateDeathState()
+void AMordathGhost::UpdateDeathState(float Uptime, int32 Frames)
 {
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->Stop();
