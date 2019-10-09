@@ -21,10 +21,6 @@ struct FComboData_Action
 	UPROPERTY(EditInstanceOnly)
 		UMordathActionData* FailSafeAction;
 
-	// Can we teleport before we do this action?
-	UPROPERTY(EditInstanceOnly)
-		uint8 bCanTeleportWithAction : 1;
-
 	// The range that this action can be executed at
 	UPROPERTY(EditInstanceOnly)
 		TEnumAsByte<EBossRange_Mordath> RangeToExecute = BRM_Close;
