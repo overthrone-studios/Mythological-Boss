@@ -1714,7 +1714,7 @@ void AYlva::OnExitRunState()
 		MovementComponent->bUseControllerDesiredRotation = true;
 	}
 
-	YlvaAnimInstance->bIsRunning = bWasRunning;
+	YlvaAnimInstance->bIsRunning = false;
 
 	if (IsLockedOn())
 		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
