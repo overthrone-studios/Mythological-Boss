@@ -1009,7 +1009,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			bHasBeenDamaged = true;
 
 			// If we got hit while charge attacking
-			if (IsChargeAttacking())
+			//if (IsChargeAttacking())
 				FSM->PopState();
 
 			// Determine the damage state to enter in
@@ -1973,6 +1973,8 @@ void AYlva::OnEnterDashAttackState()
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 
+	UpdateStamina(StaminaComponent->GetDashAttackValue());
+
 	if (IsLockedOn())
 	{
 		MovementComponent->bOrientRotationToMovement = true;
@@ -2325,7 +2327,7 @@ bool AYlva::IsParrying() const
 
 bool AYlva::CanDashAttack() const
 {
-	return bPerfectlyTimedDash && !IsLowStamina();
+	return bPerfectlyTimedDash && !IsLowStamina() && StaminaComponent->HasEnoughForDashAttack();
 }
 
 class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const
