@@ -1,9 +1,8 @@
 // Copyright Overthrone Studios 2019
 
 #include "FSM.h"
+
 #include "Log.h"
-#include "Player/Ylva.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 UFSM::UFSM()
 {
@@ -48,6 +47,7 @@ void UFSM::Start()
 #endif
 
 	Stack[0]->OnEnterState.Broadcast();
+	PreviousState = Stack[0];
 	OnEnterAnyState.Broadcast();
 	bIsRunning = true;
 }
@@ -60,6 +60,7 @@ void UFSM::Stop()
 #endif
 
 	Stack[0]->OnExitState.Broadcast();
+	PreviousState = Stack[0];
 	OnExitAnyState.Broadcast();
 	bIsRunning = false;
 }
@@ -182,6 +183,7 @@ void UFSM::PushState(const int32 StateID)
 		if (State.ID == StateID)
 		{
 			Stack[0]->OnExitState.Broadcast();
+			PreviousState = Stack[0];
 			OnExitAnyState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack[0]->Frames = 0;
@@ -216,6 +218,7 @@ void UFSM::PushState(const FName& StateName)
 		if (State.Name == StateName)
 		{
 			Stack[0]->OnExitState.Broadcast();
+			PreviousState = Stack[0];
 			OnExitAnyState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack[0]->Frames = 0;
@@ -249,6 +252,7 @@ void UFSM::PopState(const int32 StateID)
 		if (State->ID == StateID)
 		{
 			Stack[0]->OnExitState.Broadcast();
+			PreviousState = Stack[0];
 			OnExitAnyState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack[0]->Frames = 0;
@@ -282,6 +286,7 @@ void UFSM::PopState(const FName& StateName)
 		if (State->Name == StateName)
 		{
 			Stack[0]->OnExitState.Broadcast();
+			PreviousState = Stack[0];
 			OnExitAnyState.Broadcast();
 			Stack[0]->Uptime = 0;
 			Stack[0]->Frames = 0;
@@ -363,6 +368,31 @@ FState* UFSM::GetStateInStack(const FName& StateName)
 FState* UFSM::GetActiveState() const
 {
 	return Stack[0];
+}
+
+FState* UFSM::GetPreviousState() const
+{
+	return PreviousState;
+}
+
+int32 UFSM::GetPreviousStateID() const
+{
+	return PreviousState->ID;
+}
+
+FName UFSM::GetPreviousStateName() const
+{
+	return PreviousState->Name;
+}
+
+float UFSM::GetPreviousStateUptime() const
+{
+	return PreviousState->Uptime;
+}
+
+int32 UFSM::GetPreviousStateFrames() const
+{
+	return PreviousState->Frames;
 }
 
 int32 UFSM::GetActiveStateID() const

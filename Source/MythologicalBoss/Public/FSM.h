@@ -100,6 +100,16 @@ public:
 	FState* GetStateInStack(const FName& StateName);
 
 	FState* GetActiveState() const;
+	FState* GetPreviousState() const;
+
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		int32 GetPreviousStateID() const;
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		FName GetPreviousStateName() const;
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		float GetPreviousStateUptime() const;
+	UFUNCTION(BlueprintPure, Category = "FSM")
+		int32 GetPreviousStateFrames() const;
 
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		int32 GetActiveStateID() const;
@@ -131,6 +141,8 @@ protected:
 	TArray<FState*> Stack;
 
 	TArray<FState> States;
+
+	FState* PreviousState;
 
 	uint8 bHasFSMInitialized : 1;
 	uint8 bIsRunning : 1;
