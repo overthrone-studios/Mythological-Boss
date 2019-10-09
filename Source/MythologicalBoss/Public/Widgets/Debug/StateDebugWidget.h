@@ -22,6 +22,8 @@ public:
 	void UpdateFramesText(const FText& NewFramesText);
 	void UpdatePreviousFramesText(const FText& NewFramesText);
 
+	void UpdateWidgetInfo(const FText& NewName, const FText& NewUptimeText, const FText& NewFramesText);
+
 protected:
 	void NativePreConstruct() override;
 

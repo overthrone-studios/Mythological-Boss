@@ -23,7 +23,11 @@ public:
 	void UpdatePreviousStateFrames(const FString& StateName, const uint32& Frames);
 	void UnhighlightState(const FString& StateName);
 
+	void UpdatePreviousState(const FString& StateName, const float& Uptime, const uint32& Frames);
+
 protected:
 	TArray<class UStateDebugWidget*> GetAllStateDebugWidgets();
 	TArray<class UStateDebugWidget*> StateDebugWidgets;
+
+	class UStateDebugWidget* PreviousStateWidget;
 };

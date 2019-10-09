@@ -1634,6 +1634,8 @@ void AYlva::OnExitAnyState(int32 ID, FName Name)
 
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
+
+	FSMVisualizer->UpdatePreviousState(Name.ToString(), FSM->GetActiveStateUptime(), FSM->GetActiveStateFrames());
 }
 #pragma endregion
 

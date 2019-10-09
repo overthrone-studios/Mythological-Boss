@@ -377,6 +377,8 @@ void AMordath::OnExitAnyState(int32 ID, FName Name)
 
 	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), FSM->GetActiveStateUptime());
 	FSMVisualizer->UpdatePreviousStateFrames(Name.ToString(), FSM->GetActiveStateFrames());
+
+	FSMVisualizer->UpdatePreviousState(Name.ToString(), FSM->GetActiveStateUptime(), FSM->GetActiveStateFrames());
 }
 
 void AMordath::OnEnterAnyRangeState(int32 ID, FName Name)

@@ -44,3 +44,12 @@ void UStateDebugWidget::UpdatePreviousFramesText(const FText& NewFramesText)
 {
 	PreviousFramesText = NewFramesText;
 }
+
+void UStateDebugWidget::UpdateWidgetInfo(const FText& NewName, const FText& NewUptimeText, const FText& NewFramesText)
+{
+	if (LabelWidget)
+		LabelWidget->SetText(NewName);
+
+	UptimeText = NewUptimeText;
+	FramesText = NewFramesText;
+}

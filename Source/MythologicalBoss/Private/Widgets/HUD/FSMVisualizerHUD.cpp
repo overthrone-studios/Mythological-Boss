@@ -12,6 +12,8 @@ void UFSMVisualizerHUD::Init()
 	Super::Init();
 
 	StateDebugWidgets = GetAllStateDebugWidgets();
+
+	PreviousStateWidget = Cast<UStateDebugWidget>(WidgetTree->FindWidget("PreviousState"));
 }
 
 void UFSMVisualizerHUD::HighlightState(const FString& StateName)
@@ -98,6 +100,12 @@ void UFSMVisualizerHUD::UnhighlightState(const FString& StateName)
 			return;
 		}
 	}
+}
+
+void UFSMVisualizerHUD::UpdatePreviousState(const FString& StateName, const float& Uptime, const uint32& Frames)
+{
+	if (PreviousStateWidget)
+		PreviousStateWidget->UpdateWidgetInfo(FText::FromString(StateName), FText::AsNumber(Uptime), FText::AsNumber(Frames));
 }
 
 TArray<UStateDebugWidget*> UFSMVisualizerHUD::GetAllStateDebugWidgets()
