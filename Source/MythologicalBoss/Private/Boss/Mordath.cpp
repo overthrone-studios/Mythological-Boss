@@ -99,6 +99,7 @@ AMordath::AMordath()
 	FSM->AddState(23, "Tired");
 	FSM->AddState(24, "Back Hand");
 	FSM->AddState(25, "Action");
+	FSM->AddState(26, "Close Action");
 
 	FSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyState);
 	FSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyState);
@@ -172,6 +173,10 @@ AMordath::AMordath()
 	FSM->GetStateFromID(25)->OnEnterState.AddDynamic(this, &AMordath::OnEnterActionState);
 	FSM->GetStateFromID(25)->OnUpdateState.AddDynamic(this, &AMordath::UpdateActionState);
 	FSM->GetStateFromID(25)->OnExitState.AddDynamic(this, &AMordath::OnExitActionState);
+
+	FSM->GetStateFromID(26)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseActionState);
+	FSM->GetStateFromID(26)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseActionState);
+	FSM->GetStateFromID(26)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseActionState);
 
 	FSM->InitFSM(0);
 
@@ -286,7 +291,7 @@ void AMordath::BeginPlay()
 
 	ResetActionDamage();
 
-	SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
+	//SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
 
 #if !UE_BUILD_SHIPPING
 	CapsuleComp->SetHiddenInGame(false);
@@ -751,6 +756,55 @@ void AMordath::OnExitActionState()
 }
 #pragma endregion 
 
+#pragma region Close Action
+void AMordath::OnEnterCloseActionState()
+{
+	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
+
+	PlayActionMontage(SuperCloseRange_ActionData);
+
+	GameState->BossData.CurrentActionType = SuperCloseRange_ActionData->ActionType;
+	GameState->BossData.CurrentCounterType = SuperCloseRange_ActionData->CounterType;
+}
+
+void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
+{
+	StopMoving();
+
+	GameState->BossData.bHasAttackBegun = bCanBeDodged;
+
+	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
+
+	if (SuperCloseRange_ActionData->bConstantlyFacePlayer)
+		FacePlayer();
+	else
+		FacePlayerBasedOnActionData(SuperCloseRange_ActionData);
+	
+	if (AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) >= SuperCloseRange_ActionData->MinPerfectDashWindow && 
+		AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) <= SuperCloseRange_ActionData->MaxPerfectDashWindow && 
+		SuperCloseRange_ActionData->bAllowPerfectDash)
+		bCanBeDodged = true;
+
+	// If action has finished, go back to previous state
+	if (HasFinishedAction(SuperCloseRange_ActionData->ActionMontage))
+		FSM->PopState();
+}
+
+void AMordath::OnExitCloseActionState()
+{
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAnimMontage();
+
+	CurrentMontageSection = "None";
+	CurrentMontageName = "None";
+
+	GameState->BossData.CurrentActionType = ATM_None;
+	GameState->BossData.CurrentCounterType = ACM_None;
+
+	bCanBeDodged = false;
+}
+#pragma endregion 
+
 #pragma region Damaged
 void AMordath::OnEnterDamagedState()
 {
@@ -1117,16 +1171,16 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
-	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsThinking()))
+	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && (!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction()))
 	{
-		const uint8 bWantsKick = FMath::RandRange(0, 1);
-		if (bWantsKick == 1 && IsInSecondStage())
+		const bool bWantsKick = FMath::RandBool();
+		if (bWantsKick && (IsInSecondStage() || IsInThirdStage()))
 		{
 			FSM->PushState("Kick");
 		}
-		else if (!IsDashing() && !DashComponent->IsCooldownActive())
-		{
-			FSM->PushState("Dash");
+		else
+		{	
+			FSM->PushState("Close Action");
 		}
 	}
 
@@ -1146,6 +1200,8 @@ void AMordath::OnExitSuperCloseRange()
 void AMordath::OnEnterFirstStage()
 {
 	CurrentStageData = StageOneData;
+
+	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
 	MordathAnimInstance->CurrentStage = Stage_1;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[0];
@@ -1195,7 +1251,7 @@ void AMordath::OnEnterSecondStage()
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
 
-	SuperCloseRange_ActionData = CurrentStageData->Combat.SuperCloseRangeActionData;
+	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
 	MordathAnimInstance->CurrentStage = Stage_2;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
@@ -1257,6 +1313,8 @@ void AMordath::OnEnterThirdStage()
 
 	if (!GameState->PlayerData.bIsDead)
 		FSM->PopState();	
+
+	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
 	MordathAnimInstance->CurrentStage = Stage_3;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
@@ -1891,7 +1949,7 @@ bool AMordath::CanAttack() const
 			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
-			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired();
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction();
 }
 
 void AMordath::ResetActionDamage()
@@ -2066,6 +2124,11 @@ bool AMordath::IsRecovering() const
 bool AMordath::HasFinishedAction() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentActionMontage);
+}
+
+bool AMordath::IsPerformingCloseAction() const
+{
+	return FSM->GetActiveStateID() == 26;
 }
 
 bool AMordath::HasFinishedAction(UAnimMontage* ActionMontage) const

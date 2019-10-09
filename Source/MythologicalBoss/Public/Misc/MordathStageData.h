@@ -136,9 +136,9 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		UMordathActionData* BackHandActionData = nullptr;
 
-	// The animation montage to play when the player is super close to us
+	// The action to randomly play when the player is super close to us
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		UMordathActionData* SuperCloseRangeActionData = nullptr;
+		TArray<UMordathActionData*> SuperCloseRangeActions;
 
 	// Maximum hits that can be taken before becoming invincible
 	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0))
@@ -210,6 +210,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE float GetRecoverTime() const { return RecoverTime; }
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		UMordathActionData* GetRandomSuperCloseRangeAction();
 
 	// Holds the data relating to the 'Think' state
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")

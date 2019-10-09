@@ -37,3 +37,13 @@ float UMordathStageData::GetHitStopTime()
 {
 	return Combat.HitStopTime;
 }
+
+UMordathActionData* UMordathStageData::GetRandomSuperCloseRangeAction()
+{
+	const int32& Index = FMath::RandRange(0, Combat.SuperCloseRangeActions.Num() - 1);
+
+	if (Combat.SuperCloseRangeActions.IsValidIndex(Index))
+		return Combat.SuperCloseRangeActions[Index];
+
+	return nullptr;
+}

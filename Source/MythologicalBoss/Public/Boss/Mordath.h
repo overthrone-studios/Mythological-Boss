@@ -157,6 +157,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAction() const;
 
+	// Returns true if we are performing a super close range action
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool IsPerformingCloseAction() const;
+
 	// Returns true if we have finished playing our current action montage
 	bool HasFinishedAction(class UAnimMontage* ActionMontage) const;
 
@@ -369,6 +373,15 @@ protected:
 			void UpdateActionState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitActionState();
+		#pragma endregion 
+
+		#pragma region Close Action
+		UFUNCTION()
+			void OnEnterCloseActionState();
+		UFUNCTION()
+			void UpdateCloseActionState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitCloseActionState();
 		#pragma endregion 
 
 		#pragma region Damaged
