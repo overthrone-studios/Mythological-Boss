@@ -59,13 +59,13 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 	const auto HitComponent = HitResult.GetComponent();
 	const FDamageEvent DamageEvent;
 
-	if (HitComponent)
+	if (HitComponent && Mordath)
 		HitComponent->OnComponentHit.Broadcast(HitResult.GetComponent(), Mordath, MeshComp, HitResult.ImpactNormal, HitResult);
 
-	if (HitActor)
+	if (HitActor && Mordath)
 		UGameplayStatics::SpawnForceFeedbackAtLocation(MeshComp, Mordath->GetCurrentForceFeedbackEffect(), HitResult.Location);
 
-	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged) && !Mordath->IsDamaged())
+	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged) && Mordath && !Mordath->IsDamaged())
 	{
 		bIsHit = true;
 
