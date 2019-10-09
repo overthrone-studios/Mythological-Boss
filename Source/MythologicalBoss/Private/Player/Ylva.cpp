@@ -2090,7 +2090,7 @@ void AYlva::OnEnterDashState()
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
 {
-	if (FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 200.0f &&
+	if (DistanceToBoss < 400.0f /*FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 300.0f */&&
 		GameState->IsBossAttacking() && 
 		!bPerfectlyTimedDash && 
 		!IsDamaged())
