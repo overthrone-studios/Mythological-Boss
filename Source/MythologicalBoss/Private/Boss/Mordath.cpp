@@ -749,7 +749,7 @@ void AMordath::UpdateActionState(float Uptime, int32 Frames)
 	GameState->BossData.bHasAttackBegun = bCanBeDodged;
 
 	// If action has finished, go back to previous state
-	if (HasFinishedAction())
+	if (HasFinishedAction() || AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->StopAtTime && CurrentActionData->StopAtTime > 0.0f)
 		FSM->PopState();
 }
 
