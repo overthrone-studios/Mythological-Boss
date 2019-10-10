@@ -1166,10 +1166,10 @@ void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 	if (IsTeleporting() || IsSpecialAttacking())
 		return;
 
-	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
+	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsDoingFarRangeAction())
 	{
-		if (!IsRecovering())
-			ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
+		ULog::Info("Executing...", true);
+		ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
 	}
 	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
@@ -2201,6 +2201,11 @@ bool AMordath::IsTeleporting() const
 bool AMordath::IsExecutionTimeExpired() const
 {
 	return !TimerManager->IsTimerActive(CurrentActionData->TH_ExecutionExpiry);
+}
+
+bool AMordath::IsDoingFarRangeAction() const
+{
+	return AnimInstance->Montage_IsPlaying(CurrentStageData->Combat.FarRangeActionData->ActionMontage);
 }
 
 void AMordath::MoveForward(float Scale)
