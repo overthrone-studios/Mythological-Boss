@@ -184,6 +184,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsExecutionTimeExpired() const;
 
+	// Returns true if we are executing a far range action
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsDoingFarRangeAction() const;
+
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
