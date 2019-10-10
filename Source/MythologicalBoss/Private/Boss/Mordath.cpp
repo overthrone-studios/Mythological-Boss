@@ -525,7 +525,6 @@ void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 		case BRM_Close:
 			if (IsSuperCloseRange())
 			{
-				ULog::Yes("Super Close?: ", true);
 				MoveForward(-1);
 			}
 			else if (IsMidRange() || IsFarRange())
