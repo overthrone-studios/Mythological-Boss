@@ -2205,8 +2205,7 @@ bool AMordath::IsExecutionTimeExpired() const
 
 bool AMordath::IsDoingFarRangeAction() const
 {
-	return false;
-	//switch (EXPRESSION) {  }
+	return AnimInstance->Montage_IsPlaying(CurrentStageData->Combat.FarRangeActionData->ActionMontage);
 }
 
 void AMordath::MoveForward(float Scale)
