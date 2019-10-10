@@ -271,8 +271,8 @@ void AYlva::BeginPlay()
 
 	ParryCollisionComponent->SetHiddenInGame(false);
 #else
-	CapsuleComponent->SetHiddenInGame(true);
-	CapsuleComponent->SetVisibility(false);
+	CapsuleComp->SetHiddenInGame(true);
+	CapsuleComp->SetVisibility(false);
 
 	ParryCollisionComponent->SetHiddenInGame(true);
 #endif
