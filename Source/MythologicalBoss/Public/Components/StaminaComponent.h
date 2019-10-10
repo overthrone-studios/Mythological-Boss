@@ -67,6 +67,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE bool HasEnoughForDash() const { return Stamina > Dash; }
 
+	// Returns true if we have enough stamina for dash attacking
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE bool HasEnoughForDashAttack() const { return Stamina > DashAttack; }
+
 	// Returns true if we don't have stamina (Stamina <= 0)
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE bool IsStaminaEmpty() const { return Stamina <= 0.0f; }
@@ -98,6 +102,10 @@ public:
 	// Return the dash stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE float GetDashValue() const { return Dash; }
+
+	// Return the dash attack stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetDashAttackValue() const { return DashAttack; }
 
 	// Return the run stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
@@ -189,6 +197,10 @@ protected:
 	// The stamina value to subtract when dashing
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
 		float Dash = 40.0f;
+
+	// The stamina value to subtract when dash attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
+		float DashAttack = 150.0f;
 
 	// The stamina value to subtract while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
