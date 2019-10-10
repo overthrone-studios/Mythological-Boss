@@ -33,6 +33,10 @@ struct FComboData_Action
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 1))
 		uint8 Loops = 1;
 
+	// The time in the animation to 'cut' or stop playing (-1.0 = Do not cut, 0.0 = Stop at the beginning)
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = "-1.0"))
+		float StopAtTime = -1.0f;
+
 	uint8 ExecutionCount = 0;
 
 	uint8 bExecutionTimeExpired : 1;
