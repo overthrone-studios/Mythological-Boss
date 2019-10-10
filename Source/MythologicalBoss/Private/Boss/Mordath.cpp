@@ -341,8 +341,8 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 9, "Movement Speed: " + FString::SanitizeFloat(CurrentMovementSpeed));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 8, "Distance To Player: " + FString::SanitizeFloat(DistanceToPlayer));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Action: " + CurrentActionData->Action->GetCurrentActionAsString());
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Counter: " + CurrentActionData->Action->GetCounterTypeAsString());
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Action: " + UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)/*CurrentActionData->Action->GetCurrentActionAsString()*/);
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Counter: " + UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType) /*CurrentActionData->Action->GetCounterTypeAsString()*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Combo: " + ChosenCombo->GetName());
@@ -728,8 +728,6 @@ void AMordath::UpdateActionState(float Uptime, int32 Frames)
 {
 	StopMoving();
 
-	GameState->BossData.bHasAttackBegun = bCanBeDodged;
-
 	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
 
 	if (CurrentActionData->Action->bConstantlyFacePlayer)
@@ -740,7 +738,15 @@ void AMordath::UpdateActionState(float Uptime, int32 Frames)
 	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
 		AnimInstance->Montage_GetPosition(CurrentActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
 		CurrentActionData->Action->bAllowPerfectDash)
+	{
 		bCanBeDodged = true;
+	}
+	else
+	{
+		bCanBeDodged = false;
+	}
+
+	GameState->BossData.bHasAttackBegun = bCanBeDodged;
 
 	// If action has finished, go back to previous state
 	if (HasFinishedAction())
@@ -789,19 +795,25 @@ void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
 {
 	StopMoving();
 
-	GameState->BossData.bHasAttackBegun = bCanBeDodged;
-
 	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
 
 	if (SuperCloseRange_ActionData->bConstantlyFacePlayer)
 		FacePlayer();
 	else
 		FacePlayerBasedOnActionData(SuperCloseRange_ActionData);
-	
-	if (AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) >= SuperCloseRange_ActionData->MinPerfectDashWindow && 
-		AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) <= SuperCloseRange_ActionData->MaxPerfectDashWindow && 
+
+	if (AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) >= SuperCloseRange_ActionData->MinPerfectDashWindow &&
+		AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) <= SuperCloseRange_ActionData->MaxPerfectDashWindow &&
 		SuperCloseRange_ActionData->bAllowPerfectDash)
+	{
 		bCanBeDodged = true;
+	}
+	else
+	{
+		bCanBeDodged = false;
+	}
+
+	GameState->BossData.bHasAttackBegun = bCanBeDodged;
 
 	// If action has finished, go back to previous state
 	if (HasFinishedAction(SuperCloseRange_ActionData->ActionMontage))
@@ -820,6 +832,7 @@ void AMordath::OnExitCloseActionState()
 	GameState->BossData.CurrentCounterType = ACM_None;
 
 	bCanBeDodged = false;
+	GameState->BossData.bHasAttackBegun = false;
 }
 #pragma endregion 
 
@@ -1498,6 +1511,7 @@ void AMordath::StopActionMontage()
 	GameState->BossData.CurrentCounterType = ACM_None;
 
 	bCanBeDodged = false;
+	GameState->BossData.bHasAttackBegun = false;
 }
 
 void AMordath::UpdateCharacterInfo()

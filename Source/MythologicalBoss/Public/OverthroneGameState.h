@@ -169,7 +169,11 @@ public:
 		FORCEINLINE bool IsPlayerAttacking() const { return PlayerData.CurrentAttackType != ATP_None; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
-		FORCEINLINE bool IsBossAttacking() const { return BossData.bHasAttackBegun && BossData.CurrentActionType != ATM_LongAttack_1; }
+		FORCEINLINE bool IsBossAttacking() const { return BossData.bHasAttackBegun && (BossData.CurrentActionType == ATM_LongAttack_2 || BossData.CurrentActionType == ATM_LongAttack_3 ||
+																						BossData.CurrentActionType == ATM_ShortAttack_1 || BossData.CurrentActionType == ATM_ShortAttack_2 || 
+																						BossData.CurrentActionType == ATM_ShortAttack_3 || BossData.CurrentActionType == ATM_LongAttack_3 || 
+																						BossData.CurrentActionType == ATM_SpecialAttack_1 || BossData.CurrentActionType == ATM_SpecialAttack_2 || 
+																						BossData.CurrentActionType == ATM_SpecialAttack_3); }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE bool HasPlayerTakenDamage() const { return PlayerData.bHasTakenDamage; }
