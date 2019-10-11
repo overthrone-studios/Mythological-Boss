@@ -100,6 +100,7 @@ AMordath::AMordath()
 	FSM->AddState(24, "Back Hand");
 	FSM->AddState(25, "Action");
 	FSM->AddState(26, "Close Action");
+	FSM->AddState(27, "Far Action");
 
 	FSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyState);
 	FSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyState);
@@ -177,6 +178,10 @@ AMordath::AMordath()
 	FSM->GetStateFromID(26)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseActionState);
 	FSM->GetStateFromID(26)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseActionState);
 	FSM->GetStateFromID(26)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseActionState);
+
+	FSM->GetStateFromID(27)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarActionState);
+	FSM->GetStateFromID(27)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarActionState);
+	FSM->GetStateFromID(27)->OnExitState.AddDynamic(this, &AMordath::OnExitFarActionState);
 
 	FSM->InitFSM(0);
 
@@ -835,6 +840,52 @@ void AMordath::OnExitCloseActionState()
 }
 #pragma endregion 
 
+#pragma region Far Action
+void AMordath::OnEnterFarActionState()
+{
+	FarRange_ActionData = CurrentStageData->GetRandomFarRangeAction();
+
+	if (!FarRange_ActionData)
+	{
+		ULog::Error("There are no far range actions to choose from!", true);
+		FSM->PopState();
+		return;
+	}
+
+	PlayActionMontage(FarRange_ActionData);
+
+	GameState->BossData.CurrentActionType = FarRange_ActionData->ActionType;
+	GameState->BossData.CurrentCounterType = FarRange_ActionData->CounterType;
+}
+
+void AMordath::UpdateFarActionState(float Uptime, int32 Frames)
+{
+	if (FarRange_ActionData->bConstantlyFacePlayer)
+		FacePlayer();
+	else
+		FacePlayerBasedOnActionData(FarRange_ActionData);
+
+	// If action has finished, go back to previous state
+	if (HasFinishedAction(FarRange_ActionData->ActionMontage))
+		FSM->PopState();
+}
+
+void AMordath::OnExitFarActionState()
+{
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopAnimMontage();
+
+	CurrentMontageSection = "None";
+	CurrentMontageName = "None";
+
+	GameState->BossData.CurrentActionType = ATM_None;
+	GameState->BossData.CurrentCounterType = ACM_None;
+
+	bCanBeDodged = false;
+	GameState->BossData.bHasAttackBegun = false;
+}
+#pragma endregion 
+
 #pragma region Damaged
 void AMordath::OnEnterDamagedState()
 {
@@ -1163,31 +1214,13 @@ void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (IsTeleporting() || IsSpecialAttacking())
+	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction() || IsPerformingAction())
 		return;
 
-	if (IsInFirstStage() && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsDoingFarRangeAction())
+	if (Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
-		ULog::Info("Executing...", true);
-		ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
-	}
-	else if ((IsInSecondStage() || IsInThirdStage()) && Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
-	{
-		const uint8 bWantsLongAttack = FMath::RandRange(0, 1);
-		
-		if (bWantsLongAttack)
-		{
-			if (!IsRecovering())
-				ExecuteAction(CurrentStageData->Combat.FarRangeActionData);
-		}
-		//else
-		//{
-		//	if (CurrentActionData->bCanTeleportWithAction && !TeleportationComponent->IsCoolingDown() && !IsTired())
-		//	{
-		//		FSM->PopState();
-		//		FSM->PushState("Teleport");
-		//	}
-		//}
+		FSM->PopState();
+		FSM->PushState("Far Action");
 	}
 }
 
@@ -1207,15 +1240,17 @@ void AMordath::OnEnterSuperCloseRange()
 void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
 	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && 
-		(!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction()))
+		(!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction() && !IsPerformingFarAction()))
 	{
 		const bool bWantsKick = FMath::RandBool();
 		if (bWantsKick && (IsInSecondStage() || IsInThirdStage()))
 		{
+			FSM->PopState();
 			FSM->PushState("Kick");
 		}
 		else
 		{	
+			FSM->PopState();
 			FSM->PushState("Close Action");
 		}
 	}
@@ -1992,7 +2027,7 @@ bool AMordath::CanAttack() const
 			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
-			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction();
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction();
 }
 
 void AMordath::ResetActionDamage()
@@ -2204,9 +2239,14 @@ bool AMordath::IsExecutionTimeExpired() const
 	return !TimerManager->IsTimerActive(CurrentActionData->TH_ExecutionExpiry);
 }
 
-bool AMordath::IsDoingFarRangeAction() const
+bool AMordath::IsPerformingFarAction() const
 {
-	return AnimInstance->Montage_IsPlaying(CurrentStageData->Combat.FarRangeActionData->ActionMontage);
+	return FSM->GetActiveStateID() == 27;
+}
+
+bool AMordath::IsPerformingAction() const
+{
+	return FSM->GetActiveStateID() == 25;
 }
 
 void AMordath::MoveForward(float Scale)

@@ -124,21 +124,21 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	UPROPERTY(EditInstanceOnly)
 		FAttackSettings_Mordath AttackSettings;
 
-	// The animation montage to play when in far range on stage 1
+	// The animation montage to play when in far range on this stage 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		UMordathActionData* FarRangeActionData = nullptr;
+		TArray<UMordathActionData*> FarRangeActions;
 
 	// The amount of time (in seconds) we wait before initiating the long attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		float FarRangeAttackDelay = 1.0f;
 
-	// The animation montage to play when the player is behind us
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		UMordathActionData* BackHandActionData = nullptr;
-
 	// The action to randomly play when the player is super close to us
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UMordathActionData*> SuperCloseRangeActions;
+
+	// The animation montage to play when the player is behind us
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		UMordathActionData* BackHandActionData = nullptr;
 
 	// Maximum hits that can be taken before becoming invincible
 	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0))
@@ -213,6 +213,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		UMordathActionData* GetRandomSuperCloseRangeAction();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		UMordathActionData* GetRandomFarRangeAction();
 
 	// Holds the data relating to the 'Think' state
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")

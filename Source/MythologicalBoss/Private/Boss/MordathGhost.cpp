@@ -351,7 +351,7 @@ void AMordathGhost::OnEnterLongAttack1State()
 {
 	GameState->BossData.CurrentActionType = ATM_LongAttack_1;
 
-	CurrentLongAttackMontage = CurrentStageData->Combat.FarRangeActionData->ActionMontage;
+	CurrentLongAttackMontage = CurrentStageData->GetRandomFarRangeAction()->ActionMontage;
 	PlayAnimMontage(CurrentLongAttackMontage);
 }
 
