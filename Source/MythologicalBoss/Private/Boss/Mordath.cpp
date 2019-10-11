@@ -1219,7 +1219,7 @@ void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 
 	if (Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
 	{
-		ULog::Info("Executing...", true);
+		FSM->PopState();
 		FSM->PushState("Far Action");
 	}
 }
