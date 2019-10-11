@@ -1274,8 +1274,7 @@ void AMordath::UpdateFirstStage(float Uptime, int32 Frames)
 
 void AMordath::OnExitFirstStage()
 {
-	if (!GameState->PlayerData.bIsDead)
-		FSM->PopState();
+
 }
 #pragma endregion 
 
@@ -1334,8 +1333,7 @@ void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 
 void AMordath::OnExitSecondStage()
 {
-	if (!GameState->PlayerData.bIsDead)
-		FSM->PopState();	
+
 }
 #pragma endregion 
 
@@ -1346,9 +1344,6 @@ void AMordath::OnEnterThirdStage()
 
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
-
-	if (!GameState->PlayerData.bIsDead)
-		FSM->PopState();	
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
@@ -1449,6 +1444,8 @@ void AMordath::OnFirstStageHealth()
 
 	CachedCombos.Empty();
 	ChooseCombo();
+
+	BeginFirstStage();
 }
 
 void AMordath::OnSecondStageHealth()
@@ -1461,6 +1458,8 @@ void AMordath::OnSecondStageHealth()
 
 	CachedCombos.Empty();
 	ChooseCombo();
+
+	BeginSecondStage();
 }
 
 void AMordath::OnThirdStageHealth()
@@ -1474,6 +1473,8 @@ void AMordath::OnThirdStageHealth()
 
 	CachedCombos.Empty();
 	ChooseCombo();
+
+	BeginThirdStage();
 }
 #pragma endregion
 
