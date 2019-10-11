@@ -1214,7 +1214,7 @@ void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction())
+	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction() || IsPerformingAction())
 		return;
 
 	if (Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
@@ -2242,6 +2242,11 @@ bool AMordath::IsExecutionTimeExpired() const
 bool AMordath::IsPerformingFarAction() const
 {
 	return FSM->GetActiveStateID() == 27;
+}
+
+bool AMordath::IsPerformingAction() const
+{
+	return FSM->GetActiveStateID() == 25;
 }
 
 void AMordath::MoveForward(float Scale)

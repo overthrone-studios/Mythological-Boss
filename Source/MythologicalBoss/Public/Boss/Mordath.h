@@ -188,6 +188,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsPerformingFarAction() const;
 
+	// Returns true if we are executing an action
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsPerformingAction() const;
+
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
