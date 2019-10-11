@@ -186,7 +186,7 @@ public:
 
 	// Returns true if we are executing a far range action
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsDoingFarRangeAction() const;
+		bool IsPerformingFarAction() const;
 
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -395,6 +395,15 @@ protected:
 			void UpdateCloseActionState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitCloseActionState();
+		#pragma endregion 
+
+		#pragma	region Close Action
+		UFUNCTION()
+			void OnEnterFarActionState();
+		UFUNCTION()
+			void UpdateFarActionState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitFarActionState();
 		#pragma endregion 
 
 		#pragma region Damaged
@@ -680,6 +689,7 @@ private:
 	uint8 ThinkingMoveDirection : 1;
 
 	class UMordathActionData* SuperCloseRange_ActionData;
+	class UMordathActionData* FarRange_ActionData;
 
 	class UAnimMontage* CurrentActionMontage;
 	class UAnimMontage* PreviousActionMontage;
