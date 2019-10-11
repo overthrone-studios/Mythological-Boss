@@ -47,3 +47,13 @@ UMordathActionData* UMordathStageData::GetRandomSuperCloseRangeAction()
 
 	return nullptr;
 }
+
+UMordathActionData* UMordathStageData::GetRandomFarRangeAction()
+{
+	const int32& Index = FMath::RandRange(0, Combat.FarRangeActions.Num() - 1);
+
+	if (Combat.FarRangeActions.IsValidIndex(Index))
+		return Combat.FarRangeActions[Index];
+
+	return nullptr;
+}
