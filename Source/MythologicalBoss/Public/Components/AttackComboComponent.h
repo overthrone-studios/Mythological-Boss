@@ -56,6 +56,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
 		void ResetCombo();
 
+	// Resets every montages blend out time to their original value
+	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
+		void ResetAllMontageBlendTimes();
+
 	// Returns the array of light attacks
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE TArray<class UAnimMontage*> GetLightAttacks() const { return LightAttacks.List; }
@@ -182,6 +186,8 @@ private:
 	void DelayAttack(const float& Delay);
 	void LogAttackChain(); // Tracks the attacks we've chained
 
+	void StoreAllMontageBlendTimes();
+
 	EAttackType_Player CurrentAttack;
 
 	class UAnimMontage* CurrentAttackAnim;
@@ -189,6 +195,9 @@ private:
 	// The attack chain history
 	TArray<TEnumAsByte<EAttackType_Player>> Combo;
 	TArray<TEnumAsByte<EAttackType_Player>> PreviousCombo;
+
+	TArray<TArray<float>> OriginalBlendOutTimes;
+	TArray<TArray<float>> OriginalBlendOutTriggerTimes;
 
 	int8 LightAttackIndex = 0;
 	int8 HeavyAttackIndex = 0;

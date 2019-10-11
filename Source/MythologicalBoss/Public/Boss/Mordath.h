@@ -317,6 +317,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnThirdStageHealth();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void BeginFirstStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void BeginSecondStage();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void BeginThirdStage();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Mordath")
 		void OnAfterTakeDamage();
 	#pragma endregion 

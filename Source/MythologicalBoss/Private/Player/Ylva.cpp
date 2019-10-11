@@ -771,11 +771,8 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
 	}
 
-	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
+	if ((IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
 	{
-		PreviousAttackMontageBlendOutTime = AttackMontage->BlendOut.GetBlendTime();
-		PreviousAttackMontageBlendOutTriggerTime = AttackMontage->BlendOutTriggerTime;
-
 		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
 		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
 	}
@@ -1596,11 +1593,8 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 		AttackComboComponent->ClearCurrentAttack();
 	}
 
-	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
-	{
-		Montage->BlendOut.SetBlendTime(PreviousAttackMontageBlendOutTime); 
-		Montage->BlendOutTriggerTime = PreviousAttackMontageBlendOutTriggerTime;
-	}
+	if (!IsLowStamina())
+		AttackComboComponent->ResetAllMontageBlendTimes();
 }
 
 void AYlva::OnChargeMeterFull()
@@ -1825,6 +1819,8 @@ void AYlva::OnEnterDeathState()
 	GameState->PlayerData.OnDeath.Broadcast();
 
 	//TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
+
+	AttackComboComponent->ResetAllMontageBlendTimes();
 
 	// Stop all vibrations
 	for (const auto& Effect : PlayerController->ActiveForceFeedbackEffects)

@@ -1043,9 +1043,6 @@ private:
 
 	class UForceFeedbackEffect* CurrentForceFeedback;
 
-	float PreviousAttackMontageBlendOutTime = 0.25f;
-	float PreviousAttackMontageBlendOutTriggerTime = 0.1f;
-
 	class APlayerCameraManager* CameraManager;
 
 	class UFeatData* UntouchableFeat;
