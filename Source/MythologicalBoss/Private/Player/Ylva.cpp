@@ -82,6 +82,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(6, "Charge Attack");
 	FSM->AddState(7, "Shocked");
 	FSM->AddState(8, "Dash Attack");
+	FSM->AddState(9, "Attack");
 	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
@@ -123,6 +124,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetStateFromID(8)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashAttackState);
 	FSM->GetStateFromID(8)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashAttackState);
 	FSM->GetStateFromID(8)->OnExitState.AddDynamic(this, &AYlva::OnExitDashAttackState);
+
+	FSM->GetStateFromID(9)->OnEnterState.AddDynamic(this, &AYlva::OnEnterAttackState);
+	FSM->GetStateFromID(9)->OnUpdateState.AddDynamic(this, &AYlva::UpdateAttackState);
+	FSM->GetStateFromID(9)->OnExitState.AddDynamic(this, &AYlva::OnExitAttackState);
 
 	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
 	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
@@ -228,6 +233,8 @@ void AYlva::BeginPlay()
 
 	Combat.AttackSettings.OriginalLightAttackDamage = Combat.AttackSettings.LightAttackDamage;
 	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
+
+	OriginalAttackRadius = Combat.AttackSettings.AttackRadius;
 
 	// Set pitch min max values
 	CameraManager->ViewPitchMin = 360.0f - CameraPitchMax;
@@ -746,14 +753,14 @@ void AYlva::LightAttack()
 		!IsDashing() && 
 		AttackQueue.IsEmpty())
 	{
-		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Light);
+		CurrentAttack_Data = AttackComboComponent->AdvanceCombo(ATP_Light);
 
 		CurrentForceFeedback = Combat.LightAttackForce;
 		GameState->PlayerData.CurrentAttackType = AttackComboComponent->GetCurrentAttack();
 
 		FSM->PopState();
 		
-		BeginLightAttack(AttackMontageToPlay);
+		BeginLightAttack(CurrentAttack_Data->AttackMontage);
 	}
 }
 
@@ -777,7 +784,8 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
 	}
 
-	AnimInstance->Montage_Play(AttackMontage);
+	FSM->PushState("Attack");
+	//AnimInstance->Montage_Play(AttackMontage);
 }
 
 void AYlva::HeavyAttack()
@@ -824,14 +832,14 @@ void AYlva::HeavyAttack()
 		!IsDashing() && 
 		AttackQueue.IsEmpty())
 	{
-		UAnimMontage* AttackMontageToPlay = AttackComboComponent->AdvanceCombo(ATP_Heavy);
+		CurrentAttack_Data = AttackComboComponent->AdvanceCombo(ATP_Heavy);
 
 		CurrentForceFeedback = Combat.HeavyAttackForce;
 		GameState->PlayerData.CurrentAttackType = AttackComboComponent->GetCurrentAttack();
 
 		FSM->PopState();
 
-		BeginHeavyAttack(AttackMontageToPlay);
+		BeginHeavyAttack(CurrentAttack_Data->AttackMontage);
 	}
 }
 
@@ -855,7 +863,8 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
 	}
 
-	AnimInstance->Montage_Play(AttackMontage);
+	//AnimInstance->Montage_Play(AttackMontage);
+	FSM->PushState("Attack");
 }
 
 void AYlva::Attack_Queued()
@@ -1130,6 +1139,7 @@ void AYlva::Dash()
 					UpdateStamina(StaminaComponent->GetDashValue());
 			}
 
+			FSM->PopState();
 			FSM->PushState("Dash");
 		}
 	}
@@ -1958,10 +1968,46 @@ void AYlva::OnExitShockedState()
 }
 #pragma endregion 
 
+#pragma region Attack
+void AYlva::OnEnterAttackState()
+{
+	AnimInstance->Montage_Play(CurrentAttack_Data->AttackMontage);
+}
+
+void AYlva::UpdateAttackState(float Uptime, int32 Frames)
+{
+	const FName& CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttack_Data->AttackMontage);
+
+	if (CurrentMontageSection == "Anticipation")
+	{
+		AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Anticipation.PlayRate);
+	}
+	else if (CurrentMontageSection == "Contact")
+	{
+		AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Contact.PlayRate);
+	}
+	else if (CurrentMontageSection == "Recovery")
+	{
+		AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
+	}
+
+	if (!AnimInstance->Montage_IsPlaying(CurrentAttack_Data->AttackMontage))
+		FSM->PopState();
+}
+
+void AYlva::OnExitAttackState()
+{
+	// Ensure the attack montage has stopped playing
+	StopAnimMontage(CurrentAttack_Data->AttackMontage);
+}
+#pragma endregion 
+
 #pragma region Dash Attack
 void AYlva::OnEnterDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = true;
+
+	ChangeHitboxSize(Combat.AttackSettings.AttackRadius*2.0f);
 
 	GameState->PlayerData.CurrentAttackType = ATP_Dash;
 
@@ -1969,7 +2015,10 @@ void AYlva::OnEnterDashAttackState()
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 
-	UpdateStamina(StaminaComponent->GetDashAttackValue());
+#if !UE_BUILD_SHIPPING
+	if (!bGodMode)
+#endif
+		UpdateStamina(StaminaComponent->GetDashAttackValue());
 
 	if (IsLockedOn())
 	{
@@ -2010,7 +2059,13 @@ void AYlva::OnExitDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = false;
 
+	if (HealthComponent->IsLowHealth())
+		ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
+	else
+		ChangeHitboxSize(OriginalAttackRadius);
+	
 	bPerfectlyTimedDash = false;
+	bHasBeenDamaged = false;
 
 	GameState->PlayerData.CurrentAttackType = ATP_None;
 
@@ -2100,6 +2155,7 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		EnableInvincibility();
 
 		bPerfectlyTimedDash = true;
+		bHasBeenDamaged = false;
 
 		GameState->PlayerData.OnPlayerPerfectDash.Broadcast();
 
@@ -2132,6 +2188,7 @@ void AYlva::OnExitDashState()
 
 	AnimInstance->bIsDashing = false;
 	bWasRunning = false;
+	bHasBeenDamaged = false;
 
 	if (bPerfectlyTimedDash)
 	{
@@ -2140,6 +2197,7 @@ void AYlva::OnExitDashState()
 		ResetGlobalTimeDilation();
 	}
 
+	// Is there any dash commands in the queue?, if so execute them
 	if (!DashQueue.IsEmpty())
 	{
 		DashComponent->PauseCooldown();

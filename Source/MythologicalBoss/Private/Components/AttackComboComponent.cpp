@@ -11,12 +11,7 @@
 
 UAttackComboComponent::UAttackComboComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
-}
-
-UAnimMontage* UAttackComboComponent::GetCurrentAttackAnim() const
-{
-	return CurrentAttackAnim;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 FString UAttackComboComponent::GetCurrentAttackAsString() const
@@ -64,7 +59,13 @@ void UAttackComboComponent::BeginPlay()
 	StoreAllMontageBlendTimes();
 }
 
-class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player InAttackType)
+void UAttackComboComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+}
+
+FPlayerAttack_Data* UAttackComboComponent::AdvanceCombo(const EAttackType_Player InAttackType)
 {
 	CurrentAttack = InAttackType;
 
@@ -77,7 +78,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player
 			return nullptr;
 		}
 
-		CurrentAttackAnim = AdvanceCombo_Internal(ATP_Light);
+		CurrentAttackData = AdvanceCombo_Internal(ATP_Light);
 	break;
 
 	case ATP_Heavy:
@@ -87,7 +88,7 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player
 			return nullptr;
 		}
 
-		CurrentAttackAnim = AdvanceCombo_Internal(ATP_Heavy);
+		CurrentAttackData = AdvanceCombo_Internal(ATP_Heavy);
 	break;
 
 	case ATP_Special:
@@ -97,18 +98,18 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo(const EAttackType_Player
 			return nullptr;
 		}
 
-		CurrentAttackAnim = AdvanceCombo_Internal(ATP_Special);
+		CurrentAttackData = AdvanceCombo_Internal(ATP_Special);
 	break;
 
 	case ATP_None:
-		CurrentAttackAnim = nullptr;
+		CurrentAttackData = nullptr;
 	break;
 	}
 
-	return CurrentAttackAnim;
+	return CurrentAttackData;
 }
 
-class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType_Player InAttackType)
+FPlayerAttack_Data* UAttackComboComponent::AdvanceCombo_Internal(const enum EAttackType_Player InAttackType)
 {
 	if (IsAtTreeEnd() && IsWaitingForComboReset())
 	{
@@ -140,27 +141,31 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	{
 	case ATP_Light:
 		AdvanceAttack(LightAttackIndex, LightAttacks.List, ATP_Light);
-		MontageToReturn = GetCurrentLightAttackAnim();
+		CurrentAttackData = &GetCurrentLightAttackData();
+		//MontageToReturn = GetCurrentLightAttackAnim();
 
 		LightAttackIndex++;
 	break;
 
 	case ATP_Heavy:
 		AdvanceAttack(HeavyAttackIndex, HeavyAttacks.List, ATP_Heavy);
-		MontageToReturn = GetCurrentHeavyAttackAnim();
+		CurrentAttackData = &GetCurrentHeavyAttackData();
+		//MontageToReturn = GetCurrentHeavyAttackAnim();
 
 		HeavyAttackIndex++;
 	break;
 
 	case ATP_Special:
 		AdvanceAttack(SpecialAttackIndex, SpecialAttacks.List, ATP_Special);
-		MontageToReturn = GetCurrentSpecialAttackAnim();
+		CurrentAttackData = &GetCurrentSpecialAttackData();
+		//MontageToReturn = GetCurrentSpecialAttackAnim();
 
 		SpecialAttackIndex++;
 	break;
 
 	case ATP_None:
-		MontageToReturn = nullptr;
+		CurrentAttackData = nullptr;
+		//MontageToReturn = nullptr;
 	break;	
 	}
 
@@ -169,10 +174,10 @@ class UAnimMontage* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	if (bLogComboTreeIndex)
 		ULog::Number(TreeIndex, "Tree Index: ", true);
 
-	return MontageToReturn;
+	return CurrentAttackData;
 }
 
-int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const EAttackType_Player& InAttackType)
+int8 UAttackComboComponent::AdvanceAttack(int8& AttackIndex, const TArray<FPlayerAttack_Data>& AttackList, const EAttackType_Player& InAttackType)
 {
 	if (AttackIndex >= AttackList.Num())
 	{
@@ -281,43 +286,43 @@ void UAttackComboComponent::LogAttackChain()
 
 void UAttackComboComponent::StoreAllMontageBlendTimes()
 {
-	TArray<TArray<UAnimMontage*>> AttackMontages;
-	AttackMontages.Add(LightAttacks.List);
-	AttackMontages.Add(HeavyAttacks.List);
-	AttackMontages.Add(SpecialAttacks.List);
+	TArray<TArray<FPlayerAttack_Data>> AttackDataArray;
+	AttackDataArray.Add(LightAttacks.List);
+	AttackDataArray.Add(HeavyAttacks.List);
+	AttackDataArray.Add(SpecialAttacks.List);
 
-	OriginalBlendOutTimes.Init({}, AttackMontages.Num());
-	OriginalBlendOutTriggerTimes.Init({}, AttackMontages.Num());
+	OriginalBlendOutTimes.Init({}, AttackDataArray.Num());
+	OriginalBlendOutTriggerTimes.Init({}, AttackDataArray.Num());
 
-	for (int32 i = 0; i < AttackMontages.Num(); ++i)
+	for (int32 i = 0; i < AttackDataArray.Num(); ++i)
 	{
-		OriginalBlendOutTimes[i].Init({}, AttackMontages[i].Num());
-		OriginalBlendOutTriggerTimes[i].Init({}, AttackMontages[i].Num());
+		OriginalBlendOutTimes[i].Init({}, AttackDataArray[i].Num());
+		OriginalBlendOutTriggerTimes[i].Init({}, AttackDataArray[i].Num());
 	}
 
-	for (int32 i = 0; i < AttackMontages.Num(); ++i)
+	for (int32 i = 0; i < AttackDataArray.Num(); ++i)
 	{
-		for (int32 j = 0; j < AttackMontages[i].Num(); ++j)
+		for (int32 j = 0; j < AttackDataArray[i].Num(); ++j)
 		{
-			OriginalBlendOutTimes[i][j] = AttackMontages[i][j]->BlendOut.GetBlendTime();
-			OriginalBlendOutTriggerTimes[i][j] = AttackMontages[i][j]->BlendOutTriggerTime;
+			OriginalBlendOutTimes[i][j] = AttackDataArray[i][j].AttackMontage->BlendOut.GetBlendTime();
+			OriginalBlendOutTriggerTimes[i][j] = AttackDataArray[i][j].AttackMontage->BlendOutTriggerTime;
 		}
 	}
 }
 
 void UAttackComboComponent::ResetAllMontageBlendTimes()
 {
-	TArray<TArray<UAnimMontage*>> AttackMontages;
-	AttackMontages.Add(LightAttacks.List);
-	AttackMontages.Add(HeavyAttacks.List);
-	AttackMontages.Add(SpecialAttacks.List);
+	TArray<TArray<FPlayerAttack_Data>> AttackDataArray;
+	AttackDataArray.Add(LightAttacks.List);
+	AttackDataArray.Add(HeavyAttacks.List);
+	AttackDataArray.Add(SpecialAttacks.List);
 
-	for (int32 i = 0; i < AttackMontages.Num(); ++i)
+	for (int32 i = 0; i < AttackDataArray.Num(); ++i)
 	{
-		for (int32 j = 0; j < AttackMontages[i].Num(); ++j)
+		for (int32 j = 0; j < AttackDataArray[i].Num(); ++j)
 		{
-			AttackMontages[i][j]->BlendOut.SetBlendTime(OriginalBlendOutTimes[i][j]);
-			AttackMontages[i][j]->BlendOutTriggerTime = OriginalBlendOutTriggerTimes[i][j];
+			AttackDataArray[i][j].AttackMontage->BlendOut.SetBlendTime(OriginalBlendOutTimes[i][j]);
+			AttackDataArray[i][j].AttackMontage->BlendOutTriggerTime = OriginalBlendOutTriggerTimes[i][j];
 		}
 	}
 }

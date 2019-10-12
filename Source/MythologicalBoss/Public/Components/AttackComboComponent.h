@@ -5,18 +5,51 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "OverthroneEnums.h"
+#include "AlphaBlend.h"
 #include "AttackComboComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboTreeResetSignature);
+
+USTRUCT(BlueprintType)
+struct FPlayerMontageSection_Data
+{
+	GENERATED_BODY()
+
+	// The rate/speed of the animation (0.0 = No rate, 1.0 = Normal, 2.0+ = Fast)
+	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
+		float PlayRate = 1.0f;
+
+	// The type of blending to use
+	UPROPERTY(EditInstanceOnly)
+		EAlphaBlendOption BlendOption;
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerAttack_Data
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditInstanceOnly)
+		class UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditInstanceOnly)
+		FPlayerMontageSection_Data Anticipation;
+
+	UPROPERTY(EditInstanceOnly)
+		FPlayerMontageSection_Data Contact;
+
+	UPROPERTY(EditInstanceOnly)
+		FPlayerMontageSection_Data Recovery;
+};
 
 USTRUCT(BlueprintType)
 struct FAttacks
 {
 	GENERATED_BODY()
 
-	// The list of anim montages
+	// The list of attacks
 	UPROPERTY(EditInstanceOnly)
-		TArray<class UAnimMontage*> List;
+		TArray<FPlayerAttack_Data> List;
 
 	// How long (in seconds) should we wait until we can attack again?
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f, ClampMax = 10.0f))
@@ -45,8 +78,7 @@ public:
 	FOnComboTreeResetSignature OnComboReset;
 
 	// Advances to the next attack in the combo tree
-	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
-		class UAnimMontage* AdvanceCombo(EAttackType_Player InAttackType);
+	FPlayerAttack_Data* AdvanceCombo(EAttackType_Player InAttackType);
 
 	// Clears our current attack to None
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
@@ -60,29 +92,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
 		void ResetAllMontageBlendTimes();
 
-	// Returns the array of light attacks
-	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE TArray<class UAnimMontage*> GetLightAttacks() const { return LightAttacks.List; }
-
-	// Returns the array of heavy attacks
-	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE TArray<class UAnimMontage*> GetHeavyAttacks() const { return HeavyAttacks.List; }
-
-	// Returns the array of special attacks
-	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE TArray<class UAnimMontage*> GetSpecialAttacks() const { return SpecialAttacks.List; }
-
 	// Returns the current light attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE class UAnimMontage* GetCurrentLightAttackAnim() const { return LightAttacks.List[LightAttackIndex]; }
+		FORCEINLINE class UAnimMontage* GetCurrentLightAttackAnim() const { return LightAttacks.List[LightAttackIndex].AttackMontage; }
 
 	// Returns the current heavy attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE class UAnimMontage* GetCurrentHeavyAttackAnim() const { return HeavyAttacks.List[HeavyAttackIndex]; }
+		FORCEINLINE class UAnimMontage* GetCurrentHeavyAttackAnim() const { return HeavyAttacks.List[HeavyAttackIndex].AttackMontage; }
 
 	// Returns the current special attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		FORCEINLINE class UAnimMontage* GetCurrentSpecialAttackAnim() const { return SpecialAttacks.List[SpecialAttackIndex]; }
+		FORCEINLINE class UAnimMontage* GetCurrentSpecialAttackAnim() const { return SpecialAttacks.List[SpecialAttackIndex].AttackMontage; }
+
+	// Returns the current light attack anim montage
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE FPlayerAttack_Data& GetCurrentLightAttackData() { return LightAttacks.List[LightAttackIndex]; }
+
+	// Returns the current heavy attack anim montage
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE FPlayerAttack_Data& GetCurrentHeavyAttackData() { return HeavyAttacks.List[HeavyAttackIndex]; }
+
+	// Returns the current special attack anim montage
+	UFUNCTION(BlueprintPure, Category = "Attack Combo")
+		FORCEINLINE FPlayerAttack_Data& GetCurrentSpecialAttackData() { return SpecialAttacks.List[SpecialAttackIndex]; }
 
 	// Returns the combo we've created
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -92,9 +124,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
 		FORCEINLINE EAttackType_Player GetCurrentAttack() const { return CurrentAttack; }
 
-	// Returns the current attack animation montage we are on
+		// Returns the current attack animation montage we are on
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
-		class UAnimMontage* GetCurrentAttackAnim() const;
+		class UAnimMontage* GetCurrentAttackAnim() const { return CurrentAttackData->AttackMontage; }
+
+	// Returns the current attack animation montage we are on
+	FPlayerAttack_Data* GetCurrentAttackData() const { return CurrentAttackData; }
 
 	// Returns the current attack type we are on as a string
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -122,6 +157,7 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// The list of light attacks we can use
 	UPROPERTY(EditInstanceOnly, Category = "Combo")
@@ -180,8 +216,8 @@ protected:
 		uint8 bLogTreeStatus : 1;
 
 private:
-	class UAnimMontage* AdvanceCombo_Internal(enum EAttackType_Player InAttackType);
-	int8 AdvanceAttack(int8& AttackIndex, const TArray<class UAnimMontage*>& AttackList, const enum EAttackType_Player& InAttackType);
+	FPlayerAttack_Data* AdvanceCombo_Internal(enum EAttackType_Player InAttackType);
+	int8 AdvanceAttack(int8& AttackIndex, const TArray<FPlayerAttack_Data>& AttackList, const enum EAttackType_Player& InAttackType);
 
 	void DelayAttack(const float& Delay);
 	void LogAttackChain(); // Tracks the attacks we've chained
@@ -190,7 +226,8 @@ private:
 
 	EAttackType_Player CurrentAttack;
 
-	class UAnimMontage* CurrentAttackAnim;
+	//class UAnimMontage* CurrentAttackAnim;
+	FPlayerAttack_Data* CurrentAttackData;
 
 	// The attack chain history
 	TArray<TEnumAsByte<EAttackType_Player>> Combo;

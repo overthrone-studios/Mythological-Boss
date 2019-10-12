@@ -835,6 +835,15 @@ protected:
 			void OnExitShockedState();
 		#pragma endregion 
 
+		#pragma region Attack
+		UFUNCTION()
+			void OnEnterAttackState();
+		UFUNCTION()
+			void UpdateAttackState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitAttackState();
+		#pragma endregion 
+
 		#pragma region Dash Attack
 		UFUNCTION()
 			void OnEnterDashAttackState();
@@ -1007,6 +1016,8 @@ private:
 	float PlayerLeanRollAmount = 0.0f;
 	float PlayerLeanPitchAmount = 0.0f;
 
+	float OriginalAttackRadius = 20.0f;
+
 	uint8 MaxDashInQueue = 1;
 
 	uint8 bChargeKeyPressed : 1;
@@ -1041,6 +1052,8 @@ private:
 	FTimerHandle TH_AttackQueueExpiry;
 
 	FTimerHandle TH_DashQueue;
+
+	FPlayerAttack_Data* CurrentAttack_Data;
 
 	class USwordComponent* LSword;
 	class USwordComponent* RSword;
