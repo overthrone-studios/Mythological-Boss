@@ -54,7 +54,7 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 	float Multiplier = 1.0f;
 
-	if (HitActor && HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged /*&& !Ylva->IsDamaged()*/ && !Ylva->IsLowStamina())
+	if (Ylva && HitActor && HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged /*&& !Ylva->IsDamaged()*/ && !Ylva->IsLowStamina())
 	{
 		bIsHit = true;
 

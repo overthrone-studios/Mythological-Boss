@@ -778,11 +778,11 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
 	}
 
-	if ((IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
-	{
-		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
-		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
-	}
+	//if ((IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
+	//{
+	//	AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
+	//	AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
+	//}
 
 	FSM->PushState("Attack");
 	//AnimInstance->Montage_Play(AttackMontage);
@@ -1972,23 +1972,32 @@ void AYlva::OnExitShockedState()
 void AYlva::OnEnterAttackState()
 {
 	AnimInstance->Montage_Play(CurrentAttack_Data->AttackMontage);
+
+	if ((IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
+	{
+		CurrentAttack_Data->AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
+		CurrentAttack_Data->AttackMontage->BlendOutTriggerTime = CurrentAttack_Data->AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
+	}
 }
 
 void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 {
-	const FName& CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttack_Data->AttackMontage);
+	if (!IsLowStamina())
+	{
+		const FName& CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttack_Data->AttackMontage);
 
-	if (CurrentMontageSection == "Anticipation")
-	{
-		AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Anticipation.PlayRate);
-	}
-	else if (CurrentMontageSection == "Contact")
-	{
-		AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Contact.PlayRate);
-	}
-	else if (CurrentMontageSection == "Recovery")
-	{
-		AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
+		if (CurrentMontageSection == "Anticipation")
+		{
+			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Anticipation.PlayRate);
+		}
+		else if (CurrentMontageSection == "Contact")
+		{
+			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Contact.PlayRate);
+		}
+		else if (CurrentMontageSection == "Recovery")
+		{
+			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
+		}
 	}
 
 	if (!AnimInstance->Montage_IsPlaying(CurrentAttack_Data->AttackMontage))
@@ -1999,6 +2008,9 @@ void AYlva::OnExitAttackState()
 {
 	// Ensure the attack montage has stopped playing
 	StopAnimMontage(CurrentAttack_Data->AttackMontage);
+
+	if (!IsLowStamina())
+		AttackComboComponent->ResetAllMontageBlendTimes();
 }
 #pragma endregion 
 
