@@ -54,7 +54,7 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 	float Multiplier = 1.0f;
 
-	if (HitActor && HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged && !Ylva->IsDamaged() && !Ylva->IsLowStamina())
+	if (HitActor && HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged /*&& !Ylva->IsDamaged()*/ && !Ylva->IsLowStamina())
 	{
 		bIsHit = true;
 
@@ -82,4 +82,13 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 		Ylva->OnAttackLanded();
 	}
+	//else
+	//{
+	//	ULog::ObjectValidity(HitActor, true);
+	//
+	//	if (HitActor)
+	//		ULog::Info("Can be damaged: " + FString::FromInt(HitActor->bCanBeDamaged), true);
+	//
+	//	ULog::Info("Low stamina?: " + FString::FromInt(Ylva->IsLowStamina()), true);
+	//}
 }
