@@ -2101,6 +2101,8 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 
 		bPerfectlyTimedDash = true;
 
+		GameState->PlayerData.OnPlayerPerfectDash.Broadcast();
+
 		// Todo: Play sound
 		UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationOnPerfectDash);
 	}
@@ -2324,6 +2326,11 @@ bool AYlva::IsParrying() const
 bool AYlva::CanDashAttack() const
 {
 	return bPerfectlyTimedDash && !IsLowStamina() && StaminaComponent->HasEnoughForDashAttack();
+}
+
+bool AYlva::IsPerfectDashing() const
+{
+	return bPerfectlyTimedDash;
 }
 
 class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const

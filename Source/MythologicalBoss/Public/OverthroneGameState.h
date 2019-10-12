@@ -19,6 +19,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFirstStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerPerfectDashSignature);
+
 USTRUCT()
 struct FCharacterData
 {
@@ -90,6 +92,7 @@ struct FPlayerData : public FCharacterData
 	EAttackType_Player CurrentAttackType = ATP_None;
 
 	FOnLowStaminaSignature OnLowStamina;
+	FOnPlayerPerfectDashSignature OnPlayerPerfectDash;
 };
 
 USTRUCT()

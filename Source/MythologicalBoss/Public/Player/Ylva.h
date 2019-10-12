@@ -420,6 +420,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool CanDashAttack() const;
 
+	// Returns true if we have triggered a perfect dash
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsPerfectDashing() const;
+
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
