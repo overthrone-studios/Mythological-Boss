@@ -15,7 +15,7 @@ public:
 	ABoundingBox();
 
 	UFUNCTION(BlueprintCallable, Category = "Box")
-		FORCEINLINE FBox GetBoundingBox() const;
+		FBox GetBoundingBox() const;
 
 protected:
 	void BeginPlay() override;
