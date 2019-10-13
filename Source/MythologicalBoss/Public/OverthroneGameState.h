@@ -166,9 +166,6 @@ public:
 		FORCEINLINE APlayerCameraManager* GetCameraManager() const { return CameraManager; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
-		FORCEINLINE float GetTeleportRadius() const { return PlayerData.TeleportRadius; }
-
-	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE FVector GetBossLocation() const { return BossData.Location; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")

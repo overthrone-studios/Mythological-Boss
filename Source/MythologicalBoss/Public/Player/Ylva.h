@@ -12,10 +12,6 @@ struct FDebug_Ylva : public FCharacterDebug
 {
 	GENERATED_BODY()
 
-	// Draw the teleport circle around the player
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bShowTeleportRadius : 1;
-
 	// Log the hit component name to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bLogComponentHits : 1;
@@ -333,10 +329,6 @@ public:
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE float GetAttackRadius() const { return Combat.AttackSettings.AttackRadius; }
-
-	// Returns the teleport radius value
-	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
-		FORCEINLINE float GetTeleportRadius() const { return TeleportRadius; }
 
 	// Returns true if we are light attacking
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Combat")
@@ -960,10 +952,6 @@ protected:
 	// This timeline plays when we are building charge
 	FTimeline ChargeAttackTimeline;
 	#pragma endregion
-
-	// The radius the boss will use to teleport to a point on this circle
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Misc", meta = (ClampMin = 1.0f))
-		float TeleportRadius = 1000.0f;
 
 	// The float curve to use when regenerating stamina
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")

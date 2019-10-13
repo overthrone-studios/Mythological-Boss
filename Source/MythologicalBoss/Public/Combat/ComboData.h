@@ -37,6 +37,14 @@ struct FComboData_Action
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = "-1.0"))
 		float StopAtTime = -1.0f;
 
+	// Is this a teleport action?
+	UPROPERTY(EditInstanceOnly)
+		uint8 bIsTeleport : 1;
+
+	// The range mordath will teleport to. If the teleported location is outside the play area, this value will be discarded
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "bIsTeleport"))
+		TEnumAsByte<EBossRange_Mordath> TeleportToRange = BRM_Mid;
+
 	uint8 ExecutionCount = 0;
 
 	uint8 bExecutionTimeExpired : 1;

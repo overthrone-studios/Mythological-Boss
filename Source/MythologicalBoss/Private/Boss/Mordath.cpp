@@ -1073,6 +1073,7 @@ void AMordath::OnExitDashCombatState()
 
 #pragma endregion
 
+// Todo: remove strafe state
 #pragma region Strafe
 void AMordath::OnEnterStrafeState()
 {
@@ -1163,10 +1164,37 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 	if (Uptime >= CurrentActionMontage->SequenceLength - 0.2f)
 		AnimInstance->Montage_Pause();
 
+	FacePlayer();
+
 	if (Uptime > TeleportationComponent->GetTeleportTime() && !TeleportationComponent->IsCoolingDown())
 	{
 		TeleportationComponent->StartCooldown();
-		SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, GameState->GetTeleportRadius(), GameState->PlayArea));
+
+		float TeleportRadius;
+		switch (CurrentActionData->TeleportToRange)
+		{
+		case BRM_Close:
+			TeleportRadius = CurrentStageData->GetCloseRangeRadius();
+		break;
+
+		case BRM_Mid:
+			TeleportRadius = CurrentStageData->GetMidRangeRadius();
+		break;
+
+		case BRM_Far:
+			TeleportRadius = CurrentStageData->GetMidRangeRadius() * 2;
+		break;
+
+		default:
+			TeleportRadius = CurrentStageData->GetMidRangeRadius();
+		break;
+		}
+
+		#if !UE_BUILD_SHIPPING
+		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), TeleportRadius, 32, FColor::Purple, 3.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		#endif
+		
+		SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, TeleportRadius, GameState->PlayArea));
 
 		FSM->PopState();
 	}
@@ -1174,9 +1202,21 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 
 void AMordath::OnExitTeleportState()
 {
+	if (CurrentActionData->bExecutionTimeExpired)
+	{
+		StopActionMontage();
+		NextAction();
+
+		return;
+	}
+
+	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 
-	NextAction();
+	CurrentActionData->ExecutionCount++;
+
+	if (CurrentActionData->ExecutionCount >= CurrentActionData->Loops)
+		NextAction();
 }
 #pragma endregion  
 #pragma endregion
