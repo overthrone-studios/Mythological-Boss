@@ -16,7 +16,7 @@ public:
 	UTeleportationComponent();
 
 	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
-		FVector FindLocationToTeleport(const FVector& Origin, float Radius, const FBox& InBox) const;
+		FVector FindLocationToTeleport(const FVector& Origin, float Radius, const class ABoundingBox* InPlayArea) const;
 
 	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
 		FORCEINLINE float GetTeleportTime() const { return TeleportTime; }

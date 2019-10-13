@@ -5,6 +5,8 @@
 #include "DrawDebugHelpers.h"
 #include "Log.h"
 #include "TimerManager.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "BoundingBox.h"
 
 UTeleportationComponent::UTeleportationComponent()
 {
@@ -41,7 +43,7 @@ bool UTeleportationComponent::IsCoolingDown()
 	return TimerManager->IsTimerActive(TH_Cooldown);
 }
 
-FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, const float Radius, const FBox& InBox) const
+FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, const float Radius, const ABoundingBox* InPlayArea) const
 {
 	const float T = FMath::RandRange(0.0f, 2 * PI);
 
@@ -52,16 +54,26 @@ FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, c
 		Owner->GetActorLocation().Z
 	};
 
-	// If the calculated location is outside the box
-	if (!InBox.IsInside(NewLocation))
+	if (bShowTeleportedLocation)
 	{
-		NewLocation = FMath::RandPointInBox(InBox);
+		// New teleported location
+		DrawDebugLine(GetWorld(), NewLocation, NewLocation * FVector(1.0f, 1.0f, 3000.0f), FColor::Red, true, 5.0f, 0, 2.0f);
+
+		// The origin location
+		DrawDebugLine(GetWorld(), Origin, Origin * FVector(1.0f, 1.0f, 3000.0f), FColor::Green, true, 5.0f, 0, 2.0f);
+
+		// The generated location visualized as a wire sphere
+		DrawDebugSphere(GetWorld(), NewLocation, 20.0f, 20, FColor::Green, false, 2.0f, 0.0f, 3.0f);
+	}
+
+	// If the calculated location is outside the box
+	if (!UKismetMathLibrary::IsPointInBox(NewLocation, InPlayArea->GetActorLocation(), InPlayArea->GetBoundingBox().GetExtent()))
+	{
+		NewLocation = UKismetMathLibrary::RandomPointInBoundingBox(InPlayArea->GetActorLocation(), InPlayArea->GetBoundingBox().GetExtent());
 
 		return FVector(NewLocation.X, NewLocation.Y, Owner->GetActorLocation().Z);
 	}
 
-	if (bShowTeleportedLocation)
-		DrawDebugSphere(GetWorld(), FVector(NewLocation.X, NewLocation.Y, Origin.Z), 20.0f, 20, FColor::Green, false, 2.0f, 0.0f, 3.0f);
 
 	return NewLocation;
 }

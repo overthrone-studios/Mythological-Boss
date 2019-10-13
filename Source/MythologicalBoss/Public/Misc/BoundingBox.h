@@ -15,13 +15,11 @@ public:
 	ABoundingBox();
 
 	UFUNCTION(BlueprintCallable, Category = "Box")
-		FORCEINLINE FBox GetBoundingBox() const { return Box; }
+		FORCEINLINE FBox GetBoundingBox() const;
 
 protected:
 	void BeginPlay() override;
 
 	UPROPERTY(EditInstanceOnly)
 		class UBoxComponent* BoxComponent;
-
-	FBox Box;
 };

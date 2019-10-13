@@ -15,14 +15,16 @@ ABoundingBox::ABoundingBox()
 	RootComponent = BoxComponent;
 }
 
+FBox ABoundingBox::GetBoundingBox() const
+{
+	return FBox(FVector(BoxComponent->GetScaledBoxExtent().GetMin()), FVector(BoxComponent->GetUnscaledBoxExtent().GetMax()));
+}
+
 void ABoundingBox::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Box.Min = -BoxComponent->GetUnscaledBoxExtent();
-	Box.Max = BoxComponent->GetUnscaledBoxExtent();
-
 	const auto GameState = UOverthroneFunctionLibrary::GetGameState(this);
 
-	GameState->PlayArea = Box;
+	GameState->PlayArea = this;
 }

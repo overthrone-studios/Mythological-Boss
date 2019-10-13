@@ -220,7 +220,7 @@ public:
 
 	class UCameraShake* CurrentCameraShake;
 
-	FBox PlayArea{};
+	class ABoundingBox* PlayArea{};
 
 protected:
 	void BeginPlay() override;
