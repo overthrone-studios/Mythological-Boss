@@ -76,6 +76,7 @@ AMordath::AMordath()
 	FSM->AddState(0, "Idle");
 	FSM->AddState(1, "Follow");
 	FSM->AddState(2, "Thinking");
+	FSM->AddState(3, "Locked");
 	//FSM->AddState(3, "Short Attack 1");
 	//FSM->AddState(4, "Short Attack 2");
 	//FSM->AddState(5, "Short Attack 3");
@@ -118,6 +119,10 @@ AMordath::AMordath()
 	FSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterThinkState);
 	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateThinkState);
 	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordath::OnExitThinkState);
+
+	FSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLockedState);
+	FSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLockedState);
+	FSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordath::OnExitLockedState);
 
 	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
@@ -670,6 +675,25 @@ void AMordath::OnExitRecoverState()
 }
 #pragma endregion  
 
+#pragma region Locked
+void AMordath::OnEnterLockedState()
+{
+	StopAnimMontage();
+
+	OverthroneHUD->GetMasterHUD()->HighlightBox(18);
+}
+
+void AMordath::UpdateLockedState(float Uptime, int32 Frames)
+{
+	StopMoving();
+}
+
+void AMordath::OnExitLockedState()
+{
+	OverthroneHUD->GetMasterHUD()->UnhighlightBox(18);
+}
+#pragma endregion  
+
 #pragma region Think
 void AMordath::OnEnterThinkState()
 {
@@ -1214,7 +1238,7 @@ void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction() || IsPerformingAction())
+	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction() || IsPerformingAction() || IsLocked())
 		return;
 
 	if (Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
@@ -1239,6 +1263,12 @@ void AMordath::OnEnterSuperCloseRange()
 
 void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
+	if (DistanceToPlayer > CurrentStageData->GetSuperCloseRangeRadius())
+		RangeFSM->PopState();
+
+	if (IsLocked())
+		return;
+
 	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && 
 		(!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction() && !IsPerformingFarAction()))
 	{
@@ -1254,9 +1284,6 @@ void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 			FSM->PushState("Close Action");
 		}
 	}
-
-	if (DistanceToPlayer > CurrentStageData->GetSuperCloseRangeRadius())
-		RangeFSM->PopState();
 }
 
 void AMordath::OnExitSuperCloseRange()
@@ -1286,6 +1313,9 @@ void AMordath::UpdateFirstStage(float Uptime, int32 Frames)
 		GameState->BossData.OnEnterSecondStage.Broadcast();
 		return;
 	}
+
+	if (IsLocked())
+		return;
 
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
 	{
@@ -1348,6 +1378,9 @@ void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 	}
 #endif
 
+	if (IsLocked())
+		return;
+
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
 	{
 		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
@@ -1399,6 +1432,9 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 		return;
 	}
 #endif
+
+	if (IsLocked())
+		return;
 
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
 	{
@@ -1644,6 +1680,16 @@ void AMordath::EndTakeDamage()
 void AMordath::OnExecutionTimeExpired()
 {
 	CurrentActionData->bExecutionTimeExpired = true;
+}
+
+void AMordath::ToggleLockSelf()
+{
+	bIsLocked = !bIsLocked;
+
+	if (bIsLocked)
+		FSM->PushState("Locked");
+	else
+		FSM->PopState("Locked");
 }
 
 void AMordath::ChooseCombo()
@@ -2027,7 +2073,7 @@ bool AMordath::CanAttack() const
 			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
-			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction();
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked();
 }
 
 void AMordath::ResetActionDamage()
@@ -2232,6 +2278,11 @@ bool AMordath::IsDoingBackHand() const
 bool AMordath::IsTeleporting() const
 {
 	return FSM->GetActiveStateID() == 18;
+}
+
+bool AMordath::IsLocked() const
+{
+	return FSM->GetActiveStateID() == 3;
 }
 
 bool AMordath::IsExecutionTimeExpired() const

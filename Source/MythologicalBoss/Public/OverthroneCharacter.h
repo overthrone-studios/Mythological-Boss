@@ -82,6 +82,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		virtual bool HasMovedLeftBy(float Distance);
 
+	// Enable/Disable character from doing any actions
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual bool IsLocked() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void VibrateController(class UForceFeedbackEffect* ForceFeedbackToPlay = nullptr, bool bLooping = false, bool bIgnoreTimeDilation = true);
 
@@ -109,6 +113,10 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void EndTakeDamage();
+
+	// Enable/Disable character from doing any actions
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void ToggleLockSelf();
 
 	// Called when we are dead
 	UFUNCTION(BlueprintImplementableEvent)
@@ -194,6 +202,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		uint8 bIsDead : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		uint8 bIsLocked : 1;
 
 	// Cached world pointer
 	UWorld* World{};

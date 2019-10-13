@@ -67,6 +67,9 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 
 	HealthLossTimeline.TickTimeline(DeltaSeconds);
 
+	if (IsLocked())
+		return;
+
 	if (IsMovingInAnyDirection() && !IsAttacking())
 		CurrentMovementSpeed = GetMovementSpeed();
 	else
@@ -149,7 +152,6 @@ void AOverthroneCharacter::DisableInvincibility()
 
 void AOverthroneCharacter::OnAttackLanded()
 {
-	//check(0 && "You must implement OnAttackLanded()");
 }
 
 void AOverthroneCharacter::ChangeHitboxSize(float NewRadius)
@@ -275,6 +277,16 @@ bool AOverthroneCharacter::HasMovedLeftBy(float Distance)
 {
 	check(0 && "You must implement HasMovedLeftBy()");
 	return false;
+}
+
+void AOverthroneCharacter::ToggleLockSelf()
+{
+	check(0 && "You must implement ToggleLockSelf()");
+}
+
+bool AOverthroneCharacter::IsLocked() const
+{
+	return bIsLocked;
 }
 
 void AOverthroneCharacter::VibrateController(UForceFeedbackEffect* ForceFeedbackToPlay, const bool bLooping, const bool bIgnoreTimeDilation)

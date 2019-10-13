@@ -437,6 +437,8 @@ public:
 
 	void OnAttackLanded() override;
 
+	bool IsLocked() const override;
+
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
@@ -492,6 +494,8 @@ protected:
 	void BroadcastLowStamina();
 
 	void Die() override;
+
+	void ToggleLockSelf() override;
 
 	float CalculateDirection() const;
 
@@ -611,6 +615,9 @@ protected:
 
 	// Buff overall player stats
 	void Debug_ToggleBuff();
+
+	// Enable/Disable the boss's locked state
+	void Debug_ToggleLockBoss();
 
 	// Toggle animation blend out on low stamina
 	void Debug_ToggleLowStaminaAnimBlendOut();
@@ -878,6 +885,15 @@ protected:
 			void UpdateParryState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitParryState();
+		#pragma endregion 
+
+		#pragma region Locked
+		UFUNCTION()
+			void OnEnterLockedState();
+		UFUNCTION()
+			void UpdateLockedState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitLockedState();
 		#pragma endregion 
 	#pragma endregion
 

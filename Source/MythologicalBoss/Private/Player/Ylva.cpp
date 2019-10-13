@@ -87,6 +87,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
 	FSM->AddState(22, "Parry");
+	FSM->AddState(23, "Locked");
 
 	FSM->OnEnterAnyState.AddDynamic(this, &AYlva::OnEnterAnyState);
 	FSM->OnUpdateAnyState.AddDynamic(this, &AYlva::UpdateAnyState);
@@ -144,6 +145,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetStateFromID(22)->OnEnterState.AddDynamic(this, &AYlva::OnEnterParryState);
 	FSM->GetStateFromID(22)->OnUpdateState.AddDynamic(this, &AYlva::UpdateParryState);
 	FSM->GetStateFromID(22)->OnExitState.AddDynamic(this, &AYlva::OnExitParryState);
+
+	FSM->GetStateFromID(23)->OnEnterState.AddDynamic(this, &AYlva::OnEnterLockedState);
+	FSM->GetStateFromID(23)->OnUpdateState.AddDynamic(this, &AYlva::UpdateLockedState);
+	FSM->GetStateFromID(23)->OnExitState.AddDynamic(this, &AYlva::OnExitLockedState);
 
 	FSM->InitFSM(0);
 
@@ -297,6 +302,11 @@ void AYlva::Tick(const float DeltaTime)
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
 
+	#if !UE_BUILD_SHIPPING
+	if (IsLocked())
+		return;
+	#endif
+
 	ControlRotation = GetControlRotation();
 	DistanceToBoss = GetDistanceToBoss();
 	DirectionToBoss = GetDirectionToBoss();
@@ -448,6 +458,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::M, IE_Pressed, this, &AYlva::Debug_BossStage3);
 	PlayerInputComponent->BindKey(EKeys::J, IE_Pressed, this, &AYlva::SpawnGhost);
 	PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AYlva::Debug_ToggleLowStaminaAnimBlendOut);
+	PlayerInputComponent->BindKey(EKeys::I, IE_Pressed, this, &AYlva::Debug_ToggleLockBoss);
+	PlayerInputComponent->BindKey(EKeys::O, IE_Pressed, this, &AYlva::ToggleLockSelf);
 #endif
 }
 
@@ -455,7 +467,7 @@ void AYlva::MoveForward(const float Value)
 {
 	ForwardInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored())
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked())
 		return;
 
 	if (!IsAttacking())
@@ -485,7 +497,7 @@ void AYlva::MoveRight(const float Value)
 {
 	RightInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored())
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked())
 		return;
 
 	if (!IsAttacking())
@@ -590,6 +602,19 @@ void AYlva::Die()
 
 	FSM->RemoveAllStatesFromStack();
 	FSM->PushState("Death");
+}
+
+void AYlva::ToggleLockSelf()
+{
+	bIsLocked = !bIsLocked;
+
+	if (bIsLocked)
+	{
+		FSM->PopState();
+		FSM->PushState("Locked");
+	}
+	else
+		FSM->PopState("Locked");
 }
 
 void AYlva::Respawn()
@@ -712,7 +737,7 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsLocked())
 		return;
 
 	if (CanDashAttack())
@@ -791,7 +816,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsLocked())
 		return;
 
 	if (CanDashAttack())
@@ -901,6 +926,11 @@ void AYlva::ClearAttackQueue()
 
 void AYlva::StartChargeAttack()
 {
+	#if !UE_BUILD_SHIPPING
+	if (IsLocked())
+		return;
+	#endif
+
 	bChargeKeyPressed = true;
 }
 
@@ -927,7 +957,7 @@ void AYlva::FinishChargeAttack()
 
 void AYlva::Block()
 {
-	if (bIsDead || IsChargeAttacking() || IsDashing() || IsDamaged() || IsParrying() || IsDashAttacking())
+	if (bIsDead || IsChargeAttacking() || IsDashing() || IsDamaged() || IsParrying() || IsDashAttacking() || IsLocked())
 		return;
 
 	FSM->PopState();
@@ -956,7 +986,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 		return;
 	}
 
-	if (bGodMode || IsParrying())
+	if (bGodMode || IsParrying() || IsLocked())
 		return;
 
 	// Test against states
@@ -1058,7 +1088,7 @@ void AYlva::EndTakeDamage()
 #pragma region Movement
 void AYlva::Run()
 {
-	if (bIsDead || IsChargeAttacking() || IsDashAttacking())
+	if (bIsDead || IsChargeAttacking() || IsDashAttacking() || IsLocked())
 		return;
 
 	bCanRun = !bCanRun;
@@ -1092,6 +1122,11 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
+	#if !UE_BUILD_SHIPPING
+	if (IsLocked())
+		return;
+	#endif
+
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
 
@@ -1286,6 +1321,11 @@ void AYlva::Debug_ToggleBuff()
 		Combat.AttackSettings.HeavyAttackDamage /= 2;
 		Combat.AttackSettings.AttackRadius /= 2;
 	}
+}
+
+void AYlva::Debug_ToggleLockBoss()
+{
+	GameState->LockBoss();
 }
 
 void AYlva::Debug_ToggleLowStaminaAnimBlendOut()
@@ -2254,6 +2294,26 @@ void AYlva::OnExitParryState()
 	ResetGlobalTimeDilation();
 }
 #pragma endregion 
+
+#pragma region Locked
+void AYlva::OnEnterLockedState()
+{
+	OverthroneHUD->GetMasterHUD()->HighlightBox(17);
+
+	StopMovement();
+}
+
+void AYlva::UpdateLockedState(float Uptime, int32 Frames)
+{
+}
+
+void AYlva::OnExitLockedState()
+{
+	OverthroneHUD->GetMasterHUD()->UnhighlightBox(17);
+
+	ResumeMovement();
+}
+#pragma endregion 
 #pragma endregion 
 
 void AYlva::ApplyHitStop()
@@ -2271,11 +2331,14 @@ void AYlva::StopMovement()
 	ForwardInput = 0.0f;
 	RightInput = 0.0f;
 
+	AnimInstance->ForwardInput = 0.0f;
+	AnimInstance->RightInput = 0.0f;
+	AnimInstance->MovementSpeed = 0.0f;
+
 	MovementComponent->DisableMovement();
 	PlayerController->SetIgnoreMoveInput(true);
 
 	AnimInstance->LeaveAllStates();
-	FSM->RemoveAllStatesFromStack();
 }
 
 void AYlva::ResumeMovement()
@@ -2401,6 +2464,11 @@ bool AYlva::CanDashAttack() const
 bool AYlva::IsPerfectDashing() const
 {
 	return bPerfectlyTimedDash;
+}
+
+bool AYlva::IsLocked() const
+{
+	return FSM->GetActiveStateID() == 23;
 }
 
 class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const

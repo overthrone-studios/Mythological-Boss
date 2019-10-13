@@ -205,6 +205,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation = FRotator::ZeroRotator);
 
+	bool IsLocked() const override;
+
+	void ToggleLockSelf() override;
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
@@ -525,6 +529,15 @@ protected:
 			void UpdateRecoverState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitRecoverState();
+	#pragma endregion 
+
+	#pragma region Locked
+		UFUNCTION()
+			void OnEnterLockedState();
+		UFUNCTION()
+			void UpdateLockedState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitLockedState();
 	#pragma endregion 
 	#pragma endregion
 

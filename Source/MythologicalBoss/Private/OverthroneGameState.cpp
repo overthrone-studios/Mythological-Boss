@@ -26,6 +26,11 @@ void AOverthroneGameState::EnterBossStage(const EBossStage_Mordath InBossStage)
 	}
 }
 
+void AOverthroneGameState::LockBoss()
+{
+	Boss->ToggleLockSelf();
+}
+
 void AOverthroneGameState::RestartGame()
 {
 	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);

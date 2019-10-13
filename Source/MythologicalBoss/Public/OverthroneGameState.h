@@ -140,6 +140,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
 		void EnterBossStage(EBossStage_Mordath InBossStage);
 
+	// Lock the boss
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
+		void LockBoss();
+
 	// Restarts the current boss battle game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
 		void RestartGame();
