@@ -54,6 +54,12 @@ FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, c
 		Owner->GetActorLocation().Z
 	};
 
+	// If the calculated location is outside the box
+	if (!UKismetMathLibrary::IsPointInBox(NewLocation, InPlayArea->GetActorLocation(), InPlayArea->GetBoundingBox().GetExtent()))
+	{
+		NewLocation = UKismetMathLibrary::RandomPointInBoundingBox(InPlayArea->GetActorLocation(), InPlayArea->GetBoundingBox().GetExtent());
+	}
+
 	if (bShowTeleportedLocation)
 	{
 		// New teleported location
@@ -66,14 +72,5 @@ FVector UTeleportationComponent::FindLocationToTeleport(const FVector& Origin, c
 		DrawDebugSphere(GetWorld(), NewLocation, 20.0f, 20, FColor::Green, false, 2.0f, 0.0f, 3.0f);
 	}
 
-	// If the calculated location is outside the box
-	if (!UKismetMathLibrary::IsPointInBox(NewLocation, InPlayArea->GetActorLocation(), InPlayArea->GetBoundingBox().GetExtent()))
-	{
-		NewLocation = UKismetMathLibrary::RandomPointInBoundingBox(InPlayArea->GetActorLocation(), InPlayArea->GetBoundingBox().GetExtent());
-
-		return FVector(NewLocation.X, NewLocation.Y, Owner->GetActorLocation().Z);
-	}
-
-
-	return NewLocation;
+	return FVector(NewLocation.X, NewLocation.Y, Owner->GetActorLocation().Z);
 }

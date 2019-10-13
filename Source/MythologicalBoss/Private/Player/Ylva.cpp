@@ -259,7 +259,6 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.Charge = ChargeAttackComponent->GetCurrentCharge();
 	GameState->PlayerData.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
 
-	GameState->PlayerData.TeleportRadius = TeleportRadius;
 	GameState->Player = this;
 
 	// Bind events to our functions
@@ -363,9 +362,6 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
-	if (Debug.bShowTeleportRadius)
-		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation, TeleportRadius, 32, FColor::Red, 0.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
-
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
