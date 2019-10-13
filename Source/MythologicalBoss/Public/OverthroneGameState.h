@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackParryedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackBlockedSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFirstStageSignature);
@@ -47,6 +48,7 @@ struct FCharacterData
 
 	FOnDeathSignature OnDeath;
 	FOnLowHealthSignature OnLowHealth;
+	FOnExitLowHealthSignature OnExitLowHealth;
 
 	uint8 bIsDead : 1;
 	uint8 bHasTakenDamage : 1;

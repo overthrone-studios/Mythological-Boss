@@ -163,6 +163,10 @@ protected:
 	UFUNCTION()
 		virtual void OnLowHealth();
 
+	// Called when the character has regained health after being in low health state
+	UFUNCTION()
+		virtual void OnExitLowHealth();
+
 	// Prep work before playing the timeline to lose health
 	UFUNCTION()
 		virtual void StartLosingHealth();
@@ -178,6 +182,10 @@ protected:
 	// Send out a signal to the functions that have binded to the OnLowHealth event
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void BroadcastLowHealth();
+
+	// Send out a signal to the functions that have binded to the OnExitLowHealth event
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void BroadcastExitLowHealth();
 
 	// The character's finite state machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")

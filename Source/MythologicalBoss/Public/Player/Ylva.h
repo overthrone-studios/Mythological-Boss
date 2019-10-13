@@ -491,6 +491,7 @@ protected:
 	void UpdateCharacterInfo() override;
 
 	void BroadcastLowHealth() override;
+	void BroadcastExitLowHealth() override;
 	void BroadcastLowStamina();
 
 	void Die() override;
@@ -510,6 +511,12 @@ protected:
 
 	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		FVector GetDirectionToBoss() const;
+	
+	UFUNCTION()
+		void DesaturateScreen();
+
+	UFUNCTION()
+		void SaturateScreen();
 
 	#pragma region Combat
 	// Called via input to enter the light attacking state
@@ -723,6 +730,9 @@ protected:
 	#pragma region Events
 	// Called when our health is below the given threshold
 	void OnLowHealth() override;
+
+	// Called when exiting the low health state
+	void OnExitLowHealth() override;
 
 	// Called when the boss's health is less than or equal to zero
 	UFUNCTION(BlueprintImplementableEvent)

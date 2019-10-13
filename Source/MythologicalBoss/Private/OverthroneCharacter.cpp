@@ -163,6 +163,10 @@ void AOverthroneCharacter::OnLowHealth()
 {
 }
 
+void AOverthroneCharacter::OnExitLowHealth()
+{
+}
+
 void AOverthroneCharacter::StartLosingHealth()
 {
 	HealthLossTimeline.PlayFromStart();
@@ -192,6 +196,9 @@ void AOverthroneCharacter::SetHealth(const float NewHealthAmount)
 
 	UpdateCharacterInfo();
 
+	if (!HealthComponent->IsLowHealth() && bWasLowHealthEventTriggered)
+		BroadcastExitLowHealth();
+
 	// Are we on low health?
 	if (HealthComponent->IsLowHealth() && !bWasLowHealthEventTriggered)
 		BroadcastLowHealth();
@@ -202,6 +209,9 @@ void AOverthroneCharacter::IncreaseHealth(const float Amount)
 	HealthComponent->IncreaseHealth(Amount);
 
 	UpdateCharacterInfo();
+
+	if (!HealthComponent->IsLowHealth() && bWasLowHealthEventTriggered)
+		BroadcastExitLowHealth();
 }
 
 void AOverthroneCharacter::DecreaseHealth(const float Amount)
@@ -220,6 +230,9 @@ void AOverthroneCharacter::ResetHealth()
 	HealthComponent->ResetHealth();
 
 	UpdateCharacterInfo();
+
+	if (!HealthComponent->IsLowHealth() && bWasLowHealthEventTriggered)
+		BroadcastExitLowHealth();
 }
 
 void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
@@ -250,6 +263,11 @@ void AOverthroneCharacter::Die()
 void AOverthroneCharacter::BroadcastLowHealth()
 {
 	check(0 && "You must implement BroadcastLowHealth()");
+}
+
+void AOverthroneCharacter::BroadcastExitLowHealth()
+{
+	bWasLowHealthEventTriggered = false;
 }
 
 void AOverthroneCharacter::PauseAnims() const

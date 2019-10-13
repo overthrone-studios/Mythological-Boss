@@ -264,6 +264,7 @@ void AYlva::BeginPlay()
 
 	// Bind events to our functions
 	GameState->PlayerData.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
+	GameState->PlayerData.OnExitLowHealth.AddDynamic(this, &AYlva::OnExitLowHealth);
 	GameState->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
 
@@ -698,6 +699,13 @@ void AYlva::BroadcastLowHealth()
 	bWasLowHealthEventTriggered = true;
 }
 
+void AYlva::BroadcastExitLowHealth()
+{
+	Super::BroadcastExitLowHealth();
+
+	GameState->PlayerData.OnExitLowHealth.Broadcast();
+}
+
 void AYlva::BroadcastLowStamina()
 {
 	GameState->PlayerData.OnLowStamina.Broadcast();
@@ -765,7 +773,7 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 
 void AYlva::OnAttackLanded()
 {
-	if (GameState->PlayerData.CurrentAttackType == ATP_Special && !bIsDead && HealthComponent->GetCurrentHealth() <= 0.0f)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Special && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
 	{
 		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
 	}
@@ -779,6 +787,18 @@ float AYlva::GetDistanceToBoss() const
 FVector AYlva::GetDirectionToBoss() const
 {
 	return (GameState->BossData.Location - CurrentLocation).GetSafeNormal(0.01f);
+}
+
+void AYlva::DesaturateScreen()
+{
+	FollowCamera->PostProcessSettings.bOverride_ColorSaturation = true;
+	FollowCamera->PostProcessSettings.ColorSaturation = FVector4(FVector(0.45f), 1.0f);
+}
+
+void AYlva::SaturateScreen()
+{
+	FollowCamera->PostProcessSettings.ColorSaturation = FVector4(1.0f);
+	FollowCamera->PostProcessSettings.bOverride_ColorSaturation = false;
 }
 
 #pragma region Combat
@@ -1306,16 +1326,12 @@ void AYlva::Debug_ResetFeats()
 
 void AYlva::Debug_MaxHealth()
 {
-	HealthComponent->ResetHealth();
-
-	UpdateCharacterInfo();
+	ResetHealth();
 }
 
 void AYlva::Debug_RefillStamina()
 {
-	StaminaComponent->ResetStamina();
-
-	UpdateCharacterInfo();
+	ResetStamina();
 }
 
 void AYlva::Debug_MaxCharge()
@@ -1629,6 +1645,15 @@ void AYlva::ToggleGodMode()
 void AYlva::OnLowHealth()
 {
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
+
+	DesaturateScreen();
+}
+
+void AYlva::OnExitLowHealth()
+{
+	ChangeHitboxSize(OriginalAttackRadius);
+
+	SaturateScreen();
 }
 
 void AYlva::OnBossDeath_Implementation()
@@ -2004,7 +2029,7 @@ void AYlva::OnExitChargeAttackState()
 		ResetCharge();
 	}
 
-	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.5f);
+	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.7f);
 }
 #pragma endregion 
 
