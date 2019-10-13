@@ -248,8 +248,10 @@ void UAttackComboComponent::ResetCombo()
 
 	OnComboReset.Broadcast();
 
+#if !UE_BUILD_SHIPPING
 	if (bLogTreeStatus)
 		ULog::Success("Combo reset!", true);
+#endif
 }
 
 void UAttackComboComponent::ClearCurrentAttack()
@@ -293,11 +295,13 @@ void UAttackComboComponent::StoreAllMontageBlendTimes()
 
 	OriginalBlendOutTimes.Init({}, AttackDataArray.Num());
 	OriginalBlendOutTriggerTimes.Init({}, AttackDataArray.Num());
+	OriginalBlendOutBlendOptions.Init({}, AttackDataArray.Num());
 
 	for (int32 i = 0; i < AttackDataArray.Num(); ++i)
 	{
 		OriginalBlendOutTimes[i].Init({}, AttackDataArray[i].Num());
 		OriginalBlendOutTriggerTimes[i].Init({}, AttackDataArray[i].Num());
+		OriginalBlendOutBlendOptions[i].Init({}, AttackDataArray[i].Num());
 	}
 
 	for (int32 i = 0; i < AttackDataArray.Num(); ++i)
@@ -306,11 +310,22 @@ void UAttackComboComponent::StoreAllMontageBlendTimes()
 		{
 			OriginalBlendOutTimes[i][j] = AttackDataArray[i][j].AttackMontage->BlendOut.GetBlendTime();
 			OriginalBlendOutTriggerTimes[i][j] = AttackDataArray[i][j].AttackMontage->BlendOutTriggerTime;
+			OriginalBlendOutBlendOptions[i][j] = AttackDataArray[i][j].AttackMontage->BlendOut.GetBlendOption();
 		}
 	}
 }
 
-void UAttackComboComponent::ResetAllMontageBlendTimes()
+void UAttackComboComponent::ApplyBlendOutSettings()
+{
+	if (CurrentAttackData->bEnableBlendOutOnLowStamina)
+	{
+		CurrentAttackData->AttackMontage->BlendOut.SetBlendTime(CurrentAttackData->BlendOutTimeOnLowStamina);
+		CurrentAttackData->AttackMontage->BlendOutTriggerTime = CurrentAttackData->BlendOutTriggerTimeOnLowStamina;
+		CurrentAttackData->AttackMontage->BlendOut.SetBlendOption(CurrentAttackData->BlendOption);
+	}
+}
+
+void UAttackComboComponent::ResetAllBlendOutSettings()
 {
 	TArray<TArray<FPlayerAttack_Data>> AttackDataArray;
 	AttackDataArray.Add(LightAttacks.List);
@@ -323,6 +338,7 @@ void UAttackComboComponent::ResetAllMontageBlendTimes()
 		{
 			AttackDataArray[i][j].AttackMontage->BlendOut.SetBlendTime(OriginalBlendOutTimes[i][j]);
 			AttackDataArray[i][j].AttackMontage->BlendOutTriggerTime = OriginalBlendOutTriggerTimes[i][j];
+			AttackDataArray[i][j].AttackMontage->BlendOut.SetBlendOption(OriginalBlendOutBlendOptions[i][j]);
 		}
 	}
 }

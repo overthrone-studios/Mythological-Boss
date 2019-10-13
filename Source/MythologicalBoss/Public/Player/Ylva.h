@@ -959,15 +959,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
 		class UCurveFloat* StaminaRegenCurve;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f))
-		uint8 bEnableBlendOutOnLowStamina : 1;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
-		float BlendOutTimeOnLowStamina = 1.0f;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina", meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
-		float BlendOutTriggerTimeOnLowStamina = 0.2f;
-
 	// The float curve to use when building charge
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Charge Attack")
 		class UCurveFloat* ChargeAttackCurve;

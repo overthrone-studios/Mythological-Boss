@@ -18,10 +18,6 @@ struct FPlayerMontageSection_Data
 	// The rate/speed of the animation (0.0 = No rate, 1.0 = Normal, 2.0+ = Fast)
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = 0.0f))
 		float PlayRate = 1.0f;
-
-	// The type of blending to use
-	UPROPERTY(EditInstanceOnly)
-		EAlphaBlendOption BlendOption;
 };
 
 USTRUCT(BlueprintType)
@@ -40,6 +36,19 @@ struct FPlayerAttack_Data
 
 	UPROPERTY(EditInstanceOnly)
 		FPlayerMontageSection_Data Recovery;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		uint8 bEnableBlendOutOnLowStamina : 1;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
+		float BlendOutTimeOnLowStamina = 1.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
+		float BlendOutTriggerTimeOnLowStamina = 0.2f;
+
+	// The type of blending to use
+	UPROPERTY(EditInstanceOnly)
+		EAlphaBlendOption BlendOption;
 };
 
 USTRUCT(BlueprintType)
@@ -88,9 +97,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
 		void ResetCombo();
 
-	// Resets every montages blend out time to their original value
+	// Applys the current montage blend out time to the blend out time specified in the editor
 	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
-		void ResetAllMontageBlendTimes();
+		void ApplyBlendOutSettings();
+
+	// Resets every montages blend out settings to their original value
+	UFUNCTION(BlueprintCallable, Category = "Attack Combo")
+		void ResetAllBlendOutSettings();
 
 	// Returns the current light attack anim montage
 	UFUNCTION(BlueprintPure, Category = "Attack Combo")
@@ -235,6 +248,7 @@ private:
 
 	TArray<TArray<float>> OriginalBlendOutTimes;
 	TArray<TArray<float>> OriginalBlendOutTriggerTimes;
+	TArray<TArray<EAlphaBlendOption>> OriginalBlendOutBlendOptions;
 
 	int8 LightAttackIndex = 0;
 	int8 HeavyAttackIndex = 0;

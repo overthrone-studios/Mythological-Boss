@@ -820,7 +820,7 @@ void AYlva::LightAttack()
 		return;
 	}
 
-	if (StaminaComponent->HasEnoughForLightAttack() && // Do we have enough stamina for light attack?
+	if (/*StaminaComponent->HasEnoughForLightAttack() &&*/ // Do we have enough stamina for light attack?
 		AttackComboComponent->CanAttack() &&
 		!AttackComboComponent->IsAtTreeEnd() && // Are we not at the combo tree's end?
 		!IsDashing() && 
@@ -851,14 +851,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 		UpdateStamina(StaminaComponent->GetLightAttackValue());
 	}
 
-	//if ((IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
-	//{
-	//	AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
-	//	AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
-	//}
-
 	FSM->PushState("Attack");
-	//AnimInstance->Montage_Play(AttackMontage);
 }
 
 void AYlva::HeavyAttack()
@@ -899,7 +892,7 @@ void AYlva::HeavyAttack()
 		return;
 	}
 
-	if (StaminaComponent->HasEnoughForHeavyAttack() && // Do we have enough stamina for heavy attack?
+	if (/*StaminaComponent->HasEnoughForHeavyAttack() &&*/ // Do we have enough stamina for heavy attack?
 		AttackComboComponent->CanAttack() && 
 		!AttackComboComponent->IsAtTreeEnd() && // Are we not at the combo tree's end?
 		!IsDashing() && 
@@ -930,13 +923,6 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 		UpdateStamina(StaminaComponent->GetHeavyAttackValue());
 	}
 
-	if ((StaminaComponent->IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
-	{
-		AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
-		AttackMontage->BlendOutTriggerTime = AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
-	}
-
-	//AnimInstance->Montage_Play(AttackMontage);
 	FSM->PushState("Attack");
 }
 
@@ -1368,12 +1354,12 @@ void AYlva::Debug_ToggleLockBoss()
 
 void AYlva::Debug_ToggleLowStaminaAnimBlendOut()
 {
-	bEnableBlendOutOnLowStamina = !bEnableBlendOutOnLowStamina;
-
-	if (bEnableBlendOutOnLowStamina)
-		OverthroneHUD->GetMasterHUD()->HighlightBox(16);
-	else
-		OverthroneHUD->GetMasterHUD()->UnhighlightBox(16);
+	//bEnableBlendOutOnLowStamina = !bEnableBlendOutOnLowStamina;
+	//
+	//if (bEnableBlendOutOnLowStamina)
+	//	OverthroneHUD->GetMasterHUD()->HighlightBox(16);
+	//else
+	//	OverthroneHUD->GetMasterHUD()->UnhighlightBox(16);
 }
 
 void AYlva::Debug_BossStage1()
@@ -1682,7 +1668,7 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 	}
 
 	if (!IsLowStamina())
-		AttackComboComponent->ResetAllMontageBlendTimes();
+		AttackComboComponent->ResetAllBlendOutSettings();
 }
 
 void AYlva::OnChargeMeterFull()
@@ -1908,7 +1894,7 @@ void AYlva::OnEnterDeathState()
 
 	//TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
 
-	AttackComboComponent->ResetAllMontageBlendTimes();
+	AttackComboComponent->ResetAllBlendOutSettings();
 
 	// Stop all vibrations
 	for (const auto& Effect : PlayerController->ActiveForceFeedbackEffects)
@@ -2049,21 +2035,24 @@ void AYlva::OnExitShockedState()
 #pragma region Attack
 void AYlva::OnEnterAttackState()
 {
-	AnimInstance->Montage_Play(CurrentAttack_Data->AttackMontage);
-
-	if ((IsLowStamina() || StaminaComponent->IsStaminaEmpty()) && bEnableBlendOutOnLowStamina)
+	if (StaminaComponent->IsStaminaEmpty())
 	{
-		CurrentAttack_Data->AttackMontage->BlendOut.SetBlendTime(BlendOutTimeOnLowStamina);
-		CurrentAttack_Data->AttackMontage->BlendOutTriggerTime = CurrentAttack_Data->AttackMontage->SequenceLength - BlendOutTriggerTimeOnLowStamina;
+		AttackComboComponent->ApplyBlendOutSettings();
 	}
+	else
+	{
+		AttackComboComponent->ResetAllBlendOutSettings();
+	}
+
+	AnimInstance->Montage_Play(CurrentAttack_Data->AttackMontage);
 }
 
 void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 {
-	if (!IsLowStamina())
-	{
-		const FName& CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttack_Data->AttackMontage);
+	const FName& CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttack_Data->AttackMontage);
 
+	if (!StaminaComponent->IsStaminaEmpty())
+	{
 		if (CurrentMontageSection == "Anticipation")
 		{
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Anticipation.PlayRate);
@@ -2077,6 +2066,14 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
 		}
 	}
+	else
+	{
+		if (Uptime > CurrentAttack_Data->BlendOutTriggerTimeOnLowStamina)
+		{
+			FSM->PopState();
+			return;
+		}
+	}
 
 	if (!AnimInstance->Montage_IsPlaying(CurrentAttack_Data->AttackMontage))
 		FSM->PopState();
@@ -2085,10 +2082,7 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 void AYlva::OnExitAttackState()
 {
 	// Ensure the attack montage has stopped playing
-	StopAnimMontage(CurrentAttack_Data->AttackMontage);
-
-	if (!IsLowStamina())
-		AttackComboComponent->ResetAllMontageBlendTimes();
+	StopAnimMontage();
 }
 #pragma endregion 
 
