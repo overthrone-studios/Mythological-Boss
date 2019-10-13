@@ -1660,16 +1660,21 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 
 	if (GameState->PlayerData.CurrentAttackType == ATP_Special || GameState->PlayerData.CurrentAttackType == ATP_Dash)
 	{
+		#if !UE_BUILD_SHIPPING
+		if (IsLocked())
+			return;
+		#endif
+
 		FSM->PopState();
 		FSM->PushState("Stunned");
 	}
-
-	// Handled in blueprints
-	OnAfterTakeDamage();
 }
 
 void AMordath::EndTakeDamage()
 {
+	// Handled in blueprints
+	OnAfterTakeDamage();
+
 	// Are we dead?
 	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
 	{
