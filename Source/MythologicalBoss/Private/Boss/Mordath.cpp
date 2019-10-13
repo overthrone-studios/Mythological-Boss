@@ -288,9 +288,7 @@ void AMordath::BeginPlay()
 	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
 	GameState->Boss = this;
-	SendInfo();
-
-	TimerManager->SetTimer(TH_UpdateInfo, this, &AMordath::SendInfo, 0.05f, true);
+	UpdateCharacterInfo();
 
 	// Begin the state machines
 	FSM->Start();
@@ -2037,12 +2035,6 @@ void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* Actio
 			SnapToPlayerLocation(ActionData->Recovery);
 		}
 	}
-}
-
-void AMordath::SendInfo()
-{
-	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
-	GameState->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
 }
 
 bool AMordath::IsStunned() const

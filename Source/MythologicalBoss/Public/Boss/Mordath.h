@@ -230,8 +230,6 @@ protected:
 	void BroadcastLowHealth() override;
 	void OnLowHealth() override;
 
-	void SendInfo();
-
 	void FinishStun();
 
 	void BeginTakeDamage(float DamageAmount) override;
@@ -714,7 +712,5 @@ private:
 	class UMordathStageData* CurrentStageData;
 
 	// Timer handles
-	FTimerHandle TH_UpdateInfo;
-
 	FTimerHandle TH_ComboDelay;
 };
