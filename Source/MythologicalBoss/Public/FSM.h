@@ -62,6 +62,12 @@ public:
 		FOnUpdateAnyStateSignature OnUpdateAnyState;
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void EnableTick();
+	
+	UFUNCTION(BlueprintCallable, Category = "FSM")
+		void DisableTick();
+
+	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void Start();
 
 	UFUNCTION(BlueprintCallable, Category = "FSM")

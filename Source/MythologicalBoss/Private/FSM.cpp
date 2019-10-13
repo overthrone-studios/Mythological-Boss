@@ -39,6 +39,16 @@ void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActo
 	}
 }
 
+void UFSM::EnableTick()
+{
+	SetComponentTickEnabled(true);
+}
+
+void UFSM::DisableTick()
+{
+	SetComponentTickEnabled(false);
+}
+
 void UFSM::Start()
 {
 	#if !UE_BUILD_SHIPPING
