@@ -41,6 +41,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetInputLibrary.h"
 
 #include "DamageTypes/DmgType_Lightning.h"
 
@@ -394,7 +395,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	
 	// Crash if we don't have a valid Input component
 	check(PlayerInputComponent);
-
+	
 	// Set up game-play key bindings
 	PlayerInputComponent->BindAxis("MoveForward", this, &AYlva::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AYlva::MoveRight);
@@ -407,21 +408,31 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AYlva::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("LockOn", IE_Pressed, this, &AYlva::ToggleLockOn);
+	TArray<FName> ActionNames;
+	ActionNames.Add("LockOn");
+	ActionNames.Add("Block");
+	ActionNames.Add("Light Attack");
+	ActionNames.Add("Heavy Attack");
+	ActionNames.Add("Run");
+	ActionNames.Add("Dash");
+	ActionNames.Add("Charge Attack");
 
-	PlayerInputComponent->BindAction("Block", IE_Pressed, this, &AYlva::Block);
+	for (int32 i = 0; i < ActionNames.Num(); ++i)
+	{
+		FInputActionBinding ActionBindingOneParam(ActionNames[i], IE_Pressed);
+		FInputActionHandlerSignature OneParamActionHandler;
+		OneParamActionHandler.BindUFunction(this, FName("HandleInput"), ActionNames[i]);
+		
+		ActionBindingOneParam.ActionDelegate = OneParamActionHandler;
+	 
+		PlayerInputComponent->AddActionBinding(ActionBindingOneParam);
+	}
+
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
 
-	PlayerInputComponent->BindAction("Light Attack", IE_Pressed, this, &AYlva::LightAttack);
-	PlayerInputComponent->BindAction("Heavy Attack", IE_Pressed, this, &AYlva::HeavyAttack);
-
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AYlva::Run);
 	PlayerInputComponent->BindAction("Run", IE_Repeat, this, &AYlva::UpdateIsRunHeld);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning);
 
-	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AYlva::Dash);
-
-	PlayerInputComponent->BindAction("Charge Attack", IE_Pressed, this, &AYlva::StartChargeAttack);
 	PlayerInputComponent->BindAction("Charge Attack", IE_Released, this, &AYlva::ReleaseChargeAttack);
 
 	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
@@ -549,6 +560,43 @@ void AYlva::LookUpAtRate(const float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * LookUpRate * World->DeltaTimeSeconds);
+}
+
+void AYlva::HandleInput(const FName ActionName)
+{
+	#if !UE_BUILD_SHIPPING
+	if (IsLocked())
+		return;
+	#endif
+
+	if (ActionName == "LockOn")
+	{
+		ToggleLockOn();
+	}
+	else if (ActionName == "Block")
+	{
+		Block();
+	}
+	else if (ActionName == "Light Attack")
+	{
+		LightAttack();
+	}
+	else if (ActionName == "Heavy Attack")
+	{
+		HeavyAttack();
+	}
+	else if (ActionName == "Run")
+	{
+		Run();
+	}
+	else if (ActionName == "Dash")
+	{
+		Dash();
+	}
+	else if (ActionName == "Charge Attack")
+	{
+		StartChargeAttack();
+	}
 }
 
 void AYlva::LockOnTo(const FVector& TargetLocation, const float DeltaTime)
@@ -737,7 +785,7 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsLocked())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
 		return;
 
 	if (CanDashAttack())
@@ -816,7 +864,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsLocked())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
 		return;
 
 	if (CanDashAttack())
@@ -926,11 +974,6 @@ void AYlva::ClearAttackQueue()
 
 void AYlva::StartChargeAttack()
 {
-	#if !UE_BUILD_SHIPPING
-	if (IsLocked())
-		return;
-	#endif
-
 	bChargeKeyPressed = true;
 }
 
@@ -957,7 +1000,7 @@ void AYlva::FinishChargeAttack()
 
 void AYlva::Block()
 {
-	if (bIsDead || IsChargeAttacking() || IsDashing() || IsDamaged() || IsParrying() || IsDashAttacking() || IsLocked())
+	if (bIsDead || IsChargeAttacking() || IsDashing() || IsDamaged() || IsParrying() || IsDashAttacking())
 		return;
 
 	FSM->PopState();
@@ -1122,11 +1165,6 @@ void AYlva::StopRunning()
 
 void AYlva::Dash()
 {
-	#if !UE_BUILD_SHIPPING
-	if (IsLocked())
-		return;
-	#endif
-
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
 

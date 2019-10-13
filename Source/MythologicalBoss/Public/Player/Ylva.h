@@ -502,6 +502,9 @@ protected:
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
 
+	UFUNCTION()
+		void HandleInput(FName ActionName);
+
 	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		float GetDistanceToBoss() const;
 
@@ -596,7 +599,7 @@ protected:
 		void DisableLockOn();
 	#pragma endregion
 
-#if !UE_BUILD_SHIPPING
+	#if !UE_BUILD_SHIPPING
 	#pragma region Debug
 	// Kill the player
 	void Debug_Die();
@@ -643,7 +646,7 @@ protected:
 	// Called via input to show the FSM Visualizer widget
 	void ShowNoHUD();
 	#pragma endregion
-#endif
+	#endif
 
 	#pragma region Stamina
 	// Called every frame
@@ -762,12 +765,14 @@ protected:
 		void OnLightAttackComboCompleted();
 	#pragma endregion
 
+	#pragma region Any States
 	UFUNCTION()
 		void OnEnterAnyState(int32 ID, FName Name);
 	UFUNCTION()
 		void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
 	UFUNCTION()
 		void OnExitAnyState(int32 ID, FName Name);
+	#pragma endregion 
 
 	#pragma region Player States
 		#pragma region Idle
@@ -949,10 +954,6 @@ protected:
 	// The radius the boss will use to teleport to a point on this circle
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Misc", meta = (ClampMin = 1.0f))
 		float TeleportRadius = 1000.0f;
-
-	// How long (in seconds) after the player's death, should we wait to respawn?
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Misc", meta = (ClampMin = 0.0f, ClampMax = 100.0f))
-		float RespawnDelay = 1.8f;
 
 	// The float curve to use when regenerating stamina
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Stamina")
