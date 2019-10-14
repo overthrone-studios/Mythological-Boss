@@ -2092,9 +2092,13 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
 		}
 
-		if (CurrentAttack_Data->bArtificialMovement && Uptime > CurrentAttack_Data->StartMoveAtTime && GameState->PlayerData.CurrentRange != BRM_SuperClose)
+		if (CurrentAttack_Data->bArtificialMovement && 
+			Uptime > CurrentAttack_Data->StartMoveAtTime && 
+			Uptime < CurrentAttack_Data->AttackMontage->SequenceLength - 0.1f && 
+			GameState->PlayerData.CurrentRange != BRM_SuperClose)
 		{
 			FVector NewLocation;
+
 			EndAttackLocation = StartAttackLocation + ForwardVector * CurrentAttack_Data->DistanceToMoveBy;
 
 			switch (CurrentAttack_Data->MovementBlendOption)
@@ -2121,6 +2125,11 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 			#endif
 
 			SetActorLocation(NewLocation);
+		}
+		else
+		{
+			if (IsLockedOn())
+				FaceBoss(World->DeltaTimeSeconds);
 		}
 	}
 	else
