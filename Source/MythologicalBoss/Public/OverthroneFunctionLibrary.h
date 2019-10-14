@@ -68,4 +68,6 @@ public:
 	// Check if gamepad is connected at runtime
 	UFUNCTION(BlueprintPure, Category = "System Information")
 		static bool IsGamepadConnected();
+
+	static FVector SmoothStop(const FVector& A, const FVector& B, float Alpha, float Exp);
 };

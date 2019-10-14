@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/ObjectMacros.h"
 #include "SubclassOf.h"
+#include "Log.h"
+#include <chrono>
 #include "OverthroneStructs.generated.h"
 
 USTRUCT(BlueprintType)
@@ -58,6 +59,42 @@ struct FCombatSettings
 	// The amount of time (in seconds) we stay paused when we hit something
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.001f, ClampMax = 10.0f, EditCondition = "bEnableHitStop"))
 		float HitStopTime = 0.1f;
+};
+
+typedef std::ratio<1, 1000000000000> pico;
+typedef std::chrono::duration<long long, pico> picoseconds;
+
+typedef std::ratio<1, 1000000000000000> femto;
+typedef std::chrono::duration<long long, femto> femtoseconds;
+
+typedef std::ratio<1, 1000000000000000000> atto;
+typedef std::chrono::duration<long long, atto> attoseconds;
+
+struct MyTimer
+{
+	MyTimer()
+	{
+		StartTimePoint = std::chrono::high_resolution_clock::now();
+	}
+
+	~MyTimer()
+	{
+		Stop();
+	}
+
+	void Stop()
+	{
+		const auto& EndTimePoint = std::chrono::high_resolution_clock::now();
+
+		const long long& Duration = std::chrono::duration_cast<picoseconds>(EndTimePoint - StartTimePoint).count();
+
+		const double& US = Duration * 0.000001;
+
+		ULog::Info("Duration " + FString::SanitizeFloat(US) + "us", true);
+	}
+
+private:
+	std::chrono::time_point<std::chrono::high_resolution_clock> StartTimePoint;
 };
 
 /**

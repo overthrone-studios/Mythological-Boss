@@ -1015,6 +1015,9 @@ private:
 	FVector RightMovementStart, RightMovementEnd;
 	float DistanceMovedInRightDirection;
 
+	FVector StartAttackLocation;
+	FVector EndAttackLocation;
+
 	FRotator ControlRotation;
 	FVector DirectionToBoss;
 	float DistanceToBoss;

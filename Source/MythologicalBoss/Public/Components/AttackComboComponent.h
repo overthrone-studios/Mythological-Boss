@@ -38,17 +38,37 @@ struct FPlayerAttack_Data
 		FPlayerMontageSection_Data Recovery;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		uint8 bEnableBlendOutOnLowStamina : 1;
+		uint8 bBlendOutOnLowStamina : 1;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin=0.0f, EditCondition = "bBlendOutOnLowStamina"))
 		float BlendOutTimeOnLowStamina = 1.0f;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin=0.0f, EditCondition = "bEnableBlendOutOnLowStamina"))
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin=0.0f, EditCondition = "bBlendOutOnLowStamina"))
 		float BlendOutTriggerTimeOnLowStamina = 0.2f;
 
 	// The type of blending to use
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "bBlendOutOnLowStamina"))
 		EAlphaBlendOption BlendOption;
+
+	// Should we move in the character's forward direction when this animation is playing?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, DisplayName = "Artificial Movement?")
+		uint8 bArtificialMovement : 1;
+	
+	// The amount of units to move by in the character's forward direction
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (EditCondition = "bArtificialMovement"))
+		float DistanceToMoveBy = 100.0f;
+
+	// At what point in this animation's time do we start to move
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (EditCondition = "bArtificialMovement"))
+		float StartMoveAtTime = 0.3f;
+
+	// The speed of the artificial movement
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (EditCondition = "bArtificialMovement", ClampMin = 0.0f, ClampMax = 10.0f))
+		float Speed = 1.0f;
+
+	// The type of blending to use
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "bArtificialMovement"))
+		EAlphaBlendOption MovementBlendOption;
 };
 
 USTRUCT(BlueprintType)

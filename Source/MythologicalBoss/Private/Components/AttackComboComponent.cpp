@@ -317,7 +317,7 @@ void UAttackComboComponent::StoreAllMontageBlendTimes()
 
 void UAttackComboComponent::ApplyBlendOutSettings()
 {
-	if (CurrentAttackData->bEnableBlendOutOnLowStamina)
+	if (CurrentAttackData->bBlendOutOnLowStamina)
 	{
 		CurrentAttackData->AttackMontage->BlendOut.SetBlendTime(CurrentAttackData->BlendOutTimeOnLowStamina);
 		CurrentAttackData->AttackMontage->BlendOutTriggerTime = CurrentAttackData->BlendOutTriggerTimeOnLowStamina;

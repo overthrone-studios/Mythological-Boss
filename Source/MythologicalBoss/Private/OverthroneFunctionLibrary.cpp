@@ -112,3 +112,15 @@ bool UOverthroneFunctionLibrary::IsGamepadConnected()
 {
 	return FSlateApplication::Get().GetPlatformApplication().Get()->IsGamepadAttached();
 }
+
+FVector UOverthroneFunctionLibrary::SmoothStop(const FVector& A, const FVector& B, const float Alpha, const float Exp)
+{
+	float NewExp = 1.0f;
+
+	for (float i = 0.0f; i < Exp; ++i)
+		NewExp *= 1.0f - Alpha;
+
+	const float ModifiedAlpha = 1.0f - NewExp;
+
+	return FMath::Lerp(A, B, ModifiedAlpha);
+}

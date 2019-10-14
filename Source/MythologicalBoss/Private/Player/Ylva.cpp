@@ -6,6 +6,7 @@
 #include "OverthroneHUD.h"
 #include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
+#include "OverthroneFunctionLibrary.h"
 
 #include "FSM.h"
 #include "Log.h"
@@ -49,6 +50,8 @@
 
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
+
+#include "DrawDebugHelpers.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -2065,6 +2068,8 @@ void AYlva::OnEnterAttackState()
 		AttackComboComponent->ResetAllBlendOutSettings();
 	}
 
+	StartAttackLocation = CurrentLocation;
+
 	AnimInstance->Montage_Play(CurrentAttack_Data->AttackMontage);
 }
 
@@ -2085,6 +2090,37 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 		else if (CurrentMontageSection == "Recovery")
 		{
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
+		}
+
+		if (CurrentAttack_Data->bArtificialMovement && Uptime > CurrentAttack_Data->StartMoveAtTime && GameState->PlayerData.CurrentRange != BRM_SuperClose)
+		{
+			FVector NewLocation;
+			EndAttackLocation = StartAttackLocation + ForwardVector * CurrentAttack_Data->DistanceToMoveBy;
+
+			switch (CurrentAttack_Data->MovementBlendOption)
+			{
+				case EAlphaBlendOption::Linear:			NewLocation = FMath::Lerp(CurrentLocation, EndAttackLocation, World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::QuadraticInOut: NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds, 2); break;
+				case EAlphaBlendOption::CubicInOut:		NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds, 3); break;
+				case EAlphaBlendOption::QuarticInOut:	NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds, 4); break;
+				case EAlphaBlendOption::QuinticInOut:	NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds, 5); break;
+				case EAlphaBlendOption::CircularIn:		NewLocation = FMath::InterpCircularIn(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::CircularOut:	NewLocation = FMath::InterpCircularOut(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::CircularInOut:	NewLocation = FMath::InterpCircularInOut(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::ExpIn:			NewLocation = FMath::InterpExpoIn(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::ExpOut:			NewLocation = FMath::InterpExpoOut(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds);  break;
+				case EAlphaBlendOption::ExpInOut:		NewLocation = FMath::InterpExpoInOut(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds); break;	
+				default:								NewLocation = FMath::Lerp(CurrentLocation, EndAttackLocation, CurrentAttack_Data->Speed * World->DeltaTimeSeconds);	break;
+			}
+
+			NewLocation.Z = CurrentLocation.Z;
+
+			#if !UE_BUILD_SHIPPING
+			if (Debug.bShowRaycasts)
+				DrawDebugPoint(World, NewLocation, 10.0f, FColor::Orange, false, 4.0f);
+			#endif
+
+			SetActorLocation(NewLocation);
 		}
 	}
 	else
