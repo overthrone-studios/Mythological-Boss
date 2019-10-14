@@ -696,6 +696,9 @@ private:
 	float DistanceToPlayer = 0.0f;
 	FVector DirectionToPlayer;
 
+	FVector StartActionLocation;
+	FVector EndActionLocation;
+
 	FComboData_Action* CurrentActionData;
 
 	FName CurrentMontageSection = "None";
