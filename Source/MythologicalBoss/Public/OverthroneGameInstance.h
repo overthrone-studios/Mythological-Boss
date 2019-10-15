@@ -3,10 +3,7 @@
 #pragma once
 
 #include "Engine/GameInstance.h"
-#include "Combat/MordathActionData.h"
-#include "OverthroneEnums.h"
 #include "OverthroneGameInstance.generated.h"
-
 
 /**
  * High-level manager object for Overthrone game
@@ -25,11 +22,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game Instance")
 		void ResetFeats();
 
-
-
 	void InitFeats();
 	void InitInstance();
-
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Instance")
 		TArray<class UFeatData*> Feats;
