@@ -329,9 +329,16 @@ void AYlva::Tick(const float DeltaTime)
 	CalculatePitchLean(DeltaTime);
 
 	// Lock-on mechanic
+	const FVector& ModifiedDirectionToBoss = FVector(DirectionToBoss.X, DirectionToBoss.Y, 0.0f).GetSafeNormal();
+	const float Scalar = FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), ModifiedDirectionToBoss);
+
 	if (IsLockedOn())
 	{
-		LockOnTo(GameState->BossData.Location, DeltaTime);
+		HardLockOnTo(GameState->BossData.Location, DeltaTime);
+	}
+	else if (Scalar > 0.9f && YawInput == 0.0f)
+	{
+		SoftLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
 
 	// Stamina regen mechanic
@@ -369,6 +376,12 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
+	const FVector& ModifiedControlVector = FVector(ControlRotation.Vector().X, ControlRotation.Vector().Y, 0.0f).GetSafeNormal();
+	DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedDirectionToBoss * 200.0f, FColor::Green, false, -1.0f, 0, 2.0f);
+	DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedControlVector * 200.0f, FColor::Orange, false, -1.0f, 0, 2.0f);
+
+	DrawDebugString(World, CurrentLocation, FString::SanitizeFloat(Scalar), nullptr, FColor::White, DeltaTime);
+
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
@@ -390,6 +403,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Moved Right by: " + FString::SanitizeFloat(DistanceMovedInRightDirection));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Distance to Spear: " + FString::SanitizeFloat(FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation)));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(14, "Yaw Input: " + FString::SanitizeFloat(YawInput));
 #endif
 }
 
@@ -549,6 +564,8 @@ void AYlva::MoveRight(const float Value)
 
 void AYlva::AddControllerYawInput(const float Val)
 {
+	YawInput = GetInputAxisValue("Turn");
+
 	if (IsLockedOn())
 		return;
 	
@@ -604,7 +621,7 @@ void AYlva::HandleInput(const FName ActionName)
 	}
 }
 
-void AYlva::LockOnTo(const FVector& TargetLocation, const float DeltaTime)
+void AYlva::HardLockOnTo(const FVector& TargetLocation, const float DeltaTime)
 {
 	const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
 	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
@@ -612,6 +629,16 @@ void AYlva::LockOnTo(const FVector& TargetLocation, const float DeltaTime)
 	const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
 
 	const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+
+	PlayerController->SetControlRotation(NewRotation);
+}
+
+void AYlva::SoftLockOnTo(const FVector& TargetLocation, const float DeltaTime)
+{
+	const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
+	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, FMath::GetMappedRangeValueClamped({200.0f, 900.0f}, {20.0f, 5.0f}, DistanceToBoss));
+
+	const FRotator& NewRotation = FRotator(ControlRotation.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 	PlayerController->SetControlRotation(NewRotation);
 }
@@ -1962,7 +1989,7 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 {
 	FaceBoss(World->DeltaTimeSeconds);
 
-	LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+	HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 
 	ChargeAttackHoldFrames++;
 
@@ -2198,7 +2225,7 @@ void AYlva::UpdateDashAttackState(float Uptime, int32 Frames)
 	if (FSM->GetActiveStateUptime() < 0.1f)
 	{
 		FaceBoss_Instant();
-		LockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 	}
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
@@ -2656,4 +2683,5 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Moved Right by: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Distance to Spear: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Yaw Input: ", FColor::Green);
 }

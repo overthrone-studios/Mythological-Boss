@@ -471,7 +471,8 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-	void LockOnTo(const FVector& TargetLocation, float DeltaTime);
+	void HardLockOnTo(const FVector& TargetLocation, float DeltaTime);
+	void SoftLockOnTo(const FVector& TargetLocation, float DeltaTime);
 
 	void FaceBoss(float DeltaTime, float RotationSpeed = 10.0f);
 	void FaceBoss_Instant();
@@ -1011,6 +1012,8 @@ protected:
 private:
 	TQueue<EAttackType_Player> AttackQueue;
 	TQueue<uint8> DashQueue;
+
+	float YawInput = 0.0f;
 
 	FVector RightMovementStart, RightMovementEnd;
 	float DistanceMovedInRightDirection;
