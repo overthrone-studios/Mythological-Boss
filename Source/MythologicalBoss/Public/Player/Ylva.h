@@ -295,7 +295,7 @@ public:
 
 	// Returns FollowCamera component
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Components")
-		FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+		FORCEINLINE class UPlayerCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
 		void StopMovement();
@@ -504,12 +504,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		FVector GetDirectionToBoss() const;
 	
-	UFUNCTION()
-		void DesaturateScreen();
-
-	UFUNCTION()
-		void SaturateScreen();
-
 	#pragma region Combat
 	// Called via input to enter the light attacking state
 	void LightAttack();
@@ -932,7 +926,7 @@ protected:
 
 	// The camera that follows the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
+		class UPlayerCameraComponent* FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		class UStaminaComponent* StaminaComponent;

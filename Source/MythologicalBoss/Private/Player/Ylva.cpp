@@ -30,6 +30,7 @@
 #include "Components/DashComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SwordComponent.h"
+#include "Components/PlayerCameraComponent.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -170,7 +171,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(FName("Follow Camera"));
+	FollowCamera = CreateDefaultSubobject<UPlayerCameraComponent>(FName("Follow Camera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
@@ -790,18 +791,6 @@ float AYlva::GetDistanceToBoss() const
 FVector AYlva::GetDirectionToBoss() const
 {
 	return (GameState->BossData.Location - CurrentLocation).GetSafeNormal(0.01f);
-}
-
-void AYlva::DesaturateScreen()
-{
-	FollowCamera->PostProcessSettings.bOverride_ColorSaturation = true;
-	FollowCamera->PostProcessSettings.ColorSaturation = FVector4(FVector(0.45f), 1.0f);
-}
-
-void AYlva::SaturateScreen()
-{
-	FollowCamera->PostProcessSettings.ColorSaturation = FVector4(1.0f);
-	FollowCamera->PostProcessSettings.bOverride_ColorSaturation = false;
 }
 
 #pragma region Combat
@@ -1651,14 +1640,14 @@ void AYlva::OnLowHealth()
 {
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 
-	DesaturateScreen();
+	FollowCamera->DesaturateScreen();
 }
 
 void AYlva::OnExitLowHealth()
 {
 	ChangeHitboxSize(OriginalAttackRadius);
 
-	SaturateScreen();
+	FollowCamera->ResaturateScreen();
 }
 
 void AYlva::OnBossDeath_Implementation()
