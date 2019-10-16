@@ -1687,6 +1687,9 @@ void AYlva::OnLowHealth()
 
 	MainHUD->FlashHealthBar();
 	FollowCamera->DesaturateScreen();
+	FollowCamera->OscillateVignette();
+
+	// Todo: play sound
 }
 
 void AYlva::OnExitLowHealth()
@@ -1695,6 +1698,7 @@ void AYlva::OnExitLowHealth()
 
 	MainHUD->StopHealthBarFlash();
 	FollowCamera->ResaturateScreen();
+	FollowCamera->StopOscillatingVignette();
 }
 
 void AYlva::OnBossDeath_Implementation()

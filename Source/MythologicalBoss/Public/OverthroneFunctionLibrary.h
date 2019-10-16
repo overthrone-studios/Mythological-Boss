@@ -72,5 +72,5 @@ public:
 
 	static FVector SmoothStop(const FVector& A, const FVector& B, float Alpha, float Exp);
 
-	static void SetupTimeline(UObject* Object, FTimeline& InTimeline, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName = NAME_None);
+	static void SetupTimeline(UObject* Object, FTimeline& InTimeline, class UCurveFloat* InCurveFloat, const bool bLooping, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName = NAME_None);
 };
