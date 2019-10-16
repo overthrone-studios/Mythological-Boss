@@ -63,6 +63,16 @@ void UMainPlayerHUD::StopStaminaBarFlash()
 	StopAnimation(LowStaminaFlash);
 }
 
+void UMainPlayerHUD::FlashHealthBar()
+{
+	PlayAnimation(LowHealthFlash, 0.0f, 0);
+}
+
+void UMainPlayerHUD::StopHealthBarFlash()
+{
+	StopAnimation(LowHealthFlash);
+}
+
 void UMainPlayerHUD::SetOffTimer_DamageValueFadeOut(const float InSeconds)
 {
 	bDamageValueAnimWantsFadeIn = false;

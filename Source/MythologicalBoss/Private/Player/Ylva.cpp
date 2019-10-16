@@ -1685,6 +1685,7 @@ void AYlva::OnLowHealth()
 {
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 
+	MainHUD->FlashHealthBar();
 	FollowCamera->DesaturateScreen();
 }
 
@@ -1692,6 +1693,7 @@ void AYlva::OnExitLowHealth()
 {
 	ChangeHitboxSize(OriginalAttackRadius);
 
+	MainHUD->StopHealthBarFlash();
 	FollowCamera->ResaturateScreen();
 }
 
