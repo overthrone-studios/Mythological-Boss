@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GenericPlatformMisc.h"
 #include "OverthroneEnums.h"
+#include "Components/TimelineComponent.h"
 #include "OverthroneFunctionLibrary.generated.h"
 
 /**
@@ -70,4 +71,6 @@ public:
 		static bool IsGamepadConnected();
 
 	static FVector SmoothStop(const FVector& A, const FVector& B, float Alpha, float Exp);
+
+	static void SetupTimeline(UObject* Object, FTimeline& InTimeline, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName = NAME_None);
 };

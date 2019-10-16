@@ -124,3 +124,30 @@ FVector UOverthroneFunctionLibrary::SmoothStop(const FVector& A, const FVector& 
 
 	return FMath::Lerp(A, B, ModifiedAlpha);
 }
+
+void UOverthroneFunctionLibrary::SetupTimeline(UObject* Object, FTimeline& InTimeline, UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
+{
+	// Timeline Initialization
+	FOnTimelineFloat TimelineCallback;
+	TimelineCallback.BindUFunction(Object, TimelineCallbackFuncName);
+
+	if (InCurveFloat)
+	{
+		InTimeline.AddInterpFloat(InCurveFloat, TimelineCallback);
+		InTimeline.SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
+	}
+	else
+	{
+		ULog::DebugMessage(ERROR, FString("Failed to initialize timeline. A curve float asset is missing!"), true);
+	}
+
+	if (TimelineCallbackFuncName != NAME_None)
+	{
+		FOnTimelineEvent TimelineFinishedCallback;
+		TimelineFinishedCallback.BindUFunction(Object, TimelineFinishedCallbackFuncName);
+		InTimeline.SetLooping(false);
+		InTimeline.SetPlayRate(InPlaybackSpeed);
+		InTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
+		InTimeline.SetTimelineLengthMode(TL_TimelineLength);
+	}
+}
