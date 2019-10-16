@@ -12,6 +12,7 @@
 #include "Log.h"
 
 #include "Widgets/HUD/MasterHUD.h"
+#include "Widgets/HUD/MainPlayerHUD.h"
 #include "Widgets/HUD/FSMVisualizerHUD.h"
 #include "Widgets/World/LockOn.h"
 
@@ -270,6 +271,7 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
 	GameState->PlayerData.OnExitLowHealth.AddDynamic(this, &AYlva::OnExitLowHealth);
 	GameState->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
+	GameState->PlayerData.OnExitLowStamina.AddDynamic(this, &AYlva::OnExitLowStamina);
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
@@ -741,6 +743,13 @@ void AYlva::BroadcastLowStamina()
 {
 	GameState->PlayerData.OnLowStamina.Broadcast();
 	bWasLowStaminaEventTriggered = true;
+}
+
+void AYlva::BroadcastExitLowStamina()
+{
+	bWasLowStaminaEventTriggered = false;
+
+	GameState->PlayerData.OnExitLowStamina.Broadcast();
 }
 
 float AYlva::CalculateDirection() const
@@ -1494,6 +1503,9 @@ void AYlva::IncreaseStamina(const float Amount)
 	UpdateCharacterInfo();
 
 	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+		BroadcastExitLowStamina();
+
+	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
 	{
 		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 
@@ -1520,6 +1532,9 @@ void AYlva::SetStamina(const float NewStaminaAmount)
 
 	UpdateCharacterInfo();
 
+	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+		BroadcastExitLowStamina();
+
 	// Are we on low stamina?
 	if (StaminaComponent->IsLowStamina() && !bWasLowStaminaEventTriggered)
 	{
@@ -1538,6 +1553,9 @@ void AYlva::ResetStamina()
 	StaminaComponent->ResetStamina();
 
 	UpdateCharacterInfo();
+
+	if (!StaminaComponent->IsLowStamina() && bWasLowStaminaEventTriggered)
+		BroadcastExitLowStamina();
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
@@ -1667,6 +1685,7 @@ void AYlva::OnLowHealth()
 {
 	ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
 
+	MainHUD->FlashHealthBar();
 	FollowCamera->DesaturateScreen();
 }
 
@@ -1674,6 +1693,7 @@ void AYlva::OnExitLowHealth()
 {
 	ChangeHitboxSize(OriginalAttackRadius);
 
+	MainHUD->StopHealthBarFlash();
 	FollowCamera->ResaturateScreen();
 }
 
@@ -1689,7 +1709,12 @@ void AYlva::OnBossDeath_Implementation()
 
 void AYlva::OnLowStamina()
 {
-	// Todo Implement function
+	MainHUD->FlashStaminaBar();
+}
+
+void AYlva::OnExitLowStamina()
+{
+	MainHUD->StopStaminaBarFlash();
 }
 
 void AYlva::OnComboReset_Implementation()
