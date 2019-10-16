@@ -146,6 +146,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
 		void LockBoss();
 
+	// Set mordath's health to zero and play the OnDeath event
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
+		void KillMordath();
+
 	// Restarts the current boss battle game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
 		void RestartGame();

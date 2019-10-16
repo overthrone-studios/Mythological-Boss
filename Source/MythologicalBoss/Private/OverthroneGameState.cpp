@@ -31,6 +31,11 @@ void AOverthroneGameState::LockBoss()
 	Boss->ToggleLockSelf();
 }
 
+void AOverthroneGameState::KillMordath()
+{
+	Boss->Die();
+}
+
 void AOverthroneGameState::RestartGame()
 {
 	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);

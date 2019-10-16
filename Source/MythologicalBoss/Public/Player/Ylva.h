@@ -633,6 +633,9 @@ protected:
 	// Called via input to trigger boss stage 3 behaviour
 	void Debug_BossStage3();
 
+	// Called via input to trigger boss death
+	void Debug_KillBoss();
+
 	// Called via input to show the FSM Visualizer widget
 	void ShowPlayerFSMVisualizer();
 
@@ -1007,6 +1010,9 @@ protected:
 	// Cached player's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
 		class UYlvaAnimInstance* YlvaAnimInstance{};
+
+	UPROPERTY(BlueprintReadOnly)
+		float FastestTime = 0.0f;
 
 private:
 	TQueue<EAttackType_Player> AttackQueue;

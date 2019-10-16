@@ -209,6 +209,8 @@ public:
 
 	void ToggleLockSelf() override;
 
+	void Die() override;
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
@@ -259,8 +261,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ExecuteAction(class UMordathActionData* ActionData);
-
-	void Die() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void DestroySelf();

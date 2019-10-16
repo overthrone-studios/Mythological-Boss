@@ -236,6 +236,7 @@ void AYlva::BeginPlay()
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
 	YlvaAnimInstance = Cast<UYlvaAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
+	FastestTime = 0.0f;
 
 	LSword = Cast<USwordComponent>(GetLeftHandSword());
 	RSword = Cast<USwordComponent>(GetRightHandSword());
@@ -302,6 +303,8 @@ void AYlva::Tick(const float DeltaTime)
 	{
 		return;
 	}
+
+	FastestTime += DeltaTime;
 
 	StaminaRegenTimeline.TickTimeline(DeltaTime);
 	ChargeAttackTimeline.TickTimeline(DeltaTime);
@@ -471,6 +474,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AYlva::Debug_ToggleLowStaminaAnimBlendOut);
 	PlayerInputComponent->BindKey(EKeys::I, IE_Pressed, this, &AYlva::Debug_ToggleLockBoss);
 	PlayerInputComponent->BindKey(EKeys::O, IE_Pressed, this, &AYlva::ToggleLockSelf);
+	PlayerInputComponent->BindKey(EKeys::U, IE_Pressed, this, &AYlva::Debug_KillBoss);
 #endif
 }
 
@@ -1390,6 +1394,11 @@ void AYlva::Debug_BossStage2()
 void AYlva::Debug_BossStage3()
 {
 	GameState->EnterBossStage(Stage_3);
+}
+
+void AYlva::Debug_KillBoss()
+{
+	GameState->KillMordath();
 }
 
 void AYlva::ShowPlayerFSMVisualizer()
