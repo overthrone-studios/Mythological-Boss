@@ -1038,6 +1038,8 @@ private:
 	uint8 bChargeKeyPressed : 1;
 	uint8 ChargeKeyHeldFrames = 0;
 
+	uint8 bWantsDash : 1;
+
 	uint8 bWasRunning : 1;
 
 	uint8 bGodMode : 1;

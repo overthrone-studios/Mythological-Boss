@@ -1181,10 +1181,7 @@ void AYlva::Dash()
 		return;
 
 	if (IsAttacking())
-	{
-		StopAnimMontage();
-		AttackComboComponent->ClearCurrentAttack();
-	}
+		bWantsDash = true;
 
 	// Man, I really wanted to put this in one line, but nooooo XCode is being a dick
 	if (IsRunning())
@@ -2157,7 +2154,12 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 void AYlva::OnExitAttackState()
 {
 	// Ensure the attack montage has stopped playing
-	StopAnimMontage();
+	if (bWantsDash)
+		AnimInstance->Montage_Stop(0.2f);
+	else
+		StopAnimMontage();
+
+	GameState->PlayerData.CurrentAttackType = ATP_None;
 }
 #pragma endregion 
 
@@ -2298,6 +2300,8 @@ void AYlva::OnEnterDashState()
 	}
 
 	AttackComboComponent->ResetCombo();
+
+	bWantsDash = false;
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
