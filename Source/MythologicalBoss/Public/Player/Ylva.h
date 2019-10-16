@@ -486,6 +486,7 @@ protected:
 	void BroadcastLowHealth() override;
 	void BroadcastExitLowHealth() override;
 	void BroadcastLowStamina();
+	void BroadcastExitLowStamina();
 
 	void Die() override;
 
@@ -734,6 +735,10 @@ protected:
 	// Called when our stamina value is below the given threshold
 	UFUNCTION()
 		void OnLowStamina();
+
+	// Called when we were on low stamina
+	UFUNCTION()
+		void OnExitLowStamina();
 
 	// Called when our combo tree has been reset
 	UFUNCTION(BlueprintImplementableEvent)

@@ -15,6 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackBlockedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLowHealthSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLowStaminaSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLowStaminaSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFirstStageSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSecondStageSignature);
@@ -94,6 +95,8 @@ struct FPlayerData : public FCharacterData
 	EAttackType_Player CurrentAttackType = ATP_None;
 
 	FOnLowStaminaSignature OnLowStamina;
+	FOnExitLowStaminaSignature OnExitLowStamina;
+
 	FOnPlayerPerfectDashSignature OnPlayerPerfectDash;
 };
 
