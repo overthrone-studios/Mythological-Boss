@@ -27,6 +27,18 @@ public:
 		void FadeOutDamageValue();
 
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void FlashStaminaBar();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void StopStaminaBarFlash();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void FlashHealthBar();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void StopHealthBarFlash();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
 		void SetOffTimer_DamageValueFadeOut(float InSeconds);
 
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
@@ -58,6 +70,12 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Animation")
 		class UWidgetAnimation* DamageValueFade;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Animation")
+		class UWidgetAnimation* LowStaminaFlash;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Animation")
+		class UWidgetAnimation* LowHealthFlash;
 
 	void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 

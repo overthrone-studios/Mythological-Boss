@@ -18,6 +18,9 @@ class MYTHOLOGICALBOSS_API UPlayerCameraComponent final : public UCameraComponen
 public:
 	UPlayerCameraComponent();
 
+	void OscillateVignette();
+	void StopOscillatingVignette();
+
 	void DesaturateScreen();
 	void ResaturateScreen();
 
@@ -28,12 +31,22 @@ protected:
 	UFUNCTION()
 		void UpdateSaturation();
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Low Health Effect")
+	UFUNCTION()
+		void UpdateVignette();
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Low Health Effect | Saturation")
 		class UCurveFloat* SaturationCurve;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Low Health Effect", meta = (ClampMin = 0.0f))
-		float Speed = 1.0f;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Low Health Effect | Saturation", meta = (ClampMin = 0.0f))
+		float SaturationSpeed = 1.0f;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Low Health Effect | Vignette")
+		class UCurveFloat* VignetteCurve;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Low Health Effect | Vignette", meta = (ClampMin = 0.0f))
+		float VignetteSpeed = 1.0f;
 
 private:
 	FTimeline TL_ScreenSaturation;
+	FTimeline TL_Vignette;
 };
