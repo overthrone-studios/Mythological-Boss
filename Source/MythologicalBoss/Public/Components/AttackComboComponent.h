@@ -10,6 +10,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboTreeResetSignature);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComboMultiplierMaxedSignature);
+
 USTRUCT(BlueprintType)
 struct FPlayerMontageSection_Data
 {
@@ -105,6 +107,8 @@ public:
 	UAttackComboComponent();
 
 	FOnComboTreeResetSignature OnComboReset;
+
+	FOnComboMultiplierMaxedSignature OnComboMultiplierReached;
 
 	// Advances to the next attack in the combo tree
 	FPlayerAttack_Data* AdvanceCombo(EAttackType_Player InAttackType);

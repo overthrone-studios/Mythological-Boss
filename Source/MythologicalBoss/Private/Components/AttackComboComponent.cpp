@@ -129,7 +129,11 @@ FPlayerAttack_Data* UAttackComboComponent::AdvanceCombo_Internal(const enum EAtt
 	if (TreeIndex > 0 && TreeIndex <= ComboMultiplierCount)
 		ComboMultiplier += MultiplierIncrementAmount;
 	else
+	{
 		ComboMultiplier = OriginalComboMultiplier;
+		TreeIndex = 0;
+		OnComboMultiplierReached.Broadcast();
+	}
 
 	// Start the combo reset timer
 	Owner->GetWorldTimerManager().SetTimer(ComboResetTimerHandle, this, &UAttackComboComponent::ResetCombo, ComboResetTime, false); 

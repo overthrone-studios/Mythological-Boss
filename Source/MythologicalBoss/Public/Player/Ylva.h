@@ -747,6 +747,9 @@ protected:
 	UFUNCTION()
 		void OnComboReset_Implementation();
 
+	UFUNCTION()
+		void OnComboMultiplierReached();
+
 	// Called when our anim montage attack animations have finished
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnAttackEnd(UAnimMontage* Montage, bool bInterrupted);

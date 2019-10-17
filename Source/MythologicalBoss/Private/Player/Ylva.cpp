@@ -206,6 +206,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	// Attack combo component
 	AttackComboComponent = CreateDefaultSubobject<UAttackComboComponent>(FName("Attack Combo Component"));
 	AttackComboComponent->OnComboReset.AddDynamic(this, &AYlva::OnComboReset_Implementation);
+	AttackComboComponent->OnComboMultiplierReached.AddDynamic(this, &AYlva::OnComboMultiplierReached);
 
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash component"));
@@ -1729,6 +1730,12 @@ void AYlva::OnComboReset_Implementation()
 {
 	OnComboReset();
 
+	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
+	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
+}
+
+void AYlva::OnComboMultiplierReached()
+{
 	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
 }
