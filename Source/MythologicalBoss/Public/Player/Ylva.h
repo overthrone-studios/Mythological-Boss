@@ -1054,6 +1054,7 @@ private:
 	uint8 bHasBeenDamaged : 1;
 
 	uint8 bCanRun : 1;
+	uint8 bPerformingArtificialMovement : 1;
 
 	uint8 bPerfectlyTimedDash : 1;
 
