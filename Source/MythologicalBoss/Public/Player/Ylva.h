@@ -427,7 +427,7 @@ public:
 
 	bool HasMovedLeftBy(float Distance) override;
 
-	void OnAttackLanded() override;
+	void OnAttackLanded(FHitResult& HitResult) override;
 
 	bool IsLocked() const override;
 
@@ -988,11 +988,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
+		UParticleSystem* SlashParticle;
+
 	// Configure lock on settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Lock-On")
 		FLockOnSettings LockOnSettings;
 
-	// The amount of time (in seconds) we are electrecuted for when we are hit by a lightning strike
+	// The amount of time (in seconds) we are electrocuted for when we are hit by a lightning strike
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Electric Shock Time")
 		float ShockTime = 2.0f;
 

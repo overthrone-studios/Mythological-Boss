@@ -62,7 +62,7 @@ public:
 		void DisableInvincibility();
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void OnAttackLanded();
+		virtual void OnAttackLanded(FHitResult& HitResult);
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		class UFSM* GetFSM() const { return FSM; }

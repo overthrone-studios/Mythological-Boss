@@ -57,10 +57,11 @@ void UPlayerCameraComponent::ResaturateScreen()
 
 void UPlayerCameraComponent::OscillateVignette()
 {
+	TL_Vignette.SetLooping(true);
 	TL_Vignette.PlayFromStart();
 }
 
 void UPlayerCameraComponent::StopOscillatingVignette()
 {
-	TL_Vignette.Stop();
+	TL_Vignette.SetLooping(false);
 }

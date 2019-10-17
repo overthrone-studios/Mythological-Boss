@@ -150,7 +150,7 @@ void AOverthroneCharacter::DisableInvincibility()
 	bCanBeDamaged = true;
 }
 
-void AOverthroneCharacter::OnAttackLanded()
+void AOverthroneCharacter::OnAttackLanded(FHitResult& HitResult)
 {
 }
 
