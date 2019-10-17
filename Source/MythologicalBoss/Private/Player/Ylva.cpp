@@ -813,7 +813,7 @@ bool AYlva::HasMovedLeftBy(const float Distance)
 
 void AYlva::OnAttackLanded(FHitResult& HitResult)
 {
-	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location, FRotator(0.0f, 50.0f, FMath::FRandRange(0.0f, 90.0f)));
+	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
 	if (GameState->PlayerData.CurrentAttackType == ATP_Special && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
 	{
