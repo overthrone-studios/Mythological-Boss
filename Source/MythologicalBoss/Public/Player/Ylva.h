@@ -1020,6 +1020,8 @@ private:
 
 	float YawInput = 0.0f;
 
+	float LockedForwardInput = 0.0f, LockedRightInput = 0.0f;
+
 	FVector RightMovementStart, RightMovementEnd;
 	float DistanceMovedInRightDirection;
 

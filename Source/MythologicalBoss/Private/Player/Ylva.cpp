@@ -1243,7 +1243,9 @@ void AYlva::Dash()
 					UpdateStamina(StaminaComponent->GetDashValue());
 			}
 
-			FSM->PopState();
+			if (!IsRunning())
+				FSM->PopState();
+
 			FSM->PushState("Dash");
 		}
 	}
@@ -2347,11 +2349,17 @@ void AYlva::OnEnterDashState()
 	AttackComboComponent->ResetCombo();
 
 	bWantsDash = false;
+
+	LockedForwardInput = ForwardInput;
+	LockedRightInput = RightInput;
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
 {
-	if (DistanceToBoss < 400.0f /*FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 300.0f */&&
+	AnimInstance->ForwardInput = LockedForwardInput;
+	AnimInstance->RightInput = LockedRightInput;
+
+	if (DistanceToBoss < 400.0f&&
 		GameState->IsBossAttacking() && 
 		!bPerfectlyTimedDash && 
 		!IsDamaged())
@@ -2395,7 +2403,7 @@ void AYlva::OnExitDashState()
 	}
 
 	AnimInstance->bIsDashing = false;
-	bWasRunning = false;
+	YlvaAnimInstance->bIsMoving = false;
 	bHasBeenDamaged = false;
 
 	if (bPerfectlyTimedDash)
