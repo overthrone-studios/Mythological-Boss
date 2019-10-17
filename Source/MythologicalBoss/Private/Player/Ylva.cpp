@@ -378,11 +378,11 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
-	const FVector& ModifiedControlVector = FVector(ControlRotation.Vector().X, ControlRotation.Vector().Y, 0.0f).GetSafeNormal();
-	DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedDirectionToBoss * 200.0f, FColor::Green, false, -1.0f, 0, 2.0f);
-	DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedControlVector * 200.0f, FColor::Orange, false, -1.0f, 0, 2.0f);
+	//const FVector& ModifiedControlVector = FVector(ControlRotation.Vector().X, ControlRotation.Vector().Y, 0.0f).GetSafeNormal();
+	//DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedDirectionToBoss * 200.0f, FColor::Green, false, -1.0f, 0, 2.0f);
+	//DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedControlVector * 200.0f, FColor::Orange, false, -1.0f, 0, 2.0f);
 
-	DrawDebugString(World, CurrentLocation, FString::SanitizeFloat(Scalar), nullptr, FColor::White, DeltaTime);
+	//DrawDebugString(World, CurrentLocation, FString::SanitizeFloat(Scalar), nullptr, FColor::White, DeltaTime);
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
@@ -500,7 +500,7 @@ void AYlva::MoveForward(const float Value)
 {
 	ForwardInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked())
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement)
 		return;
 
 	if (!IsAttacking())
@@ -530,7 +530,7 @@ void AYlva::MoveRight(const float Value)
 {
 	RightInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked())
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement)
 		return;
 
 	if (!IsAttacking())
@@ -1243,7 +1243,9 @@ void AYlva::Dash()
 					UpdateStamina(StaminaComponent->GetDashValue());
 			}
 
-			FSM->PopState();
+			if (!IsRunning())
+				FSM->PopState();
+
 			FSM->PushState("Dash");
 		}
 	}
@@ -2150,6 +2152,8 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 		{
 			FVector NewLocation;
 
+			bPerformingArtificialMovement = true;
+
 			EndAttackLocation = StartAttackLocation + ForwardVector * CurrentAttack_Data->DistanceToMoveBy;
 
 			switch (CurrentAttack_Data->MovementBlendOption)
@@ -2179,6 +2183,8 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 		}
 		else
 		{
+			bPerformingArtificialMovement = false;
+
 			if (IsLockedOn())
 				FaceBoss(World->DeltaTimeSeconds);
 		}
@@ -2203,6 +2209,8 @@ void AYlva::OnExitAttackState()
 		AnimInstance->Montage_Stop(0.2f);
 	else
 		StopAnimMontage();
+
+	bPerformingArtificialMovement = false;
 
 	GameState->PlayerData.CurrentAttackType = ATP_None;
 }
@@ -2347,11 +2355,17 @@ void AYlva::OnEnterDashState()
 	AttackComboComponent->ResetCombo();
 
 	bWantsDash = false;
+
+	LockedForwardInput = ForwardInput;
+	LockedRightInput = RightInput;
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
 {
-	if (DistanceToBoss < 400.0f /*FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation) < 300.0f */&&
+	AnimInstance->ForwardInput = LockedForwardInput;
+	AnimInstance->RightInput = LockedRightInput;
+
+	if (DistanceToBoss < 400.0f&&
 		GameState->IsBossAttacking() && 
 		!bPerfectlyTimedDash && 
 		!IsDamaged())
@@ -2395,7 +2409,7 @@ void AYlva::OnExitDashState()
 	}
 
 	AnimInstance->bIsDashing = false;
-	bWasRunning = false;
+	YlvaAnimInstance->bIsMoving = false;
 	bHasBeenDamaged = false;
 
 	if (bPerfectlyTimedDash)

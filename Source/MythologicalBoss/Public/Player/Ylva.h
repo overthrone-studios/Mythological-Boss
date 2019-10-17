@@ -1020,6 +1020,8 @@ private:
 
 	float YawInput = 0.0f;
 
+	float LockedForwardInput = 0.0f, LockedRightInput = 0.0f;
+
 	FVector RightMovementStart, RightMovementEnd;
 	float DistanceMovedInRightDirection;
 
@@ -1052,6 +1054,7 @@ private:
 	uint8 bHasBeenDamaged : 1;
 
 	uint8 bCanRun : 1;
+	uint8 bPerformingArtificialMovement : 1;
 
 	uint8 bPerfectlyTimedDash : 1;
 
