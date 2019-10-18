@@ -349,7 +349,7 @@ void AYlva::Tick(const float DeltaTime)
 	{
 		HardLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
-	else if (Scalar > 0.9f && YawInput == 0.0f)
+	else if (Scalar > 0.9f && YawInput == 0.0f && DistanceToBoss < 1200.0f)
 	{
 		SoftLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
