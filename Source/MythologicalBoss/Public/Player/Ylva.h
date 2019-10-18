@@ -632,6 +632,9 @@ protected:
 	// Called via input to trigger boss death
 	void Debug_KillBoss();
 
+	// Called via input to trigger mordath's ghost to spawn in the world
+	void Debug_SpawnMordathGhost();
+
 	// Called via input to show the FSM Visualizer widget
 	void ShowPlayerFSMVisualizer();
 

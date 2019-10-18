@@ -3,7 +3,6 @@
 #include "Mordath.h"
 
 #include "OverthroneFunctionLibrary.h"
-#include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
 #include "OverthroneHUD.h"
 #include "OverthroneEnums.h"
@@ -2382,6 +2381,14 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 UForceFeedbackEffect* AMordath::GetCurrentForceFeedbackEffect() const
 {
 	return CurrentActionData->Action->ForceFeedbackEffect;
+}
+
+void AMordath::SpawnGhost()
+{
+	const auto Transform = GetActorTransform();
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	World->SpawnActor(GhostClass, &Transform, SpawnParameters);
 }
 
 void AMordath::SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation)

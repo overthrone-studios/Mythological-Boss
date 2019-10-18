@@ -205,6 +205,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation = FRotator::ZeroRotator);
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void SpawnGhost();
+
 	bool IsLocked() const override;
 
 	void ToggleLockSelf() override;
@@ -641,6 +644,10 @@ protected:
 	// The actor to spawn when transitioning to the next stage
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Lightning Strike Actor")
 		TSubclassOf<AActor> LightningStrikeClass;
+
+	// The actor to spawn when transitioning to the next stage
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Ghost Actor")
+		TSubclassOf<AActor> GhostClass;
 		
 	// The bone name of Mordath's skeleton where the lock-on indiciator should be placed on
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
