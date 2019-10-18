@@ -504,6 +504,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindKey(EKeys::I, IE_Pressed, this, &AYlva::Debug_ToggleLockBoss);
 	PlayerInputComponent->BindKey(EKeys::O, IE_Pressed, this, &AYlva::ToggleLockSelf);
 	PlayerInputComponent->BindKey(EKeys::U, IE_Pressed, this, &AYlva::Debug_KillBoss);
+	PlayerInputComponent->BindKey(EKeys::K, IE_Pressed, this, &AYlva::Debug_SpawnMordathGhost);
 #endif
 }
 
@@ -1436,6 +1437,11 @@ void AYlva::Debug_BossStage3()
 void AYlva::Debug_KillBoss()
 {
 	GameState->KillMordath();
+}
+
+void AYlva::Debug_SpawnMordathGhost()
+{
+	GameState->SpawnMordathGhost();
 }
 
 void AYlva::ShowPlayerFSMVisualizer()

@@ -153,6 +153,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
 		void KillMordath();
 
+	// Spawns a ghost version of mordath
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
+		void SpawnMordathGhost();
+
 	// Restarts the current boss battle game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
 		void RestartGame();

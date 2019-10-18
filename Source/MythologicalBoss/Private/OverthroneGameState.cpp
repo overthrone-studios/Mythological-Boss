@@ -36,6 +36,11 @@ void AOverthroneGameState::KillMordath()
 	Boss->Die();
 }
 
+void AOverthroneGameState::SpawnMordathGhost()
+{
+	Boss->SpawnGhost();
+}
+
 void AOverthroneGameState::RestartGame()
 {
 	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);
