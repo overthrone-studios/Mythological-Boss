@@ -300,7 +300,10 @@ void AMordath::BeginPlay()
 	ResetActionDamage();
 
 #if !UE_BUILD_SHIPPING
-	CapsuleComp->SetHiddenInGame(false);
+	if (Debug.bShowRaycasts)
+		CapsuleComp->SetHiddenInGame(false);
+	else
+		CapsuleComp->SetHiddenInGame(true);
 #else
 	CapsuleComp->SetHiddenInGame(true);
 #endif

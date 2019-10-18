@@ -287,10 +287,20 @@ void AYlva::BeginPlay()
 	FSM->Start();
 
 #if !UE_BUILD_SHIPPING
-	CapsuleComp->SetHiddenInGame(false);
-	CapsuleComp->SetVisibility(true);
+	if (Debug.bShowRaycasts)
+	{
+		CapsuleComp->SetHiddenInGame(false);
+		CapsuleComp->SetVisibility(true);
 
-	ParryCollisionComponent->SetHiddenInGame(false);
+		ParryCollisionComponent->SetHiddenInGame(false);
+	}
+	else
+	{
+		CapsuleComp->SetHiddenInGame(true);
+		CapsuleComp->SetVisibility(false);
+
+		ParryCollisionComponent->SetHiddenInGame(true);
+	}
 #else
 	CapsuleComp->SetHiddenInGame(true);
 	CapsuleComp->SetVisibility(false);
