@@ -250,8 +250,6 @@ AMordath::AMordath()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 400.0f;
-	GetCharacterMovement()->AirControl = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 
 	// Configure character settings
