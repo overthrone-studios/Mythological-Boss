@@ -163,6 +163,60 @@ void AMordathBase::StopActionMontage()
 		StopAnimMontage();
 }
 
+void AMordathBase::ChooseAction()
+{
+
+}
+
+void AMordathBase::ExecuteAction(UMordathActionData* ActionData)
+{
+	StopMovement();
+
+	CurrentActionData->Action = ActionData;
+}
+
+bool AMordathBase::CanAttack() const
+{
+	return	CurrentActionData->RangeToExecute == BRM_AnyRange || 
+			ChosenCombo->WantsToExecuteNonStop() &&
+			!IsAttacking();
+}
+
+void AMordathBase::NextAction()
+{
+	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAction())
+	{
+		const float Min = FMath::Clamp(ChosenCombo->GetActionDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
+		const float Max = FMath::Clamp(ChosenCombo->GetActionDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
+		const float NewDelay = FMath::RandRange(Min, Max);
+
+		if (NewDelay > 0.0f)
+		{
+			TimerManager->SetTimer(ChosenCombo->GetActionDelayTimer(), this, &AMordathBase::NextAction, NewDelay);
+		}
+		else
+		{
+			ChosenCombo->NextAction();
+			StartExecutionExpiryTimer();
+		}
+
+		return;
+	}
+
+	ChosenCombo->NextAction();
+	StartExecutionExpiryTimer();
+}
+
+void AMordathBase::StartExecutionExpiryTimer()
+{
+	TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, this, &AMordathBase::OnExecutionTimeExpired, CurrentActionData->ExecutionTime, false);
+}
+
+void AMordathBase::OnExecutionTimeExpired()
+{
+	CurrentActionData->bExecutionTimeExpired = true;
+}
+
 void AMordathBase::OnPlayerDeath()
 {
 	BossAIController->StopMovement();
@@ -202,15 +256,42 @@ bool AMordathBase::IsAttacking() const
 
 bool AMordathBase::IsShortAttacking() const
 {
-	return false;
+	return CurrentActionType == ATM_ShortAttack_1 || CurrentActionType == ATM_ShortAttack_2 || CurrentActionType == ATM_ShortAttack_3;
 }
 
 bool AMordathBase::IsLongAttacking() const
 {
-	return false;
+	return CurrentActionType == ATM_LongAttack_1 || CurrentActionType == ATM_LongAttack_2 || CurrentActionType == ATM_LongAttack_3;
 }
 
 bool AMordathBase::IsSpecialAttacking() const
 {
-	return false;
+	return CurrentActionType == ATM_SpecialAttack_1 || CurrentActionType == ATM_SpecialAttack_2 || CurrentActionType == ATM_SpecialAttack_3;
+}
+
+bool AMordathBase::IsDelayingAction() const
+{
+	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
+}
+
+UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const
+{
+	return CurrentActionData->Action->ForceFeedbackEffect;
+}
+
+bool AMordathBase::WantsMoveRight() const
+{
+	return MovementDirection;
+}
+
+void AMordathBase::EncirclePlayer()
+{
+	if (WantsMoveRight())
+	{
+		MoveRight();
+	}
+	else
+	{
+		MoveRight(-1.0f);
+	}
 }

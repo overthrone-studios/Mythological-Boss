@@ -32,7 +32,7 @@ enum EAttackType_Player
 	ATP_None		UMETA(DisplayName="None")
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum EActionType_Mordath
 {
 	ATM_ShortAttack_1	UMETA(DisplayName="Short Attack 1"),
@@ -60,7 +60,7 @@ enum EActionType_Mordath
 	ATM_None			UMETA(DisplayName="None")
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum EAttackCounters_Mordath
 {
 	ACM_Parryable			UMETA(DisplayName="Parryable"),

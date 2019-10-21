@@ -61,7 +61,6 @@ AMordath::AMordath() : AMordathBase()
 	FSM->AddState(19, "Retreat");
 	FSM->AddState(20, "Kick");
 	FSM->AddState(21, "Recover");
-	FSM->AddState(22, "Strafe");
 	FSM->AddState(23, "Tired");
 	FSM->AddState(24, "Back Hand");
 	FSM->AddState(25, "Action");
@@ -128,10 +127,6 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(21)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRecoverState);
 	FSM->GetStateFromID(21)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRecoverState);
 	FSM->GetStateFromID(21)->OnExitState.AddDynamic(this, &AMordath::OnExitRecoverState);
-
-	FSM->GetStateFromID(22)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStrafeState);
-	FSM->GetStateFromID(22)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStrafeState);
-	FSM->GetStateFromID(22)->OnExitState.AddDynamic(this, &AMordath::OnExitStrafeState);
 
 	FSM->GetStateFromID(23)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTiredState);
 	FSM->GetStateFromID(23)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTiredState);
@@ -744,6 +739,8 @@ void AMordath::OnEnterCloseActionState()
 
 	PlayActionMontage(SuperCloseRange_ActionData);
 
+	CurrentActionType = SuperCloseRange_ActionData->ActionType;
+	CurrentCounterType = SuperCloseRange_ActionData->CounterType;
 	GameState->BossData.CurrentActionType = SuperCloseRange_ActionData->ActionType;
 	GameState->BossData.CurrentCounterType = SuperCloseRange_ActionData->CounterType;
 
@@ -787,6 +784,8 @@ void AMordath::OnExitCloseActionState()
 	CurrentMontageSection = "None";
 	CurrentMontageName = "None";
 
+	CurrentActionType = ATM_None;
+	CurrentCounterType = ACM_None;
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
@@ -809,6 +808,8 @@ void AMordath::OnEnterFarActionState()
 
 	PlayActionMontage(FarRange_ActionData);
 
+	CurrentActionType = FarRange_ActionData->ActionType;
+	CurrentCounterType = FarRange_ActionData->CounterType;
 	GameState->BossData.CurrentActionType = FarRange_ActionData->ActionType;
 	GameState->BossData.CurrentCounterType = FarRange_ActionData->CounterType;
 
@@ -835,6 +836,8 @@ void AMordath::OnExitFarActionState()
 	CurrentMontageSection = "None";
 	CurrentMontageName = "None";
 
+	CurrentActionType = ATM_None;
+	CurrentCounterType = ACM_None;
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
@@ -1001,33 +1004,6 @@ void AMordath::UpdateDashCombatState(float Uptime, int32 Frames)
 }
 
 void AMordath::OnExitDashCombatState()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-}
-
-#pragma endregion
-
-// Todo: remove strafe state
-#pragma region Strafe
-void AMordath::OnEnterStrafeState()
-{
-	PlayActionMontage();
-}
-
-void AMordath::UpdateStrafeState(float Uptime, int32 Frames)
-{
-	FacePlayer();
-
-	if (HasFinishedAction())
-	{
-		NextAction();
-		
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitStrafeState()
 {
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
@@ -1547,6 +1523,8 @@ void AMordath::StopActionMontage()
 
 	bCanBeDodged = false;
 
+	CurrentActionType = ATM_None;
+	CurrentCounterType = ACM_None;
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 	GameState->BossData.bHasAttackBegun = false;
@@ -1642,11 +1620,6 @@ void AMordath::EndTakeDamage()
 	{
 		Die();
 	}
-}
-
-void AMordath::OnExecutionTimeExpired()
-{
-	CurrentActionData->bExecutionTimeExpired = true;
 }
 
 void AMordath::ToggleLockSelf()
@@ -1792,36 +1765,13 @@ void AMordath::ChooseAction()
 	}
 
 	// Update data
+	CurrentActionType = ActionDataToUse->ActionType;
+	CurrentCounterType = ActionDataToUse->CounterType;
+	ActionDamage = ActionDataToUse->ActionDamage;
 	GameState->BossData.CurrentActionType = ActionDataToUse->ActionType;
 	GameState->BossData.CurrentCounterType = ActionDataToUse->CounterType;
-	ActionDamage = ActionDataToUse->ActionDamage;
 
 	ExecuteAction(ActionDataToUse);
-}
-
-void AMordath::NextAction()
-{
-	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAction())
-	{
-		const float Min = FMath::Clamp(ChosenCombo->GetActionDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
-		const float Max = FMath::Clamp(ChosenCombo->GetActionDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
-		const float NewDelay = FMath::RandRange(Min, Max);
-
-		if (NewDelay > 0.0f)
-		{
-			TimerManager->SetTimer(ChosenCombo->GetActionDelayTimer(), this, &AMordath::NextAction, NewDelay);
-		}
-		else
-		{
-			ChosenCombo->NextAction();
-			StartExecutionExpiryTimer();
-		}
-
-		return;
-	}
-
-	ChosenCombo->NextAction();
-	StartExecutionExpiryTimer();
 }
 
 void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
@@ -1832,9 +1782,7 @@ void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
 
 void AMordath::ExecuteAction(UMordathActionData* ActionData)
 {
-	StopMovement();
-
-	CurrentActionData->Action = ActionData;
+	Super::ExecuteAction(ActionData);
 
 	switch (ActionData->ActionType)
 	{
@@ -1961,18 +1909,6 @@ bool AMordath::IsKicking() const
 	return FSM->GetActiveStateID() == 20;
 }
 
-void AMordath::EncirclePlayer()
-{
-	if (WantsMoveRight())
-	{
-		MoveRight();
-	}
-	else
-	{
-		MoveRight(-1.0f);
-	}
-}
-
 bool AMordath::CanAttack() const
 {
 	return (CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || 
@@ -1990,11 +1926,6 @@ void AMordath::ResetActionDamage()
 void AMordath::IncreaseAttackDamage(const float& Multiplier)
 {
 	ActionDamage *= Multiplier;
-}
-
-void AMordath::StartExecutionExpiryTimer()
-{
-	TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, this, &AMordath::OnExecutionTimeExpired, CurrentActionData->ExecutionTime, false);
 }
 
 void AMordath::Die()
@@ -2016,7 +1947,7 @@ void AMordath::PauseAnimsWithTimer()
 
 bool AMordath::IsShortAttacking() const
 {
-	return FSM->GetActiveStateID() == 25 && 
+	return IsPerformingAction() && 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_2 || 
 			GameState->BossData.CurrentActionType == ATM_ShortAttack_3;
@@ -2024,7 +1955,7 @@ bool AMordath::IsShortAttacking() const
 
 bool AMordath::IsLongAttacking() const
 {
-	return FSM->GetActiveStateID() == 25 && 
+	return IsPerformingAction() && 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_2 || 
 			GameState->BossData.CurrentActionType == ATM_LongAttack_3;
@@ -2032,7 +1963,7 @@ bool AMordath::IsLongAttacking() const
 
 bool AMordath::IsSpecialAttacking() const
 {
-	return FSM->GetActiveStateID() == 25 && 
+	return IsPerformingAction() && 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_1 || 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_2 || 
 			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3;
@@ -2086,19 +2017,14 @@ bool AMordath::IsWaitingForNewCombo() const
 	return TimerManager->IsTimerActive(TH_ComboDelay);
 }
 
-bool AMordath::IsDelayingAction() const
-{
-	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
-}
-
 bool AMordath::IsDashing() const
 {
-	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17 || FSM->GetActiveStateID() == 25 && (CurrentActionData->Action->ActionType == ATM_Dash_Backward || CurrentActionData->Action->ActionType == ATM_Dash_Forward || CurrentActionData->Action->ActionType == ATM_Dash_Left || CurrentActionData->Action->ActionType == ATM_Dash_Right);
+	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17 || IsPerformingAction() && (CurrentActionData->Action->ActionType == ATM_Dash_Backward || CurrentActionData->Action->ActionType == ATM_Dash_Forward || CurrentActionData->Action->ActionType == ATM_Dash_Left || CurrentActionData->Action->ActionType == ATM_Dash_Right);
 }
 
 bool AMordath::IsStrafing() const
 {
-	return FSM->GetActiveStateID() == 22;
+	return IsPerformingAction() && (CurrentActionType == ATM_Strafe_Left || CurrentActionType == ATM_Strafe_Right);
 }
 
 bool AMordath::IsDamaged() const
@@ -2109,11 +2035,6 @@ bool AMordath::IsDamaged() const
 bool AMordath::IsThinking() const
 {
 	return FSM->GetActiveStateID() == 2;
-}
-
-bool AMordath::WantsMoveRight() const
-{
-	return MovementDirection;
 }
 
 bool AMordath::IsRecovering() const
@@ -2143,7 +2064,7 @@ bool AMordath::IsTransitioning() const
 
 bool AMordath::IsTired() const
 {
-	return FSM->GetActiveStateID() == 25 && CurrentActionData->Action->ActionType == ATM_Tired;
+	return IsPerformingAction() && CurrentActionData->Action->ActionType == ATM_Tired;
 }
 
 bool AMordath::IsDoingBackHand() const
@@ -2213,11 +2134,6 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 	default:
 	break;
 	}
-}
-
-UForceFeedbackEffect* AMordath::GetCurrentForceFeedbackEffect() const
-{
-	return CurrentActionData->Action->ForceFeedbackEffect;
 }
 
 void AMordath::SpawnGhost()

@@ -380,7 +380,7 @@ void AYlva::Tick(const float DeltaTime)
 		}
 	}
 
-	// Auto-rotate toward boss when in close range to the boss
+	// Auto-rotate toward boss when in close range
 	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
@@ -560,7 +560,6 @@ void AYlva::MoveRight(const float Value)
 
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
-
 	}
 }
 

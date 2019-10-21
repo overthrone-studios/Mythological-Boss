@@ -29,12 +29,7 @@ AMordathGhost::AMordathGhost() : AMordathBase()
 	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
 	FSM->AddState(1, "Follow");
 	FSM->AddState(2, "Thinking");
-	FSM->AddState(3, "Light Attack 1");
-	FSM->AddState(4, "Light Attack 2");
-	FSM->AddState(5, "Light Attack 3");
-	FSM->AddState(6, "Heavy Attack 1");
-	FSM->AddState(7, "Heavy Attack 2");
-	FSM->AddState(8, "Heavy Attack 3");
+	FSM->AddState(3, "Action");
 	FSM->AddState(13, "Death");
 
 	FSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterFollowState);
@@ -45,29 +40,9 @@ AMordathGhost::AMordathGhost() : AMordathBase()
 	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateThinkState);
 	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitThinkState);
 
-	FSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack1State);
-	FSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack1State);
-	FSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack1State);
-
-	FSM->GetStateFromID(4)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack2State);
-	FSM->GetStateFromID(4)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack2State);
-	FSM->GetStateFromID(4)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack2State);
-
-	FSM->GetStateFromID(5)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterShortAttack3State);
-	FSM->GetStateFromID(5)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateShortAttack3State);
-	FSM->GetStateFromID(5)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitShortAttack3State);
-
-	FSM->GetStateFromID(6)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack1State);
-	FSM->GetStateFromID(6)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack1State);
-	FSM->GetStateFromID(6)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack1State);
-	
-	FSM->GetStateFromID(7)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack2State);
-	FSM->GetStateFromID(7)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack2State);
-	FSM->GetStateFromID(7)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack2State);
-	
-	FSM->GetStateFromID(8)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterLongAttack3State);
-	FSM->GetStateFromID(8)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateLongAttack3State);
-	FSM->GetStateFromID(8)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitLongAttack3State);
+	FSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterActionState);
+	FSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateActionState);
+	FSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitActionState);
 	
 	FSM->GetStateFromID(13)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterDeathState);
 	FSM->GetStateFromID(13)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateDeathState);
@@ -202,166 +177,29 @@ void AMordathGhost::OnExitThinkState()
 }
 #pragma endregion 
 
-#pragma region Light Attack 1
-void AMordathGhost::OnEnterShortAttack1State()
+#pragma region Action
+void AMordathGhost::OnEnterActionState()
 {
 	PlayAttackMontage();
 }
 
-void AMordathGhost::UpdateShortAttack1State(float Uptime, int32 Frames)
+void AMordathGhost::UpdateActionState(float Uptime, int32 Frames)
 {
 	FacePlayer();
 
 	// If attack animation has finished, go back to previous state
 	if (HasFinishedAttack())
-	{
-		NextAttack();
-
 		FSM->PopState();
-	}
 }
 
-void AMordathGhost::OnExitShortAttack1State()
+void AMordathGhost::OnExitActionState()
 {
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAttackMontage();
-}
-#pragma endregion
 
-#pragma region Light Attack 2
-void AMordathGhost::OnEnterShortAttack2State()
-{
-	PlayAttackMontage();
-}
-
-void AMordathGhost::UpdateShortAttack2State(float Uptime, int32 Frames)
-{
-	FacePlayer();
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
-	{
-		NextAttack();
-
-		FSM->PopState();
-	}
-}
-
-void AMordathGhost::OnExitShortAttack2State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
-}
-#pragma endregion
-
-#pragma region Light Attack 3
-void AMordathGhost::OnEnterShortAttack3State()
-{
-	PlayAttackMontage();
-}
-
-void AMordathGhost::UpdateShortAttack3State(float Uptime, int32 Frames)
-{
-	FacePlayer();
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
-	{
-		NextAttack();
-
-		FSM->PopState();
-	}
-}
-
-void AMordathGhost::OnExitShortAttack3State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	NextAttack();
 }
 #pragma endregion 
-
-#pragma region Heavy Attack 1
-void AMordathGhost::OnEnterLongAttack1State()
-{
-	GameState->BossData.CurrentActionType = ATM_LongAttack_1;
-
-	CurrentLongAttackMontage = CurrentStageData->GetRandomFarRangeAction()->ActionMontage;
-	PlayAnimMontage(CurrentLongAttackMontage);
-}
-
-void AMordathGhost::UpdateLongAttack1State(float Uptime, int32 Frames)
-{
-	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentLongAttackMontage);
-
-	FacePlayer();
-
-	// If attack animation has finished, go back to previous state
-	if (!AnimInstance->Montage_IsPlaying(CurrentLongAttackMontage))
-	{
-		NextAttack();
-
-		FSM->PopState();
-	}
-}
-
-void AMordathGhost::OnExitLongAttack1State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAnimMontage();
-}
-#pragma endregion
-
-#pragma region Heavy Attack 2
-void AMordathGhost::OnEnterLongAttack2State()
-{
-	PlayAttackMontage();
-}
-
-void AMordathGhost::UpdateLongAttack2State(float Uptime, int32 Frames)
-{
-	FacePlayer();
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
-	{
-		NextAttack();
-
-		FSM->PopState();
-	}
-}
-
-void AMordathGhost::OnExitLongAttack2State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
-}
-#pragma endregion
-
-#pragma region Heavy Attack 3
-void AMordathGhost::OnEnterLongAttack3State()
-{
-	PlayAttackMontage();
-}
-
-void AMordathGhost::UpdateLongAttack3State(float Uptime, int32 Frames)
-{
-	FacePlayer();
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
-	{
-		NextAttack();
-
-		FSM->PopState();
-	}
-}
-
-void AMordathGhost::OnExitLongAttack3State()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
-}
-#pragma endregion
 
 #pragma region Death
 void AMordathGhost::OnEnterDeathState()
@@ -390,6 +228,8 @@ void AMordathGhost::OnExitDeathState()
 
 void AMordathGhost::ChooseCombo()
 {
+	static int8 ComboIndex = 0;
+
 	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
 		ComboIndex = FMath::RandRange(0, CachedCombos.Num() - 1);
 
@@ -440,59 +280,6 @@ void AMordathGhost::NextAttack()
 	}
 
 	ChosenCombo->NextAction();
-}
-
-bool AMordathGhost::IsDelayingAttack() const
-{
-	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
-}
-
-bool AMordathGhost::IsFarRange() const
-{
-	return DistanceToPlayer > CurrentStageData->GetMidRangeRadius();
-}
-
-bool AMordathGhost::HasFinishedAttack() const
-{
-	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Action->ActionMontage);
-}
-
-bool AMordathGhost::IsShortAttacking() const
-{
-	return FSM->GetActiveStateID() == 3 || FSM->GetActiveStateID() == 4 || FSM->GetActiveStateID() == 5;
-}
-
-bool AMordathGhost::IsLongAttacking() const
-{
-	return FSM->GetActiveStateID() == 6 || FSM->GetActiveStateID() == 7 || FSM->GetActiveStateID() == 8;
-}
-
-bool AMordathGhost::IsSpecialAttacking() const
-{
-	return FSM->GetActiveStateID() == 9 || FSM->GetActiveStateID() == 10 || FSM->GetActiveStateID() == 11;
-}
-
-float AMordathGhost::GetMovementSpeed() const
-{
-	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
-		return CurrentStageData->GetWalkSpeed();
-
-	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
-		return CurrentStageData->GetRunSpeed();
-
-	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
-		return CurrentStageData->GetRunSpeed();
-
-	return CurrentStageData->GetRunSpeed();
-}
-
-void AMordathGhost::PauseAnimsWithTimer()
-{
-	if (CurrentStageData->IsHitStopEnabled())
-	{
-		PauseAnims();
-		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordathGhost::UnPauseAnims, CurrentStageData->GetHitStopTime());
-	}
 }
 
 void AMordathGhost::PlayAttackMontage()
@@ -547,14 +334,64 @@ void AMordathGhost::ChooseAttack()
 	}
 }
 
-void AMordathGhost::EncirclePlayer()
+bool AMordathGhost::IsDelayingAttack() const
 {
-	if (MoveDirection == 1)
+	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
+}
+
+bool AMordathGhost::IsFarRange() const
+{
+	return DistanceToPlayer > CurrentStageData->GetMidRangeRadius();
+}
+
+bool AMordathGhost::HasFinishedAttack() const
+{
+	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Action->ActionMontage);
+}
+
+bool AMordathGhost::IsShortAttacking() const
+{
+	return FSM->GetActiveStateID() == 3 && 
+			CurrentActionType == ATM_ShortAttack_1 || 
+			CurrentActionType == ATM_ShortAttack_2 || 
+			CurrentActionType == ATM_ShortAttack_3;
+}
+
+bool AMordathGhost::IsLongAttacking() const
+{
+	return FSM->GetActiveStateID() == 3 && 
+			CurrentActionType == ATM_LongAttack_1 || 
+			CurrentActionType == ATM_LongAttack_2 || 
+			CurrentActionType == ATM_LongAttack_3;
+}
+
+bool AMordathGhost::IsSpecialAttacking() const
+{
+	return FSM->GetActiveStateID() == 3 && 
+			CurrentActionType == ATM_SpecialAttack_1 || 
+			CurrentActionType == ATM_SpecialAttack_2 || 
+			CurrentActionType == ATM_SpecialAttack_3;
+}
+
+float AMordathGhost::GetMovementSpeed() const
+{
+	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
+		return CurrentStageData->GetWalkSpeed();
+
+	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
+		return CurrentStageData->GetRunSpeed();
+
+	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
+		return CurrentStageData->GetRunSpeed();
+
+	return CurrentStageData->GetRunSpeed();
+}
+
+void AMordathGhost::PauseAnimsWithTimer()
+{
+	if (CurrentStageData->IsHitStopEnabled())
 	{
-		MoveRight();
-	}
-	else
-	{
-		MoveRight(-1.0f);
+		PauseAnims();
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordathGhost::UnPauseAnims, CurrentStageData->GetHitStopTime());
 	}
 }

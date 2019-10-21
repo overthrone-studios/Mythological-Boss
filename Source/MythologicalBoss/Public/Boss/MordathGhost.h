@@ -54,9 +54,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseAttack();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
-		void EncirclePlayer();
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseCombo();
 
@@ -85,58 +82,13 @@ protected:
 			void OnExitThinkState();
 	#pragma endregion 
 
-	#pragma region Light Attack 1
+	#pragma region Action
 		UFUNCTION()
-			void OnEnterShortAttack1State();
+			void OnEnterActionState();
 		UFUNCTION()
-			void UpdateShortAttack1State(float Uptime, int32 Frames);
+			void UpdateActionState(float Uptime, int32 Frames);
 		UFUNCTION()
-			void OnExitShortAttack1State();
-	#pragma endregion 
-
-	#pragma region Light Attack 2
-		UFUNCTION()
-			void OnEnterShortAttack2State();
-		UFUNCTION()
-			void UpdateShortAttack2State(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitShortAttack2State();
-	#pragma endregion 
-
-	#pragma region Light Attack 3
-		UFUNCTION()
-			void OnEnterShortAttack3State();
-		UFUNCTION()
-			void UpdateShortAttack3State(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitShortAttack3State();
-	#pragma endregion 
-
-	#pragma region Heavy Attack 1
-		UFUNCTION()
-			void OnEnterLongAttack1State();
-		UFUNCTION()
-			void UpdateLongAttack1State(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitLongAttack1State();
-	#pragma endregion 
-
-	#pragma region Heavy Attack 2
-		UFUNCTION()
-			void OnEnterLongAttack2State();
-		UFUNCTION()
-			void UpdateLongAttack2State(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitLongAttack2State();
-	#pragma endregion 
-
-	#pragma region Heavy Attack 3
-		UFUNCTION()
-			void OnEnterLongAttack3State();
-		UFUNCTION()
-			void UpdateLongAttack3State(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitLongAttack3State();
+			void OnExitActionState();
 	#pragma endregion 
 
 	#pragma region Death
@@ -151,16 +103,6 @@ protected:
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageData;
-
-	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
-
-	// The combo we are using
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
-		UComboData* ChosenCombo;
-
-	// Used to iterate, select or remove a combo, this to avoid touching the actual combos list
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
-		TArray<UComboData*> CachedCombos;
 
 private:
 	float DefaultRotationSpeed = 10.0f;

@@ -89,17 +89,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsWaitingForNewCombo() const;
 
-	// Returns true if we want to move towards our right vector
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool WantsMoveRight() const;
-
 	// Returns true if we are in the recovering state/animation
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsRecovering() const;
-
-	// Returns true if we are delaying our current attack
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsDelayingAction() const;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -170,9 +162,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void EnterStage(EBossStage_Mordath InStage);
 
-	UFUNCTION(BlueprintPure, Category = "Mordath")
-		class UForceFeedbackEffect* GetCurrentForceFeedbackEffect() const;
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation = FRotator::ZeroRotator);
 
@@ -209,8 +198,6 @@ protected:
 	void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 	void EndTakeDamage() override;
 
-	void OnExecutionTimeExpired();
-
 	void StopActionMontage() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
@@ -221,35 +208,24 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseCombo();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void NextAction();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void UpdateDamageValueInMainHUD(float DamageAmount) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ExecuteAction(class UMordathActionData* ActionData);
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void DestroySelf();
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ChooseAction();
+	void ChooseAction() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
-		void EncirclePlayer();
+	void ExecuteAction(class UMordathActionData* ActionData) override;
 
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool CanAttack() const;
+	bool CanAttack() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ResetActionDamage();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void IncreaseAttackDamage(const float& Multiplier);
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void StartExecutionExpiryTimer();
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
@@ -283,6 +259,7 @@ protected:
 		void OnAfterTakeDamage();
 	#pragma endregion 
 
+	#pragma region Any States
 	UFUNCTION()
 		void OnEnterAnyState(int32 ID, FName Name);
 	UFUNCTION()
@@ -303,6 +280,7 @@ protected:
 		void UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames);
 	UFUNCTION()
 		void OnExitAnyStageState(int32 ID, FName Name);
+	#pragma endregion 
 
 	#pragma region Boss States
 		#pragma region Idle
@@ -411,15 +389,6 @@ protected:
 			void UpdateDashCombatState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitDashCombatState();
-		#pragma endregion 
-
-		#pragma region Strafe
-		UFUNCTION()
-			void OnEnterStrafeState();
-		UFUNCTION()
-			void UpdateStrafeState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitStrafeState();
 		#pragma endregion 
 
 		#pragma region Tired
@@ -616,14 +585,6 @@ protected:
 	// How long (in seconds) should we stay dead before being destroyed?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
 		float DeathTime = 2.0f;
-
-	// The combo we are using
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
-		UComboData* ChosenCombo;
-
-	// Used to iterate, select or remove a combo, this to avoid touching the actual combos list
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
-		TArray<UComboData*> CachedCombos;
 
 private:
 	//TSubclassOf<class APotionBase> HealthPotion;

@@ -44,12 +44,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		virtual bool IsSpecialAttacking() const;
 
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsDelayingAction() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		UForceFeedbackEffect* GetCurrentForceFeedbackEffect() const;
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 	void PossessedBy(AController* NewController) override;
 
 	void Die() override;
+
+	void OnExecutionTimeExpired();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
 		void FacePlayer(float RotationSpeed = 10.0f);
@@ -69,6 +77,12 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		float GetMovementSpeed() const override;
 
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		bool WantsMoveRight() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
+		void EncirclePlayer();
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void PlayActionMontage();
 
@@ -76,6 +90,21 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		virtual void StopActionMontage();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		virtual void ChooseAction();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		virtual void ExecuteAction(class UMordathActionData* ActionData);
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		virtual bool CanAttack() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		virtual void NextAction();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void StartExecutionExpiryTimer();
 
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
@@ -87,7 +116,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
 		class UMordathStageData* CurrentStageData;
 
-	FComboData_Action* CurrentActionData;
+	// The combo we are using
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
+		UComboData* ChosenCombo;
+
+	// Used to iterate, select or remove a combo, this to avoid touching the actual combos list
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
+		TArray<UComboData*> CachedCombos;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
 		class AOverthroneCharacter* PlayerCharacter;
@@ -107,6 +142,11 @@ protected:
 		class UMordathAnimInstance* MordathAnimInstance{};
 
 	float ActionDamage = 0.0f;
+
+	FComboData_Action* CurrentActionData;
+
+	EActionType_Mordath CurrentActionType;
+	EAttackCounters_Mordath CurrentCounterType;
 
 	uint8 MovementDirection : 1;
 };
