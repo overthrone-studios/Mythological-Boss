@@ -2397,7 +2397,9 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 	AnimInstance->ForwardInput = LockedForwardInput;
 	AnimInstance->RightInput = LockedRightInput;
 
-	if (!IsLockedOn())
+	const float Scalar = FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), DirectionToBoss.GetSafeNormal());
+
+	if (!IsLockedOn() && Scalar > 0.5f)
 		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds, false);
 
 	if (DistanceToBoss < 400.0f&&
