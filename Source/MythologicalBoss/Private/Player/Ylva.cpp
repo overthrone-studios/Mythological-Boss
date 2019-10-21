@@ -694,7 +694,7 @@ void AYlva::Die()
 
 	YlvaAnimInstance->LeaveAllStates();
 
-	FSM->RemoveAllStatesFromStack();
+	FSM->RemoveAllStates();
 	FSM->PushState("Death");
 }
 

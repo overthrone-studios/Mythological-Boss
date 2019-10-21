@@ -2126,7 +2126,7 @@ void AMordath::Die()
 
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	FSM->RemoveAllStatesFromStack();
+	FSM->RemoveAllStates();
 	FSM->PushState("Death");
 }
 
