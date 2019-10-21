@@ -50,7 +50,7 @@ struct FState
 		float Uptime = 0;
 };
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories = ("Activation", "Collision"))
 class MYTHOLOGICALBOSS_API UFSM : public UActorComponent
 {
 	GENERATED_BODY()
