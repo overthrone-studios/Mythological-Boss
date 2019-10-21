@@ -274,18 +274,6 @@ void AOverthroneCharacter::StopMovement()
 	AnimInstance->RightInput = 0.0f;
 }
 
-bool AOverthroneCharacter::HasMovedRightBy(float Distance)
-{
-	check(0 && "You must implement HasMovedRightBy()");
-	return false;
-}
-
-bool AOverthroneCharacter::HasMovedLeftBy(float Distance)
-{
-	check(0 && "You must implement HasMovedLeftBy()");
-	return false;
-}
-
 void AOverthroneCharacter::ToggleLockSelf()
 {
 	check(0 && "You must implement ToggleLockSelf()");

@@ -375,8 +375,7 @@ void AMordath::UpdateIdleState(float Uptime, int32 Frames)
 
 	FacePlayer();
 
-	ForwardInput = 0.0f;
-	RightInput = 0.0f;
+	StopMovement();
 
 	FSM->PushState("Thinking");
 }
@@ -414,7 +413,6 @@ void AMordath::OnEnterFollowState()
 		CurrentActionData->Action->ActionType != ATM_Dash_Right) &&
 		FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < -0.3f)
 	{
-		ULog::Yes("Can back hand?", true);
 		FSM->PushState("Back Hand");
 		return;
 	}
@@ -1496,6 +1494,10 @@ void AMordath::OnSecondStageHealth()
 	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
 	SpawnLightningStrike(NewLocation);
 
+	StopMovement();
+
+	FSM->RemoveAllStates();
+
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
 
@@ -1509,6 +1511,10 @@ void AMordath::OnThirdStageHealth()
 {
 	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
 	SpawnLightningStrike(NewLocation);
+
+	StopMovement();
+
+	FSM->RemoveAllStates();
 
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);

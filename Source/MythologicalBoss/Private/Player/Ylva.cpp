@@ -380,6 +380,7 @@ void AYlva::Tick(const float DeltaTime)
 		}
 	}
 
+	// Auto-rotate toward boss when in close range to the boss
 	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
@@ -391,12 +392,6 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
-	//const FVector& ModifiedControlVector = FVector(ControlRotation.Vector().X, ControlRotation.Vector().Y, 0.0f).GetSafeNormal();
-	//DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedDirectionToBoss * 200.0f, FColor::Green, false, -1.0f, 0, 2.0f);
-	//DrawDebugLine(World, CurrentLocation, CurrentLocation + ModifiedControlVector * 200.0f, FColor::Orange, false, -1.0f, 0, 2.0f);
-
-	//DrawDebugString(World, CurrentLocation, FString::SanitizeFloat(Scalar), nullptr, FColor::White, DeltaTime);
-
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
@@ -415,11 +410,9 @@ void AYlva::Tick(const float DeltaTime)
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Player Displayed Stamina: " + FString::SanitizeFloat(StaminaComponent->GetSmoothedStamina()));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Moved Right by: " + FString::SanitizeFloat(DistanceMovedInRightDirection));
+	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Distance to Spear: " + FString::SanitizeFloat(FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation)));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Distance to Spear: " + FString::SanitizeFloat(FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation)));
-
-	OverthroneHUD->UpdateOnScreenDebugMessage(14, "Yaw Input: " + FString::SanitizeFloat(YawInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Yaw Input: " + FString::SanitizeFloat(YawInput));
 #endif
 }
 
@@ -568,13 +561,6 @@ void AYlva::MoveRight(const float Value)
 		// Add movement in that direction
 		AddMovementInput(Direction, Value);
 
-		RightMovementEnd = CurrentLocation;
-	}
-	else
-	{
-		DistanceMovedInRightDirection = 0.0f;
-		RightMovementStart = CurrentLocation;
-		RightMovementEnd = CurrentLocation;
 	}
 }
 
@@ -805,26 +791,6 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 1.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
 	}
-}
-
-bool AYlva::HasMovedRightBy(const float Distance)
-{
-	DistanceMovedInRightDirection = FVector::Dist(RightMovementStart, RightMovementEnd);
-
-	if (IsMovingRight())
-		return DistanceMovedInRightDirection >= Distance;
-
-	return false;
-}
-
-bool AYlva::HasMovedLeftBy(const float Distance)
-{
-	DistanceMovedInRightDirection = FVector::Dist(RightMovementStart, RightMovementEnd);
-
-	if (IsMovingLeft())
-		return DistanceMovedInRightDirection >= Distance;
-
-	return false;
 }
 
 void AYlva::OnAttackLanded(FHitResult& HitResult)
@@ -2755,7 +2721,6 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Moved Right by: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Distance to Spear: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Yaw Input: ", FColor::Green);
 }

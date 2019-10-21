@@ -383,10 +383,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Feedback")
 		class UForceFeedbackEffect* GetCurrentForceFeedback() const;
 
-	bool HasMovedRightBy(float Distance) override;
-
-	bool HasMovedLeftBy(float Distance) override;
-
 	void OnAttackLanded(FHitResult& HitResult) override;
 
 	bool IsLocked() const override;
@@ -961,9 +957,6 @@ private:
 	float YawInput = 0.0f;
 
 	float LockedForwardInput = 0.0f, LockedRightInput = 0.0f;
-
-	FVector RightMovementStart, RightMovementEnd;
-	float DistanceMovedInRightDirection;
 
 	FVector StartAttackLocation;
 	FVector EndAttackLocation;

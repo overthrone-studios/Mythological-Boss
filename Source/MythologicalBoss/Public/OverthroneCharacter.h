@@ -65,12 +65,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
 		bool IsDead() const;
 
-	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
-		virtual bool HasMovedRightBy(float Distance);
-
-	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
-		virtual bool HasMovedLeftBy(float Distance);
-
 	// Enable/Disable character from doing any actions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual bool IsLocked() const;
