@@ -1,4 +1,4 @@
-// Copyright Overthrone Studios 2019
+// Copyright Ali El Saleh 2019
 
 #include "FSM.h"
 
@@ -7,6 +7,8 @@
 UFSM::UFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	History.AddDefaulted();
 }
 
 void UFSM::BeginPlay()
@@ -59,6 +61,7 @@ void UFSM::Start()
 	Stack[0]->OnEnterState.Broadcast();
 	PreviousState = Stack[0];
 	OnEnterAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
+	AddStateToHistory(*Stack[0]);
 	bIsRunning = true;
 }
 
@@ -72,6 +75,7 @@ void UFSM::Stop()
 	Stack[0]->OnExitState.Broadcast();
 	PreviousState = Stack[0];
 	OnExitAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
+	AddStateToHistory(*Stack[0]);
 	bIsRunning = false;
 }
 
@@ -93,6 +97,7 @@ void UFSM::InitFSM(const int32 StateID)
 		if (State.ID == StateID)
 		{
 			Stack.Add(&State);
+			AddStateToHistory(State);
 
 			bHasFSMInitialized = true;
 			return;
@@ -123,6 +128,7 @@ void UFSM::InitFSM(const FName StateName)
 		if (State.Name == StateName)
 		{
 			Stack.Add(&State);
+			AddStateToHistory(State);
 
 			bHasFSMInitialized = true;
 			return;
@@ -135,14 +141,29 @@ void UFSM::InitFSM(const FName StateName)
 	#endif
 }
 
-void UFSM::AddState(const int32 ID, const FName StateName)
+FState& UFSM::AddState(const int32 ID, const FName StateName)
 {
-	States.Add({ID, StateName});
+	for (FState& State : States)
+	{
+		if (State.ID == ID || State.Name == StateName)
+		{
+			#if !UE_BUILD_SHIPPING
+			if (bDebug && bLogWarnings)
+				ULog::DebugMessage(WARNING, FString("AddState: State '") + StateName.ToString() + FString("' already exists!"), true);
+			#endif
+
+			return State;
+		}
+	}
+
+	const int32 Index = States.Add({ID, StateName});
 
 	#if !UE_BUILD_SHIPPING
-	if (bDebug)
+	if (bDebug && bLogStatus)
 		ULog::DebugMessage(INFO, FString("State " + StateName.ToString() + " added"), true);
 	#endif
+
+	return States[Index];
 }
 
 void UFSM::PopState()
@@ -153,18 +174,18 @@ void UFSM::PopState()
 	PopState(GetActiveStateID());
 }
 
-void UFSM::RemoveAllStatesFromStack()
+void UFSM::RemoveAllStates()
 {
 	for (int32 i = 0; i < Stack.Num(); i++)
 		PopState();
 
 	#if !UE_BUILD_SHIPPING
-	if (bDebug)
+	if (bDebug && bLogStatus)
 		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for one"), true);
 	#endif
 }
 
-void UFSM::RemoveAllStatesFromStackExceptActive()
+void UFSM::RemoveAllStatesExceptActive()
 {
 	for (int32 i = 0; i < Stack.Num(); i++)
 	{
@@ -173,8 +194,36 @@ void UFSM::RemoveAllStatesFromStackExceptActive()
 	}
 
 	#if !UE_BUILD_SHIPPING
-	if (bDebug)
+	if (bDebug && bLogStatus)
 		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for the active state"), true);
+	#endif
+}
+
+void UFSM::RemoveAllStatesExcept(const int32 ID)
+{
+	for (int32 i = 0; i < Stack.Num(); i++)
+	{
+		if (Stack[i]->ID != ID)
+			PopState();
+	}
+
+	#if !UE_BUILD_SHIPPING
+	if (bDebug && bLogStatus)
+		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for state ") + FString::FromInt(ID), true);
+	#endif
+}
+
+void UFSM::RemoveAllStatesExcept(const FName StateName)
+{
+	for (int32 i = 0; i < Stack.Num(); i++)
+	{
+		if (Stack[i]->Name != StateName)
+			PopState();
+	}
+
+	#if !UE_BUILD_SHIPPING
+	if (bDebug && bLogStatus)
+		ULog::DebugMessage(INFO, FString("All states from the stack have been removed, except for state '") + StateName.ToString() + "'", true);
 	#endif
 }
 
@@ -237,6 +286,7 @@ void UFSM::PushState_Internal(FState& State)
 	Stack[0]->OnExitState.Broadcast();
 	PreviousState = Stack[0];
 	OnExitAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
+	AddStateToHistory(*Stack[0]);
 	Stack[0]->Uptime = 0;
 	Stack[0]->Frames = 0;
 	Stack.Insert(&State, 0);
@@ -249,11 +299,26 @@ void UFSM::PopState_Internal(FState* State)
 	Stack[0]->OnExitState.Broadcast();
 	PreviousState = Stack[0];
 	OnExitAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
+	AddStateToHistory(*Stack[0]);
 	Stack[0]->Uptime = 0;
 	Stack[0]->Frames = 0;
 	Stack.Remove(State);
 	Stack[0]->OnEnterState.Broadcast();
 	OnEnterAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
+}
+
+void UFSM::AddStateToHistory(const FState& State)
+{
+	if (History.Num() < MaxHistoryStates)
+	{
+		History.Insert(State, 0);
+	}
+	else
+	{
+		History.RemoveAt(History.Num()-1);
+		History.Shrink();
+		History.Insert(State, 0);
+	}
 }
 
 void UFSM::PopState(const int32 StateID)
@@ -345,7 +410,7 @@ FName UFSM::GetStateName(const int32 ID) const
 	ULog::Error(FString("Failed to find the state name from ID. State ID ") + FString::FromInt(ID) + FString(" does not exist."), true);
 	#endif
 
-	return FName("None");
+	return NAME_None;
 }
 
 int32 UFSM::GetStateID(const FName StateName) const
