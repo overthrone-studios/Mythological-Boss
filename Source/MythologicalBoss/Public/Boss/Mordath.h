@@ -47,12 +47,6 @@ public:
 
 	void AddDebugMessages() override;
 
-	float GetActionDamage() const override;
-
-	float GetAttackRadius() const override;
-
-	float GetRecentDamage() const override;
-
 	bool IsShortAttacking() const override;
 
 	bool IsLongAttacking() const override;
@@ -171,8 +165,7 @@ public:
 		bool IsPerformingAction() const;
 
 	// Returns the movement speed based on the current range/distance to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		float GetMovementSpeed() const override;
+	float GetMovementSpeed() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void EnterStage(EBossStage_Mordath InStage);
@@ -221,11 +214,6 @@ protected:
 	void StopActionMontage() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
-		void FacePlayer(float RotationSpeed = 10.0f);
-
-	void FacePlayer_Instant();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayerBasedOnActionData(const class UMordathActionData* ActionData);
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
@@ -259,9 +247,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void IncreaseAttackDamage(const float& Multiplier);
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
-		void StopMoving();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void StartExecutionExpiryTimer();
@@ -643,8 +628,6 @@ protected:
 private:
 	//TSubclassOf<class APotionBase> HealthPotion;
 
-	float ActionDamage = 0.0f;
-
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
 
@@ -660,8 +643,6 @@ private:
 	class UMordathActionData* FarRange_ActionData;
 
 	class UAnimMontage* PreviousActionMontage;
-
-	class UMordathStageData* CurrentStageData;
 
 	// Timer handles
 	FTimerHandle TH_ComboDelay;

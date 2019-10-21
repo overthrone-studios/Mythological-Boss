@@ -23,8 +23,7 @@ void UAnimNotifyState_ApplyDamageAOE::NotifyBegin(USkeletalMeshComponent* MeshCo
 		if (!MordathGhost)
 			return;
 
-		if (MordathGhost->IsSpecialAttacking())
-			AttackDamage = MordathGhost->GetSpecialAttackDamage();
+		AttackDamage = MordathGhost->GetActionDamage();
 
 		return;
 	}

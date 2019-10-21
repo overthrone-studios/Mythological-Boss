@@ -2531,18 +2531,10 @@ void AYlva::ApplyHitStop()
 
 void AYlva::StopMovement()
 {
-	CurrentMovementSpeed = 0;
-	ForwardInput = 0.0f;
-	RightInput = 0.0f;
-
-	AnimInstance->ForwardInput = 0.0f;
-	AnimInstance->RightInput = 0.0f;
-	AnimInstance->MovementSpeed = 0.0f;
+	Super::StopMovement();
 
 	MovementComponent->DisableMovement();
 	PlayerController->SetIgnoreMoveInput(true);
-
-	AnimInstance->LeaveAllStates();
 }
 
 void AYlva::ResumeMovement()

@@ -8,6 +8,7 @@
 #include "MordathAnimInstance.h"
 
 #include "Combat/MordathActionData.h"
+#include "Misc/MordathStageData.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -107,6 +108,17 @@ void AMordathBase::Die()
 	FSM->RemoveAllStates();
 }
 
+void AMordathBase::FacePlayer(const float RotationSpeed)
+{
+	if (RotationSpeed > 0.0f)
+		SetActorRotation(FMath::Lerp(ControlRotation, FRotator(ControlRotation.Pitch, DirectionToPlayer.Rotation().Yaw, ControlRotation.Roll), RotationSpeed * World->DeltaTimeSeconds));
+}
+
+void AMordathBase::FacePlayer_Instant()
+{
+	SetActorRotation(FRotator(ControlRotation.Pitch, DirectionToPlayer.Rotation().Yaw, ControlRotation.Roll));
+}
+
 void AMordathBase::MoveForward(float Scale)
 {
 	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
@@ -128,6 +140,11 @@ void AMordathBase::MoveRight(float Scale)
 void AMordathBase::ChooseMovementDirection()
 {
 	MovementDirection = FMath::RandRange(0, 1);
+}
+
+float AMordathBase::GetMovementSpeed() const
+{
+	return CurrentStageData->GetRunSpeed();
 }
 
 void AMordathBase::PlayActionMontage()
@@ -165,17 +182,17 @@ FVector AMordathBase::GetDirectionToPlayer() const
 
 float AMordathBase::GetActionDamage() const
 {
-	return 0.0f;
+	return ActionDamage;
 }
 
 float AMordathBase::GetAttackRadius() const
 {
-	return 0.0f;
+	return CurrentStageData->GetAttackRadius();
 }
 
 float AMordathBase::GetRecentDamage() const
 {
-	return 0.0f;
+	return CurrentStageData->GetRecentDamage();
 }
 
 bool AMordathBase::IsAttacking() const

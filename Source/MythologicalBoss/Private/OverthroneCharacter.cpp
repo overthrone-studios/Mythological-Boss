@@ -262,6 +262,18 @@ bool AOverthroneCharacter::IsInvincible() const
 	return !bCanBeDamaged;
 }
 
+void AOverthroneCharacter::StopMovement()
+{
+	CurrentMovementSpeed = 0.0f;
+	ForwardInput = 0.0f;
+	RightInput = 0.0f;
+
+	AnimInstance->MovementSpeed = 0.0f;
+	AnimInstance->MovementDirection = 0.0f;
+	AnimInstance->ForwardInput = 0.0f;
+	AnimInstance->RightInput = 0.0f;
+}
+
 bool AOverthroneCharacter::HasMovedRightBy(float Distance)
 {
 	check(0 && "You must implement HasMovedRightBy()");

@@ -18,19 +18,11 @@ class MYTHOLOGICALBOSS_API AMordathGhost final : public AMordathBase
 public:
 	AMordathGhost();
 
-	// Returns the light attack damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetShortAttackDamage() const;
+	bool IsShortAttacking() const override;
 
-	// Returns the heavy attack damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetLongAttackDamage() const;
+	bool IsLongAttacking() const override;
 
-	// Returns the special attack damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetSpecialAttackDamage() const;
-
-	float GetAttackRadius() const override;
+	bool IsSpecialAttacking() const override;
 
 	// Returns true if we are in far distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
@@ -40,15 +32,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
 
-	bool IsShortAttacking() const override;
-
-	bool IsLongAttacking() const override;
-
-	bool IsSpecialAttacking() const override;
-
 	// Returns the movement speed based on the current range/distance to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		float GetMovementSpeed() const override;
+	float GetMovementSpeed() const override;
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
@@ -58,8 +43,6 @@ protected:
 	void Tick(float DeltaSeconds) override;
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	void FacePlayer();
 
 	// todo remove functions
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
@@ -201,6 +184,4 @@ private:
 	UMaterialInterface* GhostMaterial;
 
 	class UAnimMontage* CurrentLongAttackMontage;
-
-	class UMordathStageData* CurrentStageData;
 };

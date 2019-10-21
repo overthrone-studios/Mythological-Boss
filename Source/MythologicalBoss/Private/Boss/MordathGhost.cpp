@@ -110,11 +110,6 @@ float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& Da
 	return DamageAmount;
 }
 
-void AMordathGhost::FacePlayer()
-{
-	SetActorRotation(FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll));
-}
-
 #pragma region Boss States
 #pragma region Follow
 void AMordathGhost::OnEnterFollowState()
@@ -452,26 +447,6 @@ bool AMordathGhost::IsDelayingAttack() const
 	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
 }
 
-float AMordathGhost::GetShortAttackDamage() const
-{
-	return CurrentAttackData->Action->ActionDamage;
-}
-
-float AMordathGhost::GetLongAttackDamage() const
-{
-	return CurrentAttackData->Action->ActionDamage;
-}
-
-float AMordathGhost::GetSpecialAttackDamage() const
-{
-	return CurrentAttackData->Action->ActionDamage;
-}
-
-float AMordathGhost::GetAttackRadius() const
-{
-	return CurrentStageData->GetAttackRadius();
-}
-
 bool AMordathGhost::IsFarRange() const
 {
 	return DistanceToPlayer > CurrentStageData->GetMidRangeRadius();
@@ -574,25 +549,12 @@ void AMordathGhost::ChooseAttack()
 
 void AMordathGhost::EncirclePlayer()
 {
-	MovementComponent->MaxWalkSpeed = CurrentStageData->GetWalkSpeed();
-
-	if (PlayerCharacter->GetInputAxisValue("MoveRight") > 0.0f && PlayerCharacter->HasMovedRightBy(300.0f))
+	if (MoveDirection == 1)
 	{
 		MoveRight();
 	}
-	else if (PlayerCharacter->GetInputAxisValue("MoveRight") < 0.0f && PlayerCharacter->HasMovedLeftBy(300.0f))
-	{
-		MoveRight(-1.0f);
-	}
 	else
 	{
-		if (MoveDirection == 1)
-		{
-			MoveRight();
-		}
-		else
-		{
-			MoveRight(-1.0f);
-		}
+		MoveRight(-1.0f);
 	}
 }

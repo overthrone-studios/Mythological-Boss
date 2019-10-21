@@ -254,8 +254,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Components")
 		FORCEINLINE class UPlayerCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
-		void StopMovement();
+	void StopMovement() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Movement")
 		void ResumeMovement();

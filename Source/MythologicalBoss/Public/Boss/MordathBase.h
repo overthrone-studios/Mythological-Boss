@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "OverthroneCharacter.h"
+#include "ComboData.h"
 #include "MordathBase.generated.h"
 
 UCLASS(Abstract)
@@ -22,15 +23,15 @@ public:
 
 	// Returns the current action damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual float GetActionDamage() const;
+		float GetActionDamage() const;
 
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual float GetAttackRadius() const;
+		float GetAttackRadius() const;
 
 	// Returns the recent damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual float GetRecentDamage() const;
+		float GetRecentDamage() const;
 
 	bool IsAttacking() const override;
 
@@ -50,6 +51,12 @@ protected:
 
 	void Die() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
+		void FacePlayer(float RotationSpeed = 10.0f);
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
+		void FacePlayer_Instant();
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void MoveForward(float Scale = 1.0f);
 
@@ -58,6 +65,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void ChooseMovementDirection();
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
+		float GetMovementSpeed() const override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void PlayActionMontage();
@@ -74,8 +84,19 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
 		class UAnimMontage* CurrentActionMontage;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
+		class UMordathStageData* CurrentStageData;
+
+	FComboData_Action* CurrentActionData;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
 		class AOverthroneCharacter* PlayerCharacter;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
+		float DistanceToPlayer = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
+		FVector DirectionToPlayer = FVector(0.0f);
 
 	// Our custom AI controller
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | AI")
@@ -85,11 +106,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Animation")
 		class UMordathAnimInstance* MordathAnimInstance{};
 
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
-		float DistanceToPlayer = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
-		FVector DirectionToPlayer = FVector(0.0f);
+	float ActionDamage = 0.0f;
 
 	uint8 MovementDirection : 1;
 };

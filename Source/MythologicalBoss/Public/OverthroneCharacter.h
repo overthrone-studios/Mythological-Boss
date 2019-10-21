@@ -142,6 +142,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		bool IsInvincible() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void StopMovement();
+
 	// Changes the hit box dimensions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ChangeHitboxSize(float NewRadius);

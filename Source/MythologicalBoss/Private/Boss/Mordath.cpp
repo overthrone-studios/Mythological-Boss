@@ -457,7 +457,7 @@ void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 			}
 			else
 			{
-				StopMoving();
+				StopMovement();
 			}
 		break;
 
@@ -472,7 +472,7 @@ void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 			}
 			else
 			{
-				StopMoving();
+				StopMovement();
 			}
 		break;
 
@@ -487,7 +487,7 @@ void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 			}
 			else
 			{
-				StopMoving();
+				StopMovement();
 			}
 		break;
 
@@ -498,12 +498,12 @@ void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 			}
 			else
 			{
-				StopMoving();
+				StopMovement();
 			}
 		break;
 
 		default:
-			StopMoving();
+			StopMovement();
 		break;
 		}
 	}
@@ -614,7 +614,7 @@ void AMordath::OnEnterLockedState()
 
 void AMordath::UpdateLockedState(float Uptime, int32 Frames)
 {
-	StopMoving();
+	StopMovement();
 }
 
 void AMordath::OnExitLockedState()
@@ -685,7 +685,7 @@ void AMordath::OnEnterActionState()
 
 void AMordath::UpdateActionState(float Uptime, int32 Frames)
 {
-	StopMoving();
+	StopMovement();
 
 	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
 
@@ -754,7 +754,7 @@ void AMordath::OnEnterCloseActionState()
 
 void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
 {
-	StopMoving();
+	StopMovement();
 
 	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
 
@@ -1826,7 +1826,7 @@ void AMordath::UpdateDamageValueInMainHUD(const float DamageAmount) const
 
 void AMordath::ExecuteAction(UMordathActionData* ActionData)
 {
-	StopMoving();
+	StopMovement();
 
 	CurrentActionData->Action = ActionData;
 
@@ -1867,17 +1867,6 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 
 void AMordath::ChangeHitboxSize(const float NewRadius)
 {
-}
-
-void AMordath::FacePlayer(const float RotationSpeed)
-{
-	if (RotationSpeed > 0.0f)
-		SetActorRotation(FMath::Lerp(GetControlRotation(), FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll), RotationSpeed * World->DeltaTimeSeconds));
-}
-
-void AMordath::FacePlayer_Instant()
-{
-	SetActorRotation(FRotator(GetControlRotation().Pitch, DirectionToPlayer.Rotation().Yaw, GetControlRotation().Roll));
 }
 
 void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* ActionData)
@@ -1995,13 +1984,6 @@ void AMordath::ResetActionDamage()
 void AMordath::IncreaseAttackDamage(const float& Multiplier)
 {
 	ActionDamage *= Multiplier;
-}
-
-void AMordath::StopMoving()
-{
-	CurrentMovementSpeed = 0.0f;
-	ForwardInput = 0.0f;
-	RightInput = 0.0f;
 }
 
 void AMordath::StartExecutionExpiryTimer()
@@ -2204,21 +2186,6 @@ float AMordath::GetMovementSpeed() const
 	default:
 		return CurrentStageData->GetWalkSpeed();
 	}
-}
-
-float AMordath::GetActionDamage() const
-{
-	return ActionDamage;
-}
-
-float AMordath::GetAttackRadius() const
-{
-	return CurrentStageData->GetAttackRadius();
-}
-
-float AMordath::GetRecentDamage() const
-{
-	return CurrentStageData->GetRecentDamage();
 }
 
 void AMordath::EnterStage(const EBossStage_Mordath InStage)
