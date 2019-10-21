@@ -1293,7 +1293,7 @@ void AYlva::Dash_Queued()
 void AYlva::ToggleLockOn()
 {
 	// Don't lock on if boss is dead OR if we are dead
-	if (GameState->BossData.bIsDead || bIsDead || DistanceToBoss > FollowCamera->GetMaxLockOnDistance())
+	if (GameState->BossData.bIsDead || bIsDead || !CanLockOn())
 		return;
 
 	FollowCamera->ToggleLockOn();
@@ -1302,7 +1302,7 @@ void AYlva::ToggleLockOn()
 void AYlva::EnableLockOn()
 {
 	// Don't lock on if boss is dead OR if we are dead
-	if (GameState->BossData.bIsDead || bIsDead || DistanceToBoss > FollowCamera->GetMaxLockOnDistance())
+	if (GameState->BossData.bIsDead || bIsDead || !CanLockOn())
 		return;
 
 	FollowCamera->EnableLockOn();
@@ -2399,7 +2399,7 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 
 	const float Scalar = FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), DirectionToBoss.GetSafeNormal());
 
-	if (!IsLockedOn() && Scalar > 0.5f)
+	if (!IsLockedOn() && CanLockOn() && Scalar > 0.5f)
 		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds, false);
 
 	if (DistanceToBoss < 400.0f&&
@@ -2671,6 +2671,11 @@ bool AYlva::CanDashAttack() const
 bool AYlva::IsPerfectDashing() const
 {
 	return bPerfectlyTimedDash;
+}
+
+bool AYlva::CanLockOn() const
+{
+	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance();
 }
 
 bool AYlva::IsLocked() const

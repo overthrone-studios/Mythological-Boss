@@ -372,6 +372,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsPerfectDashing() const;
 
+	// Returns true if we are allowed to lock on
+	UFUNCTION(BlueprintPure, Category = "Ylva | Lock-On Camera")
+		bool CanLockOn() const;
+
 	// Increases the charge meter
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
