@@ -296,13 +296,6 @@ void AMordath::Tick(const float DeltaTime)
 #endif
 }
 
-void AMordath::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	BossAIController = Cast<ABossAIController>(NewController);
-}
-
 #pragma region Any States
 void AMordath::OnEnterAnyState(int32 ID, FName Name)
 {
@@ -1450,9 +1443,7 @@ void AMordath::OnLowHealth()
 
 void AMordath::OnPlayerDeath()
 {
-	BossAIController->StopMovement();
-
-	FSM->RemoveAllStatesExceptActive();
+	Super::OnPlayerDeath();
 
 	RangeFSM->Stop();
 	StageFSM->Stop();
@@ -1975,11 +1966,6 @@ bool AMordath::IsKicking() const
 	return FSM->GetActiveStateID() == 20;
 }
 
-void AMordath::ChooseMovementDirection()
-{
-	ThinkingMoveDirection = FMath::RandBool();
-}
-
 void AMordath::EncirclePlayer()
 {
 	if (WantsMoveRight())
@@ -2038,11 +2024,6 @@ void AMordath::PauseAnimsWithTimer()
 		PauseAnims();
 		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, CurrentStageData->GetHitStopTime());
 	}
-}
-
-bool AMordath::IsAttacking() const
-{
-	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
 }
 
 bool AMordath::IsShortAttacking() const
@@ -2144,7 +2125,7 @@ bool AMordath::IsThinking() const
 
 bool AMordath::WantsMoveRight() const
 {
-	return ThinkingMoveDirection;
+	return MovementDirection;
 }
 
 bool AMordath::IsRecovering() const

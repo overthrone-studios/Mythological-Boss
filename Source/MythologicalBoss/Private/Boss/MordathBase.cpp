@@ -125,6 +125,11 @@ void AMordathBase::MoveRight(float Scale)
 	RightInput = Scale;
 }
 
+void AMordathBase::ChooseMovementDirection()
+{
+	MovementDirection = FMath::RandRange(0, 1);
+}
+
 void AMordathBase::PlayActionMontage()
 {
 	PlayAnimMontage(CurrentActionMontage);
@@ -141,6 +146,13 @@ void AMordathBase::StopActionMontage()
 		StopAnimMontage();
 }
 
+void AMordathBase::OnPlayerDeath()
+{
+	BossAIController->StopMovement();
+
+	FSM->RemoveAllStatesExceptActive();
+}
+
 float AMordathBase::GetDistanceToPlayer() const
 {
 	return (GameState->PlayerData.Location - CurrentLocation).Size();
@@ -149,4 +161,39 @@ float AMordathBase::GetDistanceToPlayer() const
 FVector AMordathBase::GetDirectionToPlayer() const
 {
 	return (GameState->PlayerData.Location - CurrentLocation).GetSafeNormal();
+}
+
+float AMordathBase::GetActionDamage() const
+{
+	return 0.0f;
+}
+
+float AMordathBase::GetAttackRadius() const
+{
+	return 0.0f;
+}
+
+float AMordathBase::GetRecentDamage() const
+{
+	return 0.0f;
+}
+
+bool AMordathBase::IsAttacking() const
+{
+	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
+}
+
+bool AMordathBase::IsShortAttacking() const
+{
+	return false;
+}
+
+bool AMordathBase::IsLongAttacking() const
+{
+	return false;
+}
+
+bool AMordathBase::IsSpecialAttacking() const
+{
+	return false;
 }

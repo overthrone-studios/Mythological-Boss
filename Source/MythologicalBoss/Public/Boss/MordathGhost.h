@@ -30,9 +30,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetSpecialAttackDamage() const;
 
-	// Returns the attack radius value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetAttackRadius() const;
+	float GetAttackRadius() const override;
 
 	// Returns true if we are in far distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
@@ -42,19 +40,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
 
-	bool IsAttacking() const override;
+	bool IsShortAttacking() const override;
 
-	// Returns true if we are light attacking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsShortAttacking() const;
+	bool IsLongAttacking() const override;
 
-	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsLongAttacking() const;
-
-	// Returns true if we are special attacking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsSpecialAttacking() const;
+	bool IsSpecialAttacking() const override;
 
 	// Returns the movement speed based on the current range/distance to the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -67,12 +57,11 @@ protected:
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
 
-	void PossessedBy(AController* NewController) override;
-
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	void FacePlayer();
 
+	// todo remove functions
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void PlayAttackMontage();
 
@@ -84,9 +73,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void EncirclePlayer();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
-		void ChooseMovementDirection();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseCombo();
@@ -181,15 +167,7 @@ protected:
 
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
-		class UMordathStageData* StageOneData;
-
-	// The data the boss will reference during stage 2 of the fight
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
-		class UMordathStageData* StageTwoData;
-
-	// The data the boss will reference during stage 3 of the fight
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
-		class UMordathStageData* StageThreeData;
+		class UMordathStageData* StageData;
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 

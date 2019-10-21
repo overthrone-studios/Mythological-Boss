@@ -47,31 +47,17 @@ public:
 
 	void AddDebugMessages() override;
 
-	// Returns the current action damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetActionDamage() const;
+	float GetActionDamage() const override;
 
-	// Returns the attack radius value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetAttackRadius() const;
+	float GetAttackRadius() const override;
 
-	// Returns the recent damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetRecentDamage() const;
+	float GetRecentDamage() const override;
 
-	bool IsAttacking() const override;
+	bool IsShortAttacking() const override;
 
-	// Returns true if we are light attacking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsShortAttacking() const;
+	bool IsLongAttacking() const override;
 
-	// Returns true if we are heavy attacking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsLongAttacking() const;
-
-	// Returns true if we are special attacking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsSpecialAttacking() const;
+	bool IsSpecialAttacking() const override;
 
 	// Returns true if we are in the first stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
@@ -218,7 +204,6 @@ public:
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
-	void PossessedBy(AController* NewController) override;
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	void ChangeHitboxSize(float NewRadius) override;
@@ -264,9 +249,6 @@ protected:
 		void ChooseAction();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
-		void ChooseMovementDirection();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void EncirclePlayer();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -286,8 +268,7 @@ protected:
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
-	UFUNCTION()
-		void OnPlayerDeath();
+	void OnPlayerDeath() override;
 
 	UFUNCTION()
 		void OnAttackParryed();
@@ -674,8 +655,6 @@ private:
 
 	FName CurrentMontageSection = "None";
 	FString CurrentMontageName = "None";
-
-	uint8 ThinkingMoveDirection : 1;
 
 	class UMordathActionData* SuperCloseRange_ActionData;
 	class UMordathActionData* FarRange_ActionData;

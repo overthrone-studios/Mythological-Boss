@@ -76,17 +76,16 @@ AMordathGhost::AMordathGhost() : AMordathBase()
 	FSM->InitFSM(1);
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	Tags.Empty();
+	Tags.Add("Mordath-Ghost");
 }
 
 void AMordathGhost::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
-
-	DistanceToPlayer = GetDistanceToPlayer();
-
-	CurrentStageData = StageOneData;
+	CurrentStageData = StageData;
 	MordathAnimInstance->CurrentStage = Stage_1;
 
 	ChooseCombo();
@@ -98,30 +97,6 @@ void AMordathGhost::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (bIsDead)
-	{
-		AnimInstance->MovementSpeed = 0.0f;
-		AnimInstance->ForwardInput = ForwardInput;
-		AnimInstance->RightInput = RightInput;
-		return;
-	}
-
-	DistanceToPlayer = GetDistanceToPlayer();
-	DirectionToPlayer = GetDirectionToPlayer();
-	CurrentMovementSpeed = GetMovementSpeed();
-
-	MovementComponent->MaxWalkSpeed = CurrentMovementSpeed;
-
-	AnimInstance->MovementSpeed = CurrentMovementSpeed;
-	AnimInstance->ForwardInput = ForwardInput;
-	AnimInstance->RightInput = RightInput;
-}
-
-void AMordathGhost::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	BossAIController = Cast<ABossAIController>(NewController);
 }
 
 float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -418,11 +393,6 @@ void AMordathGhost::OnExitDeathState()
 #pragma endregion
 #pragma endregion 
 
-void AMordathGhost::ChooseMovementDirection()
-{
-	MoveDirection = FMath::RandRange(0, 1);
-}
-
 void AMordathGhost::ChooseCombo()
 {
 	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
@@ -510,11 +480,6 @@ bool AMordathGhost::IsFarRange() const
 bool AMordathGhost::HasFinishedAttack() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Action->ActionMontage);
-}
-
-bool AMordathGhost::IsAttacking() const
-{
-	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
 }
 
 bool AMordathGhost::IsShortAttacking() const
