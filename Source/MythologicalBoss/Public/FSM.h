@@ -103,8 +103,6 @@ public:
 	 *
 	 * @param  ID - The state's ID
 	 * @param  StateName - The state's name
-	 *
-	 * @return A reference to the newly added state
 	*/
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void AddState(int32 ID, FName StateName);
