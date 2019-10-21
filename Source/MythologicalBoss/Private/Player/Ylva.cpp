@@ -233,8 +233,8 @@ void AYlva::BeginPlay()
 	PlayerController->SetInputMode(FInputModeGameOnly());
 	PlayerController->bForceFeedbackEnabled = true;
 
-	InitTimeline(StaminaRegenTimeline, StaminaRegenCurve, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
-	InitTimeline(ChargeAttackTimeline, ChargeAttackCurve, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
+	UOverthroneFunctionLibrary::SetupTimeline(this, StaminaRegenTimeline, StaminaRegenCurve, false, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
+	UOverthroneFunctionLibrary::SetupTimeline(this, ChargeAttackTimeline, ChargeAttackCurve, false, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
 	// Initialize our variables
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;

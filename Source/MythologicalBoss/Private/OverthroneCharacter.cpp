@@ -5,8 +5,7 @@
 #include "Public/OverthroneGameState.h"
 #include "Public/OverthroneAnimInstance.h"
 #include "Public/OverthroneHUD.h"
-
-#include "Log.h"
+#include "Public/OverthroneFunctionLibrary.h"
 
 #include "HUD/FSMVisualizerHUD.h"
 
@@ -20,7 +19,6 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "TimerManager.h"
-#include "OverthroneFunctionLibrary.h"
 
 AOverthroneCharacter::AOverthroneCharacter()
 {
@@ -39,7 +37,7 @@ void AOverthroneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InitTimeline(HealthLossTimeline, HealthLossCurve, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
+	UOverthroneFunctionLibrary::SetupTimeline(this, HealthLossTimeline, HealthLossCurve, false, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
 
 	// Store all our child components
 	Components = GetComponents();
@@ -95,29 +93,6 @@ void AOverthroneCharacter::AddDebugMessages()
 float AOverthroneCharacter::GetMovementSpeed() const
 {
 	return MovementComponent->MaxWalkSpeed;
-}
-
-void AOverthroneCharacter::InitTimeline(FTimeline& InTimeline, UCurveFloat* InCurveFloat, const float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName)
-{
-	// Timeline Initialization
-	FOnTimelineFloat TimelineCallback;
-	FOnTimelineEvent TimelineFinishedCallback;
-	TimelineCallback.BindUFunction(this, TimelineCallbackFuncName);
-	TimelineFinishedCallback.BindUFunction(this, TimelineFinishedCallbackFuncName);
-
-	if (InCurveFloat)
-	{
-		InTimeline.SetLooping(false);
-		InTimeline.SetPlayRate(InPlaybackSpeed);
-		InTimeline.AddInterpFloat(InCurveFloat, TimelineCallback);
-		InTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
-		InTimeline.SetTimelineLength(InCurveFloat->FloatCurve.Keys[InCurveFloat->FloatCurve.Keys.Num() - 1].Time);
-		InTimeline.SetTimelineLengthMode(TL_TimelineLength);
-	}
-	else
-	{
-		ULog::DebugMessage(ERROR, FString("Failed to initialize timeline. A curve float asset is missing!"), true);
-	}
 }
 
 void AOverthroneCharacter::ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent)

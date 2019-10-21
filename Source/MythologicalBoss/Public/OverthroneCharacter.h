@@ -93,8 +93,6 @@ protected:
 
 	virtual float GetMovementSpeed() const;
 
-	void InitTimeline(struct FTimeline& InTimeline, class UCurveFloat* InCurveFloat, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName);
-
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void BeginTakeDamage(float DamageAmount);
 	
