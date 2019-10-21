@@ -56,20 +56,6 @@ struct FMovementSettings_Ylva : public FMovementSettings
 };
 
 USTRUCT(BlueprintType)
-struct FLockOnSettings
-{
-	GENERATED_BODY()
-
-	// Should the camera focus on the boss?
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		uint8 bLockedOn : 1;
-
-	// The target pitch when locking on
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 270.0f, ClampMax = 360.0f))
-		float LockOnPitch = 350.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FAttackQueue_Ylva
 {
 	GENERATED_BODY()
@@ -156,36 +142,6 @@ struct FChargeSettings_Ylva
 	// The force effect to play when we've landed a charge attack hit
 	UPROPERTY(EditInstanceOnly)
 		class UForceFeedbackEffect* ChargeAttackEndForce;
-};
-
-USTRUCT(BlueprintType)
-struct FCameraShakes_Ylva : public FCameraShakes
-{
-	GENERATED_BODY()
-
-	// The camera shake to play when we are blocking the boss's attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData ShieldHit;
-
-	// The camera shake to play while idleling
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Idle;
-
-	// The camera shake to play while walking
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Walk;
-
-	// The camera shake to play while running
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Run;
-
-	// The camera shake to play while charging our attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Charge;
-
-	// The camera shake to play when we release our charge attack
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData ChargeEnd;
 };
 
 USTRUCT(BlueprintType)
@@ -471,7 +427,7 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-	void HardLockOnTo(const FVector& TargetLocation, float DeltaTime);
+	void HardLockOnTo(const FVector& TargetLocation, float DeltaTime, bool bControlPitch = true);
 	void SoftLockOnTo(const FVector& TargetLocation, float DeltaTime);
 
 	void FaceBoss(float DeltaTime, float RotationSpeed = 10.0f);
@@ -571,27 +527,20 @@ protected:
 		void StartDashCooldown();
 
 	void Dash_Queued();
-
 	#pragma endregion
+
+	#pragma region LockOn
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On Camera")
+		void ToggleLockOn();
+
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On Camera")
+		void EnableLockOn();
+	#pragma endregion 
 
 	#pragma region Controls
 	// Called via input to pause the game
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Controls")
 		void Pause();
-	#pragma endregion
-
-	#pragma region LockOn
-	// Called via input to toggle lock on mechanic
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Lock-On")
-		void ToggleLockOn();
-
-	// Utility function to enable lock on
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Lock-On")
-		void EnableLockOn();
-
-	// Utility function to disable lock on
-	UFUNCTION(BlueprintCallable,Category = "Ylva | Lock-On")
-		void DisableLockOn();
 	#pragma endregion
 
 	#if !UE_BUILD_SHIPPING
@@ -727,6 +676,12 @@ protected:
 
 	// Called when exiting the low health state
 	void OnExitLowHealth() override;
+
+	UFUNCTION()
+		void OnLockOnEnabled();
+
+	UFUNCTION()
+		void OnLockOnDisabled();
 
 	// Called when the boss's health is less than or equal to zero
 	UFUNCTION(BlueprintImplementableEvent)
@@ -970,26 +925,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Charge Attack")
 		class UCurveFloat* ChargeAttackCurve;
 
-	// The minimum pitch rotation value (in degrees) the camera can rotate
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
-		float CameraPitchMin = 30.0f;
-
-	// The maximum pitch rotation value (in degrees) the camera can rotate
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
-		float CameraPitchMax = 50.0f;
-
-	// The minimum pitch rotation value (in degrees) the lock on camera can rotate
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = "-90.0", ClampMax = 90.0f))
-		float LockOnPitchMin = 5.0f;
-
-	// The maximum pitch rotation value (in degrees) the lock on camera can rotate
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f, ClampMax = 90.0f))
-		float LockOnPitchMax = 30.0f;
-
-	// The rotation speed of the lock on camera (1 = Slow, 10+ = Fast)
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera", meta = (ClampMin = 0.0f))
-		float LockOnRotationSpeed = 10.0f;
-
 	// Ylva's movement settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Movement")
 		FMovementSettings_Ylva MovementSettings;
@@ -997,17 +932,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
 		UParticleSystem* SlashParticle;
 
-	// Configure lock on settings
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Lock-On")
-		FLockOnSettings LockOnSettings;
-
 	// The amount of time (in seconds) we are electrocuted for when we are hit by a lightning strike
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat", DisplayName = "Electric Shock Time")
 		float ShockTime = 2.0f;
-
-	// Ylva's camera shake settings
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Camera")
-		FCameraShakes_Ylva CameraShakes;
 
 	// Ylva's combat settings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")

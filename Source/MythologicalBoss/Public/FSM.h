@@ -87,7 +87,6 @@ public:
 	 * Initializes the finite state machine via the State ID
 	 *
 	 * @param  StateID - The state's unique ID
-	 *
 	*/
 	void InitFSM(int32 StateID);
 
@@ -95,7 +94,6 @@ public:
 	 * Initializes the finite state machine via the State Name
 	 *
 	 * @param  StateName - The state's name
-	 *
 	*/
 	UFUNCTION(BlueprintCallable, Category = "FSM")
 		void InitFSM(FName StateName);
@@ -109,7 +107,7 @@ public:
 	 * @return A reference to the newly added state
 	*/
 	UFUNCTION(BlueprintCallable, Category = "FSM")
-		FState& AddState(int32 ID, FName StateName);
+		void AddState(int32 ID, FName StateName);
 
 	// Removes the state from the top of the stack (The current state)
 	void PopState();

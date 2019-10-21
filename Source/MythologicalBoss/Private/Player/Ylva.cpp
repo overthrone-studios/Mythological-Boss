@@ -175,6 +175,8 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FollowCamera = CreateDefaultSubobject<UPlayerCameraComponent>(FName("Follow Camera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->OnEnableLockOn.AddDynamic(this, &AYlva::OnLockOnEnabled);
+	FollowCamera->OnDisableLockOn.AddDynamic(this, &AYlva::OnLockOnDisabled);
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(30.0f, 90.0f);
@@ -250,8 +252,8 @@ void AYlva::BeginPlay()
 	OriginalAttackRadius = Combat.AttackSettings.AttackRadius;
 
 	// Set pitch min max values
-	CameraManager->ViewPitchMin = 360.0f - CameraPitchMax;
-	CameraManager->ViewPitchMax = CameraPitchMin;
+	CameraManager->ViewPitchMin = 360.0f - FollowCamera->GetMaxPitch();
+	CameraManager->ViewPitchMax = FollowCamera->GetMinPitch();
 
 	// Initialize player info
 	GameState->PlayerData.StartingHealth = HealthComponent->GetDefaultHealth();
@@ -353,6 +355,9 @@ void AYlva::Tick(const float DeltaTime)
 	{
 		SoftLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
+
+	if (DistanceToBoss > FollowCamera->GetMaxLockOnDistance() && IsLockedOn())
+		FollowCamera->DisableLockOn();
 
 	// Stamina regen mechanic
 	if (StaminaComponent->IsRegenFinished())
@@ -635,14 +640,16 @@ void AYlva::HandleInput(const FName ActionName)
 	}
 }
 
-void AYlva::HardLockOnTo(const FVector& TargetLocation, const float DeltaTime)
+void AYlva::HardLockOnTo(const FVector& TargetLocation, const float DeltaTime, const bool bControlPitch)
 {
 	const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
-	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, LockOnRotationSpeed);
+	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, FollowCamera->GetLockOnRotationSpeed());
 
-	const float& NewPitch = FMath::Clamp(Target.Pitch, LockOnPitchMin, LockOnPitchMax);
+	float NewPitch = Target.Pitch;
+	if (bControlPitch)
+		NewPitch = FMath::Clamp(Target.Pitch, FollowCamera->GetMinLockOnPitch(), FollowCamera->GetMaxLockOnPitch());
 
-	const FRotator& NewRotation = FRotator(-NewPitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+	const FRotator& NewRotation = FRotator(bControlPitch ? -NewPitch : ControlRotation.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 	PlayerController->SetControlRotation(NewRotation);
 }
@@ -1085,7 +1092,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	{
 		case 4 /*Block*/:
 			// Shake the camera
-			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.ShieldHit.Shake, CameraShakes.ShieldHit.Intensity);
+			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().ShieldHit.Shake, FollowCamera->GetShakes().ShieldHit.Intensity);
 
 			// Are we facing away from the boss?
 			if (FVector::DotProduct(ForwardVector, DirectionToBoss) < 0.3f)
@@ -1146,7 +1153,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				FSM->PushState("Damaged");
 
 			// Shake the camera
-			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Damaged.Shake, CameraShakes.Damaged.Intensity);
+			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
 
 			UpdateHealth(DamageAmount);
 
@@ -1279,53 +1286,26 @@ void AYlva::Dash_Queued()
 
 	bCanDash = true;
 }
+
 #pragma endregion
 
-#pragma region Lock-On
+#pragma region LockOn
 void AYlva::ToggleLockOn()
 {
-	// Don't lock on if boss is dead
-	if (GameState->BossData.bIsDead || bIsDead)
+	// Don't lock on if boss is dead OR if we are dead
+	if (GameState->BossData.bIsDead || bIsDead || DistanceToBoss > FollowCamera->GetMaxLockOnDistance())
 		return;
 
-	LockOnSettings.bLockedOn = !LockOnSettings.bLockedOn;
-
-	LockOnSettings.bLockedOn ? EnableLockOn() : DisableLockOn();
+	FollowCamera->ToggleLockOn();
 }
 
 void AYlva::EnableLockOn()
 {
 	// Don't lock on if boss is dead OR if we are dead
-	if (GameState->BossData.bIsDead || bIsDead)
+	if (GameState->BossData.bIsDead || bIsDead || DistanceToBoss > FollowCamera->GetMaxLockOnDistance())
 		return;
 
-	LockOnSettings.bLockedOn = true;
-	PlayerController->SetIgnoreLookInput(true);
-	GameState->LockOn->OnToggleLockOn.Broadcast(false);
-	YlvaAnimInstance->bIsLockedOn = true;
-	CameraBoom->CameraRotationLagSpeed *= 4;
-
-	if (!IsRunning() && !IsDashing())
-	{
-		MovementComponent->bOrientRotationToMovement = false;
-		MovementComponent->bUseControllerDesiredRotation = true;
-
-		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
-	}
-}
-
-void AYlva::DisableLockOn()
-{
-	LockOnSettings.bLockedOn = false;
-	PlayerController->SetIgnoreLookInput(false);
-	GameState->LockOn->OnToggleLockOn.Broadcast(true);
-	MovementComponent->bOrientRotationToMovement = true;
-	MovementComponent->bUseControllerDesiredRotation = false;
-	YlvaAnimInstance->bIsLockedOn = false;
-	CameraBoom->CameraRotationLagSpeed = 20.0f;
-
-	if (!IsRunning())
-		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	FollowCamera->EnableLockOn();
 }
 #pragma endregion
 
@@ -1722,11 +1702,38 @@ void AYlva::OnExitLowHealth()
 	FollowCamera->StopOscillatingVignette();
 }
 
+void AYlva::OnLockOnEnabled()
+{
+	GameState->LockOn->OnToggleLockOn.Broadcast(false);
+	YlvaAnimInstance->bIsLockedOn = true;
+	CameraBoom->CameraRotationLagSpeed *= 4;
+	
+	if (!IsRunning() && !IsDashing())
+	{
+		MovementComponent->bOrientRotationToMovement = false;
+		MovementComponent->bUseControllerDesiredRotation = true;
+	
+		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	}
+}
+
+void AYlva::OnLockOnDisabled()
+{
+	GameState->LockOn->OnToggleLockOn.Broadcast(true);
+	MovementComponent->bOrientRotationToMovement = true;
+	MovementComponent->bUseControllerDesiredRotation = false;
+	YlvaAnimInstance->bIsLockedOn = false;
+	CameraBoom->CameraRotationLagSpeed = 20.0f;
+	
+	if (!IsRunning())
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+}
+
 void AYlva::OnBossDeath_Implementation()
 {
 	OnBossDeath();
 
-	DisableLockOn();
+	FollowCamera->DisableLockOn();
 
 	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
 		OnUntouchableFeatAchieved();
@@ -1818,7 +1825,7 @@ void AYlva::OnEnterIdleState()
 
 void AYlva::UpdateIdleState(float Uptime, int32 Frames)
 {
-	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Idle.Shake, CameraShakes.Idle.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Idle.Shake, FollowCamera->GetShakes().Idle.Intensity);
 
 	if (IsMovingInAnyDirection() && MovementComponent->IsMovingOnGround())
 		FSM->PushState("Walk");
@@ -1836,7 +1843,7 @@ void AYlva::OnEnterWalkState()
 
 void AYlva::UpdateWalkState(float Uptime, int32 Frames)
 {
-	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Walk.Shake, CameraShakes.Walk.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Walk.Shake, FollowCamera->GetShakes().Walk.Intensity);
 
 	if (!IsMovingInAnyDirection())
 		FSM->PopState();
@@ -1863,7 +1870,7 @@ void AYlva::OnEnterRunState()
 
 void AYlva::UpdateRunState(float Uptime, int32 Frames)
 {
-	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Run.Shake, CameraShakes.Run.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Run.Shake, FollowCamera->GetShakes().Run.Intensity);
 
 	if (!bGodMode)
 		UpdateStamina(StaminaComponent->GetRunValue() * World->DeltaTimeSeconds);
@@ -1985,8 +1992,8 @@ void AYlva::OnEnterDeathState()
 	GameState->PlayerData.bIsDead = true;
 	AnimInstance->bIsDead = true;
 
-	if (IsLockedOn())
-		DisableLockOn();
+	if (FollowCamera->IsLockedOn())
+		FollowCamera->DisableLockOn();
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
@@ -2049,7 +2056,7 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 
 	ChargeAttackHoldFrames++;
 
-	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.Charge.Shake,CameraShakes.Charge.Intensity);
+	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Charge.Shake, FollowCamera->GetShakes().Charge.Intensity);
 
 	if (Combat.ChargeSettings.ChargeCameraAnimInst && Combat.ChargeSettings.ChargeCameraAnimInst->CurTime >= Combat.ChargeSettings.ChargeCameraAnim->AnimLength/2.0f)
 		Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 0.0f;
@@ -2102,7 +2109,7 @@ void AYlva::OnExitChargeAttackState()
 
 	if (ChargeAttackComponent->IsChargeFull())
 	{
-		GameState->CurrentCameraShake = CameraManager->PlayCameraShake(CameraShakes.ChargeEnd.Shake, CameraShakes.ChargeEnd.Intensity);
+		GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().ChargeEnd.Shake, FollowCamera->GetShakes().ChargeEnd.Intensity);
 		ResetCharge();
 	}
 
@@ -2390,6 +2397,9 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 	AnimInstance->ForwardInput = LockedForwardInput;
 	AnimInstance->RightInput = LockedRightInput;
 
+	if (!IsLockedOn())
+		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds, false);
+
 	if (DistanceToBoss < 400.0f&&
 		GameState->IsBossAttacking() && 
 		!bPerfectlyTimedDash && 
@@ -2603,7 +2613,7 @@ bool AYlva::IsLowStamina() const
 
 bool AYlva::IsLockedOn() const
 {
-	return LockOnSettings.bLockedOn;
+	return FollowCamera->IsLockedOn();
 }
 
 bool AYlva::IsIdle() const

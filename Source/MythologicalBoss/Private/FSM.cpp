@@ -141,7 +141,7 @@ void UFSM::InitFSM(const FName StateName)
 	#endif
 }
 
-FState& UFSM::AddState(const int32 ID, const FName StateName)
+void UFSM::AddState(const int32 ID, const FName StateName)
 {
 	for (FState& State : States)
 	{
@@ -152,18 +152,16 @@ FState& UFSM::AddState(const int32 ID, const FName StateName)
 				ULog::DebugMessage(WARNING, FString("AddState: State '") + StateName.ToString() + FString("' already exists!"), true);
 			#endif
 
-			return State;
+			return;
 		}
 	}
 
-	const int32 Index = States.Add({ID, StateName});
+	States.Add({ID, StateName});
 
 	#if !UE_BUILD_SHIPPING
 	if (bDebug && bLogStatus)
 		ULog::DebugMessage(INFO, FString("State " + StateName.ToString() + " added"), true);
 	#endif
-
-	return States[Index];
 }
 
 void UFSM::PopState()

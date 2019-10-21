@@ -28,16 +28,6 @@ struct FMovementSettings
 		float WalkSpeed = 500.0f;
 };
 
-USTRUCT(BlueprintType)
-struct FCameraShakes
-{
-	GENERATED_BODY()
-
-	// The camera shake to play when we are damaged by the boss
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		FCameraShakeData Damaged;
-};
-
 /**
  * Base class of an overthrone character
  */
