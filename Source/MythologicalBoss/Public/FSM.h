@@ -341,7 +341,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "FSM")
 		FORCEINLINE bool IsMachineInitialized() const { return bHasFSMInitialized; }
 
-	// The maximum amount of states that can be recored
+	// The maximum amount of states that can be recorded
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FSM", meta = (ClampMin = 1))
 		int32 MaxHistoryStates = 50;
 
