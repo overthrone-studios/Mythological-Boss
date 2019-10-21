@@ -255,6 +255,9 @@ protected:
 	uint8 bWasLowHealthEventTriggered : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		FRotator ControlRotation;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		FVector CurrentLocation;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")

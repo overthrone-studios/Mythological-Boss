@@ -328,7 +328,6 @@ void AYlva::Tick(const float DeltaTime)
 		return;
 	#endif
 
-	ControlRotation = GetControlRotation();
 	DistanceToBoss = GetDistanceToBoss();
 	DirectionToBoss = GetDirectionToBoss();
 	GameState->PlayerData.Location = CurrentLocation;

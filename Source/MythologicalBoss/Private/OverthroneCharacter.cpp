@@ -78,6 +78,8 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 
 	ForwardVector = GetActorForwardVector();
 	RightVector = GetActorRightVector();
+
+	ControlRotation = GetControlRotation();
 }
 
 void AOverthroneCharacter::UpdateCharacterInfo()

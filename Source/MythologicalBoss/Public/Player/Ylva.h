@@ -969,7 +969,6 @@ private:
 	FVector StartAttackLocation;
 	FVector EndAttackLocation;
 
-	FRotator ControlRotation;
 	FVector DirectionToBoss;
 	float DistanceToBoss;
 
