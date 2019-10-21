@@ -2,8 +2,6 @@
 
 #include "MordathGhost.h"
 
-#include "Ylva.h"
-
 #include "Boss/MordathAnimInstance.h"
 #include "Boss/BossAIController.h"
 
@@ -12,40 +10,20 @@
 
 #include "Misc/MordathStageData.h"
 
-#include "OverthroneFunctionLibrary.h"
 #include "OverthroneGameState.h"
 
-#include "ConstructorHelpers.h"
 #include "FSM.h"
 #include "Log.h"
 
-
-AMordathGhost::AMordathGhost() : AOverthroneCharacter()
+AMordathGhost::AMordathGhost() : AMordathBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Get our anim blueprint class
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Mordath/Animations/ABP_Mordath.ABP_Mordath_C'"));
-
-	// Get the skeletal mesh to use
-	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath.SKM_Mordath'")));
 	GhostMaterial = Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(), nullptr, TEXT("MaterialInstanceConstant'/Game/Art/Materials/VFX/MI_MordathGhostTrail.MI_MordathGhostTrail'")));
 
 	// Configure our mesh
-	if (SkeletalMesh)
-	{
-		GetMesh()->SetSkeletalMesh(SkeletalMesh);
-
-		for (int32 i = 0; i < GetMesh()->GetMaterials().Num(); i++)
-			GetMesh()->SetMaterial(i, GhostMaterial);
-
-		GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -190.0f));
-		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-		GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-
-		if (AnimBP.Succeeded())
-			GetMesh()->AnimClass = AnimBP.Class;
-	}
+	for (int32 i = 0; i < GetMesh()->GetMaterials().Num(); i++)
+		GetMesh()->SetMaterial(i, GhostMaterial);
 
 	// Create a FSM
 	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
@@ -97,27 +75,13 @@ AMordathGhost::AMordathGhost() : AOverthroneCharacter()
 
 	FSM->InitFSM(1);
 
-	// Configure capsule component
-	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
-	GetCapsuleComponent()->SetCapsuleHalfHeight(140.0f, true);
-	GetCapsuleComponent()->SetCapsuleRadius(90.0f, true);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-
-	// Configure character settings
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-	AIControllerClass = ABossAIController::StaticClass();
 }
 
 void AMordathGhost::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 
 	DistanceToPlayer = GetDistanceToPlayer();
@@ -162,7 +126,7 @@ void AMordathGhost::PossessedBy(AController* NewController)
 
 float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (DamageCauser->IsA(AYlva::StaticClass()))
+	if (!DamageCauser->IsA(AMordathBase::StaticClass()))
 	{
 		if (!bIsDead)
 			FSM->PushState("Death");
@@ -454,19 +418,6 @@ void AMordathGhost::OnExitDeathState()
 #pragma endregion
 #pragma endregion 
 
-float AMordathGhost::GetDistanceToPlayer() const
-{
-	return FVector::Dist(CurrentLocation, GameState->PlayerData.Location);
-}
-
-FVector AMordathGhost::GetDirectionToPlayer() const
-{
-	FVector Direction = GameState->PlayerData.Location - CurrentLocation;
-	Direction.Normalize();
-
-	return Direction;
-}
-
 void AMordathGhost::ChooseMovementDirection()
 {
 	MoveDirection = FMath::RandRange(0, 1);
@@ -529,24 +480,6 @@ void AMordathGhost::NextAttack()
 bool AMordathGhost::IsDelayingAttack() const
 {
 	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
-}
-
-void AMordathGhost::MoveForward(float Scale)
-{
-	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
-
-	AddMovementInput(Scale * DirectionToPlayer);
-	ForwardInput = Scale;
-	RightInput = 0.0f;
-}
-
-void AMordathGhost::MoveRight(float Scale)
-{
-	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
-
-	AddMovementInput(Scale * GetActorRightVector());
-	ForwardInput = 0.0f;
-	RightInput = Scale;
 }
 
 float AMordathGhost::GetShortAttackDamage() const

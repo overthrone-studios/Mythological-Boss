@@ -5,6 +5,7 @@
 #include "OverthroneCharacter.h"
 #include "Queue.h"
 #include "Components/AttackComboComponent.h"
+#include "OverthroneStructs.h"
 #include "Ylva.generated.h"
 
 USTRUCT(BlueprintType)

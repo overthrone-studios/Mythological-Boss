@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "GenericPlatformMisc.h"
 #include "OverthroneEnums.h"
 #include "Components/TimelineComponent.h"
 #include "OverthroneFunctionLibrary.generated.h"
@@ -36,7 +35,7 @@ public:
 
 	// Get the first boss character found in the level
 	UFUNCTION(BlueprintPure, Category = "Overthrone")
-		static class AOverthroneCharacter* GetBossCharacter(UWorld* InWorld);
+		static class AOverthroneCharacter* GetBossCharacter(UObject* Object, const FName& Tag);
 
 	// Get our custom game instance
 	UFUNCTION(BlueprintPure, Category = "Overthrone")

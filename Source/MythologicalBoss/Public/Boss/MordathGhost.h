@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "OverthroneCharacter.h"
+#include "MordathBase.h"
 #include "ComboData.h"
 #include "MordathGhost.generated.h"
 
@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API AMordathGhost final : public AOverthroneCharacter
+class MYTHOLOGICALBOSS_API AMordathGhost final : public AMordathBase
 {
 	GENERATED_BODY()
 	
@@ -84,12 +84,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void EncirclePlayer();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
-		float GetDistanceToPlayer() const;
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FVector GetDirectionToPlayer() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void ChooseMovementDirection();
@@ -199,14 +193,6 @@ protected:
 
 	int8 ComboIndex = 0; // This is used to choose a random index in the combos list
 
-	// Our custom AI controller
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | AI")
-		class ABossAIController* BossAIController{};
-
-	// Cached anim instance, to control and trigger animations
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Animation")
-		class UMordathAnimInstance* MordathAnimInstance{};
-
 	// The combo we are using
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
 		UComboData* ChosenCombo;
@@ -216,9 +202,6 @@ protected:
 		TArray<UComboData*> CachedCombos;
 
 private:
-	void MoveForward(float Scale = 1.0f);
-	void MoveRight(float Scale = 1.0f);
-
 	float DefaultRotationSpeed = 10.0f;
 
 	float ShortAttackDamage = 0.0f;
@@ -242,6 +225,4 @@ private:
 	class UAnimMontage* CurrentLongAttackMontage;
 
 	class UMordathStageData* CurrentStageData;
-
-	class AOverthroneCharacter* PlayerCharacter;
 };

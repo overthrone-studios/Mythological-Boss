@@ -3,18 +3,18 @@
 #include "OverthroneFunctionLibrary.h"
 
 #include "Public/OverthroneGameInstance.h"
-#include "Public/OverthroneGameState.h"
 #include "Public/OverthroneCharacter.h"
+#include "Public/OverthroneGameState.h"
 #include "Public/OverthroneHUD.h"
 #include "Public/BossBattleGameMode.h"
-
-#include "Mordath.h"
 
 #include "ConfigCacheIni.h"
 #include "EngineUtils.h"
 #include "SlateApplication.h"
 
 #include "Kismet/GameplayStatics.h"
+
+#include "Log.h"
 
 FString UOverthroneFunctionLibrary::GetProjectVersion()
 {
@@ -51,11 +51,14 @@ AOverthroneCharacter* UOverthroneFunctionLibrary::GetPlayerCharacter(UObject* Wo
 	return Cast<AOverthroneCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
 }
 
-AOverthroneCharacter* UOverthroneFunctionLibrary::GetBossCharacter(UWorld* InWorld)
+AOverthroneCharacter* UOverthroneFunctionLibrary::GetBossCharacter(UObject* Object, const FName& Tag)
 {
-	for (const TActorIterator<AMordath> ActorItr(InWorld); ActorItr;)
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsWithTag(Object, Tag, FoundActors);
+
+	for (auto Actor : FoundActors)
 	{
-		return *ActorItr;
+		return Cast<AOverthroneCharacter>(Actor);
 	}
 
 	return nullptr;

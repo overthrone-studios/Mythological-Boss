@@ -18,12 +18,12 @@
 #include "Boss/MordathAnimInstance.h"
 #include "Boss/MordathGhost.h"
 
-#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/TeleportationComponent.h"
 #include "Components/DashComponent.h"
 #include "Components/AttackIndicatorComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -39,36 +39,11 @@
 
 #include "Engine/StaticMesh.h"
 
-#include "ConstructorHelpers.h"
 #include "TimerManager.h"
 
-AMordath::AMordath()
+AMordath::AMordath() : AMordathBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	// Get our anim blueprint class
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Mordath/Animations/ABP_Mordath.ABP_Mordath_C'"));
-	//static ConstructorHelpers::FObjectFinder<UBlueprint> BP_HealthPotion(TEXT("Blueprint'/Game/Blueprints/Potions/BP_HealthPotion.BP_HealthPotion'"));
-
-	//if (BP_HealthPotion.Succeeded())
-	//	HealthPotion = BP_HealthPotion.Object->GeneratedClass;
-
-	// Get the skeletal mesh to use
-	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath.SKM_Mordath'")));
-
-	// Configure our mesh
-	if (SkeletalMesh)
-	{
-		GetMesh()->SetSkeletalMesh(SkeletalMesh);
-		GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -190.0f));
-		GetMesh()->SetWorldScale3D(FVector(2.0f));
-		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-
-		if (AnimBP.Succeeded())
-			GetMesh()->AnimClass = AnimBP.Class;
-		else
-			ULog::DebugMessage(ERROR, FString("AnimBP did not succeed."));
-	}
 
 	// Create a FSM
 	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
@@ -76,15 +51,6 @@ AMordath::AMordath()
 	FSM->AddState(1, "Follow");
 	FSM->AddState(2, "Thinking");
 	FSM->AddState(3, "Locked");
-	//FSM->AddState(3, "Short Attack 1");
-	//FSM->AddState(4, "Short Attack 2");
-	//FSM->AddState(5, "Short Attack 3");
-	//FSM->AddState(6, "Long Attack 1");
-	//FSM->AddState(7, "Long Attack 2");
-	//FSM->AddState(8, "Long Attack 3");
-	//FSM->AddState(9, "Special Attack 1");
-	//FSM->AddState(10, "Special Attack 2");
-	//FSM->AddState(11, "Special Attack 3");
 	FSM->AddState(12, "Damaged");
 	FSM->AddState(13, "Death");
 	FSM->AddState(14, "Stunned");
@@ -242,20 +208,6 @@ AMordath::AMordath()
 
 	StageFSM->InitFSM(0);
 
-	// Configure capsule component
-	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
-	GetCapsuleComponent()->SetCapsuleHalfHeight(185.0f, true);
-	GetCapsuleComponent()->SetCapsuleRadius(75.0f, true);
-
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
-
-	// Configure character settings
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-	AIControllerClass = ABossAIController::StaticClass();
-
 	// Teleportation component
 	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
 
@@ -264,13 +216,15 @@ AMordath::AMordath()
 
 	// Flash indicator static mesh component
 	FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
+
+	Tags.Empty();
+	Tags.Add("Mordath-Main");
 }
 
 void AMordath::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	// Initialize game instance variables
@@ -310,24 +264,8 @@ void AMordath::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if ((bIsDead || GameState->IsPlayerDead()) && !FSM->IsMachineRunning())
-	{
-		AnimInstance->MovementSpeed = 0.0f;
-		AnimInstance->ForwardInput = 0.0f;
-		AnimInstance->RightInput = 0.0f;
-		MordathAnimInstance->CurrentStage = Stage_None;
-		return;
-	}
-	
 	GameState->BossData.Location = CurrentLocation;
 	GameState->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
-
-	DistanceToPlayer = GetDistanceToPlayer();
-	DirectionToPlayer = GetDirectionToPlayer();
-
-	AnimInstance->MovementSpeed = CurrentMovementSpeed;
-	AnimInstance->ForwardInput = ForwardInput;
-	AnimInstance->RightInput = RightInput;
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
@@ -1514,8 +1452,7 @@ void AMordath::OnPlayerDeath()
 {
 	BossAIController->StopMovement();
 
-	//FSM->RemoveAllStatesFromStack();
-	//FSM->PushState("Laugh");
+	FSM->RemoveAllStatesExceptActive();
 
 	RangeFSM->Stop();
 	StageFSM->Stop();
@@ -1602,30 +1539,19 @@ void AMordath::DestroySelf()
 	Destroy();
 }
 
-void AMordath::PlayActionMontage()
-{
-	PlayAnimMontage(CurrentActionMontage);
-}
-
-void AMordath::PlayActionMontage(UMordathActionData* ActionData)
-{
-	PlayAnimMontage(ActionData->ActionMontage);
-}
-
 void AMordath::StopActionMontage()
 {
-	if (!GameState->IsPlayerDead())
-		StopAnimMontage();
+	Super::StopActionMontage();
 
 	CurrentActionData->bExecutionTimeExpired = false;
 
 	CurrentMontageSection = "None";
 	CurrentMontageName = "None";
 
+	bCanBeDodged = false;
+
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
-
-	bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
 }
 
@@ -1639,11 +1565,6 @@ void AMordath::BroadcastLowHealth()
 {
 	GameState->BossData.OnLowHealth.Broadcast();
 	bWasLowHealthEventTriggered = true;
-}
-
-void AMordath::FinishStun()
-{
-	FSM->PopState("Stunned");
 }
 
 void AMordath::BeginTakeDamage(const float DamageAmount)
@@ -2102,27 +2023,9 @@ void AMordath::StartExecutionExpiryTimer()
 	TimerManager->SetTimer(CurrentActionData->TH_ExecutionExpiry, this, &AMordath::OnExecutionTimeExpired, CurrentActionData->ExecutionTime, false);
 }
 
-float AMordath::GetDistanceToPlayer() const
-{
-	return (GameState->PlayerData.Location - CurrentLocation).Size();
-}
-
-FVector AMordath::GetDirectionToPlayer() const
-{
-	return (GameState->PlayerData.Location - CurrentLocation).GetSafeNormal(0.01f);
-}
-
 void AMordath::Die()
 {
 	Super::Die();
-
-	MordathAnimInstance->LeaveAllStates();
-
-	BossAIController->StopMovement();
-	MovementComponent->SetMovementMode(MOVE_None);
-	MovementComponent->DisableMovement();
-
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	FSM->RemoveAllStates();
 	FSM->PushState("Death");
@@ -2302,24 +2205,6 @@ bool AMordath::IsPerformingFarAction() const
 bool AMordath::IsPerformingAction() const
 {
 	return FSM->GetActiveStateID() == 25;
-}
-
-void AMordath::MoveForward(float Scale)
-{
-	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
-
-	AddMovementInput(Scale * DirectionToPlayer);
-	ForwardInput = Scale;
-	RightInput = 0.0f;
-}
-
-void AMordath::MoveRight(float Scale)
-{
-	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
-
-	AddMovementInput(Scale * GetActorRightVector());
-	ForwardInput = 0.0f;
-	RightInput = Scale;
 }
 
 float AMordath::GetMovementSpeed() const

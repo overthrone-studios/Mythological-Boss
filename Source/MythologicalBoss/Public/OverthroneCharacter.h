@@ -5,7 +5,6 @@
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
 #include "TimerManager.h"
-#include "OverthroneStructs.h"
 #include "OverthroneCharacter.generated.h"
 
 USTRUCT(BlueprintType)

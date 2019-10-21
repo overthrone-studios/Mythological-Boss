@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "OverthroneCharacter.h"
+#include "MordathBase.h"
 #include "Combat/ComboData.h"
 #include "OverthroneEnums.h"
 #include "Mordath.generated.h"
@@ -11,14 +11,6 @@ USTRUCT(BlueprintType)
 struct FDebug_Mordath : public FCharacterDebug
 {
 	GENERATED_BODY()
-
-	// Log the distance between this and the player to the viewport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogDistance : 1;
-
-	// Log the direction from this to the player to the viewport
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		uint8 bLogDirection : 1;
 
 	// Log the delay time (in seconds) when a new combo is chosen to the viewport
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
@@ -46,7 +38,7 @@ struct FDebug_Mordath : public FCharacterDebug
 };
 
 UCLASS()
-class MYTHOLOGICALBOSS_API AMordath final : public AOverthroneCharacter
+class MYTHOLOGICALBOSS_API AMordath final : public AMordathBase
 {
 	GENERATED_BODY()
 
@@ -235,13 +227,13 @@ protected:
 	void BroadcastLowHealth() override;
 	void OnLowHealth() override;
 
-	void FinishStun();
-
 	void BeginTakeDamage(float DamageAmount) override;
 	void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 	void EndTakeDamage() override;
 
 	void OnExecutionTimeExpired();
+
+	void StopActionMontage() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayer(float RotationSpeed = 10.0f);
@@ -269,21 +261,7 @@ protected:
 		void DestroySelf();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void PlayActionMontage();
-
-	void PlayActionMontage(class UMordathActionData* ActionData);
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void StopActionMontage();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseAction();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Misc")
-		float GetDistanceToPlayer() const;
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		FVector GetDirectionToPlayer() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void ChooseMovementDirection();
@@ -673,14 +651,6 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
 		float DeathTime = 2.0f;
 
-	// Our custom AI controller
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | AI")
-		class ABossAIController* BossAIController{};
-	
-	// Cached anim instance, to control and trigger animations
-	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Animation")
-		class UMordathAnimInstance* MordathAnimInstance{};
-
 	// The combo we are using
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
 		UComboData* ChosenCombo;
@@ -692,16 +662,10 @@ protected:
 private:
 	//TSubclassOf<class APotionBase> HealthPotion;
 
-	void MoveForward(float Scale = 1.0f);
-	void MoveRight(float Scale = 1.0f);
-
 	float ActionDamage = 0.0f;
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
-
-	float DistanceToPlayer = 0.0f;
-	FVector DirectionToPlayer;
 
 	FVector StartActionLocation;
 	FVector EndActionLocation;
@@ -716,7 +680,6 @@ private:
 	class UMordathActionData* SuperCloseRange_ActionData;
 	class UMordathActionData* FarRange_ActionData;
 
-	class UAnimMontage* CurrentActionMontage;
 	class UAnimMontage* PreviousActionMontage;
 
 	class UMordathStageData* CurrentStageData;
