@@ -787,12 +787,9 @@ protected:
 		#pragma endregion 
 
 		#pragma region Death
-		UFUNCTION()
-			void OnEnterDeathState();
-		UFUNCTION()
-			void UpdateDeathState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitDeathState();
+			void OnEnterDeathState() override;
+			void UpdateDeathState(float Uptime, int32 Frames) override;
+			void OnExitDeathState() override;
 		#pragma endregion 
 
 		#pragma region Charge Attack
@@ -859,12 +856,9 @@ protected:
 		#pragma endregion 
 
 		#pragma region Locked
-		UFUNCTION()
-			void OnEnterLockedState();
-		UFUNCTION()
-			void UpdateLockedState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitLockedState();
+			void OnEnterLockedState() override;
+			void UpdateLockedState(float Uptime, int32 Frames) override;
+			void OnExitLockedState() override;
 		#pragma endregion 
 	#pragma endregion
 

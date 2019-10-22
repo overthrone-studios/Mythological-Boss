@@ -48,6 +48,20 @@ public:
 		bool IsDelayingAction() const;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsIdling() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsFollowing() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsThinking() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsPerformingAction() const;
+
+	bool IsLocked() const override;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		UForceFeedbackEffect* GetCurrentForceFeedbackEffect() const;
 
 protected:
@@ -105,6 +119,44 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void StartExecutionExpiryTimer();
+
+	#pragma region Mordath Base States
+		#pragma region Idle
+			UFUNCTION()
+				virtual void OnEnterIdleState();
+			UFUNCTION()
+				virtual void UpdateIdleState(float Uptime, int32 Frames);
+			UFUNCTION()
+				virtual void OnExitIdleState();
+		#pragma endregion 
+
+		#pragma region Follow
+			UFUNCTION()
+				virtual void OnEnterFollowState();
+			UFUNCTION()
+				virtual void UpdateFollowState(float Uptime, int32 Frames);
+			UFUNCTION()
+				virtual void OnExitFollowState();
+		#pragma endregion 
+
+		#pragma region Think
+			UFUNCTION()
+				virtual void OnEnterThinkState();
+			UFUNCTION()
+				virtual void UpdateThinkState(float Uptime, int32 Frames);
+			UFUNCTION()
+				virtual void OnExitThinkState();
+		#pragma endregion 
+
+		#pragma region Action
+			UFUNCTION()
+				virtual void OnEnterActionState();
+			UFUNCTION()
+				virtual void UpdateActionState(float Uptime, int32 Frames);
+			UFUNCTION()
+				virtual void OnExitActionState();
+		#pragma endregion 
+	#pragma endregion 
 
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()

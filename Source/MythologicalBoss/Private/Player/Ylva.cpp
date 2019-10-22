@@ -1948,22 +1948,14 @@ void AYlva::OnExitDamagedState()
 #pragma region Death
 void AYlva::OnEnterDeathState()
 {
-	AnimInstance->StopAllMontages(0.1f);
+	Super::OnEnterDeathState();
 
-	bIsDead = true;
 	GameState->PlayerData.bIsDead = true;
-	AnimInstance->bIsDead = true;
 
 	if (FollowCamera->IsLockedOn())
 		FollowCamera->DisableLockOn();
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-
-	MovementComponent->DisableMovement();
-
 	GameState->PlayerData.OnDeath.Broadcast();
-
-	//TimerManager->SetTimer(DeathExpiryTimerHandle, this, &AYlva::Respawn, RespawnDelay);
 
 	AttackComboComponent->ResetAllBlendOutSettings();
 
@@ -1976,15 +1968,16 @@ void AYlva::OnEnterDeathState()
 	OnDeath();
 }
 
-void AYlva::UpdateDeathState(float Uptime, int32 Frames)
+void AYlva::UpdateDeathState(const float Uptime, const int32 Frames)
 {
+	Super::UpdateDeathState(Uptime, Frames);
 }
 
 void AYlva::OnExitDeathState()
 {
-	bIsDead = false;
+	Super::OnExitDeathState();
+
 	GameState->PlayerData.bIsDead = false;
-	AnimInstance->bIsDead = false;
 }
 #pragma endregion 
 
@@ -2467,13 +2460,14 @@ void AYlva::OnExitParryState()
 #pragma region Locked
 void AYlva::OnEnterLockedState()
 {
-	OverthroneHUD->GetMasterHUD()->HighlightBox(17);
+	Super::OnEnterLockedState();
 
-	StopMovement();
+	OverthroneHUD->GetMasterHUD()->HighlightBox(17);
 }
 
 void AYlva::UpdateLockedState(float Uptime, int32 Frames)
 {
+	Super::UpdateLockedState(Uptime, Frames);
 }
 
 void AYlva::OnExitLockedState()

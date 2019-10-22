@@ -55,6 +55,41 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 	// Configure character settings
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = ABossAIController::StaticClass();
+
+	// Create a FSM
+	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
+	FSM->AddState(0, "Idle");
+	FSM->AddState(1, "Follow");
+	FSM->AddState(2, "Thinking");
+	FSM->AddState(3, "Action");
+	FSM->AddState(4, "Death");
+	FSM->AddState(5, "Locked");
+
+	FSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterIdleState);
+	FSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateIdleState);
+	FSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordathBase::OnExitIdleState);
+
+	FSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterFollowState);
+	FSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateFollowState);
+	FSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordathBase::OnExitFollowState);
+
+	FSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterThinkState);
+	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateThinkState);
+	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordathBase::OnExitThinkState);
+
+	FSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterActionState);
+	FSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateActionState);
+	FSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordathBase::OnExitActionState);
+	
+	FSM->GetStateFromID(4)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterDeathState);
+	FSM->GetStateFromID(4)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateDeathState);
+	FSM->GetStateFromID(4)->OnExitState.AddDynamic(this, &AMordathBase::OnExitDeathState);
+
+	FSM->GetStateFromID(5)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterLockedState);
+	FSM->GetStateFromID(5)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateLockedState);
+	FSM->GetStateFromID(5)->OnExitState.AddDynamic(this, &AMordathBase::OnExitLockedState);
+
+	FSM->InitFSM(0);
 }
 
 void AMordathBase::BeginPlay()
@@ -92,6 +127,70 @@ void AMordathBase::PossessedBy(AController* NewController)
 
 	BossAIController = Cast<ABossAIController>(NewController);
 }
+
+#pragma region Idle
+void AMordathBase::OnEnterIdleState()
+{
+}
+
+void AMordathBase::UpdateIdleState(float Uptime, int32 Frames)
+{
+	if (GameState->PlayerData.bIsDead)
+		return;
+
+	FacePlayer();
+
+	StopMovement();
+
+	FSM->PushState("Thinking");
+}
+
+void AMordathBase::OnExitIdleState()
+{
+}
+#pragma endregion
+
+#pragma region Follow
+void AMordathBase::OnEnterFollowState()
+{
+}
+
+void AMordathBase::UpdateFollowState(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitFollowState()
+{
+}
+#pragma endregion
+
+#pragma region Think
+void AMordathBase::OnEnterThinkState()
+{
+}
+
+void AMordathBase::UpdateThinkState(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitThinkState()
+{
+}
+#pragma endregion
+
+#pragma region Action
+void AMordathBase::OnEnterActionState()
+{
+}
+
+void AMordathBase::UpdateActionState(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitActionState()
+{
+}
+#pragma endregion
 
 void AMordathBase::Die()
 {
@@ -272,6 +371,31 @@ bool AMordathBase::IsSpecialAttacking() const
 bool AMordathBase::IsDelayingAction() const
 {
 	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
+}
+
+bool AMordathBase::IsIdling() const
+{
+	return FSM->GetActiveStateID() == 0;
+}
+
+bool AMordathBase::IsFollowing() const
+{
+	return FSM->GetActiveStateID() == 1;
+}
+
+bool AMordathBase::IsThinking() const
+{
+	return FSM->GetActiveStateID() == 2;
+}
+
+bool AMordathBase::IsPerformingAction() const
+{
+	return FSM->GetActiveStateID() == 3;
+}
+
+bool AMordathBase::IsLocked() const
+{
+	return FSM->GetActiveStateID() == 5;
 }
 
 UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const

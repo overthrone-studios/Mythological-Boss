@@ -143,6 +143,30 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ChangeHitboxSize(float NewRadius);
 
+	#pragma region Overthrone Character Base States
+		#pragma region Death
+			UFUNCTION()
+				virtual void OnEnterDeathState();
+			
+			UFUNCTION()
+				virtual void UpdateDeathState(float Uptime, int32 Frames);
+			
+			UFUNCTION()
+				virtual void OnExitDeathState();
+		#pragma endregion
+
+		#pragma region Locked
+			UFUNCTION()
+				virtual void OnEnterLockedState();
+			
+			UFUNCTION()
+				virtual void UpdateLockedState(float Uptime, int32 Frames);
+			
+			UFUNCTION()
+				virtual void OnExitLockedState();
+		#pragma endregion
+	#pragma endregion
+
 	// Called when the character's health is less than or equal to the low health threshold
 	UFUNCTION()
 		virtual void OnLowHealth();

@@ -65,39 +65,27 @@ protected:
 		bool IsDelayingAttack() const;
 
 	#pragma region Follow
-		UFUNCTION()
-			void OnEnterFollowState();
-		UFUNCTION()
-			void UpdateFollowState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitFollowState();
+		void OnEnterFollowState() override;
+		void UpdateFollowState(float Uptime, int32 Frames) override;
+		void OnExitFollowState() override;
 	#pragma endregion 
 
 	#pragma region Think
-		UFUNCTION()
-			void OnEnterThinkState();
-		UFUNCTION()
-			void UpdateThinkState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitThinkState();
+		void OnEnterThinkState() override;
+		void UpdateThinkState(float Uptime, int32 Frames) override;
+		void OnExitThinkState() override;
 	#pragma endregion 
 
 	#pragma region Action
-		UFUNCTION()
-			void OnEnterActionState();
-		UFUNCTION()
-			void UpdateActionState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitActionState();
+		void OnEnterActionState() override;
+		void UpdateActionState(float Uptime, int32 Frames) override;
+		void OnExitActionState() override;
 	#pragma endregion 
 
 	#pragma region Death
-		UFUNCTION()
-			void OnEnterDeathState();
-		UFUNCTION()
-			void UpdateDeathState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitDeathState();
+		void OnEnterDeathState() override;
+		void UpdateDeathState(float Uptime, int32 Frames) override;
+		void OnExitDeathState() override;
 	#pragma endregion 
 
 	// The data the boss will reference during stage 1 of the fight

@@ -20,6 +20,8 @@
 
 #include "TimerManager.h"
 
+#include "FSM.h"
+
 AOverthroneCharacter::AOverthroneCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -135,6 +137,52 @@ void AOverthroneCharacter::ChangeHitboxSize(float NewRadius)
 {
 	check(0 && "You must implement ChangeHitboxSize()");
 }
+
+#pragma region Overthrone Character Base States
+#pragma region Death
+void AOverthroneCharacter::OnEnterDeathState()
+{
+	AnimInstance->StopAllMontages(0.4f);
+
+	bIsDead = true;
+	AnimInstance->bIsDead = true;
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	MovementComponent->DisableMovement();
+}
+
+void AOverthroneCharacter::UpdateDeathState(float Uptime, int32 Frames)
+{
+	StopMovement();
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->Stop();
+}
+
+void AOverthroneCharacter::OnExitDeathState()
+{
+	bIsDead = true;
+	AnimInstance->bIsDead = true;
+}
+#pragma endregion
+
+#pragma region Locked
+void AOverthroneCharacter::OnEnterLockedState()
+{
+	StopAnimMontage();
+}
+
+void AOverthroneCharacter::UpdateLockedState(float Uptime, int32 Frames)
+{
+	StopMovement();
+}
+
+void AOverthroneCharacter::OnExitLockedState()
+{
+}
+#pragma endregion
+#pragma endregion
 
 void AOverthroneCharacter::OnLowHealth()
 {

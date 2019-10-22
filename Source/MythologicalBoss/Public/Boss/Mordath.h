@@ -81,10 +81,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsFarRange() const;
 
-	// Returns true if we are in a state that is immune to damage
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool InInvincibleState() const;
-
 	// Returns true if we the combo delay timer is active
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsWaitingForNewCombo() const;
@@ -104,10 +100,6 @@ public:
 	// Returns true if we are damaged by the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsDamaged() const;
-
-	// Returns true if we are currently thinking
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsThinking() const;
 
 	// Returns true if we are currently stunned by an attack
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -152,10 +144,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsPerformingFarAction() const;
 
-	// Returns true if we are executing an action
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsPerformingAction() const;
-
 	// Returns the movement speed based on the current range/distance to the player
 	float GetMovementSpeed() const override;
 
@@ -167,8 +155,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnGhost();
-
-	bool IsLocked() const override;
 
 	void ToggleLockSelf() override;
 
@@ -283,40 +269,22 @@ protected:
 	#pragma endregion 
 
 	#pragma region Boss States
-		#pragma region Idle
-		UFUNCTION()
-			void OnEnterIdleState();
-		UFUNCTION()
-			void UpdateIdleState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitIdleState();
-		#pragma endregion 
-
 		#pragma region Follow
-		UFUNCTION()
-			void OnEnterFollowState();
-		UFUNCTION()
-			void UpdateFollowState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitFollowState();
+			void OnEnterFollowState() override;
+			void UpdateFollowState(float Uptime, int32 Frames) override;
+			void OnExitFollowState() override;
 		#pragma endregion 
 
 		#pragma region Think
-		UFUNCTION()
-			void OnEnterThinkState();
-		UFUNCTION()
-			void UpdateThinkState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitThinkState();
+			void OnEnterThinkState() override;
+			void UpdateThinkState(float Uptime, int32 Frames) override;
+			void OnExitThinkState() override;
 		#pragma endregion 
 
 		#pragma region Action
-		UFUNCTION()
-			void OnEnterActionState();
-		UFUNCTION()
-			void UpdateActionState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitActionState();
+			void OnEnterActionState() override;
+			void UpdateActionState(float Uptime, int32 Frames) override;
+			void OnExitActionState() override;
 		#pragma endregion 
 
 		#pragma region Close Action
@@ -347,12 +315,9 @@ protected:
 		#pragma endregion 
 
 		#pragma region Death
-		UFUNCTION()
-			void OnEnterDeathState();
-		UFUNCTION()
-			void UpdateDeathState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitDeathState();
+			void OnEnterDeathState() override;
+			void UpdateDeathState(float Uptime, int32 Frames) override;
+			void OnExitDeathState() override;
 		#pragma endregion 
 
 		#pragma region Stunned
@@ -446,12 +411,9 @@ protected:
 	#pragma endregion 
 
 	#pragma region Locked
-		UFUNCTION()
-			void OnEnterLockedState();
-		UFUNCTION()
-			void UpdateLockedState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitLockedState();
+		void OnEnterLockedState() override;
+		void UpdateLockedState(float Uptime, int32 Frames) override;
+		void OnExitLockedState() override;
 	#pragma endregion 
 	#pragma endregion
 

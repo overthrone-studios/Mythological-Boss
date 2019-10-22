@@ -25,31 +25,6 @@ AMordathGhost::AMordathGhost() : AMordathBase()
 	for (int32 i = 0; i < GetMesh()->GetMaterials().Num(); i++)
 		GetMesh()->SetMaterial(i, GhostMaterial);
 
-	// Create a FSM
-	FSM = CreateDefaultSubobject<UFSM>(FName("Boss FSM"));
-	FSM->AddState(1, "Follow");
-	FSM->AddState(2, "Thinking");
-	FSM->AddState(3, "Action");
-	FSM->AddState(13, "Death");
-
-	FSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterFollowState);
-	FSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateFollowState);
-	FSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitFollowState);
-
-	FSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterThinkState);
-	FSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateThinkState);
-	FSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitThinkState);
-
-	FSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterActionState);
-	FSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateActionState);
-	FSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitActionState);
-	
-	FSM->GetStateFromID(13)->OnEnterState.AddDynamic(this, &AMordathGhost::OnEnterDeathState);
-	FSM->GetStateFromID(13)->OnUpdateState.AddDynamic(this, &AMordathGhost::UpdateDeathState);
-	FSM->GetStateFromID(13)->OnExitState.AddDynamic(this, &AMordathGhost::OnExitDeathState);
-
-	FSM->InitFSM(1);
-
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	Tags.Empty();
@@ -91,14 +66,6 @@ void AMordathGhost::OnEnterFollowState()
 {
 	MovementComponent->SetMovementMode(MOVE_Walking);
 	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-
-	if (!ChosenCombo)
-	{
-#if !UE_BUILD_SHIPPING
-		ULog::DebugMessage(ERROR, FString(GetName() + ": There are no combos in the list. A crash will occur!"), true);
-#endif
-		return;
-	}
 
 	if (ChosenCombo->IsAtLastAction())
 	{
@@ -204,24 +171,19 @@ void AMordathGhost::OnExitActionState()
 #pragma region Death
 void AMordathGhost::OnEnterDeathState()
 {
-	bIsDead = true;
-	GameState->BossData.bIsDead = true;
-	AnimInstance->bIsDead = true;
-
+	Super::OnEnterDeathState();
+	
 	OnDeath();
 }
 
 void AMordathGhost::UpdateDeathState(float Uptime, int32 Frames)
 {
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
-		FSM->Stop();
+	Super::UpdateDeathState(Uptime, Frames);
 }
 
 void AMordathGhost::OnExitDeathState()
 {
-	bIsDead = false;
-	GameState->BossData.bIsDead = false;
-	AnimInstance->bIsDead = false;
+	Super::OnExitDeathState();
 }
 #pragma endregion
 #pragma endregion 
