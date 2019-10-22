@@ -270,6 +270,15 @@ protected:
 			void OnExitDeathState() override;
 		#pragma endregion 
 
+		#pragma region Transition
+		UFUNCTION()
+			void OnEnterTransitionState();
+		UFUNCTION()
+			void UpdateTransitionState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitTransitionState();
+		#pragma endregion 
+
 		#pragma region Stunned
 		UFUNCTION()
 			void OnEnterStunnedState();

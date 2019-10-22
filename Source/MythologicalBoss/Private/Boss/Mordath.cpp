@@ -47,6 +47,7 @@ AMordath::AMordath() : AMordathBase()
 
 	// Add more states
 	FSM->AddState(12, "Damaged");
+	FSM->AddState(13, "Transition");
 	FSM->AddState(14, "Stunned");
 	FSM->AddState(15, "Laugh");
 	FSM->AddState(16, "Dash");
@@ -64,6 +65,10 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
 	FSM->GetStateFromID(12)->OnExitState.AddDynamic(this, &AMordath::OnExitDamagedState);
+
+	FSM->GetStateFromID(13)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTransitionState);
+	FSM->GetStateFromID(13)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTransitionState);
+	FSM->GetStateFromID(13)->OnExitState.AddDynamic(this, &AMordath::OnExitTransitionState);
 
 	FSM->GetStateFromID(14)->OnEnterState.AddDynamic(this, &AMordath::OnEnterStunnedState);
 	FSM->GetStateFromID(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
@@ -666,6 +671,22 @@ void AMordath::OnExitDeathState()
 }
 #pragma endregion
 
+#pragma region Transition
+void AMordath::OnEnterTransitionState()
+{
+}
+
+void AMordath::UpdateTransitionState(float Uptime, int32 Frames)
+{
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
+}
+
+void AMordath::OnExitTransitionState()
+{
+}
+#pragma endregion
+
 #pragma region Stunned
 void AMordath::OnEnterStunnedState()
 {
@@ -1232,6 +1253,7 @@ void AMordath::OnSecondStageHealth()
 	StopMovement();
 
 	FSM->RemoveAllStates();
+	FSM->PushState("Transition");
 
 	StageFSM->PushState(1);
 	StageFSM->PopState(0);
@@ -1250,6 +1272,7 @@ void AMordath::OnThirdStageHealth()
 	StopMovement();
 
 	FSM->RemoveAllStates();
+	FSM->PushState("Transition");
 
 	StageFSM->PushState(2);
 	StageFSM->PopState(1);
@@ -1615,7 +1638,7 @@ bool AMordath::IsPerformingCloseAction() const
 
 bool AMordath::IsTransitioning() const
 {
-	return AnimInstance->Montage_IsPlaying(Stage2_Transition) || AnimInstance->Montage_IsPlaying(Stage3_Transition);
+	return FSM->GetActiveStateID() == 13;
 }
 
 bool AMordath::IsTired() const
