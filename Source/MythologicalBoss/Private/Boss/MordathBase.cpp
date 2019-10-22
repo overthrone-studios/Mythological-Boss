@@ -169,7 +169,7 @@ void AMordathBase::OnEnterAnyState(int32 ID, FName Name)
 
 void AMordathBase::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
-	if (GameState->IsPlayerDead() && HasFinishedAction())
+	if (GameState->IsPlayerDead() && !AnimInstance->Montage_IsPlaying(nullptr))
 	{
 		FSM->Stop();
 	}
@@ -743,7 +743,7 @@ void AMordathBase::OnExecutionTimeExpired()
 
 void AMordathBase::OnPlayerDeath()
 {
-	BossAIController->StopMovement();
+	StopMovement();
 
 	FSM->RemoveAllStatesExceptActive();
 }
