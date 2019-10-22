@@ -729,6 +729,12 @@ protected:
 	// Called when we have successfully completed a light attack combo
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
 		void OnLightAttackComboCompleted();
+
+	UFUNCTION()
+		void OnMordathDisappeared();
+
+	UFUNCTION()
+		void OnMordathReappeared();
 	#pragma endregion
 
 	#pragma region Any States
@@ -986,6 +992,8 @@ private:
 
 	uint8 bIsRunKeyHeld : 1;
 	uint8 bIsBuffed : 1;
+
+	uint8 bWasLockedOn : 1;
 
 	uint8 bWasLowStaminaEventTriggered : 1;
 

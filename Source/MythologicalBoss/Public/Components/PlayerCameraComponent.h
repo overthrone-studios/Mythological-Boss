@@ -87,6 +87,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Camera | Lock-On")
 		bool IsLockedOn() const { return bIsLockedOn; }
 
+	UFUNCTION(BlueprintPure, Category = "Camera | Lock-On")
+		bool WasLockedOn() const { return bWasLockedOn; }
+
 	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
 		void ToggleLockOn();
 	
@@ -156,6 +159,7 @@ private:
 	APlayerController* PlayerController;
 
 	uint8 bIsLockedOn : 1;
+	uint8 bWasLockedOn : 1;
 
 	FTimeline TL_ScreenSaturation;
 	FTimeline TL_Vignette;

@@ -34,6 +34,7 @@ void UPlayerCameraComponent::TickComponent(const float DeltaTime, const ELevelTi
 #pragma region Lock-On
 void UPlayerCameraComponent::ToggleLockOn()
 {
+	bWasLockedOn = bIsLockedOn;
 	bIsLockedOn = !bIsLockedOn;
 
 	bIsLockedOn ? EnableLockOn() : DisableLockOn();

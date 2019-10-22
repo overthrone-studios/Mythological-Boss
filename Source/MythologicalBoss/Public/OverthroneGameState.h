@@ -23,6 +23,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnThirdStageSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerPerfectDashSignature);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathDisappearedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathReappearedSignature);
+
 USTRUCT()
 struct FCharacterData
 {
@@ -129,6 +132,9 @@ struct FBossData : public FCharacterData
 	FOnFirstStageSignature OnEnterFirstStage;
 	FOnSecondStageSignature OnEnterSecondStage;
 	FOnThirdStageSignature OnEnterThirdStage;
+
+	FOnMordathDisappearedSignature OnMordathDisappeared;
+	FOnMordathReappearedSignature OnMordathReappeared;
 };
 
 /**
@@ -208,6 +214,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == ACM_NoCounter; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		bool IsBossTeleporting() const;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		FORCEINLINE EActionType_Mordath GetCurrentBossAttackType() const { return BossData.CurrentActionType; }

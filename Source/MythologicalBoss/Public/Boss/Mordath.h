@@ -193,6 +193,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Mordath")
 		void OnAfterTakeDamage();
+
+	UFUNCTION()
+		void OnDisappeared();
+
+	UFUNCTION()
+		void OnReappeared();
 	#pragma endregion 
 
 	#pragma region Any States

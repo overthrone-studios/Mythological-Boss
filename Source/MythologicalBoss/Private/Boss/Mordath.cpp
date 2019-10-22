@@ -144,6 +144,8 @@ AMordath::AMordath() : AMordathBase()
 
 	// Teleportation component
 	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
+	TeleportationComponent->OnDisappeared.AddDynamic(this, &AMordath::OnDisappeared);
+	TeleportationComponent->OnReappeared.AddDynamic(this, &AMordath::OnReappeared);
 
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash Component"));
@@ -851,14 +853,18 @@ void AMordath::OnEnterTeleportState()
 	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
 
 	TeleportationComponent->GenerateTeleportTime();
+	TeleportationComponent->Disappear();
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+
+	EnableInvincibility();
 }
 
 void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 {
 	if (Uptime >= CurrentActionMontage->SequenceLength - 0.2f)
 		AnimInstance->Montage_Pause();
-
-	FacePlayer();
 
 	if (Uptime > TeleportationComponent->GetTeleportTime() && !TeleportationComponent->IsCoolingDown())
 	{
@@ -888,6 +894,8 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), TeleportRadius, 32, FColor::Purple, 3.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 		#endif
 		
+		TeleportationComponent->Reappear();
+
 		SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, TeleportRadius, GameState->PlayArea));
 
 		FSM->PopState();
@@ -903,6 +911,11 @@ void AMordath::OnExitTeleportState()
 
 		return;
 	}
+
+	DisableInvincibility();
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
@@ -998,8 +1011,11 @@ void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 		return;
 	#endif
 
-	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && 
-		(!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction() && !IsPerformingFarAction()))
+	if (IsDashing() || IsAttacking() || IsRecovering() || IsStunned() || IsKicking() || IsTired() || IsDoingBackHand() ||
+		IsPerformingCloseAction() || IsPerformingFarAction() || IsTeleporting())
+		return;
+
+	if (Uptime > CurrentStageData->GetSuperCloseRangeTime())
 	{
 		const bool bWantsKick = FMath::RandBool();
 		if (bWantsKick && (IsInSecondStage() || IsInThirdStage()))
@@ -1107,7 +1123,7 @@ void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 	}
 #endif
 
-	if (IsLocked())
+	if (IsLocked() || IsTeleporting())
 		return;
 
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
@@ -1120,7 +1136,7 @@ void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (CanAttack() && !IsTeleporting())
+	if (CanAttack())
 	{
 		// Decide which attack to choose
 		if (!IsWaitingForNextCombo() && !IsDelayingAction())
@@ -1282,6 +1298,16 @@ void AMordath::OnThirdStageHealth()
 	ChooseCombo();
 
 	BeginThirdStage();
+}
+
+void AMordath::OnDisappeared()
+{
+	GameState->BossData.OnMordathDisappeared.Broadcast();
+}
+
+void AMordath::OnReappeared()
+{
+	GameState->BossData.OnMordathReappeared.Broadcast();
 }
 #pragma endregion
 
@@ -1576,7 +1602,7 @@ bool AMordath::CanAttack() const
 			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
-			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked();
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked() && !IsTeleporting();
 }
 
 void AMordath::Die()

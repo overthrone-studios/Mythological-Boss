@@ -67,6 +67,11 @@ void AOverthroneGameState::UnPauseGame()
 	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);
 }
 
+bool AOverthroneGameState::IsBossTeleporting() const
+{
+	return Boss->IsTeleporting();
+}
+
 void AOverthroneGameState::BeginPlay()
 {
 	Super::BeginPlay();

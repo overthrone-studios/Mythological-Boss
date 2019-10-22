@@ -274,6 +274,8 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameState->PlayerData.OnExitLowStamina.AddDynamic(this, &AYlva::OnExitLowStamina);
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
+	GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
+	GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
@@ -348,7 +350,7 @@ void AYlva::Tick(const float DeltaTime)
 	{
 		HardLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
-	else if (Scalar > 0.9f && YawInput == 0.0f && DistanceToBoss < 1200.0f)
+	else if (Scalar > 0.9f && YawInput == 0.0f && CanLockOn())
 	{
 		SoftLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
@@ -381,7 +383,7 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	// Auto-rotate toward boss when in close range
-	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking())
+	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking() && !GameState->IsBossTeleporting())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
 
@@ -1751,6 +1753,24 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	bIsParryBoxHit = true;
 	GameState->PlayerData.bParrySucceeded = true;
 }
+
+void AYlva::OnMordathDisappeared()
+{
+	if (IsLockedOn())
+	{
+		bWasLockedOn = true;
+		FollowCamera->DisableLockOn();
+	}
+}
+
+void AYlva::OnMordathReappeared()
+{
+	if (bWasLockedOn)
+	{
+		bWasLockedOn = false;
+		FollowCamera->EnableLockOn();
+	}
+}
 #pragma endregion
 
 #pragma region Any States
@@ -2621,7 +2641,7 @@ bool AYlva::IsPerfectDashing() const
 
 bool AYlva::CanLockOn() const
 {
-	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance();
+	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance() && !GameState->IsBossTeleporting();
 }
 
 bool AYlva::IsLocked() const

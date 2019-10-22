@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/TimelineComponent.h"
 #include "TeleportationComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisappearedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReappearedSignature);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
 class MYTHOLOGICALBOSS_API UTeleportationComponent final : public UActorComponent
@@ -14,6 +17,12 @@ class MYTHOLOGICALBOSS_API UTeleportationComponent final : public UActorComponen
 
 public:	
 	UTeleportationComponent();
+
+	FOnDisappearedSignature OnDisappeared;
+	FOnReappearedSignature OnReappeared;
+
+	void Disappear();
+	void Reappear();
 
 	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
 		FVector FindLocationToTeleport(const FVector& Origin, float Radius, const class ABoundingBox* InPlayArea) const;
@@ -32,6 +41,13 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UFUNCTION()
+		void UpdateDissolve();
+
+	UFUNCTION()
+		void FinishDissolve();
 
 	// Draw a sphere at the teleported location
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport Debug")
@@ -53,10 +69,28 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport", meta = (ClampMin = 0.0f))
 		float CooldownTime = 1.0f;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Teleport")
+		class UMaterialInterface* DissolveMaterial;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Teleport")
+		class UCurveFloat* DissolveCurve;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Teleport", meta = (ClampMin = 0.0f))
+		float DissolveSpeed = 1.0f;
+
 private:
+	TArray<class UMaterialInterface*> OriginalMaterials;
+
+	class USkeletalMeshComponent* SKMComponent;
+	class UMaterialInstanceDynamic* MID_Dissolve;
+
+	FTimeline TL_Dissolve;
+
 	FTimerHandle TH_Cooldown;
 
 	FTimerManager* TimerManager;
 
-	AActor* Owner;
+	class ACharacter* Owner;
+
+	uint8 bWasReversing : 1;
 };
