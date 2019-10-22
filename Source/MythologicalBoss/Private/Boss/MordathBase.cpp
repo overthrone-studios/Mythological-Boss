@@ -45,7 +45,7 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 	// Configure capsule component
 	GetCapsuleComponent()->SetCollisionProfileName(FName("BlockAll"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(140.0f, true);
-	GetCapsuleComponent()->SetCapsuleRadius(90.0f, true);
+	GetCapsuleComponent()->SetCapsuleRadius(120.0f, true);
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
