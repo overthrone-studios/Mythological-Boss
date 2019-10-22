@@ -410,9 +410,7 @@ void AYlva::Tick(const float DeltaTime)
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Player Displayed Stamina: " + FString::SanitizeFloat(StaminaComponent->GetSmoothedStamina()));
 
-	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Distance to Spear: " + FString::SanitizeFloat(FVector::Dist(CurrentLocation, GameState->BossData.SpearLocation)));
-
-	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Yaw Input: " + FString::SanitizeFloat(YawInput));
+	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Yaw Input: " + FString::SanitizeFloat(YawInput));
 #endif
 }
 
@@ -2714,6 +2712,5 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Player Direction: ", FColor::Cyan);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
-	OverthroneHUD->AddOnScreenDebugMessage("Distance to Spear: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Yaw Input: ", FColor::Green);
 }

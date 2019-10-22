@@ -148,24 +148,25 @@ void AMordathGhost::OnExitThinkState()
 #pragma region Action
 void AMordathGhost::OnEnterActionState()
 {
-	PlayAttackMontage();
+	Super::OnEnterActionState();
 }
 
 void AMordathGhost::UpdateActionState(float Uptime, int32 Frames)
 {
-	FacePlayer();
-
-	// If attack animation has finished, go back to previous state
-	if (HasFinishedAttack())
-		FSM->PopState();
+	Super::UpdateActionState(Uptime, Frames);
 }
 
 void AMordathGhost::OnExitActionState()
 {
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAttackMontage();
+	if (CurrentActionData->bExecutionTimeExpired)
+	{
+		StopActionMontage();
+		NextAction();
 
-	NextAttack();
+		return;
+	}
+
+	Super::OnExitActionState();
 }
 #pragma endregion 
 
@@ -273,44 +274,6 @@ bool AMordathGhost::IsDelayingAttack() const
 bool AMordathGhost::HasFinishedAttack() const
 {
 	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Action->ActionMontage);
-}
-
-bool AMordathGhost::IsShortAttacking() const
-{
-	return FSM->GetActiveStateID() == 3 && 
-			CurrentActionType == ATM_ShortAttack_1 || 
-			CurrentActionType == ATM_ShortAttack_2 || 
-			CurrentActionType == ATM_ShortAttack_3;
-}
-
-bool AMordathGhost::IsLongAttacking() const
-{
-	return FSM->GetActiveStateID() == 3 && 
-			CurrentActionType == ATM_LongAttack_1 || 
-			CurrentActionType == ATM_LongAttack_2 || 
-			CurrentActionType == ATM_LongAttack_3;
-}
-
-bool AMordathGhost::IsSpecialAttacking() const
-{
-	return FSM->GetActiveStateID() == 3 && 
-			CurrentActionType == ATM_SpecialAttack_1 || 
-			CurrentActionType == ATM_SpecialAttack_2 || 
-			CurrentActionType == ATM_SpecialAttack_3;
-}
-
-float AMordathGhost::GetMovementSpeed() const
-{
-	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
-		return CurrentStageData->GetWalkSpeed();
-
-	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
-		return CurrentStageData->GetRunSpeed();
-
-	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
-		return CurrentStageData->GetRunSpeed();
-
-	return CurrentStageData->GetRunSpeed();
 }
 
 void AMordathGhost::PauseAnimsWithTimer()

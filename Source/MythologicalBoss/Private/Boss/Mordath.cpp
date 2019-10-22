@@ -466,40 +466,14 @@ void AMordath::OnExitThinkState()
 #pragma region Action
 void AMordath::OnEnterActionState()
 {
-	PlayActionMontage();
-
-	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
-
-	StartActionLocation = CurrentLocation;
+	Super::OnEnterActionState();
 }
 
-void AMordath::UpdateActionState(float Uptime, int32 Frames)
+void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
 {
-	StopMovement();
+	Super::UpdateActionState(Uptime, Frames);
 
-	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
-
-	if (CurrentActionData->Action->bConstantlyFacePlayer)
-		FacePlayer();
-	else
-		FacePlayerBasedOnActionData(CurrentActionData->Action);
-	
-	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
-		AnimInstance->Montage_GetPosition(CurrentActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
-		CurrentActionData->Action->bAllowPerfectDash)
-	{
-		bCanBeDodged = true;
-	}
-	else
-	{
-		bCanBeDodged = false;
-	}
-
-	GameState->BossData.bHasAttackBegun = bCanBeDodged;
-
-	// If action has finished, go back to previous state
-	if (HasFinishedAction() || AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->StopAtTime && CurrentActionData->StopAtTime > 0.0f)
-		FSM->PopState();
+	GameState->BossData.bHasAttackBegun = CurrentActionData->Action->bCanBeDodged;
 }
 
 void AMordath::OnExitActionState()
@@ -512,13 +486,7 @@ void AMordath::OnExitActionState()
 		return;
 	}
 
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopActionMontage();
-
-	CurrentActionData->ExecutionCount++;
-
-	if (CurrentActionData->ExecutionCount >= CurrentActionData->Loops)
-		NextAction();
+	Super::OnExitActionState();
 }
 #pragma endregion 
 
@@ -548,8 +516,6 @@ void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
 {
 	StopMovement();
 
-	GameState->BossData.SpearLocation = SKMComponent->GetSocketLocation("SpearMid");
-
 	if (SuperCloseRange_ActionData->bConstantlyFacePlayer)
 		FacePlayer();
 	else
@@ -559,14 +525,14 @@ void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
 		AnimInstance->Montage_GetPosition(SuperCloseRange_ActionData->ActionMontage) <= SuperCloseRange_ActionData->MaxPerfectDashWindow &&
 		SuperCloseRange_ActionData->bAllowPerfectDash)
 	{
-		bCanBeDodged = true;
+		SuperCloseRange_ActionData->bCanBeDodged = true;
 	}
 	else
 	{
-		bCanBeDodged = false;
+		SuperCloseRange_ActionData->bCanBeDodged = false;
 	}
 
-	GameState->BossData.bHasAttackBegun = bCanBeDodged;
+	GameState->BossData.bHasAttackBegun = SuperCloseRange_ActionData->bCanBeDodged;
 
 	// If action has finished, go back to previous state
 	if (HasFinishedAction(SuperCloseRange_ActionData->ActionMontage))
@@ -586,7 +552,7 @@ void AMordath::OnExitCloseActionState()
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
-	bCanBeDodged = false;
+	SuperCloseRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
 }
 #pragma endregion 
@@ -638,7 +604,7 @@ void AMordath::OnExitFarActionState()
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
-	bCanBeDodged = false;
+	FarRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
 }
 #pragma endregion 
@@ -937,11 +903,7 @@ void AMordath::OnEnterCloseRange()
 
 void AMordath::UpdateCloseRange(float Uptime, int32 Frames)
 {
-	if (DistanceToPlayer < CurrentStageData->GetSuperCloseRangeRadius())
-		RangeFSM->PushState("Super Close");
-
-	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
-		RangeFSM->PushState("Mid");
+	Super::UpdateCloseRange(Uptime, Frames);
 }
 
 void AMordath::OnExitCloseRange()
@@ -957,11 +919,7 @@ void AMordath::OnEnterMidRange()
 
 void AMordath::UpdateMidRange(float Uptime, int32 Frames)
 {
-	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
-		RangeFSM->PushState("Close");
-
-	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
-		RangeFSM->PushState("Far");
+	Super::UpdateMidRange(Uptime, Frames);
 }
 
 void AMordath::OnExitMidRange()
@@ -1001,18 +959,23 @@ void AMordath::OnExitFarRange()
 #pragma region Super Close
 void AMordath::OnEnterSuperCloseRange()
 {
-	GameState->PlayerData.CurrentRange = BRM_SuperClose;
+	Super::OnEnterSuperCloseRange();
 
-	IncreaseAttackDamage(CurrentStageData->GetAttackDamageMultiplier());
+	GameState->PlayerData.CurrentRange = BRM_SuperClose;
 }
 
 void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
 	if (DistanceToPlayer > CurrentStageData->GetSuperCloseRangeRadius())
+	{
 		RangeFSM->PopState();
+		return;
+	}
 
+	#if !UE_BUILD_SHIPPING
 	if (IsLocked())
 		return;
+	#endif
 
 	if (Uptime > CurrentStageData->GetSuperCloseRangeTime() && 
 		(!IsDashing() && !IsAttacking() && !IsRecovering() && !IsStunned() && !IsKicking() && !IsTired() && !IsDoingBackHand() && !IsPerformingCloseAction() && !IsPerformingFarAction()))
@@ -1033,7 +996,7 @@ void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 
 void AMordath::OnExitSuperCloseRange()
 {
-	ResetActionDamage();
+	Super::OnExitSuperCloseRange();
 }
 #pragma endregion 
 #pragma endregion
@@ -1317,7 +1280,7 @@ void AMordath::StopActionMontage()
 	CurrentMontageSection = "None";
 	CurrentMontageName = "None";
 
-	bCanBeDodged = false;
+	CurrentActionData->Action->bCanBeDodged = false;
 
 	CurrentActionType = ATM_None;
 	CurrentCounterType = ACM_None;
@@ -1574,82 +1537,6 @@ void AMordath::ChangeHitboxSize(const float NewRadius)
 {
 }
 
-void AMordath::FacePlayerBasedOnActionData(const class UMordathActionData* ActionData)
-{
-	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(ActionData->ActionMontage);
-
-	const auto SnapToPlayerLocation = [&](const FMontageActionData_Base& MontageActionData)
-	{
-		FVector NewLocation;
-		EndActionLocation = StartActionLocation + ForwardVector * MontageActionData.DistanceFromPlayer;
-
-		if (MontageActionData.bSmoothSnap)
-		{
-			switch (MontageActionData.BlendOption)
-			{
-				case EAlphaBlendOption::Linear:			NewLocation = FMath::Lerp(CurrentLocation, EndActionLocation, World->DeltaTimeSeconds); break;
-				case EAlphaBlendOption::QuadraticInOut: NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 2); break;
-				case EAlphaBlendOption::CubicInOut:		NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 3); break;
-				case EAlphaBlendOption::QuarticInOut:	NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 4); break;
-				case EAlphaBlendOption::QuinticInOut:	NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 5); break;
-				case EAlphaBlendOption::CircularIn:		NewLocation = FMath::InterpCircularIn(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
-				case EAlphaBlendOption::CircularOut:	NewLocation = FMath::InterpCircularOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
-				case EAlphaBlendOption::CircularInOut:	NewLocation = FMath::InterpCircularInOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
-				case EAlphaBlendOption::ExpIn:			NewLocation = FMath::InterpExpoIn(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
-				case EAlphaBlendOption::ExpOut:			NewLocation = FMath::InterpExpoOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds);  break;
-				case EAlphaBlendOption::ExpInOut:		NewLocation = FMath::InterpExpoInOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;	
-				default:								NewLocation = FMath::Lerp(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds);	break;
-			}
-		}
-		else
-			NewLocation = EndActionLocation;
-
-		NewLocation.Z = CurrentLocation.Z;
-		SetActorLocation(NewLocation);
-	};
-
-	if (CurrentMontageSection == "Anticipation")
-	{
-		FacePlayer(ActionData->Anticipation.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Anticipation.PlayRate);
-
-		if (ActionData->Anticipation.bSnapToPlayerLocation)
-		{
-			SnapToPlayerLocation(ActionData->Anticipation);
-		}
-	}
-	else if (CurrentMontageSection == "Pinnacle")
-	{
-		if (ActionData->Pinnacle.bSnapToPlayerLocation)
-		{
-			SnapToPlayerLocation(ActionData->Pinnacle);
-		}
-
-		if (ActionData->Pinnacle.bSnapRotation)
-			FacePlayer_Instant();
-	}
-	else if (CurrentMontageSection == "Contact")
-	{
-		FacePlayer(ActionData->Contact.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
-
-		if (ActionData->Contact.bSnapToPlayerLocation)
-		{
-			SnapToPlayerLocation(ActionData->Contact);
-		}
-	}
-	else if (CurrentMontageSection == "Recovery")
-	{
-		FacePlayer(ActionData->Recovery.RotationSpeed);
-		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Recovery.PlayRate);
-
-		if (ActionData->Recovery.bSnapToPlayerLocation)
-		{
-			SnapToPlayerLocation(ActionData->Recovery);
-		}
-	}
-}
-
 bool AMordath::IsStunned() const
 {
 	return FSM->GetActiveStateID() == 14;
@@ -1669,16 +1556,6 @@ bool AMordath::CanAttack() const
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked();
 }
 
-void AMordath::ResetActionDamage()
-{
-	ActionDamage = CurrentActionData->Action->ActionDamage;
-}
-
-void AMordath::IncreaseAttackDamage(const float& Multiplier)
-{
-	ActionDamage *= Multiplier;
-}
-
 void AMordath::Die()
 {
 	Super::Die();
@@ -1694,30 +1571,6 @@ void AMordath::PauseAnimsWithTimer()
 		PauseAnims();
 		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, CurrentStageData->GetHitStopTime());
 	}
-}
-
-bool AMordath::IsShortAttacking() const
-{
-	return IsPerformingAction() && 
-			GameState->BossData.CurrentActionType == ATM_ShortAttack_1 || 
-			GameState->BossData.CurrentActionType == ATM_ShortAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_ShortAttack_3;
-}
-
-bool AMordath::IsLongAttacking() const
-{
-	return IsPerformingAction() && 
-			GameState->BossData.CurrentActionType == ATM_LongAttack_1 || 
-			GameState->BossData.CurrentActionType == ATM_LongAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_LongAttack_3;
-}
-
-bool AMordath::IsSpecialAttacking() const
-{
-	return IsPerformingAction() && 
-			GameState->BossData.CurrentActionType == ATM_SpecialAttack_1 || 
-			GameState->BossData.CurrentActionType == ATM_SpecialAttack_2 || 
-			GameState->BossData.CurrentActionType == ATM_SpecialAttack_3;
 }
 
 bool AMordath::IsInFirstStage() const
@@ -1788,24 +1641,6 @@ bool AMordath::IsExecutionTimeExpired() const
 bool AMordath::IsPerformingFarAction() const
 {
 	return FSM->GetActiveStateID() == 27;
-}
-
-float AMordath::GetMovementSpeed() const
-{
-	switch (RangeFSM->GetActiveStateID())
-	{
-	case 0 /*Close*/:
-		return CurrentStageData->GetWalkSpeed();
-
-	case 1 /*Mid*/:
-		return CurrentStageData->GetRunSpeed();
-
-	case 2 /*Far*/:
-		return CurrentStageData->GetRunSpeed();
-
-	default:
-		return CurrentStageData->GetWalkSpeed();
-	}
 }
 
 void AMordath::EnterStage(const EBossStage_Mordath InStage)

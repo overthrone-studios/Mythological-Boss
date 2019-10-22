@@ -283,6 +283,8 @@ void AOverthroneCharacter::Die()
 	bCanBeDamaged = false;
 
 	AnimInstance->LeaveAllStates();
+
+	UpdateHealth(HealthComponent->GetCurrentHealth());
 }
 
 void AOverthroneCharacter::BroadcastLowHealth()
@@ -356,7 +358,7 @@ bool AOverthroneCharacter::IsAttacking() const
 
 bool AOverthroneCharacter::IsMovingInAnyDirection() const
 {
-	return !GetVelocity().IsZero();
+	return ForwardInput != 0.0f || RightInput != 0.0f;
 }
 
 bool AOverthroneCharacter::IsDead() const

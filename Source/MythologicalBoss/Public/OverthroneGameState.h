@@ -115,7 +115,6 @@ struct FBossData : public FCharacterData
 	}
 
 	FVector LockOnBoneLocation;
-	FVector SpearLocation;
 
 	uint8 bHasAttackBegun : 1;
 

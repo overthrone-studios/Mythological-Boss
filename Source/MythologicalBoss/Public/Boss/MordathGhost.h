@@ -18,18 +18,9 @@ class MYTHOLOGICALBOSS_API AMordathGhost final : public AMordathBase
 public:
 	AMordathGhost();
 
-	bool IsShortAttacking() const override;
-
-	bool IsLongAttacking() const override;
-
-	bool IsSpecialAttacking() const override;
-
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
-
-	// Returns the movement speed based on the current range/distance to the player
-	float GetMovementSpeed() const override;
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();

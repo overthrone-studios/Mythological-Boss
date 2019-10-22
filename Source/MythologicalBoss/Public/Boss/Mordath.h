@@ -47,12 +47,6 @@ public:
 
 	void AddDebugMessages() override;
 
-	bool IsShortAttacking() const override;
-
-	bool IsLongAttacking() const override;
-
-	bool IsSpecialAttacking() const override;
-
 	// Returns true if we are in the first stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsInFirstStage() const;
@@ -117,9 +111,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsPerformingFarAction() const;
 
-	// Returns the movement speed based on the current range/distance to the player
-	float GetMovementSpeed() const override;
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void EnterStage(EBossStage_Mordath InStage);
 
@@ -140,8 +131,6 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		FDebug_Mordath Debug;
 
-	uint8 bCanBeDodged : 1;
-
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
@@ -160,9 +149,6 @@ protected:
 	void StopActionMontage() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
-		void FacePlayerBasedOnActionData(const class UMordathActionData* ActionData);
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void UpdateDamageValueInMainHUD(float DamageAmount) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
@@ -176,12 +162,6 @@ protected:
 	void ExecuteAction(class UMordathActionData* ActionData) override;
 
 	bool CanAttack() const override;
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ResetActionDamage();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void IncreaseAttackDamage(const float& Multiplier);
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
@@ -508,10 +488,6 @@ private:
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
 
-	FVector StartActionLocation;
-	FVector EndActionLocation;
-
-	FName CurrentMontageSection = "None";
 	FString CurrentMontageName = "None";
 
 	class UMordathActionData* SuperCloseRange_ActionData;

@@ -52,13 +52,13 @@ public:
 	bool IsAttacking() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual bool IsShortAttacking() const;
+		bool IsShortAttacking() const;
 	
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual bool IsLongAttacking() const;
+		bool IsLongAttacking() const;
 	
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual bool IsSpecialAttacking() const;
+		bool IsSpecialAttacking() const;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsDelayingAction() const;
@@ -96,6 +96,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
 		void FacePlayer_Instant();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
+		void FacePlayerBasedOnActionData(const class UMordathActionData* ActionData);
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void MoveForward(float Scale = 1.0f);
@@ -152,6 +155,12 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool HasFinishedAction() const;
 		bool HasFinishedAction(class UAnimMontage* ActionMontage) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void IncreaseAttackDamage(const float& Multiplier);
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void ResetActionDamage();
 
 	#pragma region Mordath Base Any States
 		#pragma region Main FSM
@@ -287,6 +296,11 @@ protected:
 		class UMordathAnimInstance* MordathAnimInstance{};
 
 	float ActionDamage = 0.0f;
+
+	FName CurrentMontageSection = "None";
+
+	FVector StartActionLocation;
+	FVector EndActionLocation;
 
 	FComboData_Action* CurrentActionData;
 

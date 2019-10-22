@@ -122,6 +122,5 @@ public:
 	UPROPERTY(EditInstanceOnly)
 		class UForceFeedbackEffect* ForceFeedbackEffect;
 
-//private:
-//	FTimerHandle TH_ActionExpiry;
+	uint8 bCanBeDodged : 1;
 };

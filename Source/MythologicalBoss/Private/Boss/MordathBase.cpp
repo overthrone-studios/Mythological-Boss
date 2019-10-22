@@ -339,14 +339,47 @@ void AMordathBase::OnExitThinkState()
 #pragma region Action
 void AMordathBase::OnEnterActionState()
 {
+	PlayActionMontage();
+
+	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
+
+	StartActionLocation = CurrentLocation;
 }
 
 void AMordathBase::UpdateActionState(float Uptime, int32 Frames)
 {
+	StopMovement();
+
+	if (CurrentActionData->Action->bConstantlyFacePlayer)
+		FacePlayer();
+	else
+		FacePlayerBasedOnActionData(CurrentActionData->Action);
+	
+	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
+		AnimInstance->Montage_GetPosition(CurrentActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
+		CurrentActionData->Action->bAllowPerfectDash)
+	{
+		CurrentActionData->Action->bCanBeDodged = true;
+	}
+	else
+	{
+		CurrentActionData->Action->bCanBeDodged = false;
+	}
+
+	// If action has finished, go back to previous state
+	if (HasFinishedAction() || AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->StopAtTime && CurrentActionData->StopAtTime > 0.0f)
+		FSM->PopState();
 }
 
 void AMordathBase::OnExitActionState()
 {
+	// Ensure that anim montage has stopped playing when leaving this state
+	StopActionMontage();
+
+	CurrentActionData->ExecutionCount++;
+
+	if (CurrentActionData->ExecutionCount >= CurrentActionData->Loops)
+		NextAction();
 }
 #pragma endregion
 #pragma endregion
@@ -359,6 +392,11 @@ void AMordathBase::OnEnterCloseRange()
 
 void AMordathBase::UpdateCloseRange(float Uptime, int32 Frames)
 {
+	if (DistanceToPlayer < CurrentStageData->GetSuperCloseRangeRadius())
+		RangeFSM->PushState("Super Close");
+
+	if (DistanceToPlayer > CurrentStageData->GetCloseRangeRadius())
+		RangeFSM->PushState("Mid");
 }
 
 void AMordathBase::OnExitCloseRange()
@@ -373,6 +411,11 @@ void AMordathBase::OnEnterMidRange()
 
 void AMordathBase::UpdateMidRange(float Uptime, int32 Frames)
 {
+	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
+		RangeFSM->PushState("Close");
+
+	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
+		RangeFSM->PushState("Far");
 }
 
 void AMordathBase::OnExitMidRange()
@@ -387,6 +430,10 @@ void AMordathBase::OnEnterFarRange()
 
 void AMordathBase::UpdateFarRange(float Uptime, int32 Frames)
 {
+	if (DistanceToPlayer < CurrentStageData->GetMidRangeRadius())
+	{
+		RangeFSM->PushState("Mid");
+	}
 }
 
 void AMordathBase::OnExitFarRange()
@@ -397,14 +444,18 @@ void AMordathBase::OnExitFarRange()
 #pragma region Super Close Range
 void AMordathBase::OnEnterSuperCloseRange()
 {
+	IncreaseAttackDamage(CurrentStageData->GetAttackDamageMultiplier());
 }
 
 void AMordathBase::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
+	if (DistanceToPlayer > CurrentStageData->GetSuperCloseRangeRadius())
+		RangeFSM->PopState();
 }
 
 void AMordathBase::OnExitSuperCloseRange()
 {
+	ResetActionDamage();
 }
 #pragma endregion
 #pragma endregion
@@ -435,6 +486,82 @@ void AMordathBase::FacePlayer_Instant()
 	SetActorRotation(FRotator(ControlRotation.Pitch, DirectionToPlayer.Rotation().Yaw, ControlRotation.Roll));
 }
 
+void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionData)
+{
+	CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(ActionData->ActionMontage);
+
+	const auto SnapToPlayerLocation = [&](const FMontageActionData_Base& MontageActionData)
+	{
+		FVector NewLocation;
+		EndActionLocation = StartActionLocation + ForwardVector * MontageActionData.DistanceFromPlayer;
+
+		if (MontageActionData.bSmoothSnap)
+		{
+			switch (MontageActionData.BlendOption)
+			{
+				case EAlphaBlendOption::Linear:			NewLocation = FMath::Lerp(CurrentLocation, EndActionLocation, World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::QuadraticInOut: NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 2); break;
+				case EAlphaBlendOption::CubicInOut:		NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 3); break;
+				case EAlphaBlendOption::QuarticInOut:	NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 4); break;
+				case EAlphaBlendOption::QuinticInOut:	NewLocation = UOverthroneFunctionLibrary::SmoothStop(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds, 5); break;
+				case EAlphaBlendOption::CircularIn:		NewLocation = FMath::InterpCircularIn(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::CircularOut:	NewLocation = FMath::InterpCircularOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::CircularInOut:	NewLocation = FMath::InterpCircularInOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::ExpIn:			NewLocation = FMath::InterpExpoIn(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;
+				case EAlphaBlendOption::ExpOut:			NewLocation = FMath::InterpExpoOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds);  break;
+				case EAlphaBlendOption::ExpInOut:		NewLocation = FMath::InterpExpoInOut(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds); break;	
+				default:								NewLocation = FMath::Lerp(CurrentLocation, EndActionLocation, MontageActionData.Speed * World->DeltaTimeSeconds);	break;
+			}
+		}
+		else
+			NewLocation = EndActionLocation;
+
+		NewLocation.Z = CurrentLocation.Z;
+		SetActorLocation(NewLocation);
+	};
+
+	if (CurrentMontageSection == "Anticipation")
+	{
+		FacePlayer(ActionData->Anticipation.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Anticipation.PlayRate);
+
+		if (ActionData->Anticipation.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Anticipation);
+		}
+	}
+	else if (CurrentMontageSection == "Pinnacle")
+	{
+		if (ActionData->Pinnacle.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Pinnacle);
+		}
+
+		if (ActionData->Pinnacle.bSnapRotation)
+			FacePlayer_Instant();
+	}
+	else if (CurrentMontageSection == "Contact")
+	{
+		FacePlayer(ActionData->Contact.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
+
+		if (ActionData->Contact.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Contact);
+		}
+	}
+	else if (CurrentMontageSection == "Recovery")
+	{
+		FacePlayer(ActionData->Recovery.RotationSpeed);
+		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Recovery.PlayRate);
+
+		if (ActionData->Recovery.bSnapToPlayerLocation)
+		{
+			SnapToPlayerLocation(ActionData->Recovery);
+		}
+	}
+}
+
 void AMordathBase::MoveForward(float Scale)
 {
 	Scale = FMath::Clamp(Scale, -1.0f, 1.0f);
@@ -460,7 +587,20 @@ void AMordathBase::ChooseMovementDirection()
 
 float AMordathBase::GetMovementSpeed() const
 {
-	return CurrentStageData->GetRunSpeed();
+	switch (RangeFSM->GetActiveStateID())
+	{
+	case 0 /*Close*/:
+		return CurrentStageData->GetWalkSpeed();
+
+	case 1 /*Mid*/:
+		return CurrentStageData->GetRunSpeed();
+
+	case 2 /*Far*/:
+		return CurrentStageData->GetRunSpeed();
+
+	default:
+		return 0.0f;
+	}
 }
 
 void AMordathBase::StopMovement()
@@ -660,17 +800,17 @@ bool AMordathBase::IsAttacking() const
 
 bool AMordathBase::IsShortAttacking() const
 {
-	return CurrentActionType == ATM_ShortAttack_1 || CurrentActionType == ATM_ShortAttack_2 || CurrentActionType == ATM_ShortAttack_3;
+	return IsPerformingAction() && (CurrentActionType == ATM_ShortAttack_1 || CurrentActionType == ATM_ShortAttack_2 || CurrentActionType == ATM_ShortAttack_3);
 }
 
 bool AMordathBase::IsLongAttacking() const
 {
-	return CurrentActionType == ATM_LongAttack_1 || CurrentActionType == ATM_LongAttack_2 || CurrentActionType == ATM_LongAttack_3;
+	return IsPerformingAction() && (CurrentActionType == ATM_LongAttack_1 || CurrentActionType == ATM_LongAttack_2 || CurrentActionType == ATM_LongAttack_3);
 }
 
 bool AMordathBase::IsSpecialAttacking() const
 {
-	return CurrentActionType == ATM_SpecialAttack_1 || CurrentActionType == ATM_SpecialAttack_2 || CurrentActionType == ATM_SpecialAttack_3;
+	return IsPerformingAction() && (CurrentActionType == ATM_SpecialAttack_1 || CurrentActionType == ATM_SpecialAttack_2 || CurrentActionType == ATM_SpecialAttack_3);
 }
 
 bool AMordathBase::IsDelayingAction() const
@@ -711,6 +851,16 @@ bool AMordathBase::HasFinishedAction() const
 bool AMordathBase::HasFinishedAction(UAnimMontage* ActionMontage) const
 {
 	return !AnimInstance->Montage_IsPlaying(ActionMontage);
+}
+
+void AMordathBase::IncreaseAttackDamage(const float& Multiplier)
+{
+	ActionDamage *= Multiplier;
+}
+
+void AMordathBase::ResetActionDamage()
+{
+	ActionDamage = CurrentActionData->Action->ActionDamage;
 }
 
 UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const
