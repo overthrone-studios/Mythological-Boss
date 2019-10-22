@@ -65,6 +65,10 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 	FSM->AddState(4, "Death");
 	FSM->AddState(5, "Locked");
 
+	FSM->OnEnterAnyState.AddDynamic(this, &AMordathBase::OnEnterAnyState);
+	FSM->OnUpdateAnyState.AddDynamic(this, &AMordathBase::UpdateAnyState);
+	FSM->OnExitAnyState.AddDynamic(this, &AMordathBase::OnExitAnyState);
+
 	FSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterIdleState);
 	FSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateIdleState);
 	FSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordathBase::OnExitIdleState);
@@ -90,6 +94,35 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 	FSM->GetStateFromID(5)->OnExitState.AddDynamic(this, &AMordathBase::OnExitLockedState);
 
 	FSM->InitFSM(0);
+
+	// Create a range FSM
+	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
+	RangeFSM->AddState(0, "Close");
+	RangeFSM->AddState(1, "Mid");
+	RangeFSM->AddState(2, "Far");
+	RangeFSM->AddState(3, "Super Close");
+
+	RangeFSM->OnEnterAnyState.AddDynamic(this, &AMordathBase::OnEnterAnyRangeState);
+	RangeFSM->OnUpdateAnyState.AddDynamic(this, &AMordathBase::UpdateAnyRangeState);
+	RangeFSM->OnExitAnyState.AddDynamic(this, &AMordathBase::OnExitAnyRangeState);
+
+	RangeFSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterCloseRange);
+	RangeFSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateCloseRange);
+	RangeFSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordathBase::OnExitCloseRange);
+
+	RangeFSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterMidRange);
+	RangeFSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateMidRange);
+	RangeFSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordathBase::OnExitMidRange);
+
+	RangeFSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterFarRange);
+	RangeFSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateFarRange);
+	RangeFSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordathBase::OnExitFarRange);
+
+	RangeFSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordathBase::OnEnterSuperCloseRange);
+	RangeFSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateSuperCloseRange);
+	RangeFSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordathBase::OnExitSuperCloseRange);
+
+	RangeFSM->InitFSM(0);
 }
 
 void AMordathBase::BeginPlay()
@@ -128,6 +161,41 @@ void AMordathBase::PossessedBy(AController* NewController)
 	BossAIController = Cast<ABossAIController>(NewController);
 }
 
+#pragma region Mordath Base Any States
+#pragma region Main FSM
+void AMordathBase::OnEnterAnyState(int32 ID, FName Name)
+{
+}
+
+void AMordathBase::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
+{
+	if (GameState->IsPlayerDead() && HasFinishedAction())
+	{
+		FSM->Stop();
+	}
+}
+
+void AMordathBase::OnExitAnyState(int32 ID, FName Name)
+{
+}
+#pragma endregion
+
+#pragma region Range FSM
+void AMordathBase::OnEnterAnyRangeState(int32 ID, FName Name)
+{
+}
+
+void AMordathBase::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitAnyRangeState(int32 ID, FName Name)
+{
+}
+#pragma endregion
+#pragma endregion
+
+#pragma region Mordath Base States
 #pragma region Idle
 void AMordathBase::OnEnterIdleState()
 {
@@ -153,10 +221,85 @@ void AMordathBase::OnExitIdleState()
 #pragma region Follow
 void AMordathBase::OnEnterFollowState()
 {
+	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
+	{
+		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
+			ChooseComboDelayed();
+		else
+			ChooseCombo();
+	}
+
+	ChooseMovementDirection();
 }
 
 void AMordathBase::UpdateFollowState(float Uptime, int32 Frames)
 {
+	FacePlayer();
+
+	// Decide a direction to move in
+	if (!IsDelayingAction())
+	{
+		switch (CurrentActionData->RangeToExecute)
+		{
+		case BRM_SuperClose:
+			if (IsCloseRange() || IsMidRange() || IsFarRange())
+			{
+				MoveForward();
+			}
+			else
+			{
+				StopMovement();
+			}
+		break;
+
+		case BRM_Close:
+			if (IsSuperCloseRange())
+			{
+				MoveForward(-1);
+			}
+			else if (IsMidRange() || IsFarRange())
+			{
+				MoveForward();
+			}
+			else
+			{
+				StopMovement();
+			}
+		break;
+
+		case BRM_Mid:
+			if (IsSuperCloseRange() || IsCloseRange())
+			{
+				MoveForward(-1);
+			}
+			else if (IsFarRange())
+			{
+				MoveForward();
+			}
+			else
+			{
+				StopMovement();
+			}
+		break;
+
+		case BRM_Far:
+			if (IsSuperCloseRange() || IsCloseRange() || IsMidRange())
+			{
+				MoveForward(-1);
+			}
+			else
+			{
+				StopMovement();
+			}
+		break;
+
+		default:
+			StopMovement();
+		break;
+		}
+	}
+	else
+		FSM->PushState("Thinking");
 }
 
 void AMordathBase::OnExitFollowState()
@@ -167,14 +310,29 @@ void AMordathBase::OnExitFollowState()
 #pragma region Think
 void AMordathBase::OnEnterThinkState()
 {
+	ChooseMovementDirection();
+
+	MordathAnimInstance->bIsThinking = true;
+	MordathAnimInstance->bWantsSideStepDash = FMath::RandRange(0, 1);
 }
 
 void AMordathBase::UpdateThinkState(float Uptime, int32 Frames)
 {
+	if (IsFarRange())
+	{
+		FSM->PopState();
+		FSM->PushState("Follow");
+		return;
+	}
+
+	FacePlayer();
+
+	EncirclePlayer();
 }
 
 void AMordathBase::OnExitThinkState()
 {
+	MordathAnimInstance->bIsThinking = false;
 }
 #pragma endregion
 
@@ -190,6 +348,65 @@ void AMordathBase::UpdateActionState(float Uptime, int32 Frames)
 void AMordathBase::OnExitActionState()
 {
 }
+#pragma endregion
+#pragma endregion
+
+#pragma region Mordath Base Range States
+#pragma region Close Range
+void AMordathBase::OnEnterCloseRange()
+{
+}
+
+void AMordathBase::UpdateCloseRange(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitCloseRange()
+{
+}
+#pragma endregion
+
+#pragma region Mid Range
+void AMordathBase::OnEnterMidRange()
+{
+}
+
+void AMordathBase::UpdateMidRange(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitMidRange()
+{
+}
+#pragma endregion
+
+#pragma region Far Range
+void AMordathBase::OnEnterFarRange()
+{
+}
+
+void AMordathBase::UpdateFarRange(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitFarRange()
+{
+}
+#pragma endregion
+
+#pragma region Super Close Range
+void AMordathBase::OnEnterSuperCloseRange()
+{
+}
+
+void AMordathBase::UpdateSuperCloseRange(float Uptime, int32 Frames)
+{
+}
+
+void AMordathBase::OnExitSuperCloseRange()
+{
+}
+#pragma endregion
 #pragma endregion
 
 void AMordathBase::Die()
@@ -246,6 +463,13 @@ float AMordathBase::GetMovementSpeed() const
 	return CurrentStageData->GetRunSpeed();
 }
 
+void AMordathBase::StopMovement()
+{
+	Super::StopMovement();
+
+	BossAIController->StopMovement();
+}
+
 void AMordathBase::PlayActionMontage()
 {
 	PlayAnimMontage(CurrentActionMontage);
@@ -260,6 +484,67 @@ void AMordathBase::StopActionMontage()
 {
 	if (!GameState->IsPlayerDead())
 		StopAnimMontage();
+}
+
+void AMordathBase::ChooseCombo()
+{
+	static int8 ComboIndex = 0;
+
+	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
+		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
+
+	if (CachedCombos.Num() > 0)
+	{
+		// Is the combo data asset valid at 'Index'
+		if (CachedCombos[ComboIndex])
+		{
+			ChosenCombo = CachedCombos[ComboIndex];
+
+			ChosenCombo->Init();
+			CurrentActionData = &ChosenCombo->GetCurrentActionData();
+			CurrentActionMontage = CurrentActionData->Action->ActionMontage;
+			
+			StartExecutionExpiryTimer();
+
+			CachedCombos.Remove(ChosenCombo);
+		}
+		else
+		{
+			#if !UE_BUILD_SHIPPING
+			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
+			#endif
+		}
+	}
+	else
+	{
+		ComboIndex = 0;
+
+		CachedCombos = CurrentStageData->ComboSettings.Combos;
+
+		ChooseCombo();
+	}
+}
+
+float AMordathBase::ChooseComboDelayed()
+{
+	if (CurrentStageData->ComboSettings.RandomDeviation == 0.0f)
+	{
+		TimerManager->SetTimer(TH_NextComboDelay, this, &AMordathBase::ChooseCombo, CurrentStageData->ComboSettings.ComboDelayTime);
+		return CurrentStageData->ComboSettings.ComboDelayTime;
+	}
+
+	const float Min = CurrentStageData->ComboSettings.ComboDelayTime - CurrentStageData->ComboSettings.RandomDeviation;
+	const float Max = CurrentStageData->ComboSettings.ComboDelayTime + CurrentStageData->ComboSettings.RandomDeviation;
+	const float NewDelayTime = FMath::FRandRange(Min, Max);
+				
+	TimerManager->SetTimer(TH_NextComboDelay, this, &AMordathBase::ChooseCombo, NewDelayTime);
+
+	return NewDelayTime;
+}
+
+bool AMordathBase::IsWaitingForNextCombo() const
+{
+	return TimerManager->IsTimerActive(TH_NextComboDelay);
 }
 
 void AMordathBase::ChooseAction()
@@ -333,6 +618,26 @@ FVector AMordathBase::GetDirectionToPlayer() const
 	return (GameState->PlayerData.Location - CurrentLocation).GetSafeNormal();
 }
 
+bool AMordathBase::IsSuperCloseRange() const
+{
+	return RangeFSM->GetActiveStateID() == 3;
+}
+
+bool AMordathBase::IsCloseRange() const
+{
+	return RangeFSM->GetActiveStateID() == 0;
+}
+
+bool AMordathBase::IsMidRange() const
+{
+	return RangeFSM->GetActiveStateID() == 1;
+}
+
+bool AMordathBase::IsFarRange() const
+{
+	return RangeFSM->GetActiveStateID() == 2;
+}
+
 float AMordathBase::GetActionDamage() const
 {
 	return ActionDamage;
@@ -396,6 +701,16 @@ bool AMordathBase::IsPerformingAction() const
 bool AMordathBase::IsLocked() const
 {
 	return FSM->GetActiveStateID() == 5;
+}
+
+bool AMordathBase::HasFinishedAction() const
+{
+	return !AnimInstance->Montage_IsPlaying(CurrentActionMontage);
+}
+
+bool AMordathBase::HasFinishedAction(UAnimMontage* ActionMontage) const
+{
+	return !AnimInstance->Montage_IsPlaying(ActionMontage);
 }
 
 UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const

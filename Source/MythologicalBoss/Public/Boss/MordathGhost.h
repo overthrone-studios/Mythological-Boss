@@ -24,10 +24,6 @@ public:
 
 	bool IsSpecialAttacking() const override;
 
-	// Returns true if we are in far distance to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
-		bool IsFarRange() const;
-
 	// Returns true if we have finished playing our current attack montage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool HasFinishedAttack() const;
@@ -53,9 +49,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ChooseAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ChooseCombo();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void NextAttack();
@@ -88,7 +81,7 @@ protected:
 		void OnExitDeathState() override;
 	#pragma endregion 
 
-	// The data the boss will reference during stage 1 of the fight
+	// The data the boss will reference during it's life
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageData;
 

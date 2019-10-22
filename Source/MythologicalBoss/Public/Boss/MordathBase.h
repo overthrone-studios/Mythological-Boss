@@ -21,6 +21,22 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | General")
 		FVector GetDirectionToPlayer() const;
 
+	// Returns true if we are super close to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | General")
+		bool IsSuperCloseRange() const;
+
+	// Returns true if we are in close distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | General")
+		bool IsCloseRange() const;
+
+	// Returns true if we are in mid distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | General")
+		bool IsMidRange() const;
+
+	// Returns true if we are in far distance to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | General")
+		bool IsFarRange() const;
+
 	// Returns the current action damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetActionDamage() const;
@@ -69,6 +85,8 @@ protected:
 	void Tick(float DeltaTime) override;
 	void PossessedBy(AController* NewController) override;
 
+	void StopMovement() override;
+
 	void Die() override;
 
 	void OnExecutionTimeExpired();
@@ -106,6 +124,16 @@ protected:
 		virtual void StopActionMontage();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		virtual void ChooseCombo();
+	
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		virtual float ChooseComboDelayed();
+
+	// Returns true if we the combo delay timer is active
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsWaitingForNextCombo() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		virtual void ChooseAction();
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
@@ -119,6 +147,31 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void StartExecutionExpiryTimer();
+
+	// Returns true if we have finished playing our current action montage
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool HasFinishedAction() const;
+		bool HasFinishedAction(class UAnimMontage* ActionMontage) const;
+
+	#pragma region Mordath Base Any States
+		#pragma region Main FSM
+		UFUNCTION()
+			virtual void OnEnterAnyState(int32 ID, FName Name);
+		UFUNCTION()
+			virtual void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
+		UFUNCTION()
+			virtual void OnExitAnyState(int32 ID, FName Name);
+		#pragma endregion 
+
+		#pragma region Range FSM
+		UFUNCTION()
+			virtual void OnEnterAnyRangeState(int32 ID, FName Name);
+		UFUNCTION()
+			virtual void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames);
+		UFUNCTION()
+			virtual void OnExitAnyRangeState(int32 ID, FName Name);
+		#pragma endregion 
+	#pragma endregion 
 
 	#pragma region Mordath Base States
 		#pragma region Idle
@@ -158,6 +211,42 @@ protected:
 		#pragma endregion 
 	#pragma endregion 
 
+	#pragma region Mordath Base Range States
+		#pragma region Close
+		UFUNCTION()
+			virtual void OnEnterCloseRange();
+		UFUNCTION()
+			virtual void UpdateCloseRange(float Uptime, int32 Frames);
+		UFUNCTION()
+			virtual void OnExitCloseRange();
+		#pragma endregion 
+
+		#pragma region Mid
+		UFUNCTION()
+			virtual void OnEnterMidRange();
+		UFUNCTION()
+			virtual void UpdateMidRange(float Uptime, int32 Frames);
+		UFUNCTION()
+			virtual void OnExitMidRange();
+		#pragma endregion 
+
+		#pragma region Far
+		UFUNCTION()
+			virtual void OnEnterFarRange();
+		UFUNCTION()
+			virtual void UpdateFarRange(float Uptime, int32 Frames);
+		UFUNCTION()
+			virtual void OnExitFarRange();
+
+		UFUNCTION()
+			virtual void OnEnterSuperCloseRange();
+		UFUNCTION()
+			virtual void UpdateSuperCloseRange(float Uptime, int32 Frames);
+		UFUNCTION()
+			virtual void OnExitSuperCloseRange();
+		#pragma endregion 
+	#pragma endregion
+
 	// Called when the player's health is less than or equal to 0
 	UFUNCTION()
 		virtual void OnPlayerDeath();
@@ -178,6 +267,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
 		class AOverthroneCharacter* PlayerCharacter;
+
+	// The boss's range Finite State Machine
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Mordath | General")
+		class UFSM* RangeFSM;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
 		float DistanceToPlayer = 0.0f;
@@ -201,4 +294,6 @@ protected:
 	EAttackCounters_Mordath CurrentCounterType;
 
 	uint8 MovementDirection : 1;
+
+	FTimerHandle TH_NextComboDelay;
 };

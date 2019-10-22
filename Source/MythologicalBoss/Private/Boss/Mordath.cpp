@@ -60,10 +60,6 @@ AMordath::AMordath() : AMordathBase()
 	FSM->AddState(26, "Close Action");
 	FSM->AddState(27, "Far Action");
 
-	FSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyState);
-	FSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyState);
-	FSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyState);
-
 	// Bind state events to our functions
 	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
 	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDamagedState);
@@ -116,35 +112,6 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(27)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarActionState);
 	FSM->GetStateFromID(27)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarActionState);
 	FSM->GetStateFromID(27)->OnExitState.AddDynamic(this, &AMordath::OnExitFarActionState);
-
-	// Create a range FSM
-	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
-	RangeFSM->AddState(0, "Close");
-	RangeFSM->AddState(1, "Mid");
-	RangeFSM->AddState(2, "Far");
-	RangeFSM->AddState(3, "Super Close");
-
-	RangeFSM->OnEnterAnyState.AddDynamic(this, &AMordath::OnEnterAnyRangeState);
-	RangeFSM->OnUpdateAnyState.AddDynamic(this, &AMordath::UpdateAnyRangeState);
-	RangeFSM->OnExitAnyState.AddDynamic(this, &AMordath::OnExitAnyRangeState);
-
-	RangeFSM->GetStateFromID(0)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseRange);
-	RangeFSM->GetStateFromID(0)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseRange);
-	RangeFSM->GetStateFromID(0)->OnExitState.AddDynamic(this, &AMordath::OnExitCloseRange);
-
-	RangeFSM->GetStateFromID(1)->OnEnterState.AddDynamic(this, &AMordath::OnEnterMidRange);
-	RangeFSM->GetStateFromID(1)->OnUpdateState.AddDynamic(this, &AMordath::UpdateMidRange);
-	RangeFSM->GetStateFromID(1)->OnExitState.AddDynamic(this, &AMordath::OnExitMidRange);
-
-	RangeFSM->GetStateFromID(2)->OnEnterState.AddDynamic(this, &AMordath::OnEnterFarRange);
-	RangeFSM->GetStateFromID(2)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarRange);
-	RangeFSM->GetStateFromID(2)->OnExitState.AddDynamic(this, &AMordath::OnExitFarRange);
-
-	RangeFSM->GetStateFromID(3)->OnEnterState.AddDynamic(this, &AMordath::OnEnterSuperCloseRange);
-	RangeFSM->GetStateFromID(3)->OnUpdateState.AddDynamic(this, &AMordath::UpdateSuperCloseRange);
-	RangeFSM->GetStateFromID(3)->OnExitState.AddDynamic(this, &AMordath::OnExitSuperCloseRange);
-
-	RangeFSM->InitFSM(0);
 
 	// Create a stage FSM
 	StageFSM = CreateDefaultSubobject<UFSM>(FName("Stage FSM"));
@@ -266,13 +233,10 @@ void AMordath::OnEnterAnyState(int32 ID, FName Name)
 
 void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
+	Super::UpdateAnyState(ID, Name, Uptime, Frames);
+
 	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
 	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
-
-	if (GameState->IsPlayerDead() && HasFinishedAction())
-	{
-		FSM->Stop();
-	}
 }
 
 void AMordath::OnExitAnyState(int32 ID, FName Name)
@@ -328,13 +292,7 @@ void AMordath::OnExitAnyStageState(int32 ID, FName Name)
 #pragma region Follow
 void AMordath::OnEnterFollowState()
 {
-	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
-	{
-		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
-			ChooseComboWithDelay();
-		else
-			ChooseCombo();
-	}
+	Super::OnEnterFollowState();
 
 	if (IsSuperCloseRange() && 
 		(CurrentActionData->Action->ActionType != ATM_Dash_Forward && 
@@ -344,99 +302,23 @@ void AMordath::OnEnterFollowState()
 		FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < -0.3f)
 	{
 		FSM->PushState("Back Hand");
-		return;
 	}
-
-	ChooseMovementDirection();
 }
 
 void AMordath::UpdateFollowState(float Uptime, int32 Frames)
 {
-	if (IsTransitioning())
-	{
-		BossAIController->StopMovement();
+	Super::UpdateFollowState(Uptime, Frames);
 
-		return;
-	}
-
-	FacePlayer();
-
-	if (IsWaitingForNewCombo() && IsSuperCloseRange())
+	if (IsWaitingForNextCombo() && IsSuperCloseRange())
 	{
 		FSM->PushState("Retreat");
 		return;
 	}
 
-	if (IsWaitingForNewCombo() && IsCloseRange())
+	if (IsWaitingForNextCombo() && IsCloseRange())
 	{
 		FSM->PushState("Thinking");
-		return;
 	}
-
-	// Decide a direction to move in
-	if (!IsDelayingAction())
-	{
-		switch (CurrentActionData->RangeToExecute)
-		{
-		case BRM_SuperClose:
-			if (IsCloseRange() || IsMidRange() || IsFarRange())
-			{
-				MoveForward();
-			}
-			else
-			{
-				StopMovement();
-			}
-		break;
-
-		case BRM_Close:
-			if (IsSuperCloseRange())
-			{
-				MoveForward(-1);
-			}
-			else if (IsMidRange() || IsFarRange())
-			{
-				MoveForward();
-			}
-			else
-			{
-				StopMovement();
-			}
-		break;
-
-		case BRM_Mid:
-			if (IsSuperCloseRange() || IsCloseRange())
-			{
-				MoveForward(-1);
-			}
-			else if (IsFarRange())
-			{
-				MoveForward();
-			}
-			else
-			{
-				StopMovement();
-			}
-		break;
-
-		case BRM_Far:
-			if (IsSuperCloseRange() || IsCloseRange() || IsMidRange())
-			{
-				MoveForward(-1);
-			}
-			else
-			{
-				StopMovement();
-			}
-		break;
-
-		default:
-			StopMovement();
-		break;
-		}
-	}
-	else
-		FSM->PushState("Thinking");
 }
 
 void AMordath::OnExitFollowState()
@@ -470,7 +352,7 @@ void AMordath::UpdateRetreatState(float Uptime, int32 Frames)
 	if (DistanceToPlayer > CurrentStageData->GetMidRangeRadius())
 		FSM->PopState();
 
-	if (IsWaitingForNewCombo() && DistanceToPlayer < CurrentStageData->GetCloseRangeRadius() || Uptime <= RetreatTime)
+	if (IsWaitingForNextCombo() && DistanceToPlayer < CurrentStageData->GetCloseRangeRadius() || Uptime <= RetreatTime)
 	{
 		MoveForward(-1.0f);
 	}
@@ -554,41 +436,21 @@ void AMordath::OnExitLockedState()
 #pragma region Think
 void AMordath::OnEnterThinkState()
 {
-	ChooseMovementDirection();
+	Super::OnEnterThinkState();
 
 	ThinkTime = CurrentStageData->ThinkStateData.CalculateThinkTime();
 
-	MordathAnimInstance->bIsThinking = true;
-	MordathAnimInstance->bWantsSideStepDash = FMath::RandRange(0, 1);
-
-#if !UE_BUILD_SHIPPING
+	#if !UE_BUILD_SHIPPING
 	if (Debug.bLogThinkTime)
 		ULog::Number(ThinkTime, "Think Time: ", true);
-#endif
+	#endif
 }
 
-void AMordath::UpdateThinkState(float Uptime, int32 Frames)
+void AMordath::UpdateThinkState(const float Uptime, const int32 Frames)
 {
-	if (IsTransitioning())
-	{
-		BossAIController->StopMovement();
+	Super::UpdateThinkState(Uptime, Frames);
 
-		return;
-	}
-
-	FacePlayer();
-
-	if (AnimInstance->AnimTimeRemaining > 0.2f)
-		EncirclePlayer();
-
-	if (!IsWaitingForNewCombo() && Uptime > ThinkTime)
-	{
-		FSM->PopState();
-		FSM->PushState("Follow");
-		return;
-	}
-
-	if (IsFarRange())
+	if (!IsWaitingForNextCombo() && Uptime > ThinkTime)
 	{
 		FSM->PopState();
 		FSM->PushState("Follow");
@@ -597,7 +459,7 @@ void AMordath::UpdateThinkState(float Uptime, int32 Frames)
 
 void AMordath::OnExitThinkState()
 {
-	MordathAnimInstance->bIsThinking = false;
+	Super::OnExitThinkState();
 }
 #pragma endregion 
 
@@ -1200,10 +1062,10 @@ void AMordath::UpdateFirstStage(float Uptime, int32 Frames)
 	if (IsLocked())
 		return;
 
-	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
+	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
 	{
 		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
-			ChooseComboWithDelay();
+			ChooseComboDelayed();
 		else
 			ChooseCombo();
 
@@ -1213,7 +1075,7 @@ void AMordath::UpdateFirstStage(float Uptime, int32 Frames)
 	if (CanAttack())
 	{
 		// Decide an action to choose from
-		if (!IsWaitingForNewCombo() && !IsDelayingAction())
+		if (!IsWaitingForNextCombo() && !IsDelayingAction())
 		{
 			ChooseAction();
 		}
@@ -1264,10 +1126,10 @@ void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 	if (IsLocked())
 		return;
 
-	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
+	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
 	{
 		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
-			ChooseComboWithDelay();
+			ChooseComboDelayed();
 		else
 			ChooseCombo();
 
@@ -1277,7 +1139,7 @@ void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
 	if (CanAttack() && !IsTeleporting())
 	{
 		// Decide which attack to choose
-		if (!IsWaitingForNewCombo() && !IsDelayingAction())
+		if (!IsWaitingForNextCombo() && !IsDelayingAction())
 			ChooseAction();
 	}
 }
@@ -1319,10 +1181,10 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 	if (IsLocked())
 		return;
 
-	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNewCombo())
+	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
 	{
 		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
-			ChooseComboWithDelay();
+			ChooseComboDelayed();
 		else
 			ChooseCombo();
 
@@ -1332,7 +1194,7 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 	if (CanAttack() && !IsTeleporting())
 	{
 		// Decide which attack to choose
-		if (!IsWaitingForNewCombo() && !IsDelayingAction())
+		if (!IsWaitingForNextCombo() && !IsDelayingAction())
 			ChooseAction();
 	}
 }
@@ -1568,92 +1430,47 @@ void AMordath::ToggleLockSelf()
 
 void AMordath::ChooseCombo()
 {
-	static int8 ComboIndex = 0;
+	Super::ChooseCombo();
 
-	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
-		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
-
-	if (CachedCombos.Num() > 0)
-	{
-		// Is the combo data asset valid at 'Index'
-		if (CachedCombos[ComboIndex])
-		{
-			ChosenCombo = CachedCombos[ComboIndex];
-
-			#if !UE_BUILD_SHIPPING
-			if (Debug.bLogCurrentCombo)
-				ULog::DebugMessage(SUCCESS, "Combo " + ChosenCombo->GetName() + " chosen", true);
-			#endif
-
-			ChosenCombo->Init();
-			CurrentActionData = &ChosenCombo->GetCurrentActionData();
-			CurrentActionMontage = CurrentActionData->Action->ActionMontage;
-
-			FString NewMontageName = CurrentActionMontage->GetName();
-			NewMontageName.RemoveAt(0, 11);
-			CurrentMontageName = NewMontageName;
-			
-			StartExecutionExpiryTimer();
-
-			CachedCombos.Remove(ChosenCombo);
-		}
-		else
-		{
-			#if !UE_BUILD_SHIPPING
-			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
-			#endif
-		}
-	}
-	else
-	{
-		ComboIndex = 0;
-
-		CachedCombos = CurrentStageData->ComboSettings.Combos;
-
-		#if !UE_BUILD_SHIPPING
-		if (Debug.bLogCurrentStageCombo)
-		{
-			switch (StageFSM->GetActiveStateID())
-			{
-			case 0:
-				ULog::Info("Using stage 1 combos", true);
-			break;
-
-			case 1:
-				ULog::Info("Using stage 2 combos", true);
-			break;
-
-			case 2:
-				ULog::Info("Using stage 3 combos", true);
-			break;
-
-			default:
-			break;
-			}
-		}
-		#endif
-
-		ChooseCombo();
-	}
-}
-
-void AMordath::ChooseComboWithDelay()
-{
-	if (CurrentStageData->ComboSettings.RandomDeviation == 0.0f)
-	{
-		TimerManager->SetTimer(TH_ComboDelay, this, &AMordath::ChooseCombo, CurrentStageData->ComboSettings.ComboDelayTime);
-		return;
-	}
-
-	const float Min = CurrentStageData->ComboSettings.ComboDelayTime - CurrentStageData->ComboSettings.RandomDeviation;
-	const float Max = CurrentStageData->ComboSettings.ComboDelayTime + CurrentStageData->ComboSettings.RandomDeviation;
-	const float NewDelayTime = FMath::FRandRange(Min, Max);
-				
-	TimerManager->SetTimer(TH_ComboDelay, this, &AMordath::ChooseCombo, NewDelayTime);
+	FString NewMontageName = CurrentActionMontage->GetName();
+	NewMontageName.RemoveAt(0, 11);
+	CurrentMontageName = NewMontageName;
 
 	#if !UE_BUILD_SHIPPING
-	if (Debug.bLogComboDelayTime)
-		ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
+	if (Debug.bLogCurrentStageCombo)
+	{
+		switch (StageFSM->GetActiveStateID())
+		{
+		case 0:
+			ULog::Info("Using stage 1 combos", true);
+		break;
+
+		case 1:
+			ULog::Info("Using stage 2 combos", true);
+		break;
+
+		case 2:
+			ULog::Info("Using stage 3 combos", true);
+		break;
+
+		default:
+		break;
+		}
+	}
+	#endif
+}
+
+float AMordath::ChooseComboDelayed()
+{
+	#if !UE_BUILD_SHIPPING
+		const float NewDelayTime = Super::ChooseComboDelayed();
+
+		if (Debug.bLogComboDelayTime)
+			ULog::DebugMessage(INFO, "Delaying: " + FString::SanitizeFloat(NewDelayTime) + " before next combo", true);
+
+		return NewDelayTime;
+	#else
+		return Super::ChooseComboDelayed();
 	#endif
 }
 
@@ -1918,31 +1735,6 @@ bool AMordath::IsInThirdStage() const
 	return StageFSM->GetActiveStateID() == 2;
 }
 
-bool AMordath::IsSuperCloseRange() const
-{
-	return RangeFSM->GetActiveStateID() == 3;
-}
-
-bool AMordath::IsCloseRange() const
-{
-	return RangeFSM->GetActiveStateID() == 0;
-}
-
-bool AMordath::IsMidRange() const
-{
-	return RangeFSM->GetActiveStateID() == 1;
-}
-
-bool AMordath::IsFarRange() const
-{
-	return RangeFSM->GetActiveStateID() == 2;
-}
-
-bool AMordath::IsWaitingForNewCombo() const
-{
-	return TimerManager->IsTimerActive(TH_ComboDelay);
-}
-
 bool AMordath::IsDashing() const
 {
 	return FSM->GetActiveStateID() == 16 || FSM->GetActiveStateID() == 17 || IsPerformingAction() && (CurrentActionData->Action->ActionType == ATM_Dash_Backward || CurrentActionData->Action->ActionType == ATM_Dash_Forward || CurrentActionData->Action->ActionType == ATM_Dash_Left || CurrentActionData->Action->ActionType == ATM_Dash_Right);
@@ -1963,19 +1755,9 @@ bool AMordath::IsRecovering() const
 	return FSM->GetActiveStateID() == 21;
 }
 
-bool AMordath::HasFinishedAction() const
-{
-	return !AnimInstance->Montage_IsPlaying(CurrentActionMontage);
-}
-
 bool AMordath::IsPerformingCloseAction() const
 {
 	return FSM->GetActiveStateID() == 26;
-}
-
-bool AMordath::HasFinishedAction(UAnimMontage* ActionMontage) const
-{
-	return !AnimInstance->Montage_IsPlaying(ActionMontage);
 }
 
 bool AMordath::IsTransitioning() const

@@ -64,26 +64,6 @@ public:
 	// Returns true if we are in the third stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
 		bool IsInThirdStage() const;
-	
-	// Returns true if we are super close to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
-		bool IsSuperCloseRange() const;
-
-	// Returns true if we are in close distance to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
-		bool IsCloseRange() const;
-
-	// Returns true if we are in mid distance to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
-		bool IsMidRange() const;
-
-	// Returns true if we are in far distance to the player
-	UFUNCTION(BlueprintPure, Category = "Mordath | Stage")
-		bool IsFarRange() const;
-
-	// Returns true if we the combo delay timer is active
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsWaitingForNewCombo() const;
 
 	// Returns true if we are in the recovering state/animation
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -109,16 +89,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsKicking() const;
 
-	// Returns true if we have finished playing our current action montage
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool HasFinishedAction() const;
-
 	// Returns true if we are performing a super close range action
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool IsPerformingCloseAction() const;
-
-	// Returns true if we have finished playing our current action montage
-	bool HasFinishedAction(class UAnimMontage* ActionMontage) const;
 
 	// Returns true if we are transitioning to the next stage
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
@@ -189,17 +162,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void FacePlayerBasedOnActionData(const class UMordathActionData* ActionData);
 
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ChooseComboWithDelay();
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ChooseCombo();
-
-
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void UpdateDamageValueInMainHUD(float DamageAmount) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Misc")
 		void DestroySelf();
+
+	void ChooseCombo() override;
+	float ChooseComboDelayed() override;
 
 	void ChooseAction() override;
 
@@ -246,26 +216,26 @@ protected:
 	#pragma endregion 
 
 	#pragma region Any States
-	UFUNCTION()
-		void OnEnterAnyState(int32 ID, FName Name);
-	UFUNCTION()
-		void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
-	UFUNCTION()
-		void OnExitAnyState(int32 ID, FName Name);
+		#pragma region Main FSM
+			void OnEnterAnyState(int32 ID, FName Name) override;
+			void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames) override;
+			void OnExitAnyState(int32 ID, FName Name) override;
+		#pragma endregion
 
-	UFUNCTION()
-		void OnEnterAnyRangeState(int32 ID, FName Name);
-	UFUNCTION()
-		void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames);
-	UFUNCTION()
-		void OnExitAnyRangeState(int32 ID, FName Name);
+		#pragma region Range FSM
+			void OnEnterAnyRangeState(int32 ID, FName Name) override;
+			void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames) override;
+			void OnExitAnyRangeState(int32 ID, FName Name) override;
+		#pragma endregion
 
-	UFUNCTION()
-		void OnEnterAnyStageState(int32 ID, FName Name);
-	UFUNCTION()
-		void UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames);
-	UFUNCTION()
-		void OnExitAnyStageState(int32 ID, FName Name);
+		#pragma region Stage FSM
+		UFUNCTION()
+			void OnEnterAnyStageState(int32 ID, FName Name);
+		UFUNCTION()
+			void UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitAnyStageState(int32 ID, FName Name);
+		#pragma endregion
 	#pragma endregion 
 
 	#pragma region Boss States
@@ -419,37 +389,25 @@ protected:
 
 	#pragma region Range States
 		#pragma region Close
-		UFUNCTION()
-			void OnEnterCloseRange();
-		UFUNCTION()
-			void UpdateCloseRange(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitCloseRange();
+			void OnEnterCloseRange() override;
+			void UpdateCloseRange(float Uptime, int32 Frames) override;
+			void OnExitCloseRange() override;
 		#pragma endregion 
 
 		#pragma region Mid
-		UFUNCTION()
-			void OnEnterMidRange();
-		UFUNCTION()
-			void UpdateMidRange(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitMidRange();
+			void OnEnterMidRange() override;
+			void UpdateMidRange(float Uptime, int32 Frames) override;
+			void OnExitMidRange() override;
 		#pragma endregion 
 
 		#pragma region Far
-		UFUNCTION()
-			void OnEnterFarRange();
-		UFUNCTION()
-			void UpdateFarRange(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitFarRange();
+			void OnEnterFarRange() override;
+			void UpdateFarRange(float Uptime, int32 Frames) override;
+			void OnExitFarRange() override;
 
-		UFUNCTION()
-			void OnEnterSuperCloseRange();
-		UFUNCTION()
-			void UpdateSuperCloseRange(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitSuperCloseRange();
+			void OnEnterSuperCloseRange() override;
+			void UpdateSuperCloseRange(float Uptime, int32 Frames) override;
+			void OnExitSuperCloseRange() override;
 		#pragma endregion 
 	#pragma endregion
 
@@ -484,10 +442,6 @@ protected:
 	#pragma endregion 
 
 	#pragma region Components
-	// The boss's range Finite State Machine
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
-		class UFSM* RangeFSM;
-
 	// The boss's stage Finite State Machine
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UFSM* StageFSM;
@@ -564,7 +518,4 @@ private:
 	class UMordathActionData* FarRange_ActionData;
 
 	class UAnimMontage* PreviousActionMontage;
-
-	// Timer handles
-	FTimerHandle TH_ComboDelay;
 };

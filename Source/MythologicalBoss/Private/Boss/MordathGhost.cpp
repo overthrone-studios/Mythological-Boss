@@ -41,6 +41,7 @@ void AMordathGhost::BeginPlay()
 	ChooseCombo();
 
 	FSM->Start();
+	RangeFSM->Start();
 }
 
 void AMordathGhost::Tick(const float DeltaSeconds)
@@ -188,38 +189,6 @@ void AMordathGhost::OnExitDeathState()
 #pragma endregion
 #pragma endregion 
 
-void AMordathGhost::ChooseCombo()
-{
-	static int8 ComboIndex = 0;
-
-	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
-		ComboIndex = FMath::RandRange(0, CachedCombos.Num() - 1);
-
-	if (CachedCombos.Num() > 0)
-	{
-		// Is the combo data asset valid at 'Index'
-		if (CachedCombos[ComboIndex])
-		{
-			ChosenCombo = CachedCombos[ComboIndex];
-
-			ChosenCombo->Init();
-			CurrentAttackData = &ChosenCombo->GetCurrentActionData();
-
-			CachedCombos.Remove(ChosenCombo);
-		}
-
-		MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-	}
-	else
-	{
-		ComboIndex = 0;
-
-		CachedCombos = CurrentStageData->ComboSettings.Combos;
-
-		ChooseCombo();
-	}
-}
-
 void AMordathGhost::NextAttack()
 {
 	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAttack())
@@ -299,11 +268,6 @@ void AMordathGhost::ChooseAttack()
 bool AMordathGhost::IsDelayingAttack() const
 {
 	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
-}
-
-bool AMordathGhost::IsFarRange() const
-{
-	return DistanceToPlayer > CurrentStageData->GetMidRangeRadius();
 }
 
 bool AMordathGhost::HasFinishedAttack() const
