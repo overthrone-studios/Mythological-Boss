@@ -1977,18 +1977,19 @@ void AYlva::OnEnterDeathState()
 
 	AttackComboComponent->ResetAllBlendOutSettings();
 
-	// Stop all vibrations
-	for (const auto& Effect : PlayerController->ActiveForceFeedbackEffects)
-	{
-		StopVibrateController(Effect.ForceFeedbackEffect);
-	}
-
 	OnDeath();
 }
 
 void AYlva::UpdateDeathState(const float Uptime, const int32 Frames)
 {
 	Super::UpdateDeathState(Uptime, Frames);
+
+	if (CurrentForceFeedback && Uptime > CurrentForceFeedback->Duration)
+	{
+		StopVibrateController(CurrentForceFeedback);
+		
+		PlayerController->bForceFeedbackEnabled = false;
+	}
 }
 
 void AYlva::OnExitDeathState()
