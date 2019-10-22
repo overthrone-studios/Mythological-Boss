@@ -2672,7 +2672,7 @@ UStaticMeshComponent* AYlva::GetLeftHandSword() const
 
 	for (auto Component : Components.Array())
 	{
-		if (Component->GetName() == "Sword_L" || Component->GetName() == "Sword")
+		if (Component->GetName() == "Sword_L" || Component->GetName() == "Sword" || Component->GetName() == "Sword_L_Blade")
 		{
 			return Cast<UStaticMeshComponent>(Component);
 		}
@@ -2698,7 +2698,7 @@ UStaticMeshComponent* AYlva::GetRightHandSword() const
 
 	for (auto Component : Components.Array())
 	{
-		if (Component->GetName() == "Sword_R" || Component->GetName() == "Sword")
+		if (Component->GetName() == "Sword_R" || Component->GetName() == "Sword" || Component->GetName() == "Sword_R_Blade")
 		{
 			return Cast<UStaticMeshComponent>(Component);
 		}
