@@ -67,19 +67,21 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 
 	HealthLossTimeline.TickTimeline(DeltaSeconds);
 
-	if (IsLocked())
-		return;
-
-	if (IsMovingInAnyDirection() && !IsAttacking())
-		CurrentMovementSpeed = GetMovementSpeed();
-	else
-		CurrentMovementSpeed = 0.0f;
-
 	CurrentLocation = GetActorLocation();
 	CurrentRotation = GetActorRotation();
 
 	ForwardVector = GetActorForwardVector();
 	RightVector = GetActorRightVector();
+
+	#if !UE_BUILD_SHIPPING
+	if (IsLocked())
+		return;
+	#endif
+
+	if (IsMovingInAnyDirection() && !IsAttacking())
+		CurrentMovementSpeed = GetMovementSpeed();
+	else
+		CurrentMovementSpeed = 0.0f;
 
 	ControlRotation = GetControlRotation();
 }
