@@ -802,7 +802,7 @@ void AMordath::OnEnterTiredState()
 
 	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
 
-	//if (IsInThirdStage())
+	if (IsInThirdStage())
 		SpawnGhostDelayed(2, 1.0f);
 }
 
