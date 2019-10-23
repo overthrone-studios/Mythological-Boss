@@ -18,6 +18,12 @@ float FRetreatStateData::CalculateRetreatTime()
 	return FMath::Clamp(FMath::FRandRange(Min, Max), 0.0f, Max);
 }
 
+void UMordathStageData::Init()
+{
+	CachedCloseRangeActions = Combat.SuperCloseRangeActions;
+	CachedFarRangeActions = Combat.FarRangeActions;
+}
+
 float UMordathStageData::GetAttackRadius()
 {
 	return Combat.AttackSettings.AttackRadius;
@@ -40,20 +46,34 @@ float UMordathStageData::GetHitStopTime()
 
 UMordathActionData* UMordathStageData::GetRandomSuperCloseRangeAction()
 {
-	const int32& Index = FMath::RandRange(0, Combat.SuperCloseRangeActions.Num() - 1);
+	if (CachedCloseRangeActions.Num() == 0)
+		Init();
 
-	if (Combat.SuperCloseRangeActions.IsValidIndex(Index))
-		return Combat.SuperCloseRangeActions[Index];
+	const int32& Index = FMath::RandRange(0, CachedCloseRangeActions.Num() - 1);
+
+	if (CachedCloseRangeActions.IsValidIndex(Index))
+	{
+		UMordathActionData* ActionData = CachedCloseRangeActions[Index];
+		CachedCloseRangeActions.Remove(ActionData);
+		return ActionData;
+	}
 
 	return nullptr;
 }
 
 UMordathActionData* UMordathStageData::GetRandomFarRangeAction()
 {
-	const int32& Index = FMath::RandRange(0, Combat.FarRangeActions.Num() - 1);
+	if (CachedFarRangeActions.Num() == 0)
+		Init();
 
-	if (Combat.FarRangeActions.IsValidIndex(Index))
-		return Combat.FarRangeActions[Index];
+	const int32& Index = FMath::RandRange(0, CachedFarRangeActions.Num() - 1);
+
+	if (CachedFarRangeActions.IsValidIndex(Index))
+	{
+		UMordathActionData* ActionData = CachedFarRangeActions[Index];
+		CachedFarRangeActions.Remove(ActionData);
+		return ActionData;
+	}
 
 	return nullptr;
 }
