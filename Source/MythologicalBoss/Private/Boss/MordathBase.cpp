@@ -477,13 +477,14 @@ void AMordathBase::Die()
 
 void AMordathBase::FacePlayer(const float RotationSpeed)
 {
-	if (RotationSpeed > 0.0f)
+	if (RotationSpeed > 0.0f && !GameState->IsPlayerDead())
 		SetActorRotation(FMath::Lerp(ControlRotation, FRotator(ControlRotation.Pitch, DirectionToPlayer.Rotation().Yaw, ControlRotation.Roll), RotationSpeed * World->DeltaTimeSeconds));
 }
 
 void AMordathBase::FacePlayer_Instant()
 {
-	SetActorRotation(FRotator(ControlRotation.Pitch, DirectionToPlayer.Rotation().Yaw, ControlRotation.Roll));
+	if (!GameState->IsPlayerDead())
+		SetActorRotation(FRotator(ControlRotation.Pitch, DirectionToPlayer.Rotation().Yaw, ControlRotation.Roll));
 }
 
 void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionData)
@@ -522,7 +523,9 @@ void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionD
 
 	if (CurrentMontageSection == "Anticipation")
 	{
-		FacePlayer(ActionData->Anticipation.RotationSpeed);
+		if (!GameState->IsPlayerDead())
+			FacePlayer(ActionData->Anticipation.RotationSpeed);
+
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Anticipation.PlayRate);
 
 		if (ActionData->Anticipation.bSnapToPlayerLocation)
@@ -537,12 +540,14 @@ void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionD
 			SnapToPlayerLocation(ActionData->Pinnacle);
 		}
 
-		if (ActionData->Pinnacle.bSnapRotation)
+		if (ActionData->Pinnacle.bSnapRotation && !GameState->IsPlayerDead())
 			FacePlayer_Instant();
 	}
 	else if (CurrentMontageSection == "Contact")
 	{
-		FacePlayer(ActionData->Contact.RotationSpeed);
+		if (!GameState->IsPlayerDead())
+			FacePlayer(ActionData->Contact.RotationSpeed);
+
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Contact.PlayRate);
 
 		if (ActionData->Contact.bSnapToPlayerLocation)
@@ -552,7 +557,9 @@ void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionD
 	}
 	else if (CurrentMontageSection == "Recovery")
 	{
-		FacePlayer(ActionData->Recovery.RotationSpeed);
+		if (!GameState->IsPlayerDead())
+			FacePlayer(ActionData->Recovery.RotationSpeed);
+
 		AnimInstance->Montage_SetPlayRate(ActionData->ActionMontage, ActionData->Recovery.PlayRate);
 
 		if (ActionData->Recovery.bSnapToPlayerLocation)
