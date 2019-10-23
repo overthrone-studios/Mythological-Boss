@@ -1043,6 +1043,7 @@ void AMordath::OnExitSuperCloseRange()
 void AMordath::OnEnterFirstStage()
 {
 	CurrentStageData = StageOneData;
+	CurrentStageData->Init();
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 

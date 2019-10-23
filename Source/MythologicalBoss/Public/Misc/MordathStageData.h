@@ -140,14 +140,6 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		UMordathActionData* BackHandActionData = nullptr;
 
-	// Maximum hits that can be taken before becoming invincible
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0))
-	//	uint8 MaxHitsBeforeInvincibility = 3;
-
-	//// The amount of time (in seconds) that the boss can stay invincible after being damaged by the player
-	//UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.01f, ClampMax = 100.0f))
-	//	float InvincibilityTimeAfterDamage = 1.5f;
-
 	float RecentDamage = 0.0f;
 };
 
@@ -160,6 +152,9 @@ class MYTHOLOGICALBOSS_API UMordathStageData final : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void Init();
+
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetAttackRadius();
 
@@ -267,4 +262,8 @@ protected:
 	// List of camera shakes
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
 		FCameraShakes_Mordath CameraShakes;
+
+private:
+	TArray<UMordathActionData*> CachedCloseRangeActions;
+	TArray<UMordathActionData*> CachedFarRangeActions;
 };

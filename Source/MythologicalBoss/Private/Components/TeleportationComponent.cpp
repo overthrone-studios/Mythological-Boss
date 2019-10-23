@@ -83,7 +83,10 @@ void UTeleportationComponent::FinishDissolve()
 		bWasReversing = false;
 
 		for (int32 i = 0; i < SKMComponent->GetMaterials().Num(); ++i)
-			SKMComponent->SetMaterial(i, OriginalMaterials[i]);
+		{
+			if (OriginalMaterials[i])
+				SKMComponent->SetMaterial(i, OriginalMaterials[i]);
+		}
 
 		OnReappeared.Broadcast();
 	}
