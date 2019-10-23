@@ -103,10 +103,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTeleporting() const;
 
-	// Returns true if the time to execute has been reached
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsExecutionTimeExpired() const;
-
 	// Returns true if we are executing a far range action
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsPerformingFarAction() const;
@@ -119,6 +115,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnGhost();
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath")
+		void SpawnGhostDelayed(int32 Amount, float DelayInterval = 1.0f);
 
 	void ToggleLockSelf() override;
 
@@ -509,4 +508,6 @@ private:
 	class UMordathActionData* FarRange_ActionData;
 
 	class UAnimMontage* PreviousActionMontage;
+
+	FTimerHandle TH_SpawnGhostDelay;
 };

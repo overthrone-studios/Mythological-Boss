@@ -801,6 +801,9 @@ void AMordath::OnEnterTiredState()
 	PlayActionMontage();
 
 	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
+
+	//if (IsInThirdStage())
+		SpawnGhostDelayed(2, 1.0f);
 }
 
 void AMordath::UpdateTiredState(float Uptime, int32 Frames)
@@ -1269,6 +1272,8 @@ void AMordath::OnSecondStageHealth()
 
 	StopMovement();
 
+	SpawnGhost();
+
 	FSM->RemoveAllStates();
 	FSM->PushState("Transition");
 
@@ -1287,6 +1292,8 @@ void AMordath::OnThirdStageHealth()
 	SpawnLightningStrike(NewLocation);
 
 	StopMovement();
+
+	SpawnGhost();
 
 	FSM->RemoveAllStates();
 	FSM->PushState("Transition");
@@ -1688,11 +1695,6 @@ bool AMordath::IsTeleporting() const
 	return FSM->GetActiveStateID() == 18;
 }
 
-bool AMordath::IsExecutionTimeExpired() const
-{
-	return !TimerManager->IsTimerActive(CurrentActionData->TH_ExecutionExpiry);
-}
-
 bool AMordath::IsPerformingFarAction() const
 {
 	return FSM->GetActiveStateID() == 27;
@@ -1725,6 +1727,26 @@ void AMordath::SpawnGhost()
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	World->SpawnActor(GhostClass, &Transform, SpawnParameters);
+}
+
+void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)
+{
+	static int32 CurrentAmount = 0;
+	if (CurrentAmount >= Amount)
+	{
+		CurrentAmount = 0;
+		TimerManager->ClearTimer(TH_SpawnGhostDelay);
+		return;
+	}
+
+	SpawnGhost();
+
+	FTimerDelegate TD_SpawnGhostDelay;
+	TD_SpawnGhostDelay.BindUFunction(this, "SpawnGhostDelayed", Amount, DelayInterval);
+
+	TimerManager->SetTimer(TH_SpawnGhostDelay, TD_SpawnGhostDelay, DelayInterval, true);
+
+	CurrentAmount++;
 }
 
 void AMordath::SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation)

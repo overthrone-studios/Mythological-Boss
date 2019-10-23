@@ -12,6 +12,8 @@
 
 #include "OverthroneGameState.h"
 
+#include "ConstructorHelpers.h"
+
 #include "FSM.h"
 #include "Log.h"
 
@@ -19,11 +21,17 @@ AMordathGhost::AMordathGhost() : AMordathBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Get our anim blueprint class
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimBP(TEXT("AnimBlueprint'/Game/Characters/Mordath/Animations/ABP_Mordath_Ghost.ABP_Mordath_Ghost_C'"));
+
 	GhostMaterial = Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(), nullptr, TEXT("MaterialInstanceConstant'/Game/Art/Materials/VFX/MI_MordathGhostTrail.MI_MordathGhostTrail'")));
 
 	// Configure our mesh
 	for (int32 i = 0; i < GetMesh()->GetMaterials().Num(); i++)
 		GetMesh()->SetMaterial(i, GhostMaterial);
+
+	if (AnimBP.Succeeded())
+		GetMesh()->AnimClass = AnimBP.Class;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
@@ -65,40 +73,36 @@ float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& Da
 #pragma region Follow
 void AMordathGhost::OnEnterFollowState()
 {
-	MovementComponent->SetMovementMode(MOVE_Walking);
-	MovementComponent->MaxWalkSpeed = GetMovementSpeed();
-
-	if (ChosenCombo->IsAtLastAction())
-	{
-		ChooseCombo();
-	}
-
-	ChooseMovementDirection();
+	Super::OnEnterFollowState();
 }
 
 void AMordathGhost::UpdateFollowState(float Uptime, int32 Frames)
 {
-	FacePlayer();
+	Super::UpdateFollowState(Uptime, Frames);
 
-	if (DistanceToPlayer < CurrentStageData->GetMidRangeRadius() && IsDelayingAttack())
+	if (IsWaitingForNextCombo() && IsCloseRange())
 	{
 		FSM->PushState("Thinking");
 		return;
 	}
 
-	// Move towards the player
-	if (DistanceToPlayer < CurrentStageData->GetCloseRangeRadius())
+	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
 	{
-		if (!IsAttacking())
-			ChooseAttack();
+		if (CurrentStageData->ComboSettings.bDelayBetweenCombo)
+			ChooseComboDelayed();
+		else
+			ChooseCombo();
 
-		CurrentMovementSpeed = 0.0f;
-		ForwardInput = 0.0f;
-		RightInput = 0.0f;
+		return;
 	}
-	else
+
+	if (CanAttack())
 	{
-		MoveForward();
+		// Decide an action to choose from
+		if (!IsWaitingForNextCombo() && !IsDelayingAction())
+		{
+			ChooseAction();
+		}
 	}
 }
 
@@ -110,29 +114,16 @@ void AMordathGhost::OnExitFollowState()
 #pragma region Think
 void AMordathGhost::OnEnterThinkState()
 {
-	ChooseMovementDirection();
+	Super::OnEnterThinkState();
 
 	ThinkTime = CurrentStageData->ThinkStateData.CalculateThinkTime();
-
-	MordathAnimInstance->bIsThinking = true;
-	MordathAnimInstance->bWantsSideStepDash = FMath::RandRange(0, 1);
 }
 
 void AMordathGhost::UpdateThinkState(float Uptime, int32 Frames)
 {
-	FacePlayer();
+	Super::UpdateThinkState(Uptime, Frames);
 
-	if (AnimInstance->AnimTimeRemaining > 0.2f)
-		EncirclePlayer();
-
-	if (Uptime > ThinkTime)
-	{
-		FSM->PopState();
-		FSM->PushState("Follow");
-		return;
-	}
-
-	if (IsFarRange())
+	if (!IsWaitingForNextCombo() && Uptime > ThinkTime)
 	{
 		FSM->PopState();
 		FSM->PushState("Follow");
@@ -141,7 +132,7 @@ void AMordathGhost::UpdateThinkState(float Uptime, int32 Frames)
 
 void AMordathGhost::OnExitThinkState()
 {
-	MordathAnimInstance->bIsThinking = false;
+	Super::OnExitThinkState();
 }
 #pragma endregion 
 
@@ -190,90 +181,33 @@ void AMordathGhost::OnExitDeathState()
 #pragma endregion
 #pragma endregion 
 
-void AMordathGhost::NextAttack()
+void AMordathGhost::StopActionMontage()
 {
-	if (ChosenCombo->IsDelayEnabled() && !IsDelayingAttack())
-	{
-		const float Min = FMath::Clamp(ChosenCombo->GetActionDelayTime() - ChosenCombo->GetDeviation(), 0.0f, 100.0f);
-		const float Max = FMath::Clamp(ChosenCombo->GetActionDelayTime() + ChosenCombo->GetDeviation(), 0.0f, 100.0f + ChosenCombo->GetDeviation());
-		const float NewDelay = FMath::RandRange(Min, Max);
-
-		if (NewDelay > 0.0f)
-		{
-			GetWorld()->GetTimerManager().SetTimer(ChosenCombo->GetActionDelayTimer(), this, &AMordathGhost::NextAttack, NewDelay);
-			MovementComponent->MaxWalkSpeed = MovementComponent->MaxWalkSpeed / 2.0f;
-		}
-		else
-		{
-			ChosenCombo->NextAction();
-		}
-
-		return;
-	}
-
-	ChosenCombo->NextAction();
-}
-
-void AMordathGhost::PlayAttackMontage()
-{
-	PlayAnimMontage(CurrentAttackData->Action->ActionMontage, 1.0f, FName("Anticipation"));
-}
-
-void AMordathGhost::StopAttackMontage()
-{
-	if (!HasFinishedAttack() && !GameState->IsPlayerDead())
-		StopAnimMontage(CurrentAttackData->Action->ActionMontage);
+	Super::StopActionMontage();
 
 	CurrentMontageSection = "None";
 }
 
-void AMordathGhost::ChooseAttack()
+void AMordathGhost::ChooseAction()
 {
 	if (IsAttacking())
 		return;
 
-	CurrentAttackData = &ChosenCombo->GetCurrentActionData();
+	CurrentActionData = &ChosenCombo->GetCurrentActionData();
 
-	// Choose the current attack from the attack data
-	switch (CurrentAttackData->Action->ActionType)
-	{
-	case ATM_ShortAttack_1:
-		FSM->PushState("Light Attack 1");
-		break;
+	// Update data
+	CurrentActionType = CurrentActionData->Action->ActionType;
+	CurrentCounterType = CurrentActionData->Action->CounterType;
+	ActionDamage = CurrentActionData->Action->ActionDamage;
 
-	case ATM_ShortAttack_2:
-		FSM->PushState("Light Attack 2");
-		break;
-
-	case ATM_ShortAttack_3:
-		FSM->PushState("Light Attack 3");
-		break;
-
-	case ATM_LongAttack_1:
-		FSM->PushState("Heavy Attack 1");
-		break;
-
-	case ATM_LongAttack_2:
-		FSM->PushState("Heavy Attack 2");
-		break;
-
-	case ATM_LongAttack_3:
-		FSM->PushState("Heavy Attack 3");
-		break;
-
-	default:
-		break;
-	}
+	ExecuteAction(CurrentActionData->Action);
 }
 
-bool AMordathGhost::IsDelayingAttack() const
+void AMordathGhost::ExecuteAction(UMordathActionData* ActionData)
 {
-	return TimerManager->IsTimerActive(ChosenCombo->GetActionDelayTimer());
-}
+	Super::ExecuteAction(ActionData);
 
-bool AMordathGhost::HasFinishedAttack() const
-{
-	return !AnimInstance->Montage_IsPlaying(CurrentAttackData->Action->ActionMontage);
+	FSM->PushState("Action");
 }
 
 void AMordathGhost::PauseAnimsWithTimer()

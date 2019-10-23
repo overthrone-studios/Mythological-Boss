@@ -708,8 +708,10 @@ void AMordathBase::ExecuteAction(UMordathActionData* ActionData)
 
 bool AMordathBase::CanAttack() const
 {
-	return	CurrentActionData->RangeToExecute == BRM_AnyRange || 
-			ChosenCombo->WantsToExecuteNonStop() &&
+	return	(CurrentActionData->RangeToExecute == RangeFSM->GetActiveStateID() || 
+			CurrentActionData->RangeToExecute == BRM_AnyRange || 
+			IsExecutionTimeExpired() || 
+			ChosenCombo->WantsToExecuteNonStop()) &&
 			!IsAttacking();
 }
 
@@ -843,6 +845,11 @@ bool AMordathBase::IsThinking() const
 bool AMordathBase::IsPerformingAction() const
 {
 	return FSM->GetActiveStateID() == 3;
+}
+
+bool AMordathBase::IsExecutionTimeExpired() const
+{
+	return !TimerManager->IsTimerActive(CurrentActionData->TH_ExecutionExpiry);
 }
 
 bool AMordathBase::IsLocked() const

@@ -75,6 +75,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsPerformingAction() const;
 
+	// Returns true if the time to execute has been reached
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsExecutionTimeExpired() const;
+
 	bool IsLocked() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")

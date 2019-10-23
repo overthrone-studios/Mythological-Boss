@@ -18,10 +18,6 @@ class MYTHOLOGICALBOSS_API AMordathGhost final : public AMordathBase
 public:
 	AMordathGhost();
 
-	// Returns true if we have finished playing our current attack montage
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool HasFinishedAttack() const;
-
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
@@ -30,23 +26,6 @@ protected:
 	void Tick(float DeltaSeconds) override;
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-	// todo remove functions
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void PlayAttackMontage();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void StopAttackMontage();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void ChooseAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void NextAttack();
-
-	// Returns true if we are delaying our current attack
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsDelayingAttack() const;
 
 	#pragma region Follow
 		void OnEnterFollowState() override;
@@ -72,6 +51,12 @@ protected:
 		void OnExitDeathState() override;
 	#pragma endregion 
 
+	void StopActionMontage() override;
+
+	void ChooseAction() override;
+
+	void ExecuteAction(class UMordathActionData* ActionData) override;
+
 	// The data the boss will reference during it's life
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageData;
@@ -88,8 +73,6 @@ private:
 
 	float DistanceToPlayer = 0.0f;
 	FVector DirectionToPlayer;
-
-	FComboData_Action* CurrentAttackData;
 
 	FName CurrentMontageSection = "None";
 
