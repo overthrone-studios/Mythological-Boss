@@ -55,7 +55,10 @@ void UTeleportationComponent::BeginPlay()
 	UOverthroneFunctionLibrary::SetupTimeline(this, TL_Dissolve, DissolveCurve, false, DissolveSpeed, "UpdateDissolve", "FinishDissolve");
 
 	MID_Dissolve = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DissolveMaterial);
-	MID_Dissolve->SetScalarParameterValue("Amount", 0.0f);
+	if (MID_Dissolve)
+		MID_Dissolve->SetScalarParameterValue("Amount", 0.0f);
+	else
+		ULog::Error("Could not find Dissolve material!", true);
 }
 
 void UTeleportationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
