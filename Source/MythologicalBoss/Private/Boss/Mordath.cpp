@@ -1311,6 +1311,9 @@ void AMordath::OnReappeared()
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
 	FlashIndicator->ReassignMaterial();
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 }
 #pragma endregion
 
