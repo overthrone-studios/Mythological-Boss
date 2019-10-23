@@ -1309,6 +1309,8 @@ void AMordath::OnDisappeared()
 void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
+
+	FlashIndicator->ReassignMaterial();
 }
 #pragma endregion
 

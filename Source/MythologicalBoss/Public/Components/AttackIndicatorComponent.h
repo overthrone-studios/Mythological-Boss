@@ -19,6 +19,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Flash Indicator")
 		void Flash(const FLinearColor& FlashColor);
 
+	void ReassignMaterial();
+
 	// The flash color to set when our current attack has is blockable
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FLinearColor DefaultColor = FLinearColor(0.0f, 0.8f, 1.0f, 1.2f);

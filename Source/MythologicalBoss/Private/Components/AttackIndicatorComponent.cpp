@@ -71,6 +71,13 @@ void UAttackIndicatorComponent::Flash(const FLinearColor& FlashColor)
 	FlashTimeline.PlayFromStart();
 }
 
+void UAttackIndicatorComponent::ReassignMaterial()
+{
+	MID_FlashIndicator = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, FlashMaterial);
+	MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
+	Owner->GetMesh()->SetMaterial(MaterialIndex, MID_FlashIndicator);
+}
+
 void UAttackIndicatorComponent::GrowFlash()
 {
 	const float& Time = FlashTimeline.GetPlaybackPosition();
