@@ -420,6 +420,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(11, "Player Displayed Stamina: " + FString::SanitizeFloat(StaminaComponent->GetSmoothedStamina()));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Yaw Input: " + FString::SanitizeFloat(YawInput));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Direction To Boss: " + DirectionToBoss.ToString());
 #endif
 }
 
@@ -2139,17 +2141,28 @@ void AYlva::OnEnterPushBackState()
 {
 	YlvaAnimInstance->bIsHitByAOE = true;
 
-	EndAttackLocation = CurrentLocation + ForwardVector * -800.0f;
+	EndAttackLocation = GetDirectionToBoss();
 
+	DrawDebugLine(World, CurrentLocation, CurrentLocation + DirectionToBoss * 100.0f, FColor::Green, false, 2.0f, 0, 3.0f);
+
+	MovementComponent->bOrientRotationToMovement = false;
+	MovementComponent->MaxWalkSpeed = 500.0f;
+	MovementComponent->MaxAcceleration = 8096.0f;
+
+	FaceBoss_Instant();
 	PlayerController->SetIgnoreMoveInput(true);
+
 }
 
 void AYlva::UpdatePushBackState(float Uptime, int32 Frames)
 {
-	StopMovement();
+	//StopMovement();
 
-	const FVector NewLocation = FMath::Lerp(CurrentLocation, EndAttackLocation, 2 * World->DeltaTimeSeconds);
-	SetActorLocation(NewLocation);
+	//const FVector NewLocation = FMath::Lerp(CurrentLocation, EndAttackLocation, 2 * World->DeltaTimeSeconds);
+	//SetActorLocation(NewLocation);
+	//AddActorLocalOffset(-DirectionToBoss);
+
+	MovementComponent->AddInputVector(-EndAttackLocation, true);
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
@@ -2159,9 +2172,12 @@ void AYlva::OnExitPushBackState()
 {
 	YlvaAnimInstance->bIsHitByAOE = false;
 
+	MovementComponent->bOrientRotationToMovement = true;
+	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
+	MovementComponent->MaxAcceleration = 2048.0f;
+
 	bHasBeenDamaged = false;
 	ResumeMovement();
-	PlayerController->ResetIgnoreMoveInput();
 }
 #pragma endregion 
 
@@ -2813,4 +2829,5 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Health: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Yaw Input: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Direction To Boss: ", FColor::Green);
 }
