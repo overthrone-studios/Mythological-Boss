@@ -357,10 +357,10 @@ void AYlva::Tick(const float DeltaTime)
 	{
 		HardLockOnTo(GameState->BossData.Location, DeltaTime);
 	}
-	else if (Scalar > 0.9f && YawInput == 0.0f && CanLockOn())
-	{
-		SoftLockOnTo(GameState->BossData.Location, DeltaTime);
-	}
+	//else if (Scalar > 0.9f && YawInput == 0.0f && CanLockOn())
+	//{
+	//	SoftLockOnTo(GameState->BossData.Location, DeltaTime);
+	//}
 
 	if (DistanceToBoss > FollowCamera->GetMaxLockOnDistance() && IsLockedOn())
 		FollowCamera->DisableLockOn();
