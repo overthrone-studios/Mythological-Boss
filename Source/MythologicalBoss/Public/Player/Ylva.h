@@ -47,6 +47,10 @@ struct FMovementSettings_Ylva : public FMovementSettings
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 10.0f))
 		float LeanPitchOffset = 0.7f;
 
+	// The strength of the knockback effect
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
+		float KnockbackForce = 500.0f;
+
 	// Should the player stop moving when attacking?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		uint8 bStopMovingWhenAttacking : 1;

@@ -2146,7 +2146,7 @@ void AYlva::OnEnterPushBackState()
 	DrawDebugLine(World, CurrentLocation, CurrentLocation + DirectionToBoss * 100.0f, FColor::Green, false, 2.0f, 0, 3.0f);
 
 	MovementComponent->bOrientRotationToMovement = false;
-	MovementComponent->MaxWalkSpeed = 500.0f;
+	MovementComponent->MaxWalkSpeed = MovementSettings.KnockbackForce;
 	MovementComponent->MaxAcceleration = 8096.0f;
 
 	FaceBoss_Instant();
@@ -2156,12 +2156,6 @@ void AYlva::OnEnterPushBackState()
 
 void AYlva::UpdatePushBackState(float Uptime, int32 Frames)
 {
-	//StopMovement();
-
-	//const FVector NewLocation = FMath::Lerp(CurrentLocation, EndAttackLocation, 2 * World->DeltaTimeSeconds);
-	//SetActorLocation(NewLocation);
-	//AddActorLocalOffset(-DirectionToBoss);
-
 	MovementComponent->AddInputVector(-EndAttackLocation, true);
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
