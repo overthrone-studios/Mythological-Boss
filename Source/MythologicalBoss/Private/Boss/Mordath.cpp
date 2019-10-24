@@ -1182,7 +1182,7 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 	}
 #endif
 
-	if (IsLocked())
+	if (IsLocked() || IsTeleporting())
 		return;
 
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
@@ -1319,6 +1319,8 @@ void AMordath::OnReappeared()
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+
+	DisableInvincibility();
 }
 #pragma endregion
 

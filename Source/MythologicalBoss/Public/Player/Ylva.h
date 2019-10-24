@@ -372,6 +372,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsPerfectDashing() const;
 
+	// Returns true if we are being pushed back
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsBeingPushedBack() const;
+
 	// Returns true if we are allowed to lock on
 	UFUNCTION(BlueprintPure, Category = "Ylva | Lock-On Camera")
 		bool CanLockOn() const;
@@ -805,6 +809,15 @@ protected:
 			void UpdateChargeAttackState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitChargeAttackState();
+		#pragma endregion 
+
+		#pragma region Charge Attack
+		UFUNCTION()
+			void OnEnterPushBackState();
+		UFUNCTION()
+			void UpdatePushBackState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitPushBackState();
 		#pragma endregion 
 
 		#pragma region Shocked
