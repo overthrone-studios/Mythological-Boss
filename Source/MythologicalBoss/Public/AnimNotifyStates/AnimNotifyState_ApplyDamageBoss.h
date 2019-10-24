@@ -19,6 +19,9 @@ protected:
 
 	void OnHit(USkeletalMeshComponent* MeshComp) override;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		TSubclassOf<UDamageType> DamageType;
+
 private:
 	class AMordath* Mordath;
 	class AMordathGhost* MordathGhost;

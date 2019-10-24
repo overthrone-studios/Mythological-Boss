@@ -51,7 +51,7 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 {
 	const auto HitActor = HitResult.GetActor();
 	const auto HitComponent = HitResult.GetComponent();
-	const FDamageEvent DamageEvent;
+	const FDamageEvent DamageEvent = FDamageEvent(DamageType);
 
 	if (HitComponent && Mordath)
 		HitComponent->OnComponentHit.Broadcast(HitResult.GetComponent(), Mordath, MeshComp, HitResult.ImpactNormal, HitResult);

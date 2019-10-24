@@ -55,6 +55,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "DmgType_AOE.h"
+#include "DmgType_MordathKick.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -1070,7 +1071,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				// Determine the damage state to enter in
 				if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 					FSM->PushState("Shocked");
-				else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+				else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 					FSM->PushState("Push Back");
 				else
 					FSM->PushState("Damaged");
@@ -1089,7 +1090,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				FSM->PopState();
 				FSM->PushState("Shocked");
 			}
-			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 				FSM->PushState("Push Back");
 			else
 				FSM->PushState("Shield Hit");
@@ -1121,7 +1122,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			// Determine the damage state to enter in
 			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 				FSM->PushState("Shocked");
-			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 				FSM->PushState("Push Back");
 			else
 				FSM->PushState("Damaged");
