@@ -2137,6 +2137,7 @@ void AYlva::OnExitPushBackState()
 {
 	YlvaAnimInstance->bIsHitByAOE = false;
 
+	bHasBeenDamaged = false;
 	ResumeMovement();
 	PlayerController->ResetIgnoreMoveInput();
 }
