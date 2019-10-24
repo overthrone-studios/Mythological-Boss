@@ -1272,8 +1272,6 @@ void AMordath::OnSecondStageHealth()
 
 	StopMovement();
 
-	SpawnGhost();
-
 	FSM->RemoveAllStates();
 	FSM->PushState("Transition");
 
