@@ -2024,6 +2024,14 @@ void AYlva::OnEnterChargeAttackState()
 
 void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 {
+	UpdateStamina(StaminaComponent->GetChargeAttackValue() * World->DeltaTimeSeconds);
+
+	if (Uptime > ChargeAttackComponent->GetMaxChargeHoldTime() || StaminaComponent->IsStaminaEmpty())
+	{
+		FSM->PopState();
+		return;
+	}
+
 	FaceBoss(World->DeltaTimeSeconds);
 
 	HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
