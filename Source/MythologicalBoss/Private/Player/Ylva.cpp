@@ -54,6 +54,7 @@
 #include "TimerManager.h"
 
 #include "DrawDebugHelpers.h"
+#include "DmgType_AOE.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -89,6 +90,7 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->AddState(7, "Shocked");
 	FSM->AddState(8, "Dash Attack");
 	FSM->AddState(9, "Attack");
+	FSM->AddState(10, "Push Back");
 	FSM->AddState(12, "Dash");
 	FSM->AddState(20, "Damaged");
 	FSM->AddState(21, "Shield Hit");
@@ -135,6 +137,10 @@ AYlva::AYlva() : AOverthroneCharacter()
 	FSM->GetStateFromID(9)->OnEnterState.AddDynamic(this, &AYlva::OnEnterAttackState);
 	FSM->GetStateFromID(9)->OnUpdateState.AddDynamic(this, &AYlva::UpdateAttackState);
 	FSM->GetStateFromID(9)->OnExitState.AddDynamic(this, &AYlva::OnExitAttackState);
+
+	FSM->GetStateFromID(10)->OnEnterState.AddDynamic(this, &AYlva::OnEnterPushBackState);
+	FSM->GetStateFromID(10)->OnUpdateState.AddDynamic(this, &AYlva::UpdatePushBackState);
+	FSM->GetStateFromID(10)->OnExitState.AddDynamic(this, &AYlva::OnExitPushBackState);
 
 	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AYlva::OnEnterDashState);
 	FSM->GetStateFromID(12)->OnUpdateState.AddDynamic(this, &AYlva::UpdateDashState);
@@ -816,7 +822,7 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack())
 		return;
 
 	if (CanDashAttack())
@@ -888,7 +894,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack())
 		return;
 
 	if (CanDashAttack())
@@ -1064,6 +1070,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				// Determine the damage state to enter in
 				if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 					FSM->PushState("Shocked");
+				else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+					FSM->PushState("Push Back");
 				else
 					FSM->PushState("Damaged");
 
@@ -1081,6 +1089,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				FSM->PopState();
 				FSM->PushState("Shocked");
 			}
+			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+				FSM->PushState("Push Back");
 			else
 				FSM->PushState("Shield Hit");
 
@@ -1111,6 +1121,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			// Determine the damage state to enter in
 			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 				FSM->PushState("Shocked");
+			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+				FSM->PushState("Push Back");
 			else
 				FSM->PushState("Damaged");
 
@@ -2099,6 +2111,36 @@ void AYlva::OnExitChargeAttackState()
 }
 #pragma endregion 
 
+#pragma region Push Back
+void AYlva::OnEnterPushBackState()
+{
+	YlvaAnimInstance->bIsHitByAOE = true;
+
+	EndAttackLocation = CurrentLocation + ForwardVector * -800.0f;
+
+	PlayerController->SetIgnoreMoveInput(true);
+}
+
+void AYlva::UpdatePushBackState(float Uptime, int32 Frames)
+{
+	StopMovement();
+
+	const FVector NewLocation = FMath::Lerp(CurrentLocation, EndAttackLocation, 2 * World->DeltaTimeSeconds);
+	SetActorLocation(NewLocation);
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
+}
+
+void AYlva::OnExitPushBackState()
+{
+	YlvaAnimInstance->bIsHitByAOE = false;
+
+	ResumeMovement();
+	PlayerController->ResetIgnoreMoveInput();
+}
+#pragma endregion 
+
 #pragma region Shocked
 void AYlva::OnEnterShockedState()
 {
@@ -2646,6 +2688,11 @@ bool AYlva::CanDashAttack() const
 bool AYlva::IsPerfectDashing() const
 {
 	return bPerfectlyTimedDash;
+}
+
+bool AYlva::IsBeingPushedBack() const
+{
+	return FSM->GetActiveStateID() == 10;
 }
 
 bool AYlva::CanLockOn() const

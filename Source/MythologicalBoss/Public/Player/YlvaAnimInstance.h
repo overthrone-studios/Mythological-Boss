@@ -44,6 +44,9 @@ public:
 		uint8 bIsHitByNoCounter : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsHitByAOE : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bCanParry : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")

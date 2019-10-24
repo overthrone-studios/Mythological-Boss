@@ -11,6 +11,7 @@
 
 #include "Log.h"
 #include "Kismet/GameplayStatics.h"
+#include "DmgType_AOE.h"
 
 void UAnimNotifyState_ApplyDamageAOE::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
@@ -52,7 +53,7 @@ void UAnimNotifyState_ApplyDamageAOE::NotifyEnd(USkeletalMeshComponent* MeshComp
 void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp)
 {
 	const auto HitActor = HitResult.GetActor();
-	const FDamageEvent DamageEvent;
+	const FDamageEvent DamageEvent = FDamageEvent(UDmgType_AOE::StaticClass());
 
 	if (HitActor && Mordath)
 	{
