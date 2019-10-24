@@ -8,6 +8,7 @@
 #include "Log.h"
 #include "Kismet/GameplayStatics.h"
 #include "MordathGhost.h"
+#include "DmgType_MordathKick.h"
 
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
@@ -34,7 +35,7 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 #endif
 
 	AttackRadius = Mordath->GetAttackRadius();
-	AttackDamage = Mordath->GetActionDamage();
+	AttackDamage = DamageType == UDmgType_MordathKick::StaticClass() ? 0.0f : Mordath->GetActionDamage();
 
 #if !UE_BUILD_SHIPPING
 	if (HitSoundData && HitSoundData->HitSounds.Num() == 0)

@@ -1070,13 +1070,18 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 				// Determine the damage state to enter in
 				if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
+				{
 					FSM->PushState("Shocked");
+					UpdateHealth(DamageAmount);
+				}
 				else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 					FSM->PushState("Push Back");
 				else
+				{
 					FSM->PushState("Damaged");
+					UpdateHealth(DamageAmount);
+				}
 
-				UpdateHealth(DamageAmount);
 				
 				LSword->Revert();
 				RSword->Revert();
@@ -1089,11 +1094,20 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			{
 				FSM->PopState();
 				FSM->PushState("Shocked");
+				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
-			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
+			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+			{
+				FSM->PushState("Push Back");
+				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+			}
+			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 				FSM->PushState("Push Back");
 			else
+			{
 				FSM->PushState("Shield Hit");
+				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
+			}
 
 			// Update stats
 			if (StaminaComponent->IsLowStamina() || GameState->IsBossAttackNoCounter() || GameState->IsBossAttackParryable())
@@ -1103,8 +1117,6 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				
 				LSword->Revert();
 				RSword->Revert();
-
-				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
 
 			UpdateStamina(StaminaComponent->GetShieldHitValue());
@@ -1115,22 +1127,32 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 			bHasBeenDamaged = true;
 
-			// If we got hit while charge attacking
-			//if (IsChargeAttacking())
-				FSM->PopState();
+			FSM->PopState();
 
 			// Determine the damage state to enter in
 			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
+			{
 				FSM->PushState("Shocked");
-			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
+
+				UpdateHealth(DamageAmount);
+			}
+			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
+			{
+				FSM->PushState("Push Back");
+
+				UpdateHealth(DamageAmount);
+			}
+			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 				FSM->PushState("Push Back");
 			else
+			{
 				FSM->PushState("Damaged");
+
+				UpdateHealth(DamageAmount);
+			}
 
 			// Shake the camera
 			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
-
-			UpdateHealth(DamageAmount);
 
 			// Determine whether to reset the charge meter or not
 			if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
