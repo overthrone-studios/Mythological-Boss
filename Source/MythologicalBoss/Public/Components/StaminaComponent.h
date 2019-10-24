@@ -103,6 +103,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE float GetDashValue() const { return Dash; }
 
+	// Return the dash stamina value
+	UFUNCTION(BlueprintPure, Category = "Stamina")
+		FORCEINLINE float GetChargeAttackValue() const { return ChargeAttack; }
+
 	// Return the dash attack stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE float GetDashAttackValue() const { return DashAttack; }
@@ -201,6 +205,10 @@ protected:
 	// The stamina value to subtract when dash attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
 		float DashAttack = 150.0f;
+
+	// The stamina value to subtract when charge attacking
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))
+		float ChargeAttack = 200.0f;
 
 	// The stamina value to subtract while running
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Stamina Economy", meta = (ClampMin = 0.0f))

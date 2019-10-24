@@ -48,6 +48,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
 		FORCEINLINE float GetCurrentCharge() const { return Charge; }
 
+	// Return the actor's default charge value
+	UFUNCTION(BlueprintPure, Category = "Charge Attack")
+		FORCEINLINE float GetMaxChargeHoldTime() const { return MaxChargeHoldTime; }
+
 	// Return the actor's previous charge value
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
 		FORCEINLINE float GetPreviousCharge() const { return PreviousCharge; }
@@ -142,6 +146,10 @@ protected:
 	// The amount of health we gain when we've successfully landed a charge attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
 		float HealthGainOnChargeAttack = 20.0f;
+
+	// The maximum amount of time (in seconds) we can hold the charge attack for
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
+		float MaxChargeHoldTime = 6.0f;
 
 	// The amount of charge we lose after we've taken damage
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0))
