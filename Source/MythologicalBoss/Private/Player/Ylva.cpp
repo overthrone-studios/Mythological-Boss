@@ -2147,8 +2147,6 @@ void AYlva::OnEnterPushBackState()
 
 	EndAttackLocation = GetDirectionToBoss();
 
-	DrawDebugLine(World, CurrentLocation, CurrentLocation + DirectionToBoss * 100.0f, FColor::Green, false, 2.0f, 0, 3.0f);
-
 	MovementComponent->bOrientRotationToMovement = false;
 	MovementComponent->MaxWalkSpeed = MovementSettings.KnockbackForce;
 	MovementComponent->MaxAcceleration = 8096.0f;
@@ -2241,7 +2239,7 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 
 		if (CurrentAttack_Data->bArtificialMovement && 
 			Uptime > CurrentAttack_Data->StartMoveAtTime && 
-			Uptime < CurrentAttack_Data->AttackMontage->SequenceLength - 0.1f && 
+			Uptime < CurrentAttack_Data->StopMoveAtTime &&
 			GameState->PlayerData.CurrentRange != BRM_SuperClose)
 		{
 			FVector NewLocation;
@@ -2273,7 +2271,7 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 				DrawDebugPoint(World, NewLocation, 10.0f, FColor::Orange, false, 4.0f);
 			#endif
 
-			SetActorLocation(NewLocation);
+			MovementComponent->MoveSmooth(ForwardVector * CurrentAttack_Data->DistanceToMoveBy, World->DeltaTimeSeconds);
 		}
 		else
 		{
@@ -2291,7 +2289,6 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 			return;
 		}
 	}
-
 	if (!AnimInstance->Montage_IsPlaying(CurrentAttack_Data->AttackMontage))
 		FSM->PopState();
 }
