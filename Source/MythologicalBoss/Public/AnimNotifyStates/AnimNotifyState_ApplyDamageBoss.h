@@ -14,15 +14,13 @@ class MYTHOLOGICALBOSS_API UAnimNotifyState_ApplyDamageBoss final : public UAnim
 	GENERATED_BODY()
 	
 protected:
+	UAnimNotifyState_ApplyDamageBoss();
+
 	void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
 	void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
 	void OnHit(USkeletalMeshComponent* MeshComp) override;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		TSubclassOf<UDamageType> DamageType;
-
 private:
 	class AMordath* Mordath;
-	class AMordathGhost* MordathGhost;
 };

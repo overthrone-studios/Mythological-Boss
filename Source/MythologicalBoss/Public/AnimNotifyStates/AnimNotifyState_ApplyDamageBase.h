@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f))
 		float RandomDeviation = 0.2f;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		TSubclassOf<UDamageType> DamageType;
+
 	void PlayHitSound(UObject* WorldContextObject);
 
 	FHitResult HitResult;

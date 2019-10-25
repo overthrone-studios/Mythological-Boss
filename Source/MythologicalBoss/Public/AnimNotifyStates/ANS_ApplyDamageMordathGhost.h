@@ -13,8 +13,15 @@ UCLASS()
 class MYTHOLOGICALBOSS_API UANS_ApplyDamageMordathGhost : public UAnimNotifyState_ApplyDamageBase
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+protected:
+	UANS_ApplyDamageMordathGhost();
+
+	void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
+	void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
+	void OnHit(USkeletalMeshComponent* MeshComp) override;
+
+private:
+	class AMordathGhost* MordathGhost;
 };
