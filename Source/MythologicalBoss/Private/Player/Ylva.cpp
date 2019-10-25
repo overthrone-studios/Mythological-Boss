@@ -1100,11 +1100,15 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
 			{
+				FSM->PopState();
 				FSM->PushState("Push Back");
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
+			{
+				FSM->PopState();
 				FSM->PushState("Push Back");
+			}
 			else
 			{
 				FSM->PushState("Shield Hit");
