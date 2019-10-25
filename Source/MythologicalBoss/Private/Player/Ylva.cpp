@@ -825,7 +825,7 @@ FVector AYlva::GetDirectionToBoss() const
 void AYlva::LightAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || StaminaComponent->IsStaminaEmpty())
 		return;
 
 	if (CanDashAttack())
@@ -897,7 +897,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina())
 		return;
 
 	if (CanDashAttack())
