@@ -165,7 +165,9 @@ void AMordathGhost::OnExitActionState()
 void AMordathGhost::OnEnterDeathState()
 {
 	Super::OnEnterDeathState();
-	
+
+	PauseAnims();
+
 	OnDeath();
 }
 

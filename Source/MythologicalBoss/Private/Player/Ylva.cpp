@@ -2204,14 +2204,14 @@ void AYlva::OnExitShockedState()
 #pragma region Attack
 void AYlva::OnEnterAttackState()
 {
-	if (StaminaComponent->IsStaminaEmpty())
-	{
-		AttackComboComponent->ApplyBlendOutSettings();
-	}
-	else
-	{
-		AttackComboComponent->ResetAllBlendOutSettings();
-	}
+	//if (StaminaComponent->IsStaminaEmpty())
+	//{
+	//	AttackComboComponent->ApplyBlendOutSettings();
+	//}
+	//else
+	//{
+	//	AttackComboComponent->ResetAllBlendOutSettings();
+	//}
 
 	StartAttackLocation = CurrentLocation;
 
@@ -2222,8 +2222,8 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 {
 	const FName& CurrentMontageSection = AnimInstance->Montage_GetCurrentSection(CurrentAttack_Data->AttackMontage);
 
-	if (!StaminaComponent->IsStaminaEmpty())
-	{
+	//if (!StaminaComponent->IsStaminaEmpty())
+	//{
 		if (CurrentMontageSection == "Anticipation")
 		{
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Anticipation.PlayRate);
@@ -2280,15 +2280,16 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 			if (IsLockedOn())
 				FaceBoss(World->DeltaTimeSeconds);
 		}
-	}
-	else
-	{
-		if (Uptime > CurrentAttack_Data->BlendOutTriggerTimeOnLowStamina)
-		{
-			FSM->PopState();
-			return;
-		}
-	}
+	//}
+	//else
+	//{
+	//	if (Uptime > CurrentAttack_Data->BlendOutTriggerTimeOnLowStamina)
+	//	{
+	//		FSM->PopState();
+	//		return;
+	//	}
+	//}
+
 	if (!AnimInstance->Montage_IsPlaying(CurrentAttack_Data->AttackMontage))
 		FSM->PopState();
 }

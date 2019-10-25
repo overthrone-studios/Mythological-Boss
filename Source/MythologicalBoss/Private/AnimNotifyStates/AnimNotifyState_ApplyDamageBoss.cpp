@@ -10,22 +10,18 @@
 #include "MordathGhost.h"
 #include "DmgType_MordathKick.h"
 
+UAnimNotifyState_ApplyDamageBoss::UAnimNotifyState_ApplyDamageBoss()
+{
+	StartBone = "SpearStart";
+	EndBone = "SpearEnd";
+}
+
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	Mordath = Cast<AMordath>(MeshComp->GetOwner());
 
 	if (!Mordath)
-	{
-		MordathGhost = Cast<AMordathGhost>(MeshComp->GetOwner());
-
-		if (!MordathGhost)
-			return;
-
-		AttackRadius = MordathGhost->GetAttackRadius();
-		AttackDamage = MordathGhost->GetActionDamage();
-
 		return;
-	}
 
 #if !UE_BUILD_SHIPPING
 	if (Mordath->Debug.bShowRaycasts)
@@ -70,8 +66,6 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 		// Apply hit stop
 		if (Mordath)
 			Mordath->PauseAnimsWithTimer();
-		else if (MordathGhost)
-			MordathGhost->PauseAnimsWithTimer();
 
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
@@ -81,11 +75,6 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 			PlayHitSound(MeshComp);
 
 			Mordath->OnAttackLanded(HitResult);
-		}
-		else if (MordathGhost)
-		{
-			// Play sound effect
-			PlayHitSound(MeshComp);
 		}
 	}
 }
