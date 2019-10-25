@@ -1682,7 +1682,7 @@ bool AMordath::IsTransitioning() const
 
 bool AMordath::IsTired() const
 {
-	return IsPerformingAction() && CurrentActionData->Action->ActionType == ATM_Tired;
+	return FSM->GetActiveStateID() == 23;
 }
 
 bool AMordath::IsDoingBackHand() const
