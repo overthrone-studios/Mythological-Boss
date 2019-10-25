@@ -7,6 +7,8 @@
 #include "ComboData.h"
 #include "MordathBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterPerfectDashSignature);
+
 UCLASS(Abstract)
 class MYTHOLOGICALBOSS_API AMordathBase : public AOverthroneCharacter
 {
@@ -14,6 +16,8 @@ class MYTHOLOGICALBOSS_API AMordathBase : public AOverthroneCharacter
 
 public:
 	AMordathBase();
+
+	FOnEnterPerfectDashSignature OnEnterPerfectDash;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | General")
 		float GetDistanceToPlayer() const;
@@ -166,6 +170,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void ResetActionDamage();
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void SpawnPerfectDashEmitter();
+
 	#pragma region Mordath Base Any States
 		#pragma region Main FSM
 		UFUNCTION()
@@ -264,6 +271,9 @@ protected:
 	UFUNCTION()
 		virtual void OnPlayerDeath();
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
+		UParticleSystem* PerfectDashParticle;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
 		class UAnimMontage* CurrentActionMontage;
 
@@ -282,7 +292,7 @@ protected:
 		class AOverthroneCharacter* PlayerCharacter;
 
 	// The boss's range Finite State Machine
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Mordath | General")
+	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
 		class UFSM* RangeFSM;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | General")
@@ -312,6 +322,8 @@ protected:
 	EAttackCounters_Mordath CurrentCounterType;
 
 	uint8 MovementDirection : 1;
+
+	uint8 bPerfectDashEmitterSpawned : 1;
 
 	FTimerHandle TH_NextComboDelay;
 };

@@ -19,6 +19,7 @@
 
 #include "ConstructorHelpers.h"
 #include "OverthroneFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AMordathBase::AMordathBase() : AOverthroneCharacter()
 {
@@ -354,12 +355,18 @@ void AMordathBase::UpdateActionState(float Uptime, int32 Frames)
 		FacePlayer();
 	else
 		FacePlayerBasedOnActionData(CurrentActionData->Action);
-	
+
 	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= CurrentActionData->Action->MinPerfectDashWindow && 
 		AnimInstance->Montage_GetPosition(CurrentActionMontage) <= CurrentActionData->Action->MaxPerfectDashWindow && 
 		CurrentActionData->Action->bAllowPerfectDash)
 	{
 		CurrentActionData->Action->bCanBeDodged = true;
+
+		if (!bPerfectDashEmitterSpawned)
+		{
+			OnEnterPerfectDash.Broadcast();
+			bPerfectDashEmitterSpawned = true;
+		}
 	}
 	else
 	{
@@ -375,6 +382,8 @@ void AMordathBase::OnExitActionState()
 {
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
+
+	bPerfectDashEmitterSpawned = false;
 
 	CurrentActionData->ExecutionCount++;
 
@@ -875,6 +884,11 @@ void AMordathBase::IncreaseAttackDamage(const float& Multiplier)
 void AMordathBase::ResetActionDamage()
 {
 	ActionDamage = CurrentActionData->Action->ActionDamage;
+}
+
+void AMordathBase::SpawnPerfectDashEmitter()
+{
+	UGameplayStatics::SpawnEmitterAttached(PerfectDashParticle, SKMComponent, "spine02_jnt", FVector(0.0f, -50.0f, 0.0f), FRotator(-30.0f, 0.0f, 70.0f));
 }
 
 UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const

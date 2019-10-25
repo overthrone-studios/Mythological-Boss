@@ -177,6 +177,8 @@ void AMordath::BeginPlay()
 	GameState->Boss = this;
 	UpdateCharacterInfo();
 
+	OnEnterPerfectDash.AddDynamic(this, &AMordath::OnEnterPerfectDashWindow);
+
 	// Begin the state machines
 	FSM->Start();
 	RangeFSM->Start();
@@ -533,6 +535,12 @@ void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
 		SuperCloseRange_ActionData->bAllowPerfectDash)
 	{
 		SuperCloseRange_ActionData->bCanBeDodged = true;
+
+		if (!bPerfectDashEmitterSpawned)
+		{
+			OnEnterPerfectDash.Broadcast();
+			bPerfectDashEmitterSpawned = true;
+		}
 	}
 	else
 	{
@@ -550,6 +558,8 @@ void AMordath::OnExitCloseActionState()
 {
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage();
+
+	bPerfectDashEmitterSpawned = false;
 
 	CurrentMontageSection = "None";
 	CurrentMontageName = "None";
@@ -1321,6 +1331,14 @@ void AMordath::OnReappeared()
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 
 	DisableInvincibility();
+}
+
+void AMordath::OnEnterPerfectDashWindow()
+{
+	SpawnPerfectDashEmitter();
+
+	//if (CurrentCounterType == ACM_Parryable || CurrentCounterType == ACM_ParryableBlockable)
+	//	FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 }
 #pragma endregion
 

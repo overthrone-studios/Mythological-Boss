@@ -198,6 +198,9 @@ protected:
 
 	UFUNCTION()
 		void OnReappeared();
+
+	UFUNCTION()
+		void OnEnterPerfectDashWindow();
 	#pragma endregion 
 
 	#pragma region Any States
