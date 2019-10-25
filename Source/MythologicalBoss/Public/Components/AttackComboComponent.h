@@ -64,6 +64,10 @@ struct FPlayerAttack_Data
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (EditCondition = "bArtificialMovement"))
 		float StartMoveAtTime = 0.3f;
 
+	// At what point in this animation's time do we stop moving
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (EditCondition = "bArtificialMovement"))
+		float StopMoveAtTime = 1.0f;
+
 	// The speed of the artificial movement
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (EditCondition = "bArtificialMovement", ClampMin = 0.0f, ClampMax = 10.0f))
 		float Speed = 1.0f;
