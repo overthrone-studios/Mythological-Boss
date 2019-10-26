@@ -1084,10 +1084,6 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 					UpdateHealth(DamageAmount);
 				}
 
-				
-				LSword->Revert();
-				RSword->Revert();
-
 				return;
 			}
 
@@ -1120,9 +1116,6 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			{
 				HitCounter++;
 				bHasBeenDamaged = true;
-				
-				LSword->Revert();
-				RSword->Revert();
 			}
 
 			UpdateStamina(StaminaComponent->GetShieldHitValue());
@@ -1159,22 +1152,22 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 			// Shake the camera
 			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
-
-			// Determine whether to reset the charge meter or not
-			if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
-			{
-				HitCounter = 0;
-				ResetCharge();
-			}
-			else
-			{
-				DecreaseCharge();
-			}
-
-			LSword->Revert();
-			RSword->Revert();
 		break;
 	}
+
+	// Determine whether to reset the charge meter or not
+	if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
+	{
+		HitCounter = 0;
+		ResetCharge();
+	}
+	else
+	{
+		DecreaseCharge();
+	}
+
+	LSword->Revert();
+	RSword->Revert();
 }
 
 void AYlva::EndTakeDamage()
@@ -1490,11 +1483,11 @@ void AYlva::UpdateStamina(const float StaminaToSubtract)
 
 	DecreaseStamina(StaminaToSubtract);
 
-	if (StaminaComponent->GetDecreaseDelay() > 0.0f)
+	if (StaminaComponent->GetDecreaseDelay() > 0.0f && !TimerManager->IsTimerActive(StaminaComponent->GetDelayTimerHandle()) && !StaminaRegenTimeline.IsPlaying())
 	{
 		TimerManager->SetTimer(StaminaComponent->GetDelayTimerHandle(), this, &AYlva::StartLosingStamina, StaminaComponent->GetDecreaseDelay(), false);
 	}
-	else
+	else if (!TimerManager->IsTimerActive(StaminaComponent->GetDelayTimerHandle()) && !StaminaRegenTimeline.IsPlaying())
 		StartLosingStamina();
 
 	StaminaComponent->DelayRegeneration();
