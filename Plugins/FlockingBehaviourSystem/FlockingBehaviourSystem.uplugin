@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.1",
+	"FriendlyName": "Flocking System",
+	"Description": "Flocking Behaviour System is a tool to quickly and easily add a flock of entites into a scene to simulate the flocking behaviour.",
+	"Category": "AI",
+	"CreatedBy": "Ali El Saleh",
+	"CreatedByURL": "alielsaleh.com",
+	"DocsURL": "alielsaleh.com/tools/UE4-Plugins/FlockingSystem/",
+	"MarketplaceURL": "",
+	"SupportURL": "alielsaleh.com/tools/UE4-Plugins/FlockingSystem/",
+	"EngineVersion": "4.20.0",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "FlockingBehaviourSystem",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

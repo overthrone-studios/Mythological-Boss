@@ -1,35 +1,39 @@
 {
-  "FileVersion": 3,
-  "EngineAssociation": "{4B0D9C7B-405E-CB6C-807A-C694F47FEA34}",
-  "Category": "",
-  "Description": "",
-  "Modules": [
-    {
-      "Name": "MythologicalBoss",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "UMG",
-        "AIModule"
-      ]
-    }
-  ],
-  "Plugins": [
-    {
-      "Name": "MenuSystem",
-      "Enabled": true
-    },
-    {
-      "Name": "Niagara",
-      "Enabled": true
-    },
-    {
-      "Name": "ApexDestruction",
-      "Enabled": true
-    }
-  ],
-  "TargetPlatforms": [
-    "WindowsNoEditor"
-  ]
+	"FileVersion": 3,
+	"EngineAssociation": "4.20",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "MythologicalBoss",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG",
+				"AIModule"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "MenuSystem",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "ApexDestruction",
+			"Enabled": true
+		},
+		{
+			"Name": "FlockingBehaviourSystem",
+			"Enabled": true
+		}
+	],
+	"TargetPlatforms": [
+		"WindowsNoEditor"
+	]
 }
