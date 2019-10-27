@@ -518,7 +518,7 @@ void AYlva::MoveForward(const float Value)
 {
 	ForwardInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement)
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased)
 		return;
 
 	if (!IsAttacking())
@@ -548,7 +548,7 @@ void AYlva::MoveRight(const float Value)
 {
 	RightInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement)
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased)
 		return;
 
 	if (!IsAttacking())
