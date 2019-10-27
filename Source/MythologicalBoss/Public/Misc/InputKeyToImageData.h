@@ -19,6 +19,15 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Keys to Textures")
 		TMap<FKey, UTexture2D*> InputKeys;
 
-	UFUNCTION(BlueprintCallable, Category = "Keys to Textures")
+	UPROPERTY(EditInstanceOnly, Category = "Keys to Textures")
+		TMap<FKey, UTexture2D*> InputKeysGlow;
+
+	UFUNCTION(BlueprintPure, Category = "Keys to Textures")
 		UTexture2D* GetTextureFromKey(FKey Key);
+
+	UFUNCTION(BlueprintPure, Category = "Keys to Textures")
+		UTexture2D* GetTextureGlowFromKey(FKey Key);
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Keys to Textures")
+		UTexture2D* DefaultGlow;
 };

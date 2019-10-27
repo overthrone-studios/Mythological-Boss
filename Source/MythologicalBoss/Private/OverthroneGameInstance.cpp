@@ -9,7 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Log.h"
-
+#include "CoreDelegates.h"
 static bool bFirstLaunch = true;
 
 UOverthroneGameInstance::UOverthroneGameInstance()
@@ -69,6 +69,8 @@ void UOverthroneGameInstance::InitInstance()
 
 	InitFeats();
 
+	FCoreDelegates::OnControllerConnectionChange.AddUFunction(this, "OnControllerConnectionChanged");
+	
 	bFirstLaunch = false;
 }
 
@@ -77,4 +79,9 @@ void UOverthroneGameInstance::OnFeatAchieved()
 	AchievedFeat->bIsComplete = true;
 
 	ULog::Success(AchievedFeat->Title.ToString() + " feat has been completed!", true);
+}
+
+void UOverthroneGameInstance::OnControllerConnectionChanged(bool bIsConnected, int32 UserID, int32 UserIndex)
+{
+	OnGamepadConnectionUpdated.Broadcast(bIsConnected);
 }

@@ -12,3 +12,14 @@ UTexture2D* UInputKeyToImageData::GetTextureFromKey(const FKey Key)
 
 	return nullptr;
 }
+
+UTexture2D* UInputKeyToImageData::GetTextureGlowFromKey(const FKey Key)
+{
+	for (auto It = InputKeysGlow.CreateIterator(); It; ++It)
+	{
+		if (It.Key() == Key)
+			return It.Value();
+	}
+
+	return DefaultGlow;
+}

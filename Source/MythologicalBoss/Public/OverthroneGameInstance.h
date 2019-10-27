@@ -5,6 +5,8 @@
 #include "Engine/GameInstance.h"
 #include "OverthroneGameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamepadConnectionUpdatedSignature, bool, bIsConnected);
+
 /**
  * High-level manager object for Overthrone game
  */
@@ -15,6 +17,9 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 	
 public:
 	UOverthroneGameInstance();
+
+	UPROPERTY(BlueprintAssignable, Category = "Gamepad")
+	FOnGamepadConnectionUpdatedSignature OnGamepadConnectionUpdated;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
 		class UFeatData* GetFeat(const FString& FeatName);
@@ -31,7 +36,16 @@ public:
 	UFUNCTION()
 		void OnFeatAchieved();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Instance")
+		class UInputKeyToImageData* KeyboardKeysToTextures;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Instance")
+		class UInputKeyToImageData* GamepadKeysToTextures;
+
 	class UFeatData* AchievedFeat;
+
+	UFUNCTION()
+		void OnControllerConnectionChanged(bool bIsConnected, int32 UserID, int32 UserIndex);
 
 private:
 	APlayerController* PlayerController{};
