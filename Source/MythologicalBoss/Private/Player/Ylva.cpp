@@ -473,8 +473,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Charge Attack", IE_Released, this, &AYlva::ReleaseChargeAttack);
 
-	PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
-	PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AYlva::Pause).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindKey(EKeys::Escape, IE_Released, this, &AYlva::Pause).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Released, this, &AYlva::Pause).bExecuteWhenPaused = true;
 
 #if !UE_BUILD_SHIPPING
 	// Debugging
@@ -1316,7 +1316,7 @@ void AYlva::Pause()
 	{
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
-
+		
 		GameState->UnPauseGame();
 	}
 	else
