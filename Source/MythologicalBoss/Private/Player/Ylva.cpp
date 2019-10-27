@@ -292,6 +292,8 @@ void AYlva::BeginPlay()
 
 	bCanDash = true;
 
+	MainHUD->HideChargeInputKeyWidget();
+
 	// Begin the state machine
 	FSM->Start();
 
@@ -1168,6 +1170,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 	LSword->Revert();
 	RSword->Revert();
+
+	MainHUD->HideChargeInputKeyWidget();
 }
 
 void AYlva::EndTakeDamage()
@@ -1597,6 +1601,8 @@ void AYlva::DecreaseCharge()
 {
 	ChargeAttackComponent->DecreaseCharge(ChargeAttackComponent->GetChargeLoss());
 
+	MainHUD->HideChargeInputKeyWidget();
+
 	UpdateCharacterInfo();
 }
 
@@ -1604,12 +1610,16 @@ void AYlva::DecreaseCharge(const float Amount)
 {
 	ChargeAttackComponent->DecreaseCharge(Amount);
 
+	MainHUD->HideChargeInputKeyWidget();
+
 	UpdateCharacterInfo();
 }
 
 void AYlva::ResetCharge()
 {
 	ChargeAttackComponent->ResetCharge();
+
+	MainHUD->HideChargeInputKeyWidget();
 
 	UpdateCharacterInfo();
 }
@@ -1780,6 +1790,8 @@ void AYlva::OnChargeMeterFull()
 {
 	RSword->Glow();
 	LSword->Glow();
+
+	MainHUD->ShowChargeInputKeyWidget();
 }
 
 void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

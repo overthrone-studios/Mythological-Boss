@@ -24,7 +24,19 @@ void UMainPlayerHUD::Init()
 	PlayerStaminaBar = Cast<UProgressBar>(WidgetTree->FindWidget("Player_Stamina"));
 	BossHealthBar = Cast<UProgressBar>(WidgetTree->FindWidget("Boss_Health"));
 
+	ChargeInputKeyWidget = Cast<UUserWidget>(WidgetTree->FindWidget("ChargeTriggerKey"));
+
 	DamageValueText = Cast<UTextBlock>(WidgetTree->FindWidget("DamageValue"));
+}
+
+void UMainPlayerHUD::ShowChargeInputKeyWidget()
+{
+	ChargeInputKeyWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainPlayerHUD::HideChargeInputKeyWidget()
+{
+	ChargeInputKeyWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainPlayerHUD::UpdateDamageValue(const float DamageAmount) const

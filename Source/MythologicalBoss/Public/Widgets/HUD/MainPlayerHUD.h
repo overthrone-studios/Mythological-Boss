@@ -18,6 +18,12 @@ public:
 	void Init() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void ShowChargeInputKeyWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void HideChargeInputKeyWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
 		void UpdateDamageValue(float DamageAmount) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
@@ -84,6 +90,8 @@ private:
 	class UProgressBar* PlayerStaminaBar;
 	class UProgressBar* BossHealthBar;
 	class UTextBlock* DamageValueText;
+
+	class UUserWidget* ChargeInputKeyWidget;
 
 	FTimerHandle DamageValueFadeTimer;
 
