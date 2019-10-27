@@ -16,6 +16,11 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 {
 }
 
+void UOverthroneGameInstance::Init()
+{
+	FCoreDelegates::OnControllerConnectionChange.AddUFunction(this, "OnControllerConnectionChanged");
+}
+
 UFeatData* UOverthroneGameInstance::GetFeat(const FString& FeatName)
 {
 	for (auto Feat : Feats)
@@ -69,8 +74,6 @@ void UOverthroneGameInstance::InitInstance()
 
 	InitFeats();
 
-	FCoreDelegates::OnControllerConnectionChange.AddUFunction(this, "OnControllerConnectionChanged");
-	
 	bFirstLaunch = false;
 }
 

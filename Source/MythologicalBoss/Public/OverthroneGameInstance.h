@@ -18,6 +18,8 @@ class MYTHOLOGICALBOSS_API UOverthroneGameInstance final : public UGameInstance
 public:
 	UOverthroneGameInstance();
 
+	void Init() override;
+
 	UPROPERTY(BlueprintAssignable, Category = "Gamepad")
 	FOnGamepadConnectionUpdatedSignature OnGamepadConnectionUpdated;
 
