@@ -18,6 +18,8 @@ UOverthroneGameInstance::UOverthroneGameInstance()
 
 void UOverthroneGameInstance::Init()
 {
+	Super::Init();
+
 	FCoreDelegates::OnControllerConnectionChange.AddUFunction(this, "OnControllerConnectionChanged");
 }
 
