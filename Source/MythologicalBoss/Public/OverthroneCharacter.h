@@ -69,6 +69,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual bool IsLocked() const;
 
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		bool IsHealthZero() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void VibrateController(class UForceFeedbackEffect* ForceFeedbackToPlay = nullptr, bool bLooping = false, bool bIgnoreTimeDilation = true);
 

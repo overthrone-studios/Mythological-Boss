@@ -336,6 +336,11 @@ bool AOverthroneCharacter::IsLocked() const
 	return bIsLocked;
 }
 
+bool AOverthroneCharacter::IsHealthZero() const
+{
+	return HealthComponent->GetCurrentHealth() <= 0.0f;
+}
+
 void AOverthroneCharacter::VibrateController(UForceFeedbackEffect* ForceFeedbackToPlay, const bool bLooping, const bool bIgnoreTimeDilation)
 {
 	if (ForceFeedbackToPlay)

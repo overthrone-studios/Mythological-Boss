@@ -61,7 +61,7 @@ void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp)
 		ULog::Info(HitActor->GetName(), true);
 	}
 
-	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged) && Mordath)
+	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged) && Mordath && !Mordath->IsHealthZero())
 	{
 		bIsHit = true;
 
