@@ -1172,6 +1172,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	RSword->Revert();
 
 	MainHUD->HideChargeInputKeyWidget();
+	MainHUD->StopChargeRingFlash();
 }
 
 void AYlva::EndTakeDamage()
@@ -1602,6 +1603,7 @@ void AYlva::DecreaseCharge()
 	ChargeAttackComponent->DecreaseCharge(ChargeAttackComponent->GetChargeLoss());
 
 	MainHUD->HideChargeInputKeyWidget();
+	MainHUD->StopChargeRingFlash();
 
 	UpdateCharacterInfo();
 }
@@ -1611,6 +1613,7 @@ void AYlva::DecreaseCharge(const float Amount)
 	ChargeAttackComponent->DecreaseCharge(Amount);
 
 	MainHUD->HideChargeInputKeyWidget();
+	MainHUD->StopChargeRingFlash();
 
 	UpdateCharacterInfo();
 }
@@ -1620,6 +1623,7 @@ void AYlva::ResetCharge()
 	ChargeAttackComponent->ResetCharge();
 
 	MainHUD->HideChargeInputKeyWidget();
+	MainHUD->StopChargeRingFlash();
 
 	UpdateCharacterInfo();
 }
@@ -1792,6 +1796,7 @@ void AYlva::OnChargeMeterFull()
 	LSword->Glow();
 
 	MainHUD->ShowChargeInputKeyWidget();
+	MainHUD->FlashChargeRing();
 }
 
 void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

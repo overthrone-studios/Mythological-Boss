@@ -9,6 +9,7 @@
 
 #include "ProgressBar.h"
 #include "TextBlock.h"
+#include "Image.h"
 
 #include "WidgetAnimation.h"
 
@@ -25,6 +26,7 @@ void UMainPlayerHUD::Init()
 	BossHealthBar = Cast<UProgressBar>(WidgetTree->FindWidget("Boss_Health"));
 
 	ChargeInputKeyWidget = Cast<UUserWidget>(WidgetTree->FindWidget("ChargeTriggerKey"));
+	ChargeRingGlow = Cast<UImage>(WidgetTree->FindWidget("ChargeMeterGlow"));
 
 	DamageValueText = Cast<UTextBlock>(WidgetTree->FindWidget("DamageValue"));
 }
@@ -83,6 +85,18 @@ void UMainPlayerHUD::FlashHealthBar()
 void UMainPlayerHUD::StopHealthBarFlash()
 {
 	StopAnimation(LowHealthFlash);
+}
+
+void UMainPlayerHUD::FlashChargeRing()
+{
+	ChargeRingGlow->SetVisibility(ESlateVisibility::Visible);
+	PlayAnimation(ChargeMeterFlash, 0.0f, 0);
+}
+
+void UMainPlayerHUD::StopChargeRingFlash()
+{
+	ChargeRingGlow->SetVisibility(ESlateVisibility::Hidden);
+	StopAnimation(ChargeMeterFlash);
 }
 
 void UMainPlayerHUD::SetOffTimer_DamageValueFadeOut(const float InSeconds)

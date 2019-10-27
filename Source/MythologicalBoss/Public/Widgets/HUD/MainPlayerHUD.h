@@ -45,6 +45,12 @@ public:
 		void StopHealthBarFlash();
 
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void FlashChargeRing();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void StopChargeRingFlash();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
 		void SetOffTimer_DamageValueFadeOut(float InSeconds);
 
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
@@ -83,6 +89,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Animation")
 		class UWidgetAnimation* LowHealthFlash;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Animation")
+		class UWidgetAnimation* ChargeMeterFlash;
+
 	void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 
 private:
@@ -92,6 +101,8 @@ private:
 	class UTextBlock* DamageValueText;
 
 	class UUserWidget* ChargeInputKeyWidget;
+
+	class UImage* ChargeRingGlow;
 
 	FTimerHandle DamageValueFadeTimer;
 
