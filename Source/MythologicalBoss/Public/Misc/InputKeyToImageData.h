@@ -10,12 +10,15 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class MYTHOLOGICALBOSS_API UInputKeyToImageData final : public UDataAsset
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditInstanceOnly, Category = "Input Mappings")
+	UPROPERTY(EditInstanceOnly, Category = "Keys to Textures")
 		TMap<FKey, UTexture2D*> InputKeys;
+
+	UFUNCTION(BlueprintCallable, Category = "Keys to Textures")
+		UTexture2D* GetTextureFromKey(FKey Key);
 };
