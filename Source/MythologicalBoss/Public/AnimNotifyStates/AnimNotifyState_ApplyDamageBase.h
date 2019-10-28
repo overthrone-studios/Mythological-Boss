@@ -18,7 +18,7 @@ class MYTHOLOGICALBOSS_API UAnimNotifyState_ApplyDamageBase : public UAnimNotify
 protected:
 	void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
 
-	virtual void OnHit(USkeletalMeshComponent* MeshComp);
+	virtual void OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult);
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		FName StartBone = "RightHand";
@@ -38,9 +38,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TSubclassOf<UDamageType> DamageType;
 
-	void PlayHitSound(UObject* WorldContextObject);
+	void PlayHitSound(UObject* WorldContextObject, const FHitResult& HitResult);
 
-	FHitResult HitResult;
+	TArray<FHitResult> HitResults;
 
 	float AttackDamage = 100.0f;
 	float AttackRadius = 10.0f;

@@ -20,7 +20,7 @@ protected:
 	void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
 	void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
-	void OnHit(USkeletalMeshComponent* MeshComp) override;
+	void OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult) override;
 
 private:
 	class AMordathGhost* MordathGhost;

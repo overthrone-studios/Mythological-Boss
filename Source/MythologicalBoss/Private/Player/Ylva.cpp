@@ -32,6 +32,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/SwordComponent.h"
 #include "Components/PlayerCameraComponent.h"
+#include "Components/AudioComponent.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -803,7 +804,7 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 	}
 }
 
-void AYlva::OnAttackLanded(FHitResult& HitResult)
+void AYlva::OnAttackLanded(const FHitResult& HitResult)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
@@ -1700,7 +1701,7 @@ void AYlva::OnLowHealth()
 	FollowCamera->DesaturateScreen();
 	FollowCamera->OscillateVignette();
 
-	// Todo: play sound
+	LowHealthAudioComponent = UGameplayStatics::SpawnSound2D(this, LowHealthSound);
 }
 
 void AYlva::OnExitLowHealth()
@@ -1710,6 +1711,8 @@ void AYlva::OnExitLowHealth()
 	MainHUD->StopHealthBarFlash();
 	FollowCamera->ResaturateScreen();
 	FollowCamera->StopOscillatingVignette();
+
+	LowHealthAudioComponent->Stop();
 }
 
 void AYlva::OnLockOnEnabled()
@@ -2027,6 +2030,9 @@ void AYlva::OnEnterDeathState()
 	GameState->PlayerData.OnDeath.Broadcast();
 
 	AttackComboComponent->ResetAllBlendOutSettings();
+
+	if (LowHealthAudioComponent)
+		LowHealthAudioComponent->Stop();
 
 	OnDeath();
 }

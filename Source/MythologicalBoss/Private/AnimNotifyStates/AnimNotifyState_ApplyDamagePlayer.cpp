@@ -46,7 +46,7 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyEnd(USkeletalMeshComponent* MeshC
 	bIsHit = false;
 }
 
-void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
+void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult)
 {
 	const auto HitActor = HitResult.GetActor();
 	const auto HitComp = HitResult.GetComponent();
@@ -54,13 +54,19 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 
 	float Multiplier = 1.0f;
 
-	if (Ylva && HitActor && HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged && !Ylva->IsHealthZero() /*&& !Ylva->IsDamaged()*/ /*&& !Ylva->IsStamina()*/)
+	if (Ylva && HitActor && HitActor->bCanBeDamaged && !Ylva->IsHealthZero())
 	{
 		bIsHit = true;
 
 		Ylva->ApplyHitStop();
 
 		Ylva->VibrateController(Ylva->GetCurrentForceFeedback());
+
+		if (HitActor->IsA(ADestructibleActor::StaticClass()))
+		{
+			HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
+			return;
+		}
 
 		// Give charge
 		Ylva->IncreaseCharge();
@@ -78,17 +84,8 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp)
 		HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
 		// Play sound effect
-		PlayHitSound(MeshComp);
+		PlayHitSound(MeshComp, HitResult);
 
 		Ylva->OnAttackLanded(HitResult);
 	}
-	//else
-	//{
-	//	ULog::ObjectValidity(HitActor, true);
-	//
-	//	if (HitActor)
-	//		ULog::Info("Can be damaged: " + FString::FromInt(HitActor->bCanBeDamaged), true);
-	//
-	//	ULog::Info("Low stamina?: " + FString::FromInt(Ylva->IsLowStamina()), true);
-	//}
 }

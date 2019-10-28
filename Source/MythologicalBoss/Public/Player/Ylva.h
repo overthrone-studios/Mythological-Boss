@@ -391,7 +391,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Feedback")
 		class UForceFeedbackEffect* GetCurrentForceFeedback() const;
 
-	void OnAttackLanded(FHitResult& HitResult) override;
+	void OnAttackLanded(const FHitResult& HitResult) override;
 
 	bool IsLocked() const override;
 
@@ -960,6 +960,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Movement", DisplayName = "Ghost Blueprint Class")
 		TSubclassOf<AActor> GhostClass;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health")
+		USoundBase* LowHealthSound;
+
 	// Cached player's anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Ylva | Animation")
 		class UYlvaAnimInstance* YlvaAnimInstance{};
@@ -1034,6 +1037,8 @@ private:
 	class UForceFeedbackEffect* CurrentForceFeedback;
 
 	class APlayerCameraManager* CameraManager;
+
+	class UAudioComponent* LowHealthAudioComponent;
 
 	class UFeatData* UntouchableFeat;
 };

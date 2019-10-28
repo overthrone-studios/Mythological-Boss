@@ -9,20 +9,23 @@ void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshCo
 	const FVector& StartTrace = MeshComp->GetSocketLocation(StartBone);
 	const FVector& EndTrace = MeshComp->GetSocketLocation(EndBone);
 
-	UKismetSystemLibrary::SphereTraceSingle(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), true, {}, DebugTrace, HitResult, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+	UKismetSystemLibrary::SphereTraceMulti(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4), true, {}, DebugTrace, HitResults, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
-	if (HitResult.bBlockingHit && !bIsHit)
+	for (const auto HitResult : HitResults)
 	{
-		OnHit(MeshComp);
+		if (HitResult.bBlockingHit && !bIsHit)
+		{
+			OnHit(MeshComp, HitResult);
+		}		
 	}
 }
 
-void UAnimNotifyState_ApplyDamageBase::OnHit(USkeletalMeshComponent* MeshComp)
+void UAnimNotifyState_ApplyDamageBase::OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult)
 {
 	check(0 && "You must implement OnHit()");
 }
 
-void UAnimNotifyState_ApplyDamageBase::PlayHitSound(UObject* WorldContextObject)
+void UAnimNotifyState_ApplyDamageBase::PlayHitSound(UObject* WorldContextObject, const FHitResult& HitResult)
 {
 	if (HitSoundData && HitSoundData->HitSounds.Num() > 0)
 	{

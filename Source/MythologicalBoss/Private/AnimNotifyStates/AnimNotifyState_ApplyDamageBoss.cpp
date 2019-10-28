@@ -44,7 +44,7 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyEnd(USkeletalMeshComponent* MeshCom
 	bIsHit = false;
 }
 
-void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
+void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult)
 {
 	const auto HitActor = HitResult.GetActor();
 	const auto HitComponent = HitResult.GetComponent();
@@ -56,7 +56,7 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 	if (HitActor && Mordath)
 		UGameplayStatics::SpawnForceFeedbackAtLocation(MeshComp, Mordath->GetCurrentForceFeedbackEffect(), HitResult.Location);
 
-	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged) && !Mordath->IsHealthZero())
+	if (HitActor && HitActor->bCanBeDamaged && !Mordath->IsHealthZero())
 	{
 		if (Mordath && Mordath->IsDamaged())
 			return;
@@ -72,7 +72,7 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp)
 		if (Mordath && !Mordath->IsDamaged() && !Mordath->IsStunned())
 		{
 			// Play sound effect
-			PlayHitSound(MeshComp);
+			PlayHitSound(MeshComp, HitResult);
 
 			Mordath->OnAttackLanded(HitResult);
 		}

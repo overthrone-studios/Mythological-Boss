@@ -50,7 +50,7 @@ void UAnimNotifyState_ApplyDamageAOE::NotifyEnd(USkeletalMeshComponent* MeshComp
 	bIsHit = false;
 }
 
-void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp)
+void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult)
 {
 	const auto HitActor = HitResult.GetActor();
 	const FDamageEvent DamageEvent = FDamageEvent(UDmgType_AOE::StaticClass());
@@ -61,7 +61,7 @@ void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp)
 		ULog::Info(HitActor->GetName(), true);
 	}
 
-	if (HitActor && (HitActor->IsA(ACharacter::StaticClass()) && HitActor->bCanBeDamaged) && Mordath && !Mordath->IsHealthZero())
+	if (HitActor && HitActor->bCanBeDamaged && Mordath && !Mordath->IsHealthZero())
 	{
 		bIsHit = true;
 
@@ -70,14 +70,14 @@ void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp)
 		if (Mordath && !Mordath->IsDamaged() && !Mordath->IsStunned())
 		{
 			// Play sound effect
-			PlayHitSound(MeshComp);
+			PlayHitSound(MeshComp, HitResult);
 
 			Mordath->OnAttackLanded(HitResult);
 		}
 		else if (MordathGhost)
 		{
 			// Play sound effect
-			PlayHitSound(MeshComp);
+			PlayHitSound(MeshComp, HitResult);
 		}
 	}
 }

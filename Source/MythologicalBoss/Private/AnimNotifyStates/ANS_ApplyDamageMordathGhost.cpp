@@ -41,7 +41,7 @@ void UANS_ApplyDamageMordathGhost::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 	bIsHit = false;
 }
 
-void UANS_ApplyDamageMordathGhost::OnHit(USkeletalMeshComponent* MeshComp)
+void UANS_ApplyDamageMordathGhost::OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult)
 {
 	const auto HitActor = HitResult.GetActor();
 	const auto HitComponent = HitResult.GetComponent();
@@ -64,6 +64,6 @@ void UANS_ApplyDamageMordathGhost::OnHit(USkeletalMeshComponent* MeshComp)
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
 		// Play sound effect
-		PlayHitSound(MeshComp);
+		PlayHitSound(MeshComp, HitResult);
 	}
 }
