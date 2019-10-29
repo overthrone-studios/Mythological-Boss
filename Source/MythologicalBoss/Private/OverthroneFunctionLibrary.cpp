@@ -116,6 +116,44 @@ bool UOverthroneFunctionLibrary::IsGamepadConnected()
 	return FSlateApplication::Get().GetPlatformApplication().Get()->IsGamepadAttached();
 }
 
+FString UOverthroneFunctionLibrary::ConvertKeyToString(const FKey Key)
+{
+	if (Key == EKeys::Gamepad_FaceButton_Bottom)
+		return FString("A");
+
+	if (Key == EKeys::Gamepad_FaceButton_Right)
+		return FString("B");
+
+	if (Key == EKeys::Gamepad_FaceButton_Left)
+		return FString("X");
+
+	if (Key == EKeys::Gamepad_FaceButton_Top)
+		return FString("Y");
+
+	if (Key == EKeys::Gamepad_RightShoulder)
+		return FString("RB");
+
+	if (Key == EKeys::Gamepad_LeftShoulder)
+		return FString("LB");
+
+	if (Key == EKeys::Gamepad_RightTrigger)
+		return FString("RT");
+
+	if (Key == EKeys::Gamepad_LeftTrigger)
+		return FString("LT");
+
+	if (Key == EKeys::LeftMouseButton)
+		return FString("LMB");
+
+	if (Key == EKeys::RightMouseButton)
+		return FString("RMB");
+
+	if (Key == EKeys::MiddleMouseButton)
+		return FString("MMB");
+
+	return Key.ToString();
+}
+
 FVector UOverthroneFunctionLibrary::SmoothStop(const FVector& A, const FVector& B, const float Alpha, const float Exp)
 {
 	float NewExp = 1.0f;

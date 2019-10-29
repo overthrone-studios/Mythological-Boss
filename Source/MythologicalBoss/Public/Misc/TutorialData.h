@@ -20,9 +20,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Tutorial Information")
 		FText GetTutorialProgress();
 
+	// The title of the tutorial
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")
+		FText Title;
+
 	// The message of the tutorial
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")
 		FText Message;
+
+	// The name of the input action. This is found in Project Settings > Input
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")
+		FName ActionName;
 
 	// The amount of time (in seconds) we wait after completing this tutorial
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial Information")

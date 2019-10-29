@@ -69,6 +69,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "System Information")
 		static bool IsGamepadConnected();
 
+	UFUNCTION(BlueprintPure, Category = "Input")
+		static FString ConvertKeyToString(FKey Key);
+
 	static FVector SmoothStop(const FVector& A, const FVector& B, float Alpha, float Exp);
 
 	static void SetupTimeline(UObject* Object, FTimeline& InTimeline, class UCurveFloat* InCurveFloat, const bool bLooping, float InPlaybackSpeed, const FName& TimelineCallbackFuncName, const FName& TimelineFinishedCallbackFuncName = NAME_None);
