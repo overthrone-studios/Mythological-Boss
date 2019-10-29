@@ -455,6 +455,8 @@ protected:
 	void Die() override;
 
 	void ToggleLockSelf() override;
+	void UnlockSelf() override;
+	void LockSelf() override;
 
 	float CalculateDirection() const;
 

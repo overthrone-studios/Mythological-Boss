@@ -331,6 +331,16 @@ void AOverthroneCharacter::ToggleLockSelf()
 	check(0 && "You must implement ToggleLockSelf()");
 }
 
+void AOverthroneCharacter::LockSelf()
+{
+	check(0 && "You must implement LockSelf()");
+}
+
+void AOverthroneCharacter::UnlockSelf()
+{
+	check(0 && "You must implement UnlockSelf()");
+}
+
 bool AOverthroneCharacter::IsLocked() const
 {
 	return bIsLocked;

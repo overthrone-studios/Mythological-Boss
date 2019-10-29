@@ -102,6 +102,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ToggleLockSelf();
 
+	// Disable character from doing any actions
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void LockSelf();
+
+	// Unlock character from the locked state
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void UnlockSelf();
+
 	// Called when we are dead
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnDeath();

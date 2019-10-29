@@ -712,6 +712,17 @@ void AYlva::ToggleLockSelf()
 		FSM->PopState("Locked");
 }
 
+void AYlva::UnlockSelf()
+{
+	FSM->PopState("Locked");
+}
+
+void AYlva::LockSelf()
+{
+	FSM->PopState();
+	FSM->PushState("Locked");
+}
+
 void AYlva::Respawn()
 {
 	TimerManager->ClearTimer(DeathExpiryTimerHandle);
