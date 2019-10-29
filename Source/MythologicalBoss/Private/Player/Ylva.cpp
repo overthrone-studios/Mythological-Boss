@@ -1712,7 +1712,8 @@ void AYlva::OnExitLowHealth()
 	FollowCamera->ResaturateScreen();
 	FollowCamera->StopOscillatingVignette();
 
-	LowHealthAudioComponent->Stop();
+	if (LowHealthAudioComponent)
+		LowHealthAudioComponent->Stop();
 }
 
 void AYlva::OnLockOnEnabled()
