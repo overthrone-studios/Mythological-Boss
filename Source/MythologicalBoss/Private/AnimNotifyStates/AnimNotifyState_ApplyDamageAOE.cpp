@@ -56,10 +56,7 @@ void UAnimNotifyState_ApplyDamageAOE::OnHit(USkeletalMeshComponent* MeshComp, co
 	const FDamageEvent DamageEvent = FDamageEvent(UDmgType_AOE::StaticClass());
 
 	if (HitActor && Mordath)
-	{
 		UGameplayStatics::SpawnForceFeedbackAtLocation(MeshComp, Mordath->GetCurrentForceFeedbackEffect(), HitResult.Location);
-		ULog::Info(HitActor->GetName(), true);
-	}
 
 	if (HitActor && HitActor->bCanBeDamaged && Mordath && !Mordath->IsHealthZero())
 	{

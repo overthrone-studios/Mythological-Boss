@@ -67,6 +67,12 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp, c
 		if (Mordath)
 			Mordath->PauseAnimsWithTimer();
 
+		if (HitActor->IsA(ADestructibleActor::StaticClass()))
+		{
+			HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
+			return;
+		}
+
 		HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
 
 		if (Mordath && !Mordath->IsDamaged() && !Mordath->IsStunned())
