@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "OverthroneEnums.h"
 #include "Components/TimelineComponent.h"
+#include "InputCoreTypes.h"
 #include "OverthroneFunctionLibrary.generated.h"
 
 /**
