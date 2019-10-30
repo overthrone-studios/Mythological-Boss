@@ -1,27 +1,50 @@
 // Copyright Overthrone Studios 2019
 
 #include "Managers/OverthroneTutorialManager.h"
+#include "UserWidget.h"
+#include "TutorialHUD.h"
+#include "Log.h"
+#include "Kismet/GameplayStatics.h"
 
-
-// Sets default values
 AOverthroneTutorialManager::AOverthroneTutorialManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-// Called when the game starts or when spawned
 void AOverthroneTutorialManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+	TutorialHUD = CreateWidget<UTutorialHUD>(PlayerController, TutorialHUDClass, "Tutorial HUD Widget");
+	if (!TutorialHUD)
+		ULog::Error("Tutorial HUD is null", true);
 }
 
-// Called every frame
-void AOverthroneTutorialManager::Tick(float DeltaTime)
+void AOverthroneTutorialManager::BeginTutorial()
 {
-	Super::Tick(DeltaTime);
+	TutorialHUD->AddToViewport();
+	TutorialHUD->SetVisibility(ESlateVisibility::Visible);
+	PlayerController->SetInputMode(FInputModeUIOnly());
 
+	TutorialHUD->ProgressTutorial();
+	TutorialHUD->FadeIn();
 }
 
+void AOverthroneTutorialManager::EndTutorial()
+{
+	PlayerController->SetInputMode(FInputModeGameOnly());
+
+	TutorialHUD->EndTutorial();
+
+	Destroy();
+}
+
+void AOverthroneTutorialManager::NextTutorial()
+{
+	PlayerController->SetInputMode(FInputModeUIOnly());
+
+	TutorialHUD->ProgressTutorial();
+}

@@ -45,7 +45,7 @@ void ATutorialGameMode::BeginPlay()
 void ATutorialGameMode::StartTutorial()
 {
 	TutorialHUD->ProgressTutorial();
-	TutorialHUD->SlideIn();
+	TutorialHUD->FadeIn();
 
 	bTutorialStarted = true;
 }

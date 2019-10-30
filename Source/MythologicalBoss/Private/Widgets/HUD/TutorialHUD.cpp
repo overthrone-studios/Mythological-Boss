@@ -3,14 +3,18 @@
 #include "TutorialHUD.h"
 #include "OutputDeviceNull.h"
 
-void UTutorialHUD::SlideIn()
+void UTutorialHUD::FadeIn()
 {
-	PlayAnimation(SlideAnim);
+	PlayAnimation(FadeAnim);
+
+	AnimPlayMode = EUMGSequencePlayMode::Forward;
 }
 
-void UTutorialHUD::SlideOut()
+void UTutorialHUD::FadeOut()
 {
-	PlayAnimation(SlideAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+	PlayAnimation(FadeAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+
+	AnimPlayMode = EUMGSequencePlayMode::Reverse;
 }
 
 void UTutorialHUD::ProgressTutorial()
@@ -18,4 +22,11 @@ void UTutorialHUD::ProgressTutorial()
 	FOutputDeviceNull OutputDevice;
 
 	CallFunctionByNameWithArguments(TEXT("ProgressTutorial"), OutputDevice, nullptr, true);
+}
+
+void UTutorialHUD::EndTutorial()
+{
+	FOutputDeviceNull OutputDevice;
+
+	CallFunctionByNameWithArguments(TEXT("EndTutorial"), OutputDevice, nullptr, true);
 }

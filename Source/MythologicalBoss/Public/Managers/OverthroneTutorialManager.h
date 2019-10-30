@@ -6,23 +6,31 @@
 #include "GameFramework/Actor.h"
 #include "OverthroneTutorialManager.generated.h"
 
-UCLASS()
+UCLASS(BlueprintType)
 class MYTHOLOGICALBOSS_API AOverthroneTutorialManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AOverthroneTutorialManager();
 
+	UFUNCTION(BlueprintCallable, Category = "Tutorial Manager")
+		void BeginTutorial();
+	
+	UFUNCTION(BlueprintCallable, Category = "Tutorial Manager")
+		void EndTutorial();
+
+	UFUNCTION(BlueprintCallable, Category = "Tutorial Manager")
+		void NextTutorial();
+
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tutorial Manager")
+		TSubclassOf<class UTutorialHUD> TutorialHUDClass;
 
-	
-	
+	UPROPERTY(BlueprintReadOnly, Category = "Tutorial Manager")
+		class UTutorialHUD* TutorialHUD;
+
+	APlayerController* PlayerController;
 };

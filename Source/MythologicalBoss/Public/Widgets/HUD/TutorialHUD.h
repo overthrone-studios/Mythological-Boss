@@ -18,12 +18,14 @@ class MYTHOLOGICALBOSS_API UTutorialHUD final : public UHUDBase
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "Tutorial HUD")
-		void SlideIn();	
+		void FadeIn();	
 	
 	UFUNCTION(BlueprintCallable, Category = "Tutorial HUD")
-		void SlideOut();
+		void FadeOut();
 
 	void ProgressTutorial();
+
+	void EndTutorial();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Tutorial HUD")
 		void OnTutorialCompleted();
@@ -33,8 +35,11 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Tutorial HUD | Animations")
-		UWidgetAnimation* SlideAnim;
+		UWidgetAnimation* FadeAnim;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tutorial HUD")
 		TArray<class UTutorialData*> Tutorials;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Tutorial HUD")
+		TEnumAsByte<EUMGSequencePlayMode::Type> AnimPlayMode;
 };
