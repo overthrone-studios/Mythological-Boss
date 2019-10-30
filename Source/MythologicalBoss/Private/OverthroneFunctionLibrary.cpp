@@ -151,6 +151,48 @@ FString UOverthroneFunctionLibrary::ConvertKeyToString(const FKey Key)
 	if (Key == EKeys::MiddleMouseButton)
 		return FString("MMB");
 
+	if (Key == EKeys::NumPadOne)
+		return FString("One");
+
+	if (Key == EKeys::NumPadTwo)
+		return FString("Two");
+
+	if (Key == EKeys::NumPadThree)
+		return FString("Three");
+
+	if (Key == EKeys::NumPadFour)
+		return FString("Four");
+
+	if (Key == EKeys::NumPadFive)
+		return FString("Five");
+
+	if (Key == EKeys::NumPadSix)
+		return FString("Six");
+
+	if (Key == EKeys::NumPadSeven)
+		return FString("Seven");
+
+	if (Key == EKeys::NumPadEight)
+		return FString("Eight");
+
+	if (Key == EKeys::NumPadNine)
+		return FString("Nine");
+
+	if (Key == EKeys::NumPadZero)
+		return FString("Zero");
+
+	if (Key == EKeys::Up)
+		return FString("UpArrow");
+	
+	if (Key == EKeys::Down)
+		return FString("DownArrow");
+
+	if (Key == EKeys::Left)
+		return FString("LeftArrow");
+
+	if (Key == EKeys::Right)
+		return FString("RightArrow");
+
 	return Key.ToString();
 }
 
