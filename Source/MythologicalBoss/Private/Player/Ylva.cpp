@@ -1025,12 +1025,16 @@ void AYlva::ReleaseChargeAttack()
 	if (YlvaAnimInstance->bChargeReleased && !IsChargeAttacking())
 		return;
 
+	EnableInvincibility();
+
 	FSM->PopState("Charge Attack");
 }
 
 void AYlva::FinishChargeAttack()
 {
 	ChargeAttackHoldFrames = 0;
+
+	DisableInvincibility();
 
 	GameState->PlayerData.CurrentAttackType = ATP_None;
 
