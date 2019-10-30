@@ -118,6 +118,8 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(27)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarActionState);
 	FSM->GetStateFromID(27)->OnExitState.AddDynamic(this, &AMordath::OnExitFarActionState);
 
+	FSM->InitFSM(0);
+
 	// Create a stage FSM
 	StageFSM = CreateDefaultSubobject<UFSM>(FName("Stage FSM"));
 	StageFSM->AddState(0, "Stage 1");

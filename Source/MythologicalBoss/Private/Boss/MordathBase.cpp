@@ -94,8 +94,6 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 	FSM->GetStateFromID(5)->OnUpdateState.AddDynamic(this, &AMordathBase::UpdateLockedState);
 	FSM->GetStateFromID(5)->OnExitState.AddDynamic(this, &AMordathBase::OnExitLockedState);
 
-	FSM->InitFSM(0);
-
 	// Create a range FSM
 	RangeFSM = CreateDefaultSubobject<UFSM>(FName("Range FSM"));
 	RangeFSM->AddState(0, "Close");

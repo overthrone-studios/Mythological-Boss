@@ -15,7 +15,6 @@
 #include "ConstructorHelpers.h"
 
 #include "FSM.h"
-#include "Log.h"
 
 AMordathGhost::AMordathGhost() : AMordathBase()
 {
@@ -35,6 +34,8 @@ AMordathGhost::AMordathGhost() : AMordathBase()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
+	FSM->InitFSM(0);
+
 	Tags.Empty();
 	Tags.Add("Mordath-Ghost");
 }
@@ -50,12 +51,6 @@ void AMordathGhost::BeginPlay()
 
 	FSM->Start();
 	RangeFSM->Start();
-}
-
-void AMordathGhost::Tick(const float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
 }
 
 float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

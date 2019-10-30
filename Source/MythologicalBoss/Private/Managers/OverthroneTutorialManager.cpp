@@ -26,11 +26,11 @@ void AOverthroneTutorialManager::BeginPlay()
 void AOverthroneTutorialManager::BeginTutorial()
 {
 	TutorialHUD->AddToViewport();
-	TutorialHUD->SetVisibility(ESlateVisibility::Visible);
-	PlayerController->SetInputMode(FInputModeUIOnly());
+	//TutorialHUD->SetVisibility(ESlateVisibility::Visible);
+	//PlayerController->SetInputMode(FInputModeUIOnly());
 
-	TutorialHUD->ProgressTutorial();
-	TutorialHUD->FadeIn();
+	//TutorialHUD->ProgressTutorial();
+	//TutorialHUD->FadeIn();
 }
 
 void AOverthroneTutorialManager::EndTutorial()
