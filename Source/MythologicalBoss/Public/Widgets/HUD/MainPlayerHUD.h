@@ -18,6 +18,12 @@ public:
 	void Init() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void ShowDashAttackPrompt();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void HideDashAttackPrompt();
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
 		void ShowChargeInputKeyWidget();
 
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
@@ -101,6 +107,7 @@ private:
 	class UTextBlock* DamageValueText;
 
 	class UUserWidget* ChargeInputKeyWidget;
+	class UUserWidget* DashAttackInputKeyWidget;
 
 	class UImage* ChargeRingGlow;
 

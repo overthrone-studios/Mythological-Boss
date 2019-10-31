@@ -26,9 +26,20 @@ void UMainPlayerHUD::Init()
 	BossHealthBar = Cast<UProgressBar>(WidgetTree->FindWidget("Boss_Health"));
 
 	ChargeInputKeyWidget = Cast<UUserWidget>(WidgetTree->FindWidget("ChargeTriggerKey"));
+	DashAttackInputKeyWidget = Cast<UUserWidget>(WidgetTree->FindWidget("DashAttackKey"));
 	ChargeRingGlow = Cast<UImage>(WidgetTree->FindWidget("ChargeMeterGlow"));
 
 	DamageValueText = Cast<UTextBlock>(WidgetTree->FindWidget("DamageValue"));
+}
+
+void UMainPlayerHUD::ShowDashAttackPrompt()
+{
+	DashAttackInputKeyWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainPlayerHUD::HideDashAttackPrompt()
+{
+	DashAttackInputKeyWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainPlayerHUD::ShowChargeInputKeyWidget()
