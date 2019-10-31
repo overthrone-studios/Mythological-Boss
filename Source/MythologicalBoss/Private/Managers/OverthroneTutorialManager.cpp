@@ -44,7 +44,7 @@ void AOverthroneTutorialManager::EndTutorial()
 
 void AOverthroneTutorialManager::NextTutorial()
 {
-	PlayerController->SetInputMode(FInputModeUIOnly());
+	PlayerController->SetInputMode(FInputModeGameAndUI());
 
 	TutorialHUD->ProgressTutorial();
 }
