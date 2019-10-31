@@ -42,7 +42,7 @@ AMordathTutorial::AMordathTutorial()
 
 void AMordathTutorial::ResetSelf()
 {
-	CurrentActionIndex = FMath::RandRange(0, Actions.Num() - 1);
+	CurrentActionIndex = FMath::Clamp(CurrentActionIndex + 1, 0, Actions.Num() - 1);
 
 	bCanBeDamaged = false;
 	bIsDead = false;
@@ -85,7 +85,7 @@ void AMordathTutorial::BeginPlay()
 	MordathAnimInstance->CurrentStage = Stage_1;
 	MordathAnimInstance->bIsThinking = false;
 
-	CurrentActionIndex = FMath::RandRange(0, Actions.Num() - 1);
+	CurrentActionIndex = 0;
 
 	bCanBeDamaged = false;
 
@@ -149,7 +149,7 @@ void AMordathTutorial::UpdateActionState(const float Uptime, const int32 Frames)
 	StopMovement();
 
 	if (!bIsDead)
-		FacePlayer();
+		FacePlayerBasedOnActionData(Actions[CurrentActionIndex].ActionData);
 
 	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= Actions[CurrentActionIndex].PauseAtTime && !bStopAtTimeEventTriggered)
 	{
@@ -161,7 +161,7 @@ void AMordathTutorial::UpdateActionState(const float Uptime, const int32 Frames)
 
 	// If action has finished, go back to previous state
 	if (HasFinishedAction())
-		FSM->PopState();
+		PlayActionMontage();
 }
 
 void AMordathTutorial::OnExitActionState()
