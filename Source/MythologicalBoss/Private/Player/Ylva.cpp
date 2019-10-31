@@ -61,6 +61,7 @@
 #include "DamageTypes/DmgType_MordathKick.h"
 
 #include "DrawDebugHelpers.h"
+#include "GameFramework/InputSettings.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -603,10 +604,37 @@ void AYlva::LookUpAtRate(const float Rate)
 
 void AYlva::HandleInput(const FName ActionName)
 {
-	//#if !UE_BUILD_SHIPPING
-	//if (IsLocked())
-	//	return;
-	//#endif
+	const auto InputSettings = GetMutableDefault<UInputSettings>();
+	TArray<FInputActionKeyMapping> ActionKeyMappings;
+	InputSettings->GetActionMappingByName(ActionName, ActionKeyMappings);
+	FKey Key;
+	if (UOverthroneFunctionLibrary::IsGamepadConnected())
+	{
+		for (const auto KeyMapping : ActionKeyMappings)
+		{
+			if (KeyMapping.Key.IsGamepadKey() && PlayerController->IsInputKeyDown(KeyMapping.Key))
+			{
+				Key = KeyMapping.Key;
+				break;
+			}
+		}
+	}
+	else
+	{
+		for (const auto KeyMapping : ActionKeyMappings)
+		{
+			if (!KeyMapping.Key.IsGamepadKey() && PlayerController->IsInputKeyDown(KeyMapping.Key))
+			{
+				Key = KeyMapping.Key;
+				break;
+			}
+		}		
+	}
+
+	OnHandleInput.Broadcast(Key);
+
+	if (IsLocked())
+		return;
 
 	if (ActionName == "LockOn")
 	{
@@ -845,8 +873,6 @@ FVector AYlva::GetDirectionToBoss() const
 #pragma region Combat
 void AYlva::LightAttack()
 {
-	ULog::Hello(true);
-
 	// Are we in any of these states?
 	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || StaminaComponent->IsStaminaEmpty())
 		return;

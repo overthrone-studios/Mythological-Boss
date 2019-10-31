@@ -8,6 +8,8 @@
 #include "OverthroneStructs.h"
 #include "Ylva.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHandleInputSignature, FKey, Key);
+
 USTRUCT(BlueprintType)
 struct FDebug_Ylva : public FCharacterDebug
 {
@@ -406,6 +408,9 @@ public:
 	// Ylva's debug options
 	UPROPERTY(EditInstanceOnly, Category = "Ylva Debug")
 		FDebug_Ylva Debug;
+
+	UPROPERTY(BlueprintAssignable, Category = "Input")
+		FOnHandleInputSignature OnHandleInput;
 
 protected:
 	void BeginPlay() override;

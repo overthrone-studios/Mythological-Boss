@@ -44,7 +44,7 @@ void AMordathTutorial::ResetSelf()
 {
 	CurrentActionIndex = FMath::RandRange(0, Actions.Num() - 1);
 
-	bCanBeDamaged = true;
+	bCanBeDamaged = false;
 	bIsDead = false;
 	AnimInstance->bIsDead = false;
 	FSM->RemoveAllStates();
@@ -176,6 +176,7 @@ void AMordathTutorial::OnEnterDeathState()
 	
 	AnimInstance->bIsDead = true;
 	bIsDead = true;
+	bCanBeDamaged = false;
 
 	bStopAtTimeEventTriggered = false;
 
