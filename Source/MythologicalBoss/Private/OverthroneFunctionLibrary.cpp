@@ -160,6 +160,12 @@ FString UOverthroneFunctionLibrary::ConvertKeyToString(const FKey Key)
 	if (Key == EKeys::Gamepad_DPad_Left)
 		return FString("DPadLeft");
 
+	if (Key == EKeys::Gamepad_Special_Left)
+		return FString("SpecialLeft");
+
+	if (Key == EKeys::Gamepad_Special_Right)
+		return FString("SpecialRight");
+
 	if (Key == EKeys::LeftMouseButton)
 		return FString("LMB");
 
