@@ -64,7 +64,7 @@ float AMordathTutorial::GetMovementSpeed() const
 		return 1000.0f;
 
 	default:
-		return 0.0f;
+		return 500.0f;
 	}
 }
 
@@ -120,7 +120,11 @@ void AMordathTutorial::UpdateFollowState(const float Uptime, const int32 Frames)
 {
 	FacePlayer();
 
-	if (!IsCloseRange())
+	if (IsCloseRange())
+		MoveForward();
+	else if (IsSuperCloseRange())
+		MoveForward(-1);
+	else
 		MoveForward();
 
 	if (CanAttack())
@@ -144,7 +148,8 @@ void AMordathTutorial::UpdateActionState(const float Uptime, const int32 Frames)
 {
 	StopMovement();
 
-	FacePlayer();
+	if (!bIsDead)
+		FacePlayer();
 
 	if (AnimInstance->Montage_GetPosition(CurrentActionMontage) >= Actions[CurrentActionIndex].PauseAtTime && !bStopAtTimeEventTriggered)
 	{
@@ -167,12 +172,15 @@ void AMordathTutorial::OnExitActionState()
 
 void AMordathTutorial::OnEnterDeathState()
 {
-	//Super::OnEnterDeathState();
+	AnimInstance->StopAllMontages(0.4f);
 	
+	AnimInstance->bIsDead = true;
+	bIsDead = true;
+
 	bStopAtTimeEventTriggered = false;
 
 	PauseAnims();
-
+	
 	OnDeath();
 
 	OnDead.Broadcast();
@@ -180,16 +188,27 @@ void AMordathTutorial::OnEnterDeathState()
 
 void AMordathTutorial::UpdateDeathState(float Uptime, int32 Frames)
 {
-	Super::UpdateDeathState(Uptime, Frames);
+	StopMovement();
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
+		FSM->PopState();
 }
 
 void AMordathTutorial::OnExitDeathState()
 {
+	bIsDead = false;
 	AnimInstance->bIsDead = false;
 
 	MovementComponent->SetMovementMode(MOVE_Walking);
 
 	FSM->Start();
+}
+
+void AMordathTutorial::UpdateLockedState(const float Uptime, const int32 Frames)
+{
+	Super::UpdateLockedState(Uptime, Frames);
+
+	SetActorRotation(FRotator(ControlRotation.Pitch, GetDirectionToPlayer().Rotation().Yaw, ControlRotation.Roll));
 }
 
 #pragma region Mordath Tutorial Range States
@@ -200,10 +219,10 @@ void AMordathTutorial::OnEnterCloseRange()
 
 void AMordathTutorial::UpdateCloseRange(float Uptime, int32 Frames)
 {
-	if (DistanceToPlayer < 200.0f)
+	if (DistanceToPlayer < 300.0f)
 		RangeFSM->PushState("Super Close");
 
-	if (DistanceToPlayer > 500.0f)
+	if (DistanceToPlayer > 600.0f)
 		RangeFSM->PushState("Mid");
 }
 
@@ -219,7 +238,7 @@ void AMordathTutorial::OnEnterMidRange()
 
 void AMordathTutorial::UpdateMidRange(float Uptime, int32 Frames)
 {
-	if (DistanceToPlayer < 500.0f)
+	if (DistanceToPlayer < 600.0f)
 		RangeFSM->PushState("Close");
 
 	if (DistanceToPlayer > 1200.0f)
@@ -256,7 +275,7 @@ void AMordathTutorial::OnEnterSuperCloseRange()
 
 void AMordathTutorial::UpdateSuperCloseRange(float Uptime, int32 Frames)
 {
-	if (DistanceToPlayer > 200.0f)
+	if (DistanceToPlayer > 300.0f)
 	{
 		RangeFSM->PushState("Close");
 	}

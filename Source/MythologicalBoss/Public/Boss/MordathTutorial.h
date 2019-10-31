@@ -73,6 +73,8 @@ protected:
 		void OnExitDeathState() override;
 	#pragma endregion 
 
+	void UpdateLockedState(float Uptime, int32 Frames) override;
+
 	#pragma region Close
 		void OnEnterCloseRange() override;
 		void UpdateCloseRange(float Uptime, int32 Frames) override;

@@ -68,9 +68,6 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp,
 			return;
 		}
 
-		// Give charge
-		Ylva->IncreaseCharge();
-
 		if (HitComp->IsA(UHitboxComponent::StaticClass()))
 		{
 			Multiplier = Cast<UHitboxComponent>(HitComp)->GetScalarValue();
