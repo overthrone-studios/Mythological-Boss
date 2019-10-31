@@ -3,6 +3,9 @@
 #include "Player/Ylva.h"
 #include "Player/YlvaAnimInstance.h"
 
+#include "Boss/MordathGhost.h"
+#include "Boss/MordathTutorial.h"
+
 #include "OverthroneHUD.h"
 #include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
@@ -54,9 +57,10 @@
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
 
+#include "DamageTypes/DmgType_AOE.h"
+#include "DamageTypes/DmgType_MordathKick.h"
+
 #include "DrawDebugHelpers.h"
-#include "DmgType_AOE.h"
-#include "DmgType_MordathKick.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
@@ -818,6 +822,9 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 void AYlva::OnAttackLanded(const FHitResult& HitResult)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
+
+	if (HitResult.GetActor() && !HitResult.GetActor()->IsA(AMordathGhost::StaticClass()) && !HitResult.GetActor()->IsA(AMordathTutorial::StaticClass()))
+		IncreaseCharge();
 
 	if (GameState->PlayerData.CurrentAttackType == ATP_Special && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
 	{
