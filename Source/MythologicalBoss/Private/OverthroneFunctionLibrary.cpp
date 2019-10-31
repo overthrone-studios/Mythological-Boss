@@ -142,6 +142,24 @@ FString UOverthroneFunctionLibrary::ConvertKeyToString(const FKey Key)
 	if (Key == EKeys::Gamepad_LeftTrigger)
 		return FString("LT");
 
+	if (Key == EKeys::Gamepad_LeftThumbstick)
+		return FString("LeftStick");
+
+	if (Key == EKeys::Gamepad_RightThumbstick)
+		return FString("RightStick");
+
+	if (Key == EKeys::Gamepad_DPad_Down)
+		return FString("DPadDown");
+
+	if (Key == EKeys::Gamepad_DPad_Up)
+		return FString("DPadUp");
+
+	if (Key == EKeys::Gamepad_DPad_Right)
+		return FString("DPadRight");
+
+	if (Key == EKeys::Gamepad_DPad_Left)
+		return FString("DPadLeft");
+
 	if (Key == EKeys::LeftMouseButton)
 		return FString("LMB");
 
