@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "InputCoreTypes.h"
 #include "TutorialData.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTutorialCompletedSignature);
@@ -17,6 +18,9 @@ class MYTHOLOGICALBOSS_API UTutorialData final : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable, Category = "Tutorial HUD")
+		void UpdateRequestedKey();
+
 	UFUNCTION(BlueprintPure, Category = "Tutorial Information")
 		FText GetTutorialProgress();
 
@@ -53,4 +57,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Tutorial Information")
 		FOnTutorialCompletedSignature OnTutorialCompleted;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Tutorial HUD")
+		FKey RequestedInputKey;
 };

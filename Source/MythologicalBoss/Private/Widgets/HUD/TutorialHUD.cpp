@@ -5,14 +5,16 @@
 
 void UTutorialHUD::FadeIn()
 {
-	PlayAnimation(FadeAnim);
+	if (!IsAnimationPlaying(FadeAnim))
+		PlayAnimation(FadeAnim);
 
 	AnimPlayMode = EUMGSequencePlayMode::Forward;
 }
 
 void UTutorialHUD::FadeOut()
 {
-	PlayAnimation(FadeAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
+	if (!IsAnimationPlaying(FadeAnim))
+		PlayAnimation(FadeAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
 
 	AnimPlayMode = EUMGSequencePlayMode::Reverse;
 }
