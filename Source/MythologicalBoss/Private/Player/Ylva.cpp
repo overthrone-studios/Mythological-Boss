@@ -297,7 +297,7 @@ void AYlva::BeginPlay()
 
 	bCanDash = true;
 
-	MainHUD->HideChargeInputKeyWidget();
+	//MainHUD->HideChargeInputKeyWidget();
 
 	// Begin the state machine
 	FSM->Start();
@@ -2510,6 +2510,8 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		ULog::Info("Perfectly timed dash!", true);
 		#endif
 
+		MainHUD->ShowDashAttackPrompt();
+
 		EnableInvincibility();
 
 		bPerfectlyTimedDash = true;
@@ -2536,6 +2538,8 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 
 void AYlva::OnExitDashState()
 {
+	MainHUD->HideDashAttackPrompt();
+
 	DisableInvincibility();
 
 	if (IsLockedOn())
