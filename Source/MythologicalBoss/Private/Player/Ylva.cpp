@@ -468,7 +468,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		
 		ActionBindingOneParam.ActionDelegate = OneParamActionHandler;
 	 
-		PlayerInputComponent->AddActionBinding(ActionBindingOneParam);
+		PlayerInputComponent->AddActionBinding(ActionBindingOneParam).bExecuteWhenPaused = true;
 	}
 
 	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
@@ -603,10 +603,10 @@ void AYlva::LookUpAtRate(const float Rate)
 
 void AYlva::HandleInput(const FName ActionName)
 {
-	#if !UE_BUILD_SHIPPING
-	if (IsLocked())
-		return;
-	#endif
+	//#if !UE_BUILD_SHIPPING
+	//if (IsLocked())
+	//	return;
+	//#endif
 
 	if (ActionName == "LockOn")
 	{
@@ -845,6 +845,8 @@ FVector AYlva::GetDirectionToBoss() const
 #pragma region Combat
 void AYlva::LightAttack()
 {
+	ULog::Hello(true);
+
 	// Are we in any of these states?
 	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || StaminaComponent->IsStaminaEmpty())
 		return;
