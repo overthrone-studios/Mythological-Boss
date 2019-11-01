@@ -42,4 +42,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Tutorial HUD")
 		TEnumAsByte<EUMGSequencePlayMode::Type> AnimPlayMode;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Tutorial HUD | Animations")
+		uint8 bIsReady : 1;
 };
