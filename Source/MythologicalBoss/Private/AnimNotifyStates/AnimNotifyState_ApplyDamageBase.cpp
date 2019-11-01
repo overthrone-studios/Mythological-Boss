@@ -9,14 +9,17 @@ void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshCo
 	const FVector& StartTrace = MeshComp->GetSocketLocation(StartBone);
 	const FVector& EndTrace = MeshComp->GetSocketLocation(EndBone);
 
-	UKismetSystemLibrary::SphereTraceMulti(MeshComp, StartTrace, EndTrace, AttackRadius, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4), true, {}, DebugTrace, HitResults, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Pawn));
+
+	UKismetSystemLibrary::SphereTraceMultiForObjects(MeshComp, StartTrace, EndTrace, AttackRadius, ObjectTypes, true, {}, DebugTrace, HitResults, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
 	for (const auto HitResult : HitResults)
 	{
 		if (HitResult.bBlockingHit && !bIsHit)
 		{
 			OnHit(MeshComp, HitResult);
-		}		
+		}
 	}
 }
 
