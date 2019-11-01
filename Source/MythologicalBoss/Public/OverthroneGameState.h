@@ -7,6 +7,7 @@
 #include "OverthroneEnums.h"
 #include "OverthroneGameState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathBaseDeathSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackParryedSignature);
@@ -117,7 +118,7 @@ struct FBossData : public FCharacterData
 		CurrentCounterType = ACM_None;
 	}
 
-	FVector LockOnBoneLocation;
+	FName LockOnBoneName;
 
 	uint8 bHasAttackBegun : 1;
 
@@ -240,9 +241,16 @@ public:
 	FPlayerData PlayerData;
 	FBossData BossData;
 
+	FVector LockOnLocation;
+
+	UPROPERTY(BlueprintAssignable, Category = "Overthrone Game State | Characters")
+		FOnMordathBaseDeathSignature OnMordathBaseDeath;
+
 	class UCameraShake* CurrentCameraShake;
 
 	class ABoundingBox* PlayArea{};
+
+	TArray<ACharacter*> Mordaths;
 
 protected:
 	void BeginPlay() override;

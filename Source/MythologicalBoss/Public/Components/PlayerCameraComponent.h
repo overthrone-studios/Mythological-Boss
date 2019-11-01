@@ -24,7 +24,7 @@ struct FCameraShakes_Player
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData ShieldHit;
 
-	// The camera shake to play while idleling
+	// The camera shake to play while idling
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData Idle;
 
@@ -99,6 +99,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
 		void DisableLockOn();
 
+	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
+		FVector GetCurrentLockOnTargetLocation(TArray<class ACharacter*> Targets, FName SocketName = NAME_None) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
+		FVector CycleLockOnTargets(TArray<class ACharacter*> Targets, FName SocketName = NAME_None);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
+		ACharacter* DetermineClosestBoss(TArray<class ACharacter*> Targets);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
+		void ResetLockOnTarget();
+
 	void OscillateVignette();
 	void StopOscillatingVignette();
 
@@ -156,10 +168,13 @@ protected:
 		float VignetteSpeed = 1.0f;
 
 private:
+	AActor* Owner;
 	APlayerController* PlayerController;
 
 	uint8 bIsLockedOn : 1;
 	uint8 bWasLockedOn : 1;
+
+	uint8 CurrentLockOnIndex = 0;
 
 	FTimeline TL_ScreenSaturation;
 	FTimeline TL_Vignette;

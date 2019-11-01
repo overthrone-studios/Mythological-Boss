@@ -176,6 +176,7 @@ void AMordath::BeginPlay()
 	GameState->BossData.OnEnterFirstStage.AddDynamic(this, &AMordath::OnFirstStageHealth);
 	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
+	GameState->BossData.LockOnBoneName = LockOnBoneName;
 	GameState->Boss = this;
 	UpdateCharacterInfo();
 
@@ -205,7 +206,6 @@ void AMordath::Tick(const float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	GameState->BossData.Location = CurrentLocation;
-	GameState->BossData.LockOnBoneLocation = SKMComponent->GetSocketLocation(LockOnBoneName);
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
@@ -229,7 +229,7 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 7, "Direction To Player: " + FString::SanitizeFloat(DirectionToPlayer.Rotation().Yaw));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Action: " + UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)/*CurrentActionData->Action->GetCurrentActionAsString()*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Counter: " + UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType) /*CurrentActionData->Action->GetCounterTypeAsString()*/);
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->BossData.LockOnBoneLocation.Z));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->LockOnLocation.Z));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Combo: " + ChosenCombo->GetName());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Action Montage: " + CurrentMontageName);
