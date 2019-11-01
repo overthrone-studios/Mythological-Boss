@@ -2252,7 +2252,6 @@ void AYlva::OnEnterPushBackState()
 
 	FaceBoss_Instant();
 	PlayerController->SetIgnoreMoveInput(true);
-
 }
 
 void AYlva::UpdatePushBackState(float Uptime, int32 Frames)
@@ -2267,7 +2266,9 @@ void AYlva::OnExitPushBackState()
 {
 	YlvaAnimInstance->bIsHitByAOE = false;
 
-	MovementComponent->bOrientRotationToMovement = true;
+	if (!IsLockedOn())
+		MovementComponent->bOrientRotationToMovement = true;
+
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	MovementComponent->MaxAcceleration = 2048.0f;
 
