@@ -166,6 +166,12 @@ protected:
 	// Called when the player's health is less than or equal to 0
 	void OnPlayerDeath() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnBeginExecuteAction();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnEndExecuteAction();
+
 	UFUNCTION()
 		void OnAttackParryed();
 

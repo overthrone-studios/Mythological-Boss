@@ -478,6 +478,8 @@ void AMordath::OnExitThinkState()
 void AMordath::OnEnterActionState()
 {
 	Super::OnEnterActionState();
+
+	OnBeginExecuteAction();
 }
 
 void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
@@ -489,6 +491,8 @@ void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
 
 void AMordath::OnExitActionState()
 {
+	OnEndExecuteAction();
+
 	if (CurrentActionData->bExecutionTimeExpired)
 	{
 		StopActionMontage();
@@ -521,6 +525,8 @@ void AMordath::OnEnterCloseActionState()
 	GameState->BossData.CurrentCounterType = SuperCloseRange_ActionData->CounterType;
 
 	StartActionLocation = CurrentLocation;
+
+	OnBeginExecuteAction();
 }
 
 void AMordath::UpdateCloseActionState(float Uptime, int32 Frames)
@@ -573,6 +579,8 @@ void AMordath::OnExitCloseActionState()
 
 	SuperCloseRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
+
+	OnEndExecuteAction();
 }
 #pragma endregion 
 
@@ -596,6 +604,8 @@ void AMordath::OnEnterFarActionState()
 	GameState->BossData.CurrentCounterType = FarRange_ActionData->CounterType;
 
 	StartActionLocation = CurrentLocation;
+
+	OnBeginExecuteAction();
 }
 
 void AMordath::UpdateFarActionState(float Uptime, int32 Frames)
@@ -625,6 +635,8 @@ void AMordath::OnExitFarActionState()
 
 	FarRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
+
+	OnEndExecuteAction();
 }
 #pragma endregion 
 
