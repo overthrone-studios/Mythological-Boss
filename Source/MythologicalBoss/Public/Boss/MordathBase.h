@@ -90,6 +90,7 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void Tick(float DeltaTime) override;
 	void PossessedBy(AController* NewController) override;
 

@@ -128,8 +128,18 @@ void AMordathBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GameState->BossData.LockOnBoneName = "spine01_jnt";
+
 	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
+
+	GameState->Mordaths.Add(this);
+}
+
+void AMordathBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GameState->Mordaths.Remove(this);
+	GameState->OnMordathBaseDeath.Broadcast();
 }
 
 void AMordathBase::Tick(const float DeltaTime)

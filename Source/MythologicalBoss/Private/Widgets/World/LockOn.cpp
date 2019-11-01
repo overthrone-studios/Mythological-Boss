@@ -45,7 +45,7 @@ void ALockOn::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	SetActorLocation(GameState->BossData.LockOnBoneLocation);
+	SetActorLocation(GameState->LockOnLocation);
 }
 
 void ALockOn::Show()

@@ -475,6 +475,9 @@ protected:
 		float GetDistanceToBoss() const;
 
 	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
+		float GetNearestDistanceToBoss() const;
+
+	UFUNCTION(BlueprintPure, Category = "Ylva | Misc")
 		FVector GetDirectionToBoss() const;
 	
 	#pragma region Combat
@@ -550,6 +553,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Lock-On Camera")
 		void EnableLockOn();
+
+	UFUNCTION()
+		void OnLockOnEnabled();
+
+	UFUNCTION()
+		void OnLockOnDisabled();
 	#pragma endregion 
 
 	#pragma region Controls
@@ -692,12 +701,6 @@ protected:
 	// Called when exiting the low health state
 	void OnExitLowHealth() override;
 
-	UFUNCTION()
-		void OnLockOnEnabled();
-
-	UFUNCTION()
-		void OnLockOnDisabled();
-
 	// Called when the boss's health is less than or equal to zero
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnBossDeath();
@@ -750,6 +753,9 @@ protected:
 
 	UFUNCTION()
 		void OnMordathReappeared();
+
+	UFUNCTION()
+		void OnMordathBaseDeath();
 	#pragma endregion
 
 	#pragma region Any States
@@ -987,6 +993,8 @@ private:
 
 	FVector StartAttackLocation;
 	FVector EndAttackLocation;
+
+	FVector CurrentLockOnLocation;
 
 	FVector DirectionToBoss;
 	float DistanceToBoss;

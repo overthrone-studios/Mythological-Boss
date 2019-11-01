@@ -289,6 +289,7 @@ void AYlva::BeginPlay()
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
 	GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
 	GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
+	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
@@ -297,8 +298,6 @@ void AYlva::BeginPlay()
 	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	bCanDash = true;
-
-	//MainHUD->HideChargeInputKeyWidget();
 
 	// Begin the state machine
 	FSM->Start();
@@ -345,9 +344,11 @@ void AYlva::Tick(const float DeltaTime)
 		return;
 	#endif
 
-	DistanceToBoss = GetDistanceToBoss();
+	DistanceToBoss = GetNearestDistanceToBoss();
 	DirectionToBoss = GetDirectionToBoss();
 	GameState->PlayerData.Location = CurrentLocation;
+	CurrentLockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths);
+	GameState->LockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths, GameState->BossData.LockOnBoneName);
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->MovementDirection = CalculateDirection();
@@ -363,7 +364,7 @@ void AYlva::Tick(const float DeltaTime)
 
 	if (IsLockedOn())
 	{
-		HardLockOnTo(GameState->BossData.Location, DeltaTime);
+		HardLockOnTo(CurrentLockOnLocation, DeltaTime);
 	}
 	//else if (Scalar > 0.9f && YawInput == 0.0f && CanLockOn())
 	//{
@@ -405,7 +406,7 @@ void AYlva::Tick(const float DeltaTime)
 		if (GameState->PlayerData.CurrentRange == BRM_SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
-		FaceBoss(DeltaTime, RotationSpeed);
+		FaceRotation(GetDirectionToBoss().Rotation(), RotationSpeed * DeltaTime);
 	}
 
 #if !UE_BUILD_SHIPPING
@@ -460,6 +461,7 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	ActionNames.Add("Run");
 	ActionNames.Add("Dash");
 	ActionNames.Add("Charge Attack");
+	ActionNames.Add("LockOn Switch");
 
 	for (int32 i = 0; i < ActionNames.Num(); ++i)
 	{
@@ -664,6 +666,11 @@ void AYlva::HandleInput(const FName ActionName)
 	{
 		StartChargeAttack();
 	}
+	else if (ActionName == "LockOn Switch")
+	{
+		if (IsLockedOn())
+			CurrentLockOnLocation = FollowCamera->CycleLockOnTargets(GameState->Mordaths);
+	}
 }
 
 void AYlva::HardLockOnTo(const FVector& TargetLocation, const float DeltaTime, const bool bControlPitch)
@@ -865,9 +872,26 @@ float AYlva::GetDistanceToBoss() const
 	return FVector::Dist(GameState->BossData.Location, CurrentLocation);
 }
 
+float AYlva::GetNearestDistanceToBoss() const
+{
+	float CurrentClosestDistance = TNumericLimits<float>::Max();
+
+	for (auto Mordath : GameState->Mordaths)
+	{
+		const float Distance = FVector::Dist(CurrentLocation, Mordath->GetActorLocation());
+
+		if (Distance < CurrentClosestDistance)
+		{
+			CurrentClosestDistance = Distance;
+		}
+	}
+
+	return CurrentClosestDistance;
+}
+
 FVector AYlva::GetDirectionToBoss() const
 {
-	return (GameState->BossData.Location - CurrentLocation).GetSafeNormal(0.01f);
+	return (CurrentLockOnLocation - CurrentLocation).GetSafeNormal(0.01f);
 }
 
 #pragma region Combat
@@ -1348,6 +1372,8 @@ void AYlva::ToggleLockOn()
 	if (GameState->BossData.bIsDead || bIsDead || !CanLockOn())
 		return;
 
+	FollowCamera->DetermineClosestBoss(GameState->Mordaths);
+
 	FollowCamera->ToggleLockOn();
 }
 
@@ -1358,6 +1384,33 @@ void AYlva::EnableLockOn()
 		return;
 
 	FollowCamera->EnableLockOn();
+}
+
+void AYlva::OnLockOnEnabled()
+{
+	GameState->LockOn->OnToggleLockOn.Broadcast(false);
+	YlvaAnimInstance->bIsLockedOn = true;
+	CameraBoom->CameraRotationLagSpeed *= 4;
+
+	if (!IsRunning() && !IsDashing())
+	{
+		MovementComponent->bOrientRotationToMovement = false;
+		MovementComponent->bUseControllerDesiredRotation = true;
+
+		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
+	}
+}
+
+void AYlva::OnLockOnDisabled()
+{
+	GameState->LockOn->OnToggleLockOn.Broadcast(true);
+	MovementComponent->bOrientRotationToMovement = true;
+	MovementComponent->bUseControllerDesiredRotation = false;
+	YlvaAnimInstance->bIsLockedOn = false;
+	CameraBoom->CameraRotationLagSpeed = 20.0f;
+
+	if (!IsRunning())
+		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 }
 #pragma endregion
 
@@ -1766,33 +1819,6 @@ void AYlva::OnExitLowHealth()
 		LowHealthAudioComponent->Stop();
 }
 
-void AYlva::OnLockOnEnabled()
-{
-	GameState->LockOn->OnToggleLockOn.Broadcast(false);
-	YlvaAnimInstance->bIsLockedOn = true;
-	CameraBoom->CameraRotationLagSpeed *= 4;
-	
-	if (!IsRunning() && !IsDashing())
-	{
-		MovementComponent->bOrientRotationToMovement = false;
-		MovementComponent->bUseControllerDesiredRotation = true;
-	
-		MovementComponent->MaxWalkSpeed = MovementSettings.LockOnWalkSpeed;
-	}
-}
-
-void AYlva::OnLockOnDisabled()
-{
-	GameState->LockOn->OnToggleLockOn.Broadcast(true);
-	MovementComponent->bOrientRotationToMovement = true;
-	MovementComponent->bUseControllerDesiredRotation = false;
-	YlvaAnimInstance->bIsLockedOn = false;
-	CameraBoom->CameraRotationLagSpeed = 20.0f;
-	
-	if (!IsRunning())
-		MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
-}
-
 void AYlva::OnBossDeath_Implementation()
 {
 	OnBossDeath();
@@ -1875,6 +1901,12 @@ void AYlva::OnMordathReappeared()
 		bWasLockedOn = false;
 		FollowCamera->EnableLockOn();
 	}
+}
+
+void AYlva::OnMordathBaseDeath()
+{
+	FollowCamera->ResetLockOnTarget();
+	CurrentLockOnLocation = FollowCamera->CycleLockOnTargets(GameState->Mordaths);
 }
 #pragma endregion
 
