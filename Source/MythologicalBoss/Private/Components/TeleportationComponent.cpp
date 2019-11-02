@@ -1,18 +1,25 @@
 // Copyright Overthrone Studios 2019
 
 #include "TeleportationComponent.h"
-#include "GameFramework/Actor.h"
+
+#include "OverthroneFunctionLibrary.h"
+#include "BoundingBox.h"
+
+#include "Curves/CurveFloat.h"
+
+#include "Materials/MaterialInstanceDynamic.h"
+
+#include "Components/SkeletalMeshComponent.h"
+
+#include "GameFramework/Character.h"
+
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetMaterialLibrary.h"
+
+#include "TimerManager.h"
+
 #include "DrawDebugHelpers.h"
 #include "Log.h"
-#include "TimerManager.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "BoundingBox.h"
-#include "Curves/CurveFloat.h"
-#include "OverthroneFunctionLibrary.h"
-#include "Materials/MaterialInstanceDynamic.h"
-#include "Kismet/KismetMaterialLibrary.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "GameFramework/Character.h"
 
 UTeleportationComponent::UTeleportationComponent()
 {
@@ -23,10 +30,15 @@ void UTeleportationComponent::Disappear()
 {
 	if (!TL_Dissolve.IsPlaying())
 	{
-		MID_Dissolve = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DissolveMaterial); // Prevents a stupid crash
+		MID_Dissolve = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Dissolve")); // Prevents a stupid crash
+		MID_Dissolve->SetScalarParameterValue("IsDissolving", 1.0f);
 
-		for (int32 i = 0; i < SKMComponent->GetMaterials().Num(); ++i)
-			SKMComponent->SetMaterial(i, MID_Dissolve);
+		SKMComponent->SetMaterial(0, MID_Dissolve);
+
+		TL_Dissolve.Stop();
+		TL_Dissolve.SetPlaybackPosition(0.0f, true, true);
+
+		OnBeginDisappear.Broadcast();
 
 		TL_Dissolve.PlayFromStart();
 	}
@@ -36,6 +48,10 @@ void UTeleportationComponent::Reappear()
 {
 	if (!TL_Dissolve.IsPlaying())
 	{
+		MID_Dissolve->SetScalarParameterValue("IsDissolving", 1.0f);
+
+		OnBeginReappear.Broadcast();
+
 		bWasReversing = true;
 		TL_Dissolve.ReverseFromEnd();
 	}
@@ -49,19 +65,12 @@ void UTeleportationComponent::BeginPlay()
 	SKMComponent = Owner->GetMesh();
 	TimerManager = &Owner->GetWorldTimerManager();
 
-	for (int32 i = 0; i < SKMComponent->GetMaterials().Num(); ++i)
-		OriginalMaterials.Add(SKMComponent->GetMaterial(i));
+	OriginalMaterial = SKMComponent->GetMaterial(0);
 
 	UOverthroneFunctionLibrary::SetupTimeline(this, TL_Dissolve, DissolveCurve, false, DissolveSpeed, "UpdateDissolve", "FinishDissolve");
-
-	MID_Dissolve = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DissolveMaterial);
-	if (MID_Dissolve)
-		MID_Dissolve->SetScalarParameterValue("Amount", 0.0f);
-	else
-		ULog::Error("Could not find Dissolve material!", true);
 }
 
-void UTeleportationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UTeleportationComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -82,11 +91,7 @@ void UTeleportationComponent::FinishDissolve()
 	{
 		bWasReversing = false;
 
-		for (int32 i = 0; i < SKMComponent->GetMaterials().Num(); ++i)
-		{
-			if (OriginalMaterials[i])
-				SKMComponent->SetMaterial(i, OriginalMaterials[i]);
-		}
+		SKMComponent->SetMaterial(0, OriginalMaterial);
 
 		OnReappeared.Broadcast();
 	}

@@ -48,7 +48,6 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetInputLibrary.h"
 
 #include "DamageTypes/DmgType_Lightning.h"
 
@@ -287,8 +286,10 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameState->PlayerData.OnExitLowStamina.AddDynamic(this, &AYlva::OnExitLowStamina);
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
-	GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
-	GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
+	//GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
+	//GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
+	GameState->BossData.OnMordathBeginDisappear.AddDynamic(this, &AYlva::OnMordathDisappeared);
+	GameState->BossData.OnMordathBeginReappear.AddDynamic(this, &AYlva::OnMordathReappeared);
 	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
@@ -346,9 +347,10 @@ void AYlva::Tick(const float DeltaTime)
 
 	DistanceToBoss = GetNearestDistanceToBoss();
 	DirectionToBoss = GetDirectionToBoss();
-	GameState->PlayerData.Location = CurrentLocation;
 	CurrentLockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths);
+
 	GameState->LockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths, GameState->BossData.LockOnBoneName);
+	GameState->PlayerData.Location = CurrentLocation;
 
 	AnimInstance->MovementSpeed = CurrentMovementSpeed;
 	AnimInstance->MovementDirection = CalculateDirection();
@@ -359,8 +361,8 @@ void AYlva::Tick(const float DeltaTime)
 	CalculatePitchLean(DeltaTime);
 
 	// Lock-on mechanic
-	const FVector& ModifiedDirectionToBoss = FVector(DirectionToBoss.X, DirectionToBoss.Y, 0.0f).GetSafeNormal();
-	const float Scalar = FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), ModifiedDirectionToBoss);
+	//const FVector& ModifiedDirectionToBoss = FVector(DirectionToBoss.X, DirectionToBoss.Y, 0.0f).GetSafeNormal();
+	//const float Scalar = FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), ModifiedDirectionToBoss);
 
 	if (IsLockedOn())
 	{
@@ -398,7 +400,7 @@ void AYlva::Tick(const float DeltaTime)
 		}
 	}
 
-	// Auto-rotate toward boss when in close range
+	// Smoothly auto-rotate towards the closest boss, when in its close range
 	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking() && !GameState->IsBossTeleporting())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
@@ -406,7 +408,7 @@ void AYlva::Tick(const float DeltaTime)
 		if (GameState->PlayerData.CurrentRange == BRM_SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
-		FaceRotation(GetDirectionToBoss().Rotation(), RotationSpeed * DeltaTime);
+		FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
 	}
 
 #if !UE_BUILD_SHIPPING
@@ -700,6 +702,11 @@ void AYlva::SoftLockOnTo(const FVector& TargetLocation, const float DeltaTime)
 void AYlva::FaceBoss(const float DeltaTime, const float RotationSpeed)
 {
 	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, DirectionToBoss.Rotation().Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
+}
+
+void AYlva::FaceRotation_Custom(const FRotator NewControlRotation, const float DeltaTime, const float RotationSpeed)
+{
+	SetActorRotation(FMath::Lerp(CurrentRotation, FRotator(CurrentRotation.Pitch, NewControlRotation.Yaw, CurrentRotation.Roll), RotationSpeed * DeltaTime));
 }
 
 void AYlva::FaceBoss_Instant()
@@ -1913,17 +1920,26 @@ void AYlva::OnMordathBaseDeath()
 #pragma region Any States
 void AYlva::OnEnterAnyState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
 void AYlva::OnExitAnyState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
