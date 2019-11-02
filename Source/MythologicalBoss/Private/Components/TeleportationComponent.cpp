@@ -68,15 +68,6 @@ void UTeleportationComponent::BeginPlay()
 	OriginalMaterial = SKMComponent->GetMaterial(0);
 
 	UOverthroneFunctionLibrary::SetupTimeline(this, TL_Dissolve, DissolveCurve, false, DissolveSpeed, "UpdateDissolve", "FinishDissolve");
-
-	MID_Dissolve = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Dissolve"));
-	if (MID_Dissolve)
-	{
-		MID_Dissolve->SetScalarParameterValue("Amount", 0.0f);
-		MID_Dissolve->SetScalarParameterValue("IsDissolving", 0.0f);
-	}
-	else
-		ULog::Error("Could not find " + Owner->GetName() + "'s material!", true);
 }
 
 void UTeleportationComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

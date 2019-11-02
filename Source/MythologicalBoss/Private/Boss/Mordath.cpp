@@ -30,6 +30,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMaterialLibrary.h"
 
 #include "HUD/MasterHUD.h"
 #include "HUD/MainPlayerHUD.h"
@@ -167,6 +168,8 @@ void AMordath::BeginPlay()
 
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
+	SKM_Feathers = GetFeathers();
+
 	// Initialize game instance variables
 	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
@@ -182,11 +185,15 @@ void AMordath::BeginPlay()
 	GameState->Boss = this;
 	UpdateCharacterInfo();
 
-	SKM_Feathers = GetFeathers();
+	OriginalMaterial = SKMComponent->GetMaterial(0);
+	MID_OriginalMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Mordath"));
+	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
+	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
+
+	const FMaterialParameterInfo MPC_Mordath{"Attack Color"};
+	MID_OriginalMaterial->GetVectorParameterValue(MPC_Mordath, OriginalAttackColor);
 
 	OnEnterPerfectDash.AddDynamic(this, &AMordath::OnEnterPerfectDashWindow);
-
-	OriginalMaterial = SKMComponent->GetMaterial(0);
 
 	// Begin the state machines
 	FSM->Start();
@@ -524,6 +531,8 @@ void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
 
 void AMordath::OnExitActionState()
 {
+	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
+
 	OnEndExecuteAction();
 
 	if (CurrentActionData->bExecutionTimeExpired)
@@ -613,6 +622,8 @@ void AMordath::OnExitCloseActionState()
 	SuperCloseRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
 
+	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
+
 	OnEndExecuteAction();
 }
 #pragma endregion 
@@ -668,6 +679,8 @@ void AMordath::OnExitFarActionState()
 
 	FarRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
+
+	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
 
 	OnEndExecuteAction();
 }
@@ -1374,9 +1387,8 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
-	//FlashIndicator->ReassignMaterial();
-	SKM_Feathers->SetMaterial(0, OriginalMaterial);
-	SKMComponent->SetMaterial(0, OriginalMaterial);
+	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
+	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
@@ -1392,8 +1404,6 @@ void AMordath::OnBeginDisappear()
 void AMordath::OnBeginReappear()
 {
 	GameState->BossData.OnMordathBeginReappear.Broadcast();
-
-	//FlashIndicator->ReassignMaterial();
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
@@ -1604,27 +1614,31 @@ void AMordath::ChooseAction()
 	CurrentMontageName = NewMontageName;
 
 	// Do a flash to indicate what kind of attack this is
-	//switch (ActionDataToUse->CounterType)
-	//{
-	//case ACM_Parryable:
-	//	FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
-	//break;
-	//
-	//case ACM_Blockable:
-	//	FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
-	//break;
-	//
-	//case ACM_ParryableBlockable:
-	//	FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
-	//break;
-	//
-	//case ACM_NoCounter:
-	//	FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
-	//break;
-	//
-	//default:
-	//break;
-	//}
+	switch (ActionDataToUse->CounterType)
+	{
+	case ACM_Parryable:
+		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
+		//FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
+	break;
+	
+	case ACM_Blockable:
+		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::White);
+		//FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
+	break;
+	
+	case ACM_ParryableBlockable:
+		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
+		//FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
+	break;
+	
+	case ACM_NoCounter:
+		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Red);
+		//FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
+	break;
+	
+	default:
+	break;
+	}
 
 	// Update data
 	CurrentActionType = ActionDataToUse->ActionType;

@@ -518,7 +518,9 @@ protected:
 private:
 	//TSubclassOf<class APotionBase> HealthPotion;
 	class UMaterialInterface* OriginalMaterial;
+	class UMaterialInstanceDynamic* MID_OriginalMaterial;
 
+	FLinearColor OriginalAttackColor = FColor::Blue;
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
