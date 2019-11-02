@@ -2343,14 +2343,20 @@ void AYlva::UpdateAttackState(float Uptime, int32 Frames)
 		if (CurrentMontageSection == "Anticipation")
 		{
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Anticipation.PlayRate);
+
+			OnAnticipationSection();
 		}
 		else if (CurrentMontageSection == "Contact")
 		{
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Contact.PlayRate);
+
+			OnContactSection();
 		}
 		else if (CurrentMontageSection == "Recovery")
 		{
 			AnimInstance->Montage_SetPlayRate(CurrentAttack_Data->AttackMontage, CurrentAttack_Data->Recovery.PlayRate);
+
+			OnRecoverySection();
 		}
 
 		if (CurrentAttack_Data->bArtificialMovement && 

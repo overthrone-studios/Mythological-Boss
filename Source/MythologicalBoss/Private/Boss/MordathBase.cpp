@@ -549,6 +549,8 @@ void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionD
 		{
 			SnapToPlayerLocation(ActionData->Anticipation);
 		}
+
+		OnAnticipationSection();
 	}
 	else if (CurrentMontageSection == "Pinnacle")
 	{
@@ -571,6 +573,8 @@ void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionD
 		{
 			SnapToPlayerLocation(ActionData->Contact);
 		}
+
+		OnContactSection();
 	}
 	else if (CurrentMontageSection == "Recovery")
 	{
@@ -583,6 +587,8 @@ void AMordathBase::FacePlayerBasedOnActionData(const UMordathActionData* ActionD
 		{
 			SnapToPlayerLocation(ActionData->Recovery);
 		}
+
+		OnRecoverySection();
 	}
 }
 
@@ -660,7 +666,7 @@ void AMordathBase::ChooseCombo()
 	if (CachedCombos.Num() > 0)
 	{
 		// Is the combo data asset valid at 'Index'
-		if (CachedCombos[ComboIndex])
+		if (CachedCombos.IsValidIndex(ComboIndex))
 		{
 			ChosenCombo = CachedCombos[ComboIndex];
 

@@ -1124,6 +1124,8 @@ void AMordath::OnEnterFirstStage()
 
 	MordathAnimInstance->CurrentStage = Stage_1;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[0];
+
+	BeginFirstStage.Broadcast();
 }
 
 void AMordath::UpdateFirstStage(float Uptime, int32 Frames)
@@ -1176,6 +1178,8 @@ void AMordath::OnEnterSecondStage()
 
 	MordathAnimInstance->CurrentStage = Stage_2;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
+
+	BeginSecondStage.Broadcast();
 }
 
 void AMordath::UpdateSecondStage(float Uptime, int32 Frames)
@@ -1238,6 +1242,8 @@ void AMordath::OnEnterThirdStage()
 
 	MordathAnimInstance->CurrentStage = Stage_3;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
+
+	BeginThirdStage.Broadcast();
 }
 
 void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
@@ -1333,8 +1339,6 @@ void AMordath::OnFirstStageHealth()
 
 	CachedCombos.Empty();
 	ChooseCombo();
-
-	BeginFirstStage();
 }
 
 void AMordath::OnSecondStageHealth()
@@ -1352,8 +1356,6 @@ void AMordath::OnSecondStageHealth()
 
 	CachedCombos.Empty();
 	ChooseCombo();
-
-	BeginSecondStage();
 }
 
 void AMordath::OnThirdStageHealth()
@@ -1374,8 +1376,6 @@ void AMordath::OnThirdStageHealth()
 
 	CachedCombos.Empty();
 	ChooseCombo();
-
-	BeginThirdStage();
 }
 
 void AMordath::OnDisappeared()
@@ -1537,6 +1537,20 @@ void AMordath::EndTakeDamage()
 	{
 		Die();
 	}
+}
+
+void AMordath::LockSelf()
+{
+	bIsLocked = true;
+
+	FSM->PushState("Locked");
+}
+
+void AMordath::UnlockSelf()
+{
+	bIsLocked = false;
+
+	FSM->PopState("Locked");
 }
 
 void AMordath::ToggleLockSelf()

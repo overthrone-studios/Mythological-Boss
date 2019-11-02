@@ -7,6 +7,10 @@
 #include "OverthroneEnums.h"
 #include "Mordath.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterFirstStageSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterSecondStageSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterThirdStageSignature);
+
 USTRUCT(BlueprintType)
 struct FDebug_Mordath : public FCharacterDebug
 {
@@ -44,6 +48,15 @@ class MYTHOLOGICALBOSS_API AMordath final : public AMordathBase
 
 public:
 	AMordath();
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterFirstStageSignature BeginFirstStage;
+	
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterSecondStageSignature BeginSecondStage;
+	
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterThirdStageSignature BeginThirdStage;
 
 	void AddDebugMessages() override;
 
@@ -119,6 +132,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnGhostDelayed(int32 Amount, float DelayInterval = 1.0f);
 
+	void LockSelf() override;
+	void UnlockSelf() override;
 	void ToggleLockSelf() override;
 
 	void Die() override;
@@ -188,15 +203,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void OnThirdStageHealth();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void BeginFirstStage();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void BeginSecondStage();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void BeginThirdStage();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Mordath")
 		void OnAfterTakeDamage();

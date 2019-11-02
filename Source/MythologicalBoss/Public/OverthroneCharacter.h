@@ -198,6 +198,18 @@ protected:
 	UFUNCTION()
 		virtual void FinishLosingHealth();
 
+	// Called when performing an action montage while in the "Anticipation" section
+	UFUNCTION(BlueprintImplementableEvent, Category = "Overthrone Character | Combat")
+		void OnAnticipationSection();
+	
+	// Called when performing an action montage while in the "Contact" section
+	UFUNCTION(BlueprintImplementableEvent, Category = "Overthrone Character | Combat")
+		void OnContactSection();
+	
+	// Called when performing an action montage while in the "Recovery" section
+	UFUNCTION(BlueprintImplementableEvent, Category = "Overthrone Character | Combat")
+		void OnRecoverySection();
+
 	// Send out a signal to the functions that have binded to the OnLowHealth event
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void BroadcastLowHealth();
