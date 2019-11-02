@@ -444,6 +444,7 @@ protected:
 	void SoftLockOnTo(const FVector& TargetLocation, float DeltaTime);
 
 	void FaceBoss(float DeltaTime, float RotationSpeed = 10.0f);
+	void FaceRotation_Custom(FRotator NewControlRotation, float DeltaTime, float RotationSpeed);
 	void FaceBoss_Instant();
 
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
