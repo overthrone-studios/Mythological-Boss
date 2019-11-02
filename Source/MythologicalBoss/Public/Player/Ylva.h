@@ -398,11 +398,11 @@ public:
 	bool IsLocked() const override;
 
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
 
 	// Look up/down rate, in deg/sec. Other scaling may affect final rate.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera")
 		float LookUpRate;
 
 	// Ylva's debug options
