@@ -286,8 +286,10 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameState->PlayerData.OnExitLowStamina.AddDynamic(this, &AYlva::OnExitLowStamina);
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
-	GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
-	GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
+	//GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
+	//GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
+	GameState->BossData.OnMordathBeginDisappear.AddDynamic(this, &AYlva::OnMordathDisappeared);
+	GameState->BossData.OnMordathBeginReappear.AddDynamic(this, &AYlva::OnMordathReappeared);
 	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
@@ -1918,17 +1920,26 @@ void AYlva::OnMordathBaseDeath()
 #pragma region Any States
 void AYlva::OnEnterAnyState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
 void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 }
 
 void AYlva::OnExitAnyState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UnhighlightState(FSM->GetActiveStateName().ToString());
 
 	FSMVisualizer->UpdatePreviousStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());

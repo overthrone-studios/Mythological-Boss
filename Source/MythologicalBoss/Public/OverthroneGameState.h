@@ -26,6 +26,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerPerfectDashSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathDisappearedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathReappearedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathBeginReappearSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathBeginDisappearSignature);
 
 USTRUCT()
 struct FCharacterData
@@ -136,6 +138,9 @@ struct FBossData : public FCharacterData
 
 	FOnMordathDisappearedSignature OnMordathDisappeared;
 	FOnMordathReappearedSignature OnMordathReappeared;
+
+	FOnMordathBeginReappearSignature OnMordathBeginReappear;
+	FOnMordathBeginDisappearSignature OnMordathBeginDisappear;
 };
 
 /**

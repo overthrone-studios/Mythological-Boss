@@ -148,12 +148,14 @@ AMordath::AMordath() : AMordathBase()
 	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
 	TeleportationComponent->OnDisappeared.AddDynamic(this, &AMordath::OnDisappeared);
 	TeleportationComponent->OnReappeared.AddDynamic(this, &AMordath::OnReappeared);
+	TeleportationComponent->OnBeginDisappear.AddDynamic(this, &AMordath::OnBeginDisappear);
+	TeleportationComponent->OnBeginReappear.AddDynamic(this, &AMordath::OnBeginReappear);
 
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash Component"));
 
 	// Flash indicator static mesh component
-	FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
+	//FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
 
 	Tags.Empty();
 	Tags.Add("Mordath-Main");
@@ -180,7 +182,11 @@ void AMordath::BeginPlay()
 	GameState->Boss = this;
 	UpdateCharacterInfo();
 
+	SKM_Feathers = GetFeathers();
+
 	OnEnterPerfectDash.AddDynamic(this, &AMordath::OnEnterPerfectDashWindow);
+
+	OriginalMaterial = SKMComponent->GetMaterial(0);
 
 	// Begin the state machines
 	FSM->Start();
@@ -239,6 +245,9 @@ void AMordath::Tick(const float DeltaTime)
 #pragma region Any States
 void AMordath::OnEnterAnyState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->HighlightState(Name.ToString());
 }
 
@@ -246,12 +255,18 @@ void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
 	Super::UpdateAnyState(ID, Name, Uptime, Frames);
 
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
 	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
 }
 
 void AMordath::OnExitAnyState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UnhighlightState(Name.ToString());
 
 	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), FSM->GetActiveStateUptime());
@@ -262,17 +277,26 @@ void AMordath::OnExitAnyState(int32 ID, FName Name)
 
 void AMordath::OnEnterAnyRangeState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->HighlightState(Name.ToString());
 }
 
 void AMordath::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
 	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
 }
 
 void AMordath::OnExitAnyRangeState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UnhighlightState(Name.ToString());
 
 	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), RangeFSM->GetActiveStateUptime());
@@ -281,17 +305,26 @@ void AMordath::OnExitAnyRangeState(int32 ID, FName Name)
 
 void AMordath::OnEnterAnyStageState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->HighlightState(Name.ToString());
 }
 
 void AMordath::UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
 	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
 }
 
 void AMordath::OnExitAnyStageState(int32 ID, FName Name)
 {
+	if (!FSMVisualizer)
+		return;
+
 	FSMVisualizer->UnhighlightState(StageFSM->GetActiveStateName().ToString());
 
 	FSMVisualizer->UpdatePreviousStateUptime(Name.ToString(), StageFSM->GetActiveStateUptime());
@@ -882,6 +915,8 @@ void AMordath::OnEnterTeleportState()
 	TeleportationComponent->GenerateTeleportTime();
 	TeleportationComponent->Disappear();
 
+	SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
+
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 
@@ -1339,7 +1374,26 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
-	FlashIndicator->ReassignMaterial();
+	//FlashIndicator->ReassignMaterial();
+	SKM_Feathers->SetMaterial(0, OriginalMaterial);
+	SKMComponent->SetMaterial(0, OriginalMaterial);
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+
+	DisableInvincibility();
+}
+
+void AMordath::OnBeginDisappear()
+{
+	GameState->BossData.OnMordathBeginDisappear.Broadcast();
+}
+
+void AMordath::OnBeginReappear()
+{
+	GameState->BossData.OnMordathBeginReappear.Broadcast();
+
+	//FlashIndicator->ReassignMaterial();
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
@@ -1550,27 +1604,27 @@ void AMordath::ChooseAction()
 	CurrentMontageName = NewMontageName;
 
 	// Do a flash to indicate what kind of attack this is
-	switch (ActionDataToUse->CounterType)
-	{
-	case ACM_Parryable:
-		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
-	break;
-
-	case ACM_Blockable:
-		FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
-	break;
-
-	case ACM_ParryableBlockable:
-		FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
-	break;
-
-	case ACM_NoCounter:
-		FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
-	break;
-
-	default:
-	break;
-	}
+	//switch (ActionDataToUse->CounterType)
+	//{
+	//case ACM_Parryable:
+	//	FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
+	//break;
+	//
+	//case ACM_Blockable:
+	//	FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
+	//break;
+	//
+	//case ACM_ParryableBlockable:
+	//	FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
+	//break;
+	//
+	//case ACM_NoCounter:
+	//	FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
+	//break;
+	//
+	//default:
+	//break;
+	//}
 
 	// Update data
 	CurrentActionType = ActionDataToUse->ActionType;
@@ -1648,6 +1702,21 @@ bool AMordath::CanAttack() const
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked() && !IsTeleporting();
+}
+
+USkeletalMeshComponent* AMordath::GetFeathers() const
+{
+	for (auto Component : Components)
+	{
+		if (Component->GetName() == "Feathers")
+			return Cast<USkeletalMeshComponent>(Component);
+	}
+
+	#if !UE_BUILD_SHIPPING
+	ULog::Error("Could not find Feathers for " + GetName(), true);
+	#endif
+
+	return nullptr;
 }
 
 void AMordath::Die()
