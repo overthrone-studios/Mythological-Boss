@@ -7,6 +7,14 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamepadConnectionUpdatedSignature, bool, bIsConnected);
 
+UENUM(BlueprintType)
+enum EDifficultyOptions
+{
+	DO_Casual UMETA(DisplayName="Casual"),
+	DO_Experienced UMETA(DisplayName="Experienced"),
+	DO_None
+};
+
 /**
  * High-level manager object for Overthrone game
  */
