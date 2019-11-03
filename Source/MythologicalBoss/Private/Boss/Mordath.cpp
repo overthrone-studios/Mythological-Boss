@@ -1867,6 +1867,9 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 
 void AMordath::SpawnGhost()
 {
+	if (GameState->Mordaths.Num() > 3)
+		return;
+
 	const auto Transform = GetActorTransform();
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -1875,6 +1878,9 @@ void AMordath::SpawnGhost()
 
 void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)
 {
+	if (GameState->Mordaths.Num() > 3)
+		return;
+
 	static int32 CurrentAmount = 0;
 	if (CurrentAmount >= Amount)
 	{
