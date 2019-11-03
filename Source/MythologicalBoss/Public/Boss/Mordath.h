@@ -483,13 +483,17 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
 		float ThirdStageHealth = 0.3f;
 
+	// The max health value when we are in the third stage
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f))
+		float ThirdStageDefaultHealth = 3000.0f;
+
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
 		class UAnimMontage* Stage2_Transition;
 
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 3 Transition Anim")
 		class UAnimMontage* Stage3_Transition;
 
-	// The actor to spawn when transitioning to the next stage
+	// The actor to spawn when performing an lightning strike attack
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Lightning Strike Actor")
 		TSubclassOf<AActor> LightningStrikeClass;
 
@@ -527,6 +531,8 @@ private:
 	class UMaterialInstanceDynamic* MID_OriginalMaterial;
 
 	FLinearColor OriginalAttackColor = FColor::Blue;
+
+	float CurrentHealth = 0.0f;
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;

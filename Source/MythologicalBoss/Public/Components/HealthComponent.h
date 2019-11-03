@@ -51,6 +51,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Health")
 		FORCEINLINE float GetDecreaseDelay() const { return Delay; }
 	
+	// Set a new default health value
+	UFUNCTION(BlueprintCallable, Category = "Health")
+		void SetDefaultHealth(float NewDefaultHealth);
+
 	// Set a new current health value
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		void SetHealth(float NewHealthAmount);

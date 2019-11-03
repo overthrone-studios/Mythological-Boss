@@ -234,6 +234,7 @@ void AMordath::Tick(const float DeltaTime)
 
 	const int32& TotalMessages = OverthroneHUD->GetDebugMessagesCount();
 
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 13, "Boss Health: " + FString::SanitizeFloat(HealthComponent->GetCurrentHealth()));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 12, "Boss Forward Input: " + FString::SanitizeFloat(ForwardInput));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 11, "Boss Right Input: " + FString::SanitizeFloat(RightInput));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 10, "Current Montage Section: " + CurrentMontageSection.ToString());
@@ -746,10 +747,17 @@ void AMordath::OnExitDeathState()
 #pragma region Transition
 void AMordath::OnEnterTransitionState()
 {
+	CurrentHealth = HealthComponent->GetCurrentHealth();
 }
 
-void AMordath::UpdateTransitionState(float Uptime, int32 Frames)
+void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
 {
+	if (IsInThirdStage())
+	{
+		const float NewHealth = FMath::GetMappedRangeValueClamped({0.0f, 1.0f}, {CurrentHealth, HealthComponent->GetDefaultHealth()}, 0.5f * Uptime);
+		SetHealth(NewHealth);
+	}
+
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
@@ -1235,6 +1243,9 @@ void AMordath::OnEnterThirdStage()
 {
 	CurrentStageData = StageThreeData;
 
+	HealthComponent->SetDefaultHealth(ThirdStageDefaultHealth);
+	UpdateCharacterInfo();
+
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
 
@@ -1242,6 +1253,8 @@ void AMordath::OnEnterThirdStage()
 
 	MordathAnimInstance->CurrentStage = Stage_3;
 	MordathAnimInstance->ActiveStateMachine = MordathAnimInstance->StateMachines[1];
+
+	PlayerController->ClientPlayCameraShake(CurrentStageData->GetRoarShake().Shake, CurrentStageData->GetRoarShake().Intensity);
 
 	BeginThirdStage.Broadcast();
 }
@@ -1251,14 +1264,14 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 	if (AnimInstance->Montage_IsPlaying(Stage3_Transition))
 		return;
 
-#if !UE_BUILD_SHIPPING
-	// Can we enter the second stage?
-	if (HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
-	{
-		GameState->BossData.OnEnterSecondStage.Broadcast();
-		return;
-	}
-#endif
+//#if !UE_BUILD_SHIPPING
+//	// Can we enter the second stage?
+//	if (HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
+//	{
+//		GameState->BossData.OnEnterSecondStage.Broadcast();
+//		return;
+//	}
+//#endif
 
 	if (IsLocked() || IsTeleporting())
 		return;
@@ -1451,6 +1464,8 @@ void AMordath::UpdateCharacterInfo()
 {
 	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
 	GameState->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
+
+	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
 }
 
 void AMordath::BroadcastLowHealth()
@@ -1693,7 +1708,7 @@ void AMordath::ExecuteAction(UMordathActionData* ActionData)
 float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	// We don't want to be damaged when we're already dead
-	if (bIsDead || AnimInstance->bIsHit || DamageCauser->IsA(AMordathGhost::StaticClass()))
+	if (bIsDead || AnimInstance->bIsHit || DamageCauser->IsA(AMordathGhost::StaticClass()) || IsTransitioning())
 		return DamageAmount;
 
 	BeginTakeDamage(DamageAmount);
@@ -1888,6 +1903,7 @@ void AMordath::AddDebugMessages()
 	const float YPadding = 5.0f;
 
 	OverthroneHUD->AddOnScreenDebugMessage("Boss", FColor::White, YPadding, 1.1f);
+	OverthroneHUD->AddOnScreenDebugMessage("Boss Health: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Boss Forward Input: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Boss Right Input: ", FColor::Green, YPadding);
 	OverthroneHUD->AddOnScreenDebugMessage("Current Montage Section: ", FColor::Yellow, YPadding);

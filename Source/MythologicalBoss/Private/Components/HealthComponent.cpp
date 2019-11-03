@@ -46,6 +46,11 @@ void UHealthComponent::InitHealth()
 	SmoothedHealth = DefaultHealth;
 }
 
+void UHealthComponent::SetDefaultHealth(const float NewDefaultHealth)
+{
+	DefaultHealth = NewDefaultHealth;
+}
+
 void UHealthComponent::SetHealth(const float NewHealthAmount)
 {
 	PreviousHealth = Health;
