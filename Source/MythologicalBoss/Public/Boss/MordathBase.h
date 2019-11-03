@@ -100,6 +100,8 @@ protected:
 
 	void OnExecutionTimeExpired();
 
+	class UMordathFeatherComponent* GetFeathers() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
 		void FacePlayer(float RotationSpeed = 10.0f);
 
@@ -272,6 +274,9 @@ protected:
 	UFUNCTION()
 		virtual void OnPlayerDeath();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class UMordathFeatherComponent* SKM_Feathers;
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		UParticleSystem* PerfectDashParticle;
 
@@ -309,6 +314,11 @@ protected:
 	// Cached anim instance, to control and trigger animations
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Animation")
 		class UMordathAnimInstance* MordathAnimInstance{};
+
+	// The skeletal mesh representing the feathers
+	USkeletalMesh* FeatherSkeletalMesh;
+
+	UAnimationAsset* FeatherAnim;
 
 	float ActionDamage = 0.0f;
 

@@ -17,6 +17,7 @@
 #include "Boss/BossAIController.h"
 #include "Boss/MordathAnimInstance.h"
 #include "Boss/MordathGhost.h"
+#include "Boss/MordathFeatherComponent.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
@@ -1745,21 +1746,6 @@ bool AMordath::CanAttack() const
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
 			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked() && !IsTeleporting();
-}
-
-USkeletalMeshComponent* AMordath::GetFeathers() const
-{
-	for (auto Component : Components)
-	{
-		if (Component->GetName() == "Feathers")
-			return Cast<USkeletalMeshComponent>(Component);
-	}
-
-	#if !UE_BUILD_SHIPPING
-	ULog::Error("Could not find Feathers for " + GetName(), true);
-	#endif
-
-	return nullptr;
 }
 
 void AMordath::Die()

@@ -177,8 +177,6 @@ protected:
 
 	bool CanAttack() const override;
 
-	class USkeletalMeshComponent* GetFeathers() const;
-
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	void OnPlayerDeath() override;
@@ -469,10 +467,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UDashComponent* DashComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
-		class UAttackIndicatorComponent* FlashIndicator;
-
-	class USkeletalMeshComponent* SKM_Feathers;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+	//	class UAttackIndicatorComponent* FlashIndicator;
 	#pragma endregion
 
 	// The health value where we enter the second stage

@@ -6,6 +6,7 @@
 
 #include "BossAIController.h"
 #include "MordathAnimInstance.h"
+#include "MordathFeatherComponent.h"
 
 #include "Combat/MordathActionData.h"
 #include "Misc/MordathStageData.h"
@@ -30,6 +31,8 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath.SKM_Mordath'")));
+	FeatherSkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath_Feathers.SKM_Mordath_Feathers'")));
+	FeatherAnim = Cast<UAnimationAsset>(StaticLoadObject(UAnimationAsset::StaticClass(), nullptr, TEXT("AnimSequence'/Game/Characters/Mordath/Animations/Global/Mordath_featherShake.Mordath_featherShake'")));
 
 	// Configure our mesh
 	if (SkeletalMesh)
@@ -41,6 +44,18 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 
 		if (AnimBP.Succeeded())
 			GetMesh()->AnimClass = AnimBP.Class;
+	}
+
+	SKM_Feathers = CreateDefaultSubobject<UMordathFeatherComponent>(FName("Feathers"));
+	SKM_Feathers->SetupAttachment(GetMesh(), "head_jnt_NULL");
+
+	if (FeatherSkeletalMesh)
+	{
+		SKM_Feathers->SetSkeletalMesh(FeatherSkeletalMesh);
+		SKM_Feathers->SetRelativeLocation(FVector(0.0f));
+
+		SKM_Feathers->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		SKM_Feathers->SetAnimation(FeatherAnim);
 	}
 
 	// Configure capsule component
@@ -925,4 +940,19 @@ void AMordathBase::EncirclePlayer()
 	{
 		MoveRight(-1.0f);
 	}
+}
+
+UMordathFeatherComponent* AMordathBase::GetFeathers() const
+{
+	for (auto Component : Components)
+	{
+		if (Component->GetName() == "Feathers" || Component->IsA(UMordathFeatherComponent::StaticClass()))
+			return Cast<UMordathFeatherComponent>(Component);
+	}
+
+	#if !UE_BUILD_SHIPPING
+	ULog::Error("Could not find Feathers for " + GetName(), true);
+	#endif
+
+	return nullptr;
 }
