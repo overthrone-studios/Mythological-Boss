@@ -222,6 +222,8 @@ void AMordath::BeginPlay()
 
 	ResetActionDamage();
 
+	MainHUD->ChangeBossHealthBarColor(BossDefaultHealth_BarColor);
+
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
 		CapsuleComp->SetHiddenInGame(false);
@@ -492,13 +494,14 @@ void AMordath::OnEnterInvincibleState()
 	SKM_ElectricShield->SetVisibility(true);
 	EnableInvincibility();
 
+	MainHUD->ChangeBossHealthBarColor(BossInvincibleHealth_BarColor);
+
 	OnEnergyShieldActivated();
 }
 
 void AMordath::UpdateInvincibleState(float Uptime, int32 Frames)
 {
 	StopMovement();
-	FacePlayer();	
 
 	if (bRegenerateWhileInvincible)
 		IncreaseHealth(RegenerationAmount);
@@ -516,6 +519,8 @@ void AMordath::OnExitInvincibleState()
 
 	SKM_ElectricShield->SetVisibility(false);
 	DisableInvincibility();
+
+	MainHUD->ChangeBossHealthBarColor(BossDefaultHealth_BarColor);
 
 	OnEnergyShieldDeactivated();
 }

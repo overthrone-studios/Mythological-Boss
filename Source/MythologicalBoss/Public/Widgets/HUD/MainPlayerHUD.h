@@ -17,6 +17,12 @@ class MYTHOLOGICALBOSS_API UMainPlayerHUD final : public UHUDBase
 public:
 	void Init() override;
 
+	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
+		FLinearColor GetBossHealthBarColor() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
+		void ChangeBossHealthBarColor(const FLinearColor& InColor);
+	
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
 		void ShowDashAttackPrompt();
 
@@ -97,6 +103,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Animation")
 		class UWidgetAnimation* ChargeMeterFlash;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Main Player HUD")
+		FLinearColor CurrentBossHealth_BarColor = FColor::Red;
 
 	void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 

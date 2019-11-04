@@ -32,6 +32,16 @@ void UMainPlayerHUD::Init()
 	DamageValueText = Cast<UTextBlock>(WidgetTree->FindWidget("DamageValue"));
 }
 
+void UMainPlayerHUD::ChangeBossHealthBarColor(const FLinearColor& InColor)
+{
+	CurrentBossHealth_BarColor = InColor;
+}
+
+FLinearColor UMainPlayerHUD::GetBossHealthBarColor() const
+{
+	return CurrentBossHealth_BarColor;
+}
+
 void UMainPlayerHUD::ShowDashAttackPrompt()
 {
 	DashAttackInputKeyWidget->SetVisibility(ESlateVisibility::Visible);

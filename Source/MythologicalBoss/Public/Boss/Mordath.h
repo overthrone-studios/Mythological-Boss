@@ -519,6 +519,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Health", meta = (EditCondition = "bRegenerateWhileInvincible"))
 		float RegenerationAmount = 0.5f;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health")
+		FLinearColor BossDefaultHealth_BarColor = FColor::Red;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health")
+		FLinearColor BossInvincibleHealth_BarColor = FColor::White;
+
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
 		class UAnimMontage* Stage2_Transition;
 
