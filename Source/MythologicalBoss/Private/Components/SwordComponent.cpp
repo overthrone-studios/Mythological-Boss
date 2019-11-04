@@ -28,10 +28,9 @@ void USwordComponent::BeginPlay()
 
 void USwordComponent::Glow()
 {
-	MID_SwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DefaultSwordMaterial, FName("MID_Sword"));
+	SetMaterial(MaterialIndex, MID_SwordMaterial);
 	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, EmissiveStrength);
 
-	SetMaterial(MaterialIndex, MID_SwordMaterial);
 }
 
 void USwordComponent::Revert()
