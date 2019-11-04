@@ -1927,7 +1927,7 @@ void AYlva::OnMordathReappeared()
 void AYlva::OnMordathBaseDeath()
 {
 	FollowCamera->ResetLockOnTarget();
-	CurrentLockOnLocation = FollowCamera->CycleLockOnTargets(GameState->Mordaths);
+	CurrentLockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths);
 }
 #pragma endregion
 
