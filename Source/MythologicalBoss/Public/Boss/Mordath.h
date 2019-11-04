@@ -235,6 +235,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnEnergyShieldDeactivated();
+
+	UFUNCTION()
+		void OnFullHealth();
 	#pragma endregion 
 
 	#pragma region Any States

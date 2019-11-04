@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFullHealthSignature);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
 class MYTHOLOGICALBOSS_API UHealthComponent final : public UActorComponent
@@ -14,6 +15,8 @@ class MYTHOLOGICALBOSS_API UHealthComponent final : public UActorComponent
 
 public:
 	UHealthComponent();
+
+	FOnFullHealthSignature OnFullHealth;
 
 	// Returns true if the delay timer is not active
 	UFUNCTION(BlueprintPure, Category = "Health")

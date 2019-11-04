@@ -167,6 +167,8 @@ AMordath::AMordath() : AMordathBase()
 	// Flash indicator static mesh component
 	//FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
 
+	HealthComponent->OnFullHealth.AddDynamic(this, &AMordath::OnFullHealth);
+
 	// Energy shield collision component
 	EnergyShieldCollision = CreateDefaultSubobject<USphereComponent>(FName("Energy Shield Collision"));
 	EnergyShieldCollision->SetupAttachment(RootComponent);
@@ -1309,9 +1311,6 @@ void AMordath::OnEnterThirdStage()
 {
 	CurrentStageData = StageThreeData;
 
-	HealthComponent->SetDefaultHealth(ThirdStageDefaultHealth);
-	UpdateCharacterInfo();
-
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
 
@@ -1375,6 +1374,17 @@ void AMordath::OnExitThirdStage()
 #pragma endregion
 
 #pragma region Events
+void AMordath::OnFullHealth()
+{
+	ChangeHitboxSize(CurrentStageData->GetAttackRadius());
+
+	if (IsInThirdStage())
+	{
+		HealthComponent->SetDefaultHealth(ThirdStageDefaultHealth);
+		UpdateCharacterInfo();
+	}
+}
+
 void AMordath::OnLowHealth()
 {
 	ChangeHitboxSize(CurrentStageData->GetAttackRadius() / 2.0f);
