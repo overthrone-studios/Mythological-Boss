@@ -53,7 +53,7 @@ void AOverthroneCharacter::BeginPlay()
 	PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	MovementComponent = GetCharacterMovement();
 	AnimInstance = Cast<UOverthroneAnimInstance>(GetMesh()->GetAnimInstance());
-	OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	OverthroneHUD = Cast<AOverthroneHUD>(PlayerController->GetHUD());
 	MainHUD = OverthroneHUD->GetMainHUD();
 	GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
 	GameState = UOverthroneFunctionLibrary::GetGameState(this);

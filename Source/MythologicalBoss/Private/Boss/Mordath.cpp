@@ -170,6 +170,8 @@ void AMordath::BeginPlay()
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	SKM_Feathers = GetFeathers();
+	SKM_ElectricShield = GetShield();
+	SKM_ElectricShield->SetVisibility(false);
 
 	// Initialize game instance variables
 	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
@@ -269,6 +271,18 @@ void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 
 	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
 	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
+
+	if (GameState->Mordaths.Num() > 3 && !IsTired())
+	{
+		SKM_ElectricShield->SetVisibility(true);
+
+		StopMovement();
+
+		EnableInvincibility();
+
+		FSM->RemoveAllStates();
+		FSM->PushState("Tired");
+	}
 }
 
 void AMordath::OnExitAnyState(int32 ID, FName Name)
@@ -472,6 +486,9 @@ void AMordath::OnEnterLockedState()
 {
 	Super::OnEnterLockedState();
 
+	if (!OverthroneHUD)
+		OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+
 	OverthroneHUD->GetMasterHUD()->HighlightBox(18);
 }
 
@@ -482,6 +499,9 @@ void AMordath::UpdateLockedState(float Uptime, int32 Frames)
 
 void AMordath::OnExitLockedState()
 {
+	if (!OverthroneHUD)
+		OverthroneHUD = Cast<AOverthroneHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+
 	OverthroneHUD->GetMasterHUD()->UnhighlightBox(18);
 }
 #pragma endregion  
@@ -887,8 +907,20 @@ void AMordath::OnEnterTiredState()
 
 void AMordath::UpdateTiredState(float Uptime, int32 Frames)
 {
-	if (HasFinishedAction())
+	if (GameState->Mordaths.Num() > 3)
+	{
+		FacePlayer();
+		
+		StopMovement();
+	}
+
+	if (HasFinishedAction() && GameState->Mordaths.Num() < 4)
+	{
+		SKM_ElectricShield->SetVisibility(false);
+		DisableInvincibility();
+		
 		FSM->PopState();
+	}
 }
 
 void AMordath::OnExitTiredState()
@@ -1854,7 +1886,15 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 void AMordath::SpawnGhost()
 {
 	if (GameState->Mordaths.Num() > 3)
+	{
+		SKM_ElectricShield->SetVisibility(true);
+
+		StopMovement();
+
+		FSM->RemoveAllStates();
+		FSM->PushState("Tired");
 		return;
+	}
 
 	const auto Transform = GetActorTransform();
 	FActorSpawnParameters SpawnParameters;
@@ -1888,6 +1928,21 @@ void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)
 void AMordath::SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation)
 {
 	World->SpawnActor(LightningStrikeClass, &LocationToSpawn, &Rotation);
+}
+
+USkeletalMeshComponent* AMordath::GetShield()
+{
+	for (auto Component : Components)
+	{
+		if (Component->GetName() == "EnergyShieldMesh")
+			return Cast<USkeletalMeshComponent>(Component);
+	}
+
+	#if !UE_BUILD_SHIPPING
+	ULog::Error("Could not find shield for " + GetName(), true);
+	#endif
+
+	return nullptr;
 }
 
 void AMordath::AddDebugMessages()

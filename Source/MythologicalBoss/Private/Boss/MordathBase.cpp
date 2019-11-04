@@ -696,7 +696,7 @@ void AMordathBase::ChooseCombo()
 		else
 		{
 			#if !UE_BUILD_SHIPPING
-			ULog::DebugMessage(WARNING, FString("Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
+			ULog::DebugMessage(WARNING, FString(GetName() + ": Combo asset at index ") + FString::FromInt(ComboIndex) + FString(" is not valid"), true);
 			#endif
 		}
 	}
