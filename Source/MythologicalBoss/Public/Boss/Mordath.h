@@ -229,6 +229,12 @@ protected:
 
 	UFUNCTION()
 		void OnExitEnergySphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnEnergyShieldActivated();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnEnergyShieldDeactivated();
 	#pragma endregion 
 
 	#pragma region Any States
@@ -507,6 +513,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Health", meta = (ClampMin = 0.0f))
 		float ThirdStageDefaultHealth = 3000.0f;
 
+	UPROPERTY(EditInstanceOnly, Category = "Health")
+		uint8 bRegenerateWhileInvincible : 1;
+
+	UPROPERTY(EditInstanceOnly, Category = "Health", meta = (EditCondition = "bRegenerateWhileInvincible"))
+		float RegenerationAmount = 0.5f;
+
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Stage 2 Transition Anim")
 		class UAnimMontage* Stage2_Transition;
 
@@ -523,7 +535,7 @@ protected:
 		
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
 		uint8 MaxGhosts = 3;
-
+	
 	// The bone name of Mordath's skeleton where the lock-on indiciator should be placed on
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";

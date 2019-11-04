@@ -491,12 +491,17 @@ void AMordath::OnEnterInvincibleState()
 
 	SKM_ElectricShield->SetVisibility(true);
 	EnableInvincibility();
+
+	OnEnergyShieldActivated();
 }
 
 void AMordath::UpdateInvincibleState(float Uptime, int32 Frames)
 {
 	StopMovement();
 	FacePlayer();	
+
+	if (bRegenerateWhileInvincible)
+		IncreaseHealth(RegenerationAmount);
 
 	if (bHasActorEnteredEnergySphere)
 		CharacterInEnergySphere->TakeDamage(1.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
@@ -511,6 +516,8 @@ void AMordath::OnExitInvincibleState()
 
 	SKM_ElectricShield->SetVisibility(false);
 	DisableInvincibility();
+
+	OnEnergyShieldDeactivated();
 }
 #pragma endregion  
 
@@ -1983,7 +1990,10 @@ void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)
 
 void AMordath::SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation)
 {
-	World->SpawnActor(LightningStrikeClass, &LocationToSpawn, &Rotation);
+	if (LightningStrikeClass)
+		World->SpawnActor(LightningStrikeClass, &LocationToSpawn, &Rotation);
+	else
+		ULog::Error("Lightning Strike class is null", true);
 }
 
 USkeletalMeshComponent* AMordath::GetShield()
