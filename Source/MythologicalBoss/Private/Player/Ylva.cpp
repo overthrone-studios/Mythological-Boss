@@ -58,6 +58,7 @@
 
 #include "DamageTypes/DmgType_AOE.h"
 #include "DamageTypes/DmgType_MordathKick.h"
+#include "DamageTypes/DmgType_MordathElectricShield.h"
 
 #include "DrawDebugHelpers.h"
 #include "GameFramework/InputSettings.h"
@@ -286,8 +287,8 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.OnLowStamina.AddDynamic(this, &AYlva::OnLowStamina);
 	GameState->PlayerData.OnExitLowStamina.AddDynamic(this, &AYlva::OnExitLowStamina);
 	GameState->BossData.OnDeath.AddDynamic(this, &AYlva::OnBossDeath_Implementation);
-	//GameState->BossData.OnMordathDisappeared.AddDynamic(this, &AYlva::OnMordathDisappeared);
-	//GameState->BossData.OnMordathReappeared.AddDynamic(this, &AYlva::OnMordathReappeared);
+	GameState->BossData.OnActorEnterEnergySphere.AddDynamic(this, &AYlva::OnEnterMordathEnergySphere);
+	GameState->BossData.OnActorExitEnergySphere.AddDynamic(this, &AYlva::OnExitMordathEnergySphere);
 	GameState->BossData.OnMordathBeginDisappear.AddDynamic(this, &AYlva::OnMordathDisappeared);
 	GameState->BossData.OnMordathBeginReappear.AddDynamic(this, &AYlva::OnMordathReappeared);
 	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
@@ -722,7 +723,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		return DamageAmount;
 	}
 
-	BeginTakeDamage(DamageAmount);
+	BeginTakeDamage(DamageAmount, DamageEvent);
 
 	// Apply damage once
 	if (HealthComponent->GetCurrentHealth() > 0.0f && (!AnimInstance->bIsHit || !YlvaAnimInstance->bIsShieldHit))
@@ -730,7 +731,7 @@ float AYlva::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEven
 		ApplyDamage(DamageAmount, DamageEvent);
 	}
 
-	EndTakeDamage();
+	EndTakeDamage(DamageEvent);
 
 	return DamageAmount;
 }
@@ -1125,7 +1126,7 @@ void AYlva::StopBlocking()
 	FSM->PopState("Block");
 }
 
-void AYlva::BeginTakeDamage(float DamageAmount)
+void AYlva::BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent)
 {
 	GameState->PlayerData.bHasTakenDamage = true;
 }
@@ -1235,7 +1236,10 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			}
 
 			// Shake the camera
-			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
+			if (DamageEvent.DamageTypeClass != UDmgType_MordathElectricShield::StaticClass())
+				GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
+			else
+				GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().ElectricShock.Shake, FollowCamera->GetShakes().ElectricShock.Intensity);
 		break;
 	}
 
@@ -1257,7 +1261,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	MainHUD->StopChargeRingFlash();
 }
 
-void AYlva::EndTakeDamage()
+void AYlva::EndTakeDamage(const FDamageEvent& DamageEvent)
 {
 	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
 	{
@@ -1890,6 +1894,16 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 {
 	bIsParryBoxHit = true;
 	GameState->PlayerData.bParrySucceeded = true;
+}
+
+void AYlva::OnEnterMordathEnergySphere()
+{
+	VibrateController(Combat.ElectricShieldForce, true);
+}
+
+void AYlva::OnExitMordathEnergySphere()
+{
+	StopVibrateController(Combat.ElectricShieldForce);
 }
 
 void AYlva::OnMordathDisappeared()

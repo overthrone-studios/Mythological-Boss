@@ -235,6 +235,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// The force effect to play when a heavy attack has been landed on a blocking hit
 	UPROPERTY(EditInstanceOnly)
 		class UForceFeedbackEffect* HeavyAttackForce;
+
+	// The force effect to play when being damage by an electric shield
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* ElectricShieldForce;
 };
 
 /*
@@ -518,11 +522,11 @@ protected:
 	UFUNCTION(BlueprintCallable,Category = "Ylva | Combat")
 		void StopBlocking();
 
-	void BeginTakeDamage(float DamageAmount) override;
+	void BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 
 	void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 
-	void EndTakeDamage() override;
+	void EndTakeDamage(const FDamageEvent& DamageEvent) override;
 	#pragma endregion
 
 	#pragma region Movement
@@ -748,6 +752,12 @@ protected:
 	// Called when we have successfully completed a light attack combo
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
 		void OnLightAttackComboCompleted();
+
+	UFUNCTION()
+		void OnEnterMordathEnergySphere();
+
+	UFUNCTION()
+		void OnExitMordathEnergySphere();
 
 	UFUNCTION()
 		void OnMordathDisappeared();

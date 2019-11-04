@@ -106,12 +106,12 @@ void AOverthroneCharacter::ApplyDamage(float DamageAmount, const FDamageEvent& D
 	check(0 && "You must implement ApplyDamage()");
 }
 
-void AOverthroneCharacter::BeginTakeDamage(float DamageAmount)
+void AOverthroneCharacter::BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent)
 {
 	check(0 && "You must implement BeginTakeDamage()");
 }
 
-void AOverthroneCharacter::EndTakeDamage()
+void AOverthroneCharacter::EndTakeDamage(const FDamageEvent& DamageEvent)
 {
 	check(0 && "You must implement EndTakeDamage()");
 }

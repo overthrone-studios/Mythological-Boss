@@ -36,6 +36,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 		uint8 bIsDashingBackward : 1;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+		uint8 bIsInvincible : 1;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Misc")
 		uint8 bCanLaugh : 1;
 

@@ -29,6 +29,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathReappearedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathBeginReappearSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathBeginDisappearSignature);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActorEnterEnergySphereSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActorExitEnergySphereSignature);
+
 USTRUCT()
 struct FCharacterData
 {
@@ -135,6 +138,9 @@ struct FBossData : public FCharacterData
 	FOnFirstStageSignature OnEnterFirstStage;
 	FOnSecondStageSignature OnEnterSecondStage;
 	FOnThirdStageSignature OnEnterThirdStage;
+
+	FOnActorEnterEnergySphereSignature OnActorEnterEnergySphere;
+	FOnActorExitEnergySphereSignature OnActorExitEnergySphere;
 
 	FOnMordathDisappearedSignature OnMordathDisappeared;
 	FOnMordathReappearedSignature OnMordathReappeared;

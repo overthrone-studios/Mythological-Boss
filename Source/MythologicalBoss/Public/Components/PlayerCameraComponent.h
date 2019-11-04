@@ -43,6 +43,10 @@ struct FCameraShakes_Player
 	// The camera shake to play when we release our charge attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		FCameraShakeData ChargeEnd;
+
+	// The camera shake to play when we are electrocuted by Mordath's shield
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		FCameraShakeData ElectricShock;
 };
 
 /**

@@ -90,13 +90,13 @@ protected:
 	virtual float GetMovementSpeed() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void BeginTakeDamage(float DamageAmount);
+		virtual void BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent);
 	
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent);
 	
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void EndTakeDamage();
+		virtual void EndTakeDamage(const FDamageEvent& DamageEvent);
 
 	// Enable/Disable character from doing any actions
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
@@ -145,7 +145,7 @@ protected:
 		virtual void UnPauseAnims() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		bool IsInvincible() const;
+		virtual bool IsInvincible() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void StopMovement();

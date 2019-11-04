@@ -138,6 +138,8 @@ public:
 
 	void Die() override;
 
+	bool IsInvincible() const override;
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
@@ -156,9 +158,9 @@ protected:
 	void BroadcastLowHealth() override;
 	void OnLowHealth() override;
 
-	void BeginTakeDamage(float DamageAmount) override;
+	void BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
 	void ApplyDamage(float DamageAmount, const FDamageEvent& DamageEvent) override;
-	void EndTakeDamage() override;
+	void EndTakeDamage(const FDamageEvent& DamageEvent) override;
 
 	void StopActionMontage() override;
 
@@ -221,6 +223,12 @@ protected:
 
 	UFUNCTION()
 		void OnEnterPerfectDashWindow();
+
+	UFUNCTION()
+		void OnEnterEnergySphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnExitEnergySphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	#pragma endregion 
 
 	#pragma region Any States
@@ -397,6 +405,15 @@ protected:
 			void OnExitRecoverState();
 	#pragma endregion 
 
+	#pragma region Invincible
+		UFUNCTION()
+			void OnEnterInvincibleState();
+		UFUNCTION()
+			void UpdateInvincibleState(float Uptime, int32 Frames);
+		UFUNCTION()
+			void OnExitInvincibleState();
+	#pragma endregion 
+
 	#pragma region Locked
 		void OnEnterLockedState() override;
 		void UpdateLockedState(float Uptime, int32 Frames) override;
@@ -472,6 +489,9 @@ protected:
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 	//	class UAttackIndicatorComponent* FlashIndicator;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
+		class USphereComponent* EnergyShieldCollision;
+
 	class USkeletalMeshComponent* SKM_ElectricShield;
 	#pragma endregion
 
@@ -501,6 +521,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat", DisplayName = "Ghost Actor")
 		TSubclassOf<AActor> GhostClass;
 		
+	UPROPERTY(EditInstanceOnly, Category = "Mordath Combat")
+		uint8 MaxGhosts = 3;
+
 	// The bone name of Mordath's skeleton where the lock-on indiciator should be placed on
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		FName LockOnBoneName = "spine01_jnt";
@@ -543,6 +566,9 @@ private:
 	class UMordathActionData* FarRange_ActionData;
 
 	class UAnimMontage* PreviousActionMontage;
+
+	uint8 bHasActorEnteredEnergySphere : 1;
+	ACharacter* CharacterInEnergySphere;
 
 	FTimerHandle TH_SpawnGhostDelay;
 };

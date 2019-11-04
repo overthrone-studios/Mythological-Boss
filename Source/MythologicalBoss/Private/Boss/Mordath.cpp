@@ -25,6 +25,7 @@
 #include "Components/DashComponent.h"
 #include "Components/AttackIndicatorComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -38,6 +39,8 @@
 #include "HUD/FSMVisualizerHUD.h"
 
 #include "Materials/MaterialInstanceDynamic.h"
+
+#include "DamageTypes/DmgType_MordathElectricShield.h"
 
 #include "Engine/StaticMesh.h"
 
@@ -62,6 +65,7 @@ AMordath::AMordath() : AMordathBase()
 	FSM->AddState(24, "Back Hand");
 	FSM->AddState(26, "Close Action");
 	FSM->AddState(27, "Far Action");
+	FSM->AddState(28, "Invincible");
 
 	// Bind state events to our functions
 	FSM->GetStateFromID(12)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDamagedState);
@@ -120,6 +124,10 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(27)->OnUpdateState.AddDynamic(this, &AMordath::UpdateFarActionState);
 	FSM->GetStateFromID(27)->OnExitState.AddDynamic(this, &AMordath::OnExitFarActionState);
 
+	FSM->GetStateFromID(28)->OnEnterState.AddDynamic(this, &AMordath::OnEnterInvincibleState);
+	FSM->GetStateFromID(28)->OnUpdateState.AddDynamic(this, &AMordath::UpdateInvincibleState);
+	FSM->GetStateFromID(28)->OnExitState.AddDynamic(this, &AMordath::OnExitInvincibleState);
+
 	FSM->InitFSM(0);
 
 	// Create a stage FSM
@@ -158,6 +166,13 @@ AMordath::AMordath() : AMordathBase()
 
 	// Flash indicator static mesh component
 	//FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
+
+	// Energy shield collision component
+	EnergyShieldCollision = CreateDefaultSubobject<USphereComponent>(FName("Energy Shield Collision"));
+	EnergyShieldCollision->SetupAttachment(RootComponent);
+	EnergyShieldCollision->SetSphereRadius(200.0f);
+	EnergyShieldCollision->OnComponentBeginOverlap.AddDynamic(this, &AMordath::OnEnterEnergySphere);
+	EnergyShieldCollision->OnComponentEndOverlap.AddDynamic(this, &AMordath::OnExitEnergySphere);
 
 	Tags.Empty();
 	Tags.Add("Mordath-Main");
@@ -271,18 +286,6 @@ void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 
 	FSMVisualizer->UpdateStateUptime(Name.ToString(), Uptime);
 	FSMVisualizer->UpdateStateFrames(Name.ToString(), Frames);
-
-	if (GameState->Mordaths.Num() > 3 && !IsTired())
-	{
-		SKM_ElectricShield->SetVisibility(true);
-
-		StopMovement();
-
-		EnableInvincibility();
-
-		FSM->RemoveAllStates();
-		FSM->PushState("Tired");
-	}
 }
 
 void AMordath::OnExitAnyState(int32 ID, FName Name)
@@ -478,6 +481,36 @@ void AMordath::UpdateRecoverState(float Uptime, int32 Frames)
 void AMordath::OnExitRecoverState()
 {
 	MordathAnimInstance->bIsRecovering = false;
+}
+#pragma endregion  
+
+#pragma region Invincible
+void AMordath::OnEnterInvincibleState()
+{
+	MordathAnimInstance->bIsInvincible = true;
+
+	SKM_ElectricShield->SetVisibility(true);
+	EnableInvincibility();
+}
+
+void AMordath::UpdateInvincibleState(float Uptime, int32 Frames)
+{
+	StopMovement();
+	FacePlayer();	
+
+	if (bHasActorEnteredEnergySphere)
+		CharacterInEnergySphere->TakeDamage(1.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
+
+	if (GameState->Mordaths.Num() < MaxGhosts + 1)
+		FSM->PopState();
+}
+
+void AMordath::OnExitInvincibleState()
+{
+	MordathAnimInstance->bIsInvincible = false;
+
+	SKM_ElectricShield->SetVisibility(false);
+	DisableInvincibility();
 }
 #pragma endregion  
 
@@ -907,20 +940,8 @@ void AMordath::OnEnterTiredState()
 
 void AMordath::UpdateTiredState(float Uptime, int32 Frames)
 {
-	if (GameState->Mordaths.Num() > 3)
-	{
-		FacePlayer();
-		
-		StopMovement();
-	}
-
-	if (HasFinishedAction() && GameState->Mordaths.Num() < 4)
-	{
-		SKM_ElectricShield->SetVisibility(false);
-		DisableInvincibility();
-		
+	if (HasFinishedAction())		
 		FSM->PopState();
-	}
 }
 
 void AMordath::OnExitTiredState()
@@ -1289,6 +1310,8 @@ void AMordath::OnEnterThirdStage()
 
 	PlayerController->ClientPlayCameraShake(CurrentStageData->GetRoarShake().Shake, CurrentStageData->GetRoarShake().Intensity);
 
+	EnergyShieldCollision->SetSphereRadius(CurrentStageData->GetSuperCloseRangeRadius());
+
 	BeginThirdStage.Broadcast();
 }
 
@@ -1306,7 +1329,13 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 //	}
 //#endif
 
-	if (IsLocked() || IsTeleporting())
+	if (GameState->Mordaths.Num() > MaxGhosts && !IsInvincible())
+	{
+		FSM->PushState("Invincible");
+		return;
+	}
+
+	if (IsLocked() || IsTeleporting() || IsInvincible())
 		return;
 
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
@@ -1464,6 +1493,28 @@ void AMordath::OnEnterPerfectDashWindow()
 	//if (CurrentCounterType == ACM_Parryable || CurrentCounterType == ACM_ParryableBlockable)
 	//	FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 }
+
+void AMordath::OnEnterEnergySphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!OtherActor->IsA(AMordathBase::StaticClass()) && OtherActor->IsA(ACharacter::StaticClass()))
+	{
+		bHasActorEnteredEnergySphere = true;
+		CharacterInEnergySphere = Cast<ACharacter>(OtherActor);
+
+		if (IsInvincible())
+			GameState->BossData.OnActorEnterEnergySphere.Broadcast();
+	}
+}
+
+void AMordath::OnExitEnergySphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!OtherActor->IsA(AMordathBase::StaticClass()) && OtherActor->IsA(ACharacter::StaticClass()))
+	{
+		bHasActorEnteredEnergySphere = false;
+		CharacterInEnergySphere = nullptr;
+		GameState->BossData.OnActorExitEnergySphere.Broadcast();
+	}
+}
 #pragma endregion
 
 void AMordath::DestroySelf()
@@ -1507,7 +1558,7 @@ void AMordath::BroadcastLowHealth()
 	bWasLowHealthEventTriggered = true;
 }
 
-void AMordath::BeginTakeDamage(const float DamageAmount)
+void AMordath::BeginTakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
 	CurrentStageData->Combat.RecentDamage = DamageAmount;
 
@@ -1575,7 +1626,7 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 	}
 }
 
-void AMordath::EndTakeDamage()
+void AMordath::EndTakeDamage(const FDamageEvent& DamageEvent)
 {
 	// Handled in blueprints
 	OnAfterTakeDamage();
@@ -1744,7 +1795,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 	if (bIsDead || AnimInstance->bIsHit || DamageCauser->IsA(AMordathGhost::StaticClass()) || IsTransitioning())
 		return DamageAmount;
 
-	BeginTakeDamage(DamageAmount);
+	BeginTakeDamage(DamageAmount, DamageEvent);
 
 	// Apply damage once
 	if (!AnimInstance->bIsHit)
@@ -1752,7 +1803,7 @@ float AMordath::TakeDamage(const float DamageAmount, FDamageEvent const& DamageE
 		ApplyDamage(DamageAmount, DamageEvent);
 	}
 
-	EndTakeDamage();
+	EndTakeDamage(DamageEvent);
 
 	return DamageAmount;
 }
@@ -1883,9 +1934,14 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 	}
 }
 
+bool AMordath::IsInvincible() const
+{
+	return FSM->GetActiveStateID() == 28;
+}
+
 void AMordath::SpawnGhost()
 {
-	if (GameState->Mordaths.Num() > 3)
+	if (GameState->Mordaths.Num() > MaxGhosts)
 	{
 		SKM_ElectricShield->SetVisibility(true);
 
@@ -1904,7 +1960,7 @@ void AMordath::SpawnGhost()
 
 void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)
 {
-	if (GameState->Mordaths.Num() > 3)
+	if (GameState->Mordaths.Num() > MaxGhosts)
 		return;
 
 	static int32 CurrentAmount = 0;
