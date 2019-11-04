@@ -1,7 +1,10 @@
 // Copyright Overthrone Studios 2019
 
 #include "SwordComponent.h"
-#include "Log.h"
+
+#include "Materials/MaterialInstanceDynamic.h"
+
+#include "Kismet/KismetMaterialLibrary.h"
 
 USwordComponent::USwordComponent()
 {
@@ -16,14 +19,19 @@ void USwordComponent::BeginPlay()
 	Owner = GetOwner();
 
 	DefaultSwordMaterial = GetMaterial(MaterialIndex);
+
+	MID_SwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DefaultSwordMaterial, FName("MID_Sword"));
+	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, 0.0f);
+
+	SetMaterial(MaterialIndex, MID_SwordMaterial);
 }
 
 void USwordComponent::Glow()
 {
-	if (GlowMaterial)
-		SetMaterial(MaterialIndex, GlowMaterial);
-	else
-		ULog::Error(GetName() + ": Glow material does not exist", true);
+	MID_SwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DefaultSwordMaterial, FName("MID_Sword"));
+	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, EmissiveStrength);
+
+	SetMaterial(MaterialIndex, MID_SwordMaterial);
 }
 
 void USwordComponent::Revert()
