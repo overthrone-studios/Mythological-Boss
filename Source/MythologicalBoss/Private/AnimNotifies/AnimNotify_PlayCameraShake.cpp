@@ -14,7 +14,7 @@ void UAnimNotify_PlayCameraShake::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	const auto PlayerController = UGameplayStatics::GetPlayerController(MeshComp->GetOwner(), 0);
 	const auto Player = UGameplayStatics::GetPlayerCharacter(MeshComp->GetOwner(), 0);
 
-	if (PlayerController)
+	if (PlayerController && Player)
 	{
 		if (CameraShake)
 		{
