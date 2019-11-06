@@ -1136,6 +1136,13 @@ void AYlva::BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent)
 
 void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
+	if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
+	{
+		FSM->PopState();
+		FSM->PushState("PushBack");
+		return;
+	}
+
 	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
 	{
 		FSM->PopState();
@@ -2209,7 +2216,7 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 
 	HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 
-	ChargeAttackHoldFrames++;
+	ChargeAttackHoldFrames += World->DeltaTimeSeconds;
 
 	GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Charge.Shake, FollowCamera->GetShakes().Charge.Intensity);
 
@@ -2231,7 +2238,7 @@ void AYlva::OnExitChargeAttackState()
 	LSword->Revert();
 	RSword->Revert();
 
-	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
+	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames()/(1.0f / World->DeltaTimeSeconds))
 	{
 		if (Combat.ChargeSettings.ChargeCameraAnimInst)
 			Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 3.0f;

@@ -1045,7 +1045,7 @@ private:
 
 	uint8 HitCounter_Persistent = 0;
 
-	uint16 ChargeAttackHoldFrames = 0;
+	float ChargeAttackHoldFrames = 0;
 
 	FTimerHandle TH_ChargeAttackRelease;
 	FTimerHandle TH_ChargeLoss;
