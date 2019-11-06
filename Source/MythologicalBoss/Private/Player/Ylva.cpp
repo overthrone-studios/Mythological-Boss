@@ -1886,11 +1886,6 @@ void AYlva::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterr
 
 void AYlva::OnChargeMeterFull()
 {
-	//auto MID_LSwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, LSword->GetDefaultSwordMaterial(), FName("MID_Sword"));
-	//auto MID_RSwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, RSword->GetDefaultSwordMaterial(), FName("MID_Sword"));
-	//
-	//LSword->SetMaterial(0, MID_LSwordMaterial);
-	//RSword->SetMaterial(0, MID_RSwordMaterial);
 	LSword->Glow();
 	RSword->Glow();
 
