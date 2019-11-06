@@ -32,7 +32,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMaterialLibrary.h"
 
 #include "HUD/MasterHUD.h"
 #include "HUD/MainPlayerHUD.h"
@@ -206,7 +205,8 @@ void AMordath::BeginPlay()
 	UpdateCharacterInfo();
 
 	OriginalMaterial = SKMComponent->GetMaterial(0);
-	MID_OriginalMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Mordath"));
+	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
+
 	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
 	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
@@ -1484,7 +1484,7 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
-	MID_OriginalMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Mordath"));
+	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
 	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
 	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
