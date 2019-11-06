@@ -925,6 +925,16 @@ UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const
 	return CurrentActionData->Action->ForceFeedbackEffect;
 }
 
+void AMordathBase::RemoveFromLockOnTargetsArray()
+{
+	GameState->Mordaths.Remove(this);
+}
+
+void AMordathBase::AddToLockOnTargetsArray()
+{
+	GameState->Mordaths.Add(this);
+}
+
 bool AMordathBase::WantsMoveRight() const
 {
 	return MovementDirection;

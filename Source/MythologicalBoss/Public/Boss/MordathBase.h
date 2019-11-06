@@ -88,6 +88,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		UForceFeedbackEffect* GetCurrentForceFeedbackEffect() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void RemoveFromLockOnTargetsArray();
+	
+	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
+		void AddToLockOnTargetsArray();
+
 protected:
 	void BeginPlay() override;
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
