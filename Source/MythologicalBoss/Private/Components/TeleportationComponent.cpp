@@ -14,7 +14,6 @@
 #include "GameFramework/Character.h"
 
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetMaterialLibrary.h"
 
 #include "TimerManager.h"
 
@@ -30,10 +29,8 @@ void UTeleportationComponent::Disappear()
 {
 	if (!TL_Dissolve.IsPlaying())
 	{
-		MID_Dissolve = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Dissolve")); // Prevents a stupid crash
+		MID_Dissolve = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Dissolve"));
 		MID_Dissolve->SetScalarParameterValue("IsDissolving", 1.0f);
-
-		SKMComponent->SetMaterial(0, MID_Dissolve);
 
 		TL_Dissolve.Stop();
 		TL_Dissolve.SetPlaybackPosition(0.0f, true, true);

@@ -10,7 +10,6 @@
 
 #include "Components/SkeletalMeshComponent.h"
 
-#include "Kismet/KismetMaterialLibrary.h"
 
 #include "Log.h"
 
@@ -43,9 +42,8 @@ void UAttackIndicatorComponent::Flash(const FLinearColor& FlashColor)
 
 void UAttackIndicatorComponent::ReassignMaterial()
 {
-	MID_FlashIndicator = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, FlashMaterial);
+	MID_FlashIndicator = Owner->GetMesh()->CreateDynamicMaterialInstance(0, FlashMaterial, "MID_AttackIndicator");
 	MID_FlashIndicator->SetScalarParameterValue("Opacity", 1.0f);
-	Owner->GetMesh()->SetMaterial(MaterialIndex, MID_FlashIndicator);
 }
 
 void UAttackIndicatorComponent::GrowFlash()
