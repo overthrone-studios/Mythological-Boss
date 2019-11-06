@@ -151,7 +151,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
 		float MaxChargeHoldTime = 6.0f;
 
-	// The amount of charge we lose after we've taken damage
+	// The amount of frames to hold the charge for, before releasing it
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0))
 		int32 ChargeHoldFrames = 50;
 
