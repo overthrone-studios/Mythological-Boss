@@ -39,3 +39,8 @@ void USwordComponent::Revert()
 {
 	SetMaterial(MaterialIndex, DefaultSwordMaterial);
 }
+
+UMaterialInterface* USwordComponent::GetDefaultSwordMaterial() const
+{
+	return DefaultSwordMaterial;
+}
