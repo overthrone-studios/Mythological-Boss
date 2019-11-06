@@ -44,10 +44,18 @@ void AMordathTutorial::ResetSelf()
 {
 	CurrentActionIndex = FMath::Clamp(CurrentActionIndex + 1, 0, Actions.Num() - 1);
 
+	bCurrentTutorialCompleted = false;
 	bCanBeDamaged = false;
 	bIsDead = false;
 	AnimInstance->bIsDead = false;
 	FSM->RemoveAllStates();
+}
+
+void AMordathTutorial::NotifyTutorialCompleted()
+{
+	ULog::Info("Completed", true);
+
+	bCurrentTutorialCompleted = true;
 }
 
 float AMordathTutorial::GetMovementSpeed() const
@@ -108,16 +116,23 @@ float AMordathTutorial::TakeDamage(const float DamageAmount, FDamageEvent const&
 
 bool AMordathTutorial::CanAttack() const
 {
-	return !IsAttacking() && IsCloseRange() && !IsLocked();
+	return !IsAttacking() && IsCloseRange() && !IsLocked() && !bIsDead;
 }
 
 void AMordathTutorial::OnEnterFollowState()
 {
-	
+	if (Actions[CurrentActionIndex].bKillOnActionCompleted && bCurrentTutorialCompleted)
+	{
+		if (!bIsDead)
+			FSM->PushState("Death");
+	}
 }
 
 void AMordathTutorial::UpdateFollowState(const float Uptime, const int32 Frames)
 {
+	if (bIsDead)
+		return;
+
 	FacePlayer();
 
 	if (IsCloseRange())
@@ -138,7 +153,7 @@ void AMordathTutorial::OnExitFollowState()
 }
 
 void AMordathTutorial::OnEnterActionState()
-{
+{		
 	PlayActionMontage();
 
 	StartActionLocation = CurrentLocation;
@@ -146,6 +161,9 @@ void AMordathTutorial::OnEnterActionState()
 
 void AMordathTutorial::UpdateActionState(const float Uptime, const int32 Frames)
 {
+	if (bIsDead)
+		return;
+
 	StopMovement();
 
 	if (!bIsDead)
@@ -160,8 +178,10 @@ void AMordathTutorial::UpdateActionState(const float Uptime, const int32 Frames)
 	}
 
 	// If action has finished, go back to previous state
-	if (HasFinishedAction())
+	if (HasFinishedAction() && !Actions[CurrentActionIndex].bKillOnActionCompleted && !bCurrentTutorialCompleted)
 		PlayActionMontage();
+	else if (HasFinishedAction())
+		FSM->PopState();
 }
 
 void AMordathTutorial::OnExitActionState()
@@ -298,7 +318,7 @@ void AMordathTutorial::StopActionMontage()
 
 void AMordathTutorial::ChooseAction()
 {
-	if (IsAttacking())
+	if (IsAttacking() || bIsDead)
 		return;
 	
 	CurrentActionMontage = Actions[CurrentActionIndex].ActionData->ActionMontage;

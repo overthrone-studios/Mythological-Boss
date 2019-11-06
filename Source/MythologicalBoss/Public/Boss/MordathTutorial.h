@@ -21,6 +21,10 @@ struct FMordathAction_Tutorial
 	// At what point in the animation do we pause
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
 		float PauseAtTime = 1.0f;
+
+	// Should mordath ghost be killed when the tutorial action has been completed?
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
+		uint8 bKillOnActionCompleted : 1;
 };
 
 /**
@@ -43,6 +47,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath Tutorial")
 		void ResetSelf();
 
+	UFUNCTION(BlueprintPure, Category = "Mordath Tutorial")
+		bool CanKillOnActionCompleted() const { return Actions[CurrentActionIndex].bKillOnActionCompleted; }
+
+	UFUNCTION(BlueprintCallable, Category = "Mordath Tutorial")
+		void NotifyTutorialCompleted();
+		
 	float GetMovementSpeed() const override;
 
 	void LockSelf() override;
@@ -114,5 +124,6 @@ private:
 
 	uint8 CurrentActionIndex = 0;
 
+	uint8 bCurrentTutorialCompleted : 1;
 	uint8 bStopAtTimeEventTriggered : 1;
 };
