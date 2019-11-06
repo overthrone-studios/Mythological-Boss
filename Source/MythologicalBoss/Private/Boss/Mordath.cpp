@@ -823,10 +823,14 @@ void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
 	if (IsInThirdStage())
 	{
 		const float NewHealth = FMath::GetMappedRangeValueClamped({0.0f, 1.0f}, {CurrentHealth, HealthComponent->GetDefaultHealth()}, 0.5f * Uptime);
+		ULog::Number(NewHealth, "NewHeath: ", true);
 		SetHealth(NewHealth);
 	}
 
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	ULog::Hello(true);
+
+
+	if (AnimInstance->AnimTimeRemaining < 0.1f/*CurrentHealth >= HealthComponent->GetDefaultHealth()*/)
 		FSM->PopState();
 }
 
@@ -1126,7 +1130,7 @@ void AMordath::UpdateFarRange(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction() || IsPerformingAction() || IsLocked())
+	if (IsTeleporting() || IsSpecialAttacking() || IsPerformingFarAction() || IsPerformingAction() || IsLocked() || IsTransitioning())
 		return;
 
 	if (Uptime > CurrentStageData->Combat.FarRangeAttackDelay && !IsTired())
@@ -1163,7 +1167,7 @@ void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 	#endif
 
 	if (IsDashing() || IsAttacking() || IsRecovering() || IsStunned() || IsKicking() || IsTired() || IsDoingBackHand() ||
-		IsPerformingCloseAction() || IsPerformingFarAction() || IsTeleporting())
+		IsPerformingCloseAction() || IsPerformingFarAction() || IsTeleporting() || IsTransitioning())
 		return;
 
 	if (Uptime > CurrentStageData->GetSuperCloseRangeTime())
@@ -1346,7 +1350,7 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (IsLocked() || IsTeleporting() || IsInvincible())
+	if (IsLocked() || IsTeleporting() || IsInvincible() || IsTransitioning())
 		return;
 
 	if (ChosenCombo->IsAtLastAction() && !IsWaitingForNextCombo())
@@ -1523,6 +1527,8 @@ void AMordath::OnEnterEnergySphere(UPrimitiveComponent* OverlappedComponent, AAc
 	{
 		bHasActorEnteredEnergySphere = true;
 		CharacterInEnergySphere = Cast<ACharacter>(OtherActor);
+
+		CharacterInEnergySphere->TakeDamage(10.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
 
 		if (IsInvincible())
 			GameState->BossData.OnActorEnterEnergySphere.Broadcast();
