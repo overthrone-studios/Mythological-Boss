@@ -1138,7 +1138,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 {
 	if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
 	{
-		FSM->PopState();
+		ULog::Yes(true);
 		FSM->PushState("PushBack");
 		return;
 	}
@@ -1150,7 +1150,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 		return;
 	}
 
-	if (bGodMode || IsParrying() || IsLocked())
+	if (bGodMode || IsParrying() || IsLocked() || IsBeingPushedBack())
 		return;
 
 	// Test against states

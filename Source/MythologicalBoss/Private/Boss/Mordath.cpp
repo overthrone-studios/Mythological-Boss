@@ -823,14 +823,10 @@ void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
 	if (IsInThirdStage())
 	{
 		const float NewHealth = FMath::GetMappedRangeValueClamped({0.0f, 1.0f}, {CurrentHealth, HealthComponent->GetDefaultHealth()}, 0.5f * Uptime);
-		ULog::Number(NewHealth, "NewHeath: ", true);
 		SetHealth(NewHealth);
 	}
 
-	ULog::Hello(true);
-
-
-	if (AnimInstance->AnimTimeRemaining < 0.1f/*CurrentHealth >= HealthComponent->GetDefaultHealth()*/)
+	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
 }
 
@@ -1528,9 +1524,8 @@ void AMordath::OnEnterEnergySphere(UPrimitiveComponent* OverlappedComponent, AAc
 		bHasActorEnteredEnergySphere = true;
 		CharacterInEnergySphere = Cast<ACharacter>(OtherActor);
 
-		CharacterInEnergySphere->TakeDamage(10.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
-
 		if (IsInvincible())
+			CharacterInEnergySphere->TakeDamage(10.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
 			GameState->BossData.OnActorEnterEnergySphere.Broadcast();
 	}
 }
@@ -1857,7 +1852,7 @@ bool AMordath::CanAttack() const
 			CurrentActionData->RangeToExecute == BRM_AnyRange || 
 			IsExecutionTimeExpired() || 
 			ChosenCombo->WantsToExecuteNonStop()) &&
-			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked() && !IsTeleporting();
+			!IsRecovering() && !IsAttacking() && !IsDashing() && !IsTransitioning() && !IsStunned() && !IsDamaged() && !IsStrafing() && !IsTired() && !IsPerformingCloseAction() && !IsPerformingFarAction() && !IsLocked() && !IsTeleporting() && !IsInvincible();
 }
 
 void AMordath::Die()
