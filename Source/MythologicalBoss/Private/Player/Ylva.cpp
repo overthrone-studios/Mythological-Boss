@@ -1891,6 +1891,8 @@ void AYlva::OnChargeMeterFull()
 	//
 	//LSword->SetMaterial(0, MID_LSwordMaterial);
 	//RSword->SetMaterial(0, MID_RSwordMaterial);
+	LSword->Glow();
+	RSword->Glow();
 
 	MainHUD->ShowChargeInputKeyWidget();
 	MainHUD->FlashChargeRing();
