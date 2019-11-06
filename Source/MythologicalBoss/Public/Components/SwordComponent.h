@@ -25,6 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sword")
 		void Revert();
 
+	UFUNCTION(BlueprintCallable, Category = "Sword")
+		class UMaterialInterface* GetDefaultSwordMaterial() const;
 protected:
 	void BeginPlay() override;
 

@@ -1484,6 +1484,7 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
+	MID_OriginalMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, OriginalMaterial, FName("MID_Mordath"));
 	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
 	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
