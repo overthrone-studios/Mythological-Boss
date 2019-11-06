@@ -20,10 +20,11 @@ void USwordComponent::BeginPlay()
 
 	DefaultSwordMaterial = GetMaterial(MaterialIndex);
 
-	MID_SwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DefaultSwordMaterial, FName("MID_Sword"));
-	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, 0.0f);
+	//MID_SwordMaterial = UKismetMaterialLibrary::CreateDynamicMaterialInstance(this, DefaultSwordMaterial, FName("MID_Sword"));
+	//MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, 0.0f);
 
-	SetMaterial(MaterialIndex, MID_SwordMaterial);
+	MID_SwordMaterial = CreateDynamicMaterialInstance(0, DefaultSwordMaterial, FName("MID_Sword"));
+	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, 0.0f);
 }
 
 void USwordComponent::Glow()
