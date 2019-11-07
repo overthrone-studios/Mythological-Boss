@@ -22,6 +22,8 @@ UANS_ApplyDamageMordathGhost::UANS_ApplyDamageMordathGhost()
 
 void UANS_ApplyDamageMordathGhost::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2)); // Ylva
+
 	MordathGhost = Cast<AMordathGhost>(MeshComp->GetOwner());
 
 	if (!MordathGhost)
@@ -38,6 +40,8 @@ void UANS_ApplyDamageMordathGhost::NotifyBegin(USkeletalMeshComponent* MeshComp,
 
 void UANS_ApplyDamageMordathGhost::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
+	Super::NotifyEnd(MeshComp, Animation);
+
 	bIsHit = false;
 }
 
