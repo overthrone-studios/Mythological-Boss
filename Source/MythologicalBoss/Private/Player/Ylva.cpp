@@ -532,7 +532,7 @@ void AYlva::MoveForward(const float Value)
 {
 	ForwardInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased)
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased || IsBeingPushedBack())
 		return;
 
 	if (!IsAttacking())
@@ -562,7 +562,7 @@ void AYlva::MoveRight(const float Value)
 {
 	RightInput = Value;
 
-	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased)
+	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased || IsBeingPushedBack())
 		return;
 
 	if (!IsAttacking())
@@ -1136,13 +1136,6 @@ void AYlva::BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent)
 
 void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
-	if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
-	{
-		ULog::Yes(true);
-		FSM->PushState("PushBack");
-		return;
-	}
-
 	if (IsParrySuccessful() && GameState->IsBossAttackParryable())
 	{
 		FSM->PopState();
@@ -1200,6 +1193,11 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				FSM->PopState();
 				FSM->PushState("Push Back");
 			}
+			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
+			{
+				FSM->PopState();
+				FSM->PushState("Push Back");
+			}
 			else
 			{
 				FSM->PushState("Shield Hit");
@@ -1238,6 +1236,11 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
 				FSM->PushState("Push Back");
+			else if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
+			{
+				MovementSettings.KnockbackForce = 700.0f;
+				FSM->PushState("Push Back");
+			}
 			else
 			{
 				FSM->PushState("Damaged");
@@ -1246,10 +1249,10 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			}
 
 			// Shake the camera
-			if (DamageEvent.DamageTypeClass != UDmgType_MordathElectricShield::StaticClass())
-				GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
-			else
+			if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
 				GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().ElectricShock.Shake, FollowCamera->GetShakes().ElectricShock.Intensity);
+			else
+				GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
 		break;
 	}
 
@@ -1909,6 +1912,8 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 void AYlva::OnEnterMordathEnergySphere()
 {
 	VibrateController(Combat.ElectricShieldForce, true);
+
+	FSM->PushState("PushBack");
 }
 
 void AYlva::OnExitMordathEnergySphere()
@@ -2311,6 +2316,8 @@ void AYlva::OnExitPushBackState()
 
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	MovementComponent->MaxAcceleration = 2048.0f;
+
+	MovementSettings.KnockbackForce = 500.0f;
 
 	bHasBeenDamaged = false;
 	ResumeMovement();
