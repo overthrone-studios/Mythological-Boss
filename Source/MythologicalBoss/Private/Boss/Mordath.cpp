@@ -1406,7 +1406,10 @@ void AMordath::OnAttackParryed()
 	if ((CurrentActionData->Action->CounterType == ACM_Parryable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable)  && !IsStunned())
 	{
 		PreviousActionMontage = AnimInstance->GetCurrentActiveMontage();
-		PreviousActionMontage->BlendOut.SetBlendTime(CurrentStageData->GetAttackBlockedBlendOutTime());
+
+		if (PreviousActionMontage)
+			PreviousActionMontage->BlendOut.SetBlendTime(CurrentStageData->GetAttackBlockedBlendOutTime());
+
 		StopActionMontage();
 
 		FSM->PopState();
@@ -1425,7 +1428,10 @@ void AMordath::OnAttackBlocked()
 	if ((CurrentActionData->Action->CounterType == ACM_Blockable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable) && !IsDamaged())
 	{
 		PreviousActionMontage = AnimInstance->GetCurrentActiveMontage();
-		PreviousActionMontage->BlendOut.SetBlendTime(0.0f);
+
+		if (PreviousActionMontage)
+			PreviousActionMontage->BlendOut.SetBlendTime(0.0f);
+
 		StopActionMontage();
 
 		FSM->PopState();
