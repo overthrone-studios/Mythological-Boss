@@ -72,11 +72,11 @@ void AOverthroneHUD::BeginPlay()
 	const AOverthroneGameState* GameState = UOverthroneFunctionLibrary::GetGameState(this);
 
 #if !UE_BUILD_SHIPPING
-	if (reinterpret_cast<AOverthroneCharacter*>(GameState->Player))
-		reinterpret_cast<AOverthroneCharacter*>(GameState->Player)->AddDebugMessages();
+	if (reinterpret_cast<AOverthroneCharacter*>(GameState->Ylva))
+		reinterpret_cast<AOverthroneCharacter*>(GameState->Ylva)->AddDebugMessages();
 
-	if (reinterpret_cast<AOverthroneCharacter*>(GameState->Boss))
-		reinterpret_cast<AOverthroneCharacter*>(GameState->Boss)->AddDebugMessages();
+	if (reinterpret_cast<AOverthroneCharacter*>(GameState->Mordath))
+		reinterpret_cast<AOverthroneCharacter*>(GameState->Mordath)->AddDebugMessages();
 #endif
 }
 

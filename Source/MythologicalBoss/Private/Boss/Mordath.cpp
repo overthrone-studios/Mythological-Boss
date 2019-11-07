@@ -201,7 +201,7 @@ void AMordath::BeginPlay()
 	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
 	GameState->BossData.LockOnBoneName = LockOnBoneName;
-	GameState->Boss = this;
+	GameState->Mordath = this;
 	UpdateCharacterInfo();
 
 	OriginalMaterial = SKMComponent->GetMaterial(0);
