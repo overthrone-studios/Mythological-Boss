@@ -394,6 +394,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
 		void IncreaseCharge();
 
+	// Give the maximum charge
+	UFUNCTION(BlueprintCallable, Category = "Ylva | Charge Attack")
+		void GiveMaxCharge();
+
 	UFUNCTION(BlueprintPure, Category = "Ylva | Feedback")
 		class UForceFeedbackEffect* GetCurrentForceFeedback() const;
 

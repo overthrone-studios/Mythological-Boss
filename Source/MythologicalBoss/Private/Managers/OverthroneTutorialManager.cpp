@@ -39,6 +39,8 @@ void AOverthroneTutorialManager::EndTutorial()
 
 void AOverthroneTutorialManager::NextTutorial()
 {
+	OnBeginTutorial.Broadcast();
+
 	PlayerController->SetInputMode(FInputModeGameOnly());
 
 	TutorialHUD->ProgressTutorial();

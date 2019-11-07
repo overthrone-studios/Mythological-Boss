@@ -126,8 +126,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Movement")
 		void ChooseMovementDirection();
 
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		float GetMovementSpeed() const override;
+	float GetMovementSpeed() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
 		bool WantsMoveRight() const;

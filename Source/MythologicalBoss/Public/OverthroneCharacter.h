@@ -85,9 +85,12 @@ protected:
 	void BeginPlay() override;
 	void Tick(float DeltaSeconds) override;
 
-	virtual void UpdateCharacterInfo();
+	// Send this character's tracked information to the game state
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void UpdateCharacterInfo();
 
-	virtual float GetMovementSpeed() const;
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		virtual float GetMovementSpeed() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent);

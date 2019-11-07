@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "OverthroneTutorialManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBeginTutorialSignature);
+
 UCLASS(BlueprintType)
 class MYTHOLOGICALBOSS_API AOverthroneTutorialManager : public AActor
 {
@@ -13,6 +15,9 @@ class MYTHOLOGICALBOSS_API AOverthroneTutorialManager : public AActor
 	
 public:	
 	AOverthroneTutorialManager();
+
+	UPROPERTY(BlueprintAssignable)
+		FOnBeginTutorialSignature OnBeginTutorial;
 
 	UFUNCTION(BlueprintCallable, Category = "Tutorial Manager")
 		void BeginTutorial();

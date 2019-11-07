@@ -1722,6 +1722,13 @@ void AYlva::IncreaseCharge()
 		ChargeAttackComponent->DelayChargeLoss();
 }
 
+void AYlva::GiveMaxCharge()
+{
+	ChargeAttackComponent->SetCharge(ChargeAttackComponent->GetMaxCharge());
+
+	UpdateCharacterInfo();
+}
+
 void AYlva::DecreaseCharge()
 {
 	ChargeAttackComponent->DecreaseCharge(ChargeAttackComponent->GetChargeLoss());
