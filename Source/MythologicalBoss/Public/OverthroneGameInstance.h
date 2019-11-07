@@ -12,7 +12,8 @@ enum EDifficultyOptions
 {
 	DO_Casual UMETA(DisplayName="Casual"),
 	DO_Experienced UMETA(DisplayName="Experienced"),
-	DO_None
+	DO_Realistic UMETA(DisplayName="Realistic"),
+	DO_None UMETA(DisplayName="None")
 };
 
 /**
