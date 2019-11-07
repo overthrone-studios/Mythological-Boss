@@ -2473,9 +2473,7 @@ void AYlva::OnEnterDashAttackState()
 
 	GameState->PlayerData.CurrentAttackType = ATP_Dash;
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	CapsuleComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 
 #if !UE_BUILD_SHIPPING
 	if (!bGodMode)
@@ -2536,10 +2534,8 @@ void AYlva::OnExitDashAttackState()
 	PlayerController->ResetIgnoreMoveInput();
 	PlayerController->ResetIgnoreLookInput();
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-	
+	CapsuleComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+
 	if (IsLockedOn())
 	{
 		MovementComponent->bOrientRotationToMovement = false;

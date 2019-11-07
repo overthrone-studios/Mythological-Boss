@@ -16,7 +16,9 @@ class MYTHOLOGICALBOSS_API UAnimNotifyState_ApplyDamageBase : public UAnimNotify
 	GENERATED_BODY()
 	
 protected:
+	void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration) override;
 	void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime) override;
+	void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
 	virtual void OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult);
 
@@ -46,6 +48,8 @@ protected:
 	float AttackRadius = 10.0f;
 
 	uint8 bIsHit : 1;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
 	enum EDrawDebugTrace::Type DebugTrace;
 
