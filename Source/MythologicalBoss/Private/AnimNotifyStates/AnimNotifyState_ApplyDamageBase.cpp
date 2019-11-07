@@ -4,15 +4,16 @@
 #include "HitSoundData.h"
 #include "Kismet/GameplayStatics.h"
 
+void UAnimNotifyState_ApplyDamageBase::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
+{
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2));
+}
+
 void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
 	const FVector& StartTrace = MeshComp->GetSocketLocation(StartBone);
 	const FVector& EndTrace = MeshComp->GetSocketLocation(EndBone);
-
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2));
 
 	UKismetSystemLibrary::SphereTraceMultiForObjects(MeshComp, StartTrace, EndTrace, AttackRadius, ObjectTypes, true, {}, DebugTrace, HitResults, true, FLinearColor::Red, FLinearColor::Green, 1.0f);
 
@@ -23,6 +24,11 @@ void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshCo
 			OnHit(MeshComp, HitResult);
 		}
 	}
+}
+
+void UAnimNotifyState_ApplyDamageBase::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+{
+	ObjectTypes.Empty();
 }
 
 void UAnimNotifyState_ApplyDamageBase::OnHit(USkeletalMeshComponent* MeshComp, const FHitResult& HitResult)

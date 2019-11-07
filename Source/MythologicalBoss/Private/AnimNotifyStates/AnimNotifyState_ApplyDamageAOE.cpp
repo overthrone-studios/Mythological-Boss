@@ -15,6 +15,8 @@
 
 void UAnimNotifyState_ApplyDamageAOE::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2)); // Ylva
+
 	Mordath = Cast<AMordath>(MeshComp->GetOwner());
 
 	if (!Mordath)
@@ -47,6 +49,8 @@ void UAnimNotifyState_ApplyDamageAOE::NotifyBegin(USkeletalMeshComponent* MeshCo
 
 void UAnimNotifyState_ApplyDamageAOE::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
+	Super::NotifyEnd(MeshComp, Animation);
+
 	bIsHit = false;
 }
 
