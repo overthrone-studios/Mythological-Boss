@@ -1400,6 +1400,9 @@ void AMordath::OnPlayerDeath()
 
 void AMordath::OnAttackParryed()
 {
+	if (IsInvincible())
+		return;
+
 	if ((CurrentActionData->Action->CounterType == ACM_Parryable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable)  && !IsStunned())
 	{
 		PreviousActionMontage = AnimInstance->GetCurrentActiveMontage();
@@ -1416,6 +1419,9 @@ void AMordath::OnAttackParryed()
 
 void AMordath::OnAttackBlocked()
 {
+	if (IsInvincible())
+		return;
+
 	if ((CurrentActionData->Action->CounterType == ACM_Blockable || CurrentActionData->Action->CounterType == ACM_ParryableBlockable) && !IsDamaged())
 	{
 		PreviousActionMontage = AnimInstance->GetCurrentActiveMontage();
