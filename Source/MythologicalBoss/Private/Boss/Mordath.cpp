@@ -3,6 +3,7 @@
 #include "Mordath.h"
 
 #include "OverthroneFunctionLibrary.h"
+#include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
 #include "OverthroneHUD.h"
 #include "OverthroneEnums.h"
@@ -186,6 +187,8 @@ void AMordath::BeginPlay()
 
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
+	CurrentDifficultyData = GetDifficultyData();
+
 	SKM_Feathers = GetFeathers();
 	SKM_ElectricShield = GetShield();
 	SKM_ElectricShield->SetVisibility(false);
@@ -226,6 +229,10 @@ void AMordath::BeginPlay()
 	ResetActionDamage();
 
 	MainHUD->ChangeBossHealthBarColor(BossDefaultHealth_BarColor);
+
+	HealthComponent->SetDefaultHealth(CurrentDifficultyData->DefaultHealth);
+	HealthComponent->SetHealth(CurrentDifficultyData->DefaultHealth);
+	UpdateCharacterInfo();
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
@@ -274,7 +281,7 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Action: " + UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)/*CurrentActionData->Action->GetCurrentActionAsString()*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Counter: " + UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType) /*CurrentActionData->Action->GetCounterTypeAsString()*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->LockOnLocation.Z));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(GetActionDamage()));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Combo: " + ChosenCombo->GetName());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Action Montage: " + CurrentMontageName);
 #endif
@@ -1201,7 +1208,7 @@ void AMordath::OnExitSuperCloseRange()
 #pragma region Stage 1
 void AMordath::OnEnterFirstStage()
 {
-	CurrentStageData = GetStageData(); //todo give difficulty option
+	CurrentStageData = GetStageData();
 	CurrentStageData->Init();
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
@@ -1253,7 +1260,7 @@ void AMordath::OnExitFirstStage()
 #pragma region Stage 2
 void AMordath::OnEnterSecondStage()
 {
-	CurrentStageData = GetStageData(); //todo give difficulty option
+	CurrentStageData = GetStageData();
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
@@ -1590,10 +1597,10 @@ void AMordath::StopActionMontage()
 
 void AMordath::UpdateCharacterInfo()
 {
+	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
+
 	GameState->BossData.Health = HealthComponent->GetCurrentHealth();
 	GameState->BossData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
-
-	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
 }
 
 void AMordath::BroadcastLowHealth()
@@ -2025,6 +2032,24 @@ void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)
 	CurrentAmount++;
 }
 
+float AMordath::GetActionDamage() const
+{
+	switch (GameInstance->ChosenDifficultyOption)
+	{
+	case DO_Casual:
+		return ActionDamage * CasualDifficulty->DamageMultiplier;
+
+	case DO_Experienced:
+		return ActionDamage * ExperiencedDifficulty->DamageMultiplier;
+
+	case DO_Realistic:
+		return ActionDamage * RealisticDifficulty->DamageMultiplier;
+
+	default:
+		return ActionDamage;
+	}
+}
+
 void AMordath::SpawnLightningStrike(const FVector& LocationToSpawn, const FRotator& Rotation)
 {
 	if (LightningStrikeClass)
@@ -2048,65 +2073,38 @@ USkeletalMeshComponent* AMordath::GetShield()
 	return nullptr;
 }
 
+UMordathDifficultyData* AMordath::GetDifficultyData() const
+{
+	switch (GameInstance->ChosenDifficultyOption)
+	{
+	case DO_Casual:
+		return CasualDifficulty;
+
+	case DO_Experienced:
+		return ExperiencedDifficulty;
+
+	case DO_Realistic:
+		return RealisticDifficulty;
+
+	default:
+		return CasualDifficulty;
+	}
+}
+
 UMordathStageData* AMordath::GetStageData() const
 {
 	switch (StageFSM->GetActiveStateID())
 	{
 	case 0: /*Stage 1*/
-	{
-		switch (GameState->ChosenDifficultyOption)
-		{
-		case DO_Casual:
-			return CasualDifficulty->StageOneData;
-
-		case DO_Experienced:
-			return ExperiencedDifficulty->StageOneData;
-
-		case DO_Realistic:
-			return RealisticDifficulty->StageOneData;
-
-		default:
-			return CasualDifficulty->StageOneData;
-		}
-	}
+		return CurrentDifficultyData->StageOneData;
 
 	case 1: /*Stage 2*/
-	{
-		switch (GameState->ChosenDifficultyOption)
-		{
-		case DO_Casual:
-			return CasualDifficulty->StageTwoData;
-
-		case DO_Experienced:
-			return ExperiencedDifficulty->StageTwoData;
-
-		case DO_Realistic:
-			return RealisticDifficulty->StageTwoData;
-
-		default:
-			return CasualDifficulty->StageTwoData;
-		}
-	}
+		return CurrentDifficultyData->StageTwoData;
 
 	case 2: /*Stage 3*/
-	{
-		switch (GameState->ChosenDifficultyOption)
-		{
-		case DO_Casual:
-			return CasualDifficulty->StageThreeData;
+		return CurrentDifficultyData->StageThreeData;
 
-		case DO_Experienced:
-			return ExperiencedDifficulty->StageThreeData;
-
-		case DO_Realistic:
-			return RealisticDifficulty->StageThreeData;
-
-		default:
-			return CasualDifficulty->StageThreeData;
-		}
-	}
-
-	default: 
+	default:
 		return nullptr;
 	}
 }

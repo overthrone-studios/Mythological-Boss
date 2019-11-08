@@ -3,5 +3,7 @@
 #include "MordathDifficultyData.h"
 
 
-
-
+UMordathDifficultyData::UMordathDifficultyData()
+{
+	DefaultHealth = 5400.0f;
+}
