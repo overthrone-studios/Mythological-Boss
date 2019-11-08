@@ -1,6 +1,7 @@
 // Copyright Overthrone Studios 2019
 
 #include "Components/StaminaComponent.h"
+#include "Misc/YlvaDifficultyData.h"
 #include "GameFramework/Actor.h"
 #include "TimerManager.h"
 
@@ -11,6 +12,19 @@ UStaminaComponent::UStaminaComponent()
 	DefaultStamina = 100.0f;
 
 	InitStamina();
+}
+
+void UStaminaComponent::InitStaminaEconomyValues(UYlvaDifficultyData& DifficultyData)
+{
+	RegenerationRate = DifficultyData.RegenerationRate;
+	RegenerationDelay = DifficultyData.RegenerationDelay;
+	LightAttack = DifficultyData.LightAttack;
+	HeavyAttack = DifficultyData.HeavyAttack;
+	Dash = DifficultyData.Dash;
+	DashAttack = DifficultyData.DashAttack;
+	ChargeAttack = DifficultyData.ChargeAttack;
+	Run = DifficultyData.Run;
+	ShieldHit = DifficultyData.ShieldHit;
 }
 
 void UStaminaComponent::BeginPlay()
@@ -35,6 +49,12 @@ bool UStaminaComponent::IsRegenFinished()
 bool UStaminaComponent::IsDelayFinished()
 {
 	return !Owner->GetWorldTimerManager().IsTimerActive(DelayTimerHandle);
+}
+
+void UStaminaComponent::SetDefaultStamina(const float NewDefaultStamina)
+{
+	DefaultStamina = NewDefaultStamina;
+	Stamina = DefaultStamina;
 }
 
 void UStaminaComponent::SetStamina(const float NewStaminaAmount)

@@ -278,19 +278,19 @@ public:
 
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
-		FORCEINLINE float GetLightAttackDamage() const { return Combat.AttackSettings.LightAttackDamage; }
+		float GetLightAttackDamage() const;
 
 	// Returns the heavy attack damage value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
-		FORCEINLINE float GetHeavyAttackDamage() const { return Combat.AttackSettings.HeavyAttackDamage; }
+		float GetHeavyAttackDamage() const;
 
 	// Returns the charge attack damage value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
-		FORCEINLINE float GetChargeAttackDamage() const { return Combat.AttackSettings.ChargeAttackDamage; }
+		float GetChargeAttackDamage() const;
 
 	// Returns the dash attack damage value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
-		FORCEINLINE float GetDashAttackDamage() const { return Combat.DashAttackSettings.DashAttackDamage; }
+		float GetDashAttackDamage() const;
 
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
@@ -476,6 +476,8 @@ protected:
 
 	void CalculateRollLean(float DeltaTime);
 	void CalculatePitchLean(float DeltaTime);
+
+	class UYlvaDifficultyData* GetDifficultyData() const;
 
 	UFUNCTION()
 		void HandleInput(FName ActionName);
@@ -975,6 +977,15 @@ protected:
 		FMovementSettings_Ylva MovementSettings;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
+		class UYlvaDifficultyData* CasualDifficultyData;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
+		class UYlvaDifficultyData* ExperiencedDifficultyData;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
+		class UYlvaDifficultyData* RealisticDifficultyData;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Combat")
 		UParticleSystem* SlashParticle;
 
 	// The amount of time (in seconds) we are electrocuted for when we are hit by a lightning strike
@@ -1001,6 +1012,8 @@ protected:
 private:
 	TQueue<EAttackType_Player> AttackQueue;
 	TQueue<uint8> DashQueue;
+
+	class UYlvaDifficultyData* CurrentDifficultyData;
 
 	float YawInput = 0.0f;
 

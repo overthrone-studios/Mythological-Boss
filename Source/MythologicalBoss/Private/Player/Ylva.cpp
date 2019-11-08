@@ -43,6 +43,7 @@
 
 #include "Misc/FeatData.h"
 #include "Misc/HitSoundData.h"
+#include "Misc/YlvaDifficultyData.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -250,6 +251,8 @@ void AYlva::BeginPlay()
 	UOverthroneFunctionLibrary::SetupTimeline(this, StaminaRegenTimeline, StaminaRegenCurve, false, 1.0f, FName("LoseStamina"), FName("FinishLosingStamina"));
 	UOverthroneFunctionLibrary::SetupTimeline(this, ChargeAttackTimeline, ChargeAttackCurve, false, 1.0f, FName("GainCharge"), FName("FinishGainingCharge"));
 
+	CurrentDifficultyData = GetDifficultyData();
+
 	// Initialize our variables
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
@@ -270,6 +273,12 @@ void AYlva::BeginPlay()
 	CameraManager->ViewPitchMax = FollowCamera->GetMinPitch();
 
 	// Initialize player info
+	HealthComponent->SetDefaultHealth(CurrentDifficultyData->DefaultHealth);
+	HealthComponent->SetHealth(CurrentDifficultyData->DefaultHealth);
+	StaminaComponent->SetDefaultStamina(CurrentDifficultyData->DefaultStamina);
+	StaminaComponent->SetStamina(CurrentDifficultyData->DefaultStamina);
+	StaminaComponent->InitStaminaEconomyValues(*CurrentDifficultyData);
+
 	GameState->PlayerData.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameState->PlayerData.Health = HealthComponent->GetCurrentHealth();
 	GameState->PlayerData.SmoothedHealth = HealthComponent->GetSmoothedHealth();
@@ -283,6 +292,7 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
 
 	GameState->Ylva = this;
+	UpdateCharacterInfo();
 
 	// Bind events to our functions
 	GameState->PlayerData.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);
@@ -864,6 +874,24 @@ void AYlva::CalculatePitchLean(const float DeltaTime)
 	{
 		PlayerLeanPitchAmount = FMath::FInterpTo(PlayerLeanPitchAmount, 0.0f, DeltaTime, 1.0f);
 		YlvaAnimInstance->LeanPitchAmount = PlayerLeanPitchAmount * MovementSettings.LeanPitchOffset;
+	}
+}
+
+UYlvaDifficultyData* AYlva::GetDifficultyData() const
+{
+	switch (GameInstance->ChosenDifficultyOption)
+	{
+	case DO_Casual:
+		return CasualDifficultyData;
+
+	case DO_Experienced:
+		return ExperiencedDifficultyData;
+
+	case DO_Realistic:
+		return RealisticDifficultyData;
+
+	default:
+		return nullptr;
 	}
 }
 
@@ -2768,6 +2796,26 @@ void AYlva::ResumeMovement()
 void AYlva::SpawnGhost()
 {
 	World->SpawnActor(GhostClass, &SKMComponent->GetComponentTransform());
+}
+
+float AYlva::GetLightAttackDamage() const
+{
+	return Combat.AttackSettings.LightAttackDamage * CurrentDifficultyData->DamageMultiplier;
+}
+
+float AYlva::GetHeavyAttackDamage() const
+{
+	return Combat.AttackSettings.HeavyAttackDamage * CurrentDifficultyData->DamageMultiplier;
+}
+
+float AYlva::GetChargeAttackDamage() const
+{
+	return Combat.AttackSettings.ChargeAttackDamage * CurrentDifficultyData->DamageMultiplier;
+}
+
+float AYlva::GetDashAttackDamage() const
+{
+	return Combat.DashAttackSettings.DashAttackDamage * CurrentDifficultyData->DamageMultiplier;
 }
 
 bool AYlva::IsLightAttacking() const

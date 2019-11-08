@@ -15,6 +15,8 @@ class MYTHOLOGICALBOSS_API UStaminaComponent final : public UActorComponent
 public:	
 	UStaminaComponent();
 
+	void InitStaminaEconomyValues(class UYlvaDifficultyData& DifficultyData);
+
 	// Delay stamina regeneration by the regeneration delay
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 		void DelayRegeneration();
@@ -118,6 +120,10 @@ public:
 	// Return the shield hit stamina value
 	UFUNCTION(BlueprintPure, Category = "Stamina")
 		FORCEINLINE float GetShieldHitValue() const { return ShieldHit; }
+
+	// Set a new default stamina value
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+		void SetDefaultStamina(float NewDefaultStamina);
 
 	// Set a new current stamina value
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
