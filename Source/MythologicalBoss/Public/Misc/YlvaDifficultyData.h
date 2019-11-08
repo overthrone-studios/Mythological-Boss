@@ -35,7 +35,7 @@ public:
 
 	// The stamina value to subtract when heavy attacking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Difficulty Data | Stamina", meta = (ClampMin = 0.0f))
-		float HeavyAttack = 300.0f;
+		float HeavyAttack = 200.0f;
 
 	// The stamina value to subtract when dashing
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Difficulty Data | Stamina", meta = (ClampMin = 0.0f))
