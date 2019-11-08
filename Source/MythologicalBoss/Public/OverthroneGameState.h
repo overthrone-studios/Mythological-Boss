@@ -244,7 +244,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")
 		class AMordath* Mordath;
 
-	// The lockon actor in the world
+	// The lock-on actor in the world
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Lock-On")
 		class ALockOn* LockOn;
 
