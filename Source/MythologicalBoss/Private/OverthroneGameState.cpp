@@ -8,37 +8,41 @@
 
 #include "Kismet/GameplayStatics.h"
 
-void AOverthroneGameState::EnterBossStage(const EBossStage_Mordath InBossStage)
+void AOverthroneGameState::EnterBossStage(const EBossStage_Mordath InBossStage) const
 {
 	switch (InBossStage)
 	{
 	case Stage_1:
-		Boss->EnterStage(Stage_1);
+		Mordath->EnterStage(Stage_1);
 	break;
 
 	case Stage_2:
-		Boss->EnterStage(Stage_2);
+		Mordath->EnterStage(Stage_2);
 	break;
 
 	case Stage_3:
-		Boss->EnterStage(Stage_3);
+		Mordath->EnterStage(Stage_3);
+	break;
+
+	default:
+		Mordath->EnterStage(Stage_1);
 	break;
 	}
 }
 
-void AOverthroneGameState::LockBoss()
+void AOverthroneGameState::LockBoss() const
 {
-	Boss->ToggleLockSelf();
+	Mordath->ToggleLockSelf();
 }
 
-void AOverthroneGameState::KillMordath()
+void AOverthroneGameState::KillMordath() const
 {
-	Boss->Die();
+	Mordath->Die();
 }
 
-void AOverthroneGameState::SpawnMordathGhost()
+void AOverthroneGameState::SpawnMordathGhost() const
 {
-	Boss->SpawnGhost();
+	Mordath->SpawnGhost();
 }
 
 void AOverthroneGameState::RestartGame()
@@ -52,24 +56,24 @@ void AOverthroneGameState::RestartGame()
 	BossData.ResetData();
 }
 
-bool AOverthroneGameState::IsGamePaused()
+bool AOverthroneGameState::IsGamePaused() const
 {
 	return UGameplayStatics::IsGamePaused(this);
 }
 
-void AOverthroneGameState::PauseGame()
+void AOverthroneGameState::PauseGame() const
 {
 	UOverthroneFunctionLibrary::PauseGame(this, PlayerController);
 }
 
-void AOverthroneGameState::UnPauseGame()
+void AOverthroneGameState::UnPauseGame() const
 {
 	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);
 }
 
 bool AOverthroneGameState::IsBossTeleporting() const
 {
-	return Boss->IsTeleporting();
+	return Mordath->IsTeleporting();
 }
 
 void AOverthroneGameState::BeginPlay()
