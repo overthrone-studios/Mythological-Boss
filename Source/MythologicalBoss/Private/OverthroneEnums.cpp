@@ -79,3 +79,21 @@ FString UOverthroneEnums::PlayerAttackTypeToString(const EAttackType_Player& Enu
 		return FString("None");
 	}
 }
+
+FString UOverthroneEnums::DifficultyOptionToString(const EDifficultyOptions& Enum)
+{
+	switch (Enum)
+	{
+	case DO_Casual:
+		return FString("Casual");
+
+	case DO_Experienced:
+		return FString("Experienced");
+
+	case DO_Realistic:
+		return FString("Realistic");
+
+	default:
+		return FString("None");
+	}
+}

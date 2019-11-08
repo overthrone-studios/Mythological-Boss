@@ -3,6 +3,7 @@
 #include "Mordath.h"
 
 #include "OverthroneFunctionLibrary.h"
+#include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
 #include "OverthroneHUD.h"
 #include "OverthroneEnums.h"
@@ -1201,7 +1202,7 @@ void AMordath::OnExitSuperCloseRange()
 #pragma region Stage 1
 void AMordath::OnEnterFirstStage()
 {
-	CurrentStageData = GetStageData(); //todo give difficulty option
+	CurrentStageData = GetStageData();
 	CurrentStageData->Init();
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
@@ -1253,7 +1254,7 @@ void AMordath::OnExitFirstStage()
 #pragma region Stage 2
 void AMordath::OnEnterSecondStage()
 {
-	CurrentStageData = GetStageData(); //todo give difficulty option
+	CurrentStageData = GetStageData();
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
@@ -2054,7 +2055,7 @@ UMordathStageData* AMordath::GetStageData() const
 	{
 	case 0: /*Stage 1*/
 	{
-		switch (GameState->ChosenDifficultyOption)
+		switch (GameInstance->ChosenDifficultyOption)
 		{
 		case DO_Casual:
 			return CasualDifficulty->StageOneData;
@@ -2072,7 +2073,7 @@ UMordathStageData* AMordath::GetStageData() const
 
 	case 1: /*Stage 2*/
 	{
-		switch (GameState->ChosenDifficultyOption)
+		switch (GameInstance->ChosenDifficultyOption)
 		{
 		case DO_Casual:
 			return CasualDifficulty->StageTwoData;
@@ -2090,7 +2091,7 @@ UMordathStageData* AMordath::GetStageData() const
 
 	case 2: /*Stage 3*/
 	{
-		switch (GameState->ChosenDifficultyOption)
+		switch (GameInstance->ChosenDifficultyOption)
 		{
 		case DO_Casual:
 			return CasualDifficulty->StageThreeData;

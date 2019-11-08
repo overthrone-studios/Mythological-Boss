@@ -437,6 +437,8 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(12, "Yaw Input: " + FString::SanitizeFloat(YawInput));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Direction To Boss: " + DirectionToBoss.ToString());
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(14, "Chosen Difficulty: " + UOverthroneEnums::DifficultyOptionToString(GameInstance->ChosenDifficultyOption));
 #endif
 }
 
@@ -2982,4 +2984,5 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Displayed Stamina: ", FColor::Yellow);
 	OverthroneHUD->AddOnScreenDebugMessage("Yaw Input: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Direction To Boss: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Chosen Difficulty: ", FColor::Green);
 }
