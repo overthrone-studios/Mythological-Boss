@@ -282,7 +282,7 @@ void AYlva::BeginPlay()
 	GameState->PlayerData.Charge = ChargeAttackComponent->GetCurrentCharge();
 	GameState->PlayerData.SmoothedCharge = ChargeAttackComponent->GetCurrentCharge();
 
-	GameState->Player = this;
+	GameState->Ylva = this;
 
 	// Bind events to our functions
 	GameState->PlayerData.OnLowHealth.AddDynamic(this, &AYlva::OnLowHealth);

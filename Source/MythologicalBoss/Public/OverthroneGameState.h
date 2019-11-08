@@ -160,19 +160,19 @@ class MYTHOLOGICALBOSS_API AOverthroneGameState final : public AGameStateBase
 public:
 	// Trigger a boss stage
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
-		void EnterBossStage(EBossStage_Mordath InBossStage);
+		void EnterBossStage(EBossStage_Mordath InBossStage) const;
 
 	// Lock the boss
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
-		void LockBoss();
+		void LockBoss() const;
 
 	// Set mordath's health to zero and play the OnDeath event
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
-		void KillMordath();
+		void KillMordath() const;
 
 	// Spawns a ghost version of mordath
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
-		void SpawnMordathGhost();
+		void SpawnMordathGhost() const;
 
 	// Restarts the current boss battle game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
@@ -180,15 +180,15 @@ public:
 
 	// Checks to see if the game is currently paused
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
-		bool IsGamePaused();
+		bool IsGamePaused() const;
 
 	// Pause the game and set input mode to UI
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
-		void PauseGame();
+		void PauseGame() const;
 
 	// UnPause the game and set input mode to Game
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
-		void UnPauseGame();
+		void UnPauseGame() const;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE APlayerCameraManager* GetCameraManager() const { return CameraManager; }
@@ -238,13 +238,13 @@ public:
 
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")
-		class AYlva* Player;
+		class AYlva* Ylva;
 
 	// The boss character
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Characters")
-		class AMordath* Boss;
+		class AMordath* Mordath;
 
-	// The lockon actor in the world
+	// The lock-on actor in the world
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Lock-On")
 		class ALockOn* LockOn;
 

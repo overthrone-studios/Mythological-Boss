@@ -201,7 +201,7 @@ void AMordath::BeginPlay()
 	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AMordath::OnSecondStageHealth);
 	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AMordath::OnThirdStageHealth);
 	GameState->BossData.LockOnBoneName = LockOnBoneName;
-	GameState->Boss = this;
+	GameState->Mordath = this;
 	UpdateCharacterInfo();
 
 	OriginalMaterial = SKMComponent->GetMaterial(0);
@@ -228,11 +228,18 @@ void AMordath::BeginPlay()
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
+	{
 		CapsuleComp->SetHiddenInGame(false);
+		EnergyShieldCollision->SetHiddenInGame(false);
+	}
 	else
+	{
 		CapsuleComp->SetHiddenInGame(true);
+		EnergyShieldCollision->SetHiddenInGame(true);
+	}
 #else
 	CapsuleComp->SetHiddenInGame(true);
+	EnergyShieldCollision->SetHiddenInGame(true);
 #endif
 }
 

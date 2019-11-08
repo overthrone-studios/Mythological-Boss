@@ -32,7 +32,7 @@ void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshC
 		DebugTrace = EDrawDebugTrace::None;
 #endif
 
-	AttackRadius = Mordath->GetAttackRadius();
+	//AttackRadius = Mordath->GetAttackRadius();
 	AttackDamage = DamageType == UDmgType_MordathKick::StaticClass() ? 0.0f : Mordath->GetActionDamage();
 
 #if !UE_BUILD_SHIPPING
