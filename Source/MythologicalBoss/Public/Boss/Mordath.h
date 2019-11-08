@@ -132,6 +132,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath")
 		void SpawnGhostDelayed(int32 Amount, float DelayInterval = 1.0f);
 
+	float GetActionDamage() const override;
+
 	void LockSelf() override;
 	void UnlockSelf() override;
 	void ToggleLockSelf() override;
@@ -182,6 +184,8 @@ protected:
 	class USkeletalMeshComponent* GetShield();
 
 	class UMordathStageData* GetStageData() const;
+
+	class UMordathDifficultyData* GetDifficultyData() const;
 
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
@@ -581,6 +585,8 @@ private:
 	float RetreatTime = 0.0f;
 
 	FString CurrentMontageName = "None";
+
+	class UMordathDifficultyData* CurrentDifficultyData;
 
 	class UMordathActionData* SuperCloseRange_ActionData;
 	class UMordathActionData* FarRange_ActionData;

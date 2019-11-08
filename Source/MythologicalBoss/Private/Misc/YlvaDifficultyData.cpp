@@ -3,5 +3,7 @@
 #include "YlvaDifficultyData.h"
 
 
-
-
+UYlvaDifficultyData::UYlvaDifficultyData()
+{
+	DefaultHealth = 300.0f;
+}

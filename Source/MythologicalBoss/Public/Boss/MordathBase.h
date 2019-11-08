@@ -43,7 +43,7 @@ public:
 
 	// Returns the current action damage value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetActionDamage() const;
+		virtual float GetActionDamage() const;
 
 	// Returns the attack radius value
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")

@@ -15,6 +15,8 @@ class MYTHOLOGICALBOSS_API UYlvaDifficultyData final : public UCharacterDifficul
 	GENERATED_BODY()
 	
 public:
+	UYlvaDifficultyData();
+
 	// Ylva default stamina value for this difficulty
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Difficulty Data | Stamina", meta = (ClampMin = 0.0f))
 		float DefaultStamina = 1000.0f;
