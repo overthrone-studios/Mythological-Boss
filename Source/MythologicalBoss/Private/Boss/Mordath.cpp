@@ -228,11 +228,18 @@ void AMordath::BeginPlay()
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
+	{
 		CapsuleComp->SetHiddenInGame(false);
+		EnergyShieldCollision->SetHiddenInGame(false);
+	}
 	else
+	{
 		CapsuleComp->SetHiddenInGame(true);
+		EnergyShieldCollision->SetHiddenInGame(true);
+	}
 #else
 	CapsuleComp->SetHiddenInGame(true);
+	EnergyShieldCollision->SetHiddenInGame(true);
 #endif
 }
 
