@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		FName EndBone = "SwordEnd";
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		float AttackRadius = 30.0f;
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 		class UHitSoundData* HitSoundData;
 
@@ -45,7 +48,6 @@ protected:
 	TArray<FHitResult> HitResults;
 
 	float AttackDamage = 100.0f;
-	float AttackRadius = 10.0f;
 
 	uint8 bIsHit : 1;
 
