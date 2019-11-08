@@ -22,6 +22,15 @@ enum EBossStage_Mordath
 	Stage_None
 };
 
+UENUM(BlueprintType)
+enum EDifficultyOptions
+{
+	DO_Casual UMETA(DisplayName = "Casual"),
+	DO_Experienced UMETA(DisplayName = "Experienced"),
+	DO_Realistic UMETA(DisplayName = "Realistic"),
+	DO_None UMETA(DisplayName = "None")
+};
+
 UENUM()
 enum EAttackType_Player
 {

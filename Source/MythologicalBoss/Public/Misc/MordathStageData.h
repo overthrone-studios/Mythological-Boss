@@ -9,42 +9,6 @@
 #include "MordathStageData.generated.h"
 
 USTRUCT(BlueprintType)
-struct FThinkStateData
-{
-	GENERATED_BODY()
-
-	// Calculates a new think time using RandomDeviation
-	float CalculateThinkTime();
-
-protected:
-	// How long (in seconds) should the boss think for, before initiating an attack?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
-		float ThinkTime = 2.0f;
-
-	// Adds a random range to ThinkTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
-		float RandomDeviation = 0.3f;
-};
-
-USTRUCT(BlueprintType)
-struct FRetreatStateData
-{
-	GENERATED_BODY()
-
-	// Calculates a new retreat time using RandomDeviation
-	float CalculateRetreatTime();
-		
-protected:
-	// How long (in seconds) should the boss move away from you (walk backwards)?
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
-		float RetreatTime = 1.0f;
-
-	// Adds a random range to RetreatTime
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
-		float RandomDeviation = 0.3f;
-};
-
-USTRUCT(BlueprintType)
 struct FCameraShakes_Mordath
 {
 	GENERATED_BODY()

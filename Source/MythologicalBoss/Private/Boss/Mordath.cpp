@@ -10,6 +10,7 @@
 #include "Potions/PotionBase.h"
 
 #include "Misc/MordathStageData.h"
+#include "Misc/MordathDifficultyData.h"
 
 #include "FSM.h"
 #include "Log.h"
@@ -1200,7 +1201,7 @@ void AMordath::OnExitSuperCloseRange()
 #pragma region Stage 1
 void AMordath::OnEnterFirstStage()
 {
-	CurrentStageData = StageOneData;
+	CurrentStageData = GetStageData(); //todo give difficulty option
 	CurrentStageData->Init();
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
@@ -1252,7 +1253,7 @@ void AMordath::OnExitFirstStage()
 #pragma region Stage 2
 void AMordath::OnEnterSecondStage()
 {
-	CurrentStageData = StageTwoData;
+	CurrentStageData = GetStageData(); //todo give difficulty option
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
@@ -1316,7 +1317,7 @@ void AMordath::OnExitSecondStage()
 #pragma region Stage 3
 void AMordath::OnEnterThirdStage()
 {
-	CurrentStageData = StageThreeData;
+	CurrentStageData = GetStageData();
 
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
@@ -2045,6 +2046,69 @@ USkeletalMeshComponent* AMordath::GetShield()
 	#endif
 
 	return nullptr;
+}
+
+UMordathStageData* AMordath::GetStageData() const
+{
+	switch (StageFSM->GetActiveStateID())
+	{
+	case 0: /*Stage 1*/
+	{
+		switch (GameState->ChosenDifficultyOption)
+		{
+		case DO_Casual:
+			return CasualDifficulty->StageOneData;
+
+		case DO_Experienced:
+			return ExperiencedDifficulty->StageOneData;
+
+		case DO_Realistic:
+			return RealisticDifficulty->StageOneData;
+
+		default:
+			return CasualDifficulty->StageOneData;
+		}
+	}
+
+	case 1: /*Stage 2*/
+	{
+		switch (GameState->ChosenDifficultyOption)
+		{
+		case DO_Casual:
+			return CasualDifficulty->StageTwoData;
+
+		case DO_Experienced:
+			return ExperiencedDifficulty->StageTwoData;
+
+		case DO_Realistic:
+			return RealisticDifficulty->StageTwoData;
+
+		default:
+			return CasualDifficulty->StageTwoData;
+		}
+	}
+
+	case 2: /*Stage 3*/
+	{
+		switch (GameState->ChosenDifficultyOption)
+		{
+		case DO_Casual:
+			return CasualDifficulty->StageThreeData;
+
+		case DO_Experienced:
+			return ExperiencedDifficulty->StageThreeData;
+
+		case DO_Realistic:
+			return RealisticDifficulty->StageThreeData;
+
+		default:
+			return CasualDifficulty->StageThreeData;
+		}
+	}
+
+	default: 
+		return nullptr;
+	}
 }
 
 void AMordath::AddDebugMessages()

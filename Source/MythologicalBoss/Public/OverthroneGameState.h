@@ -257,6 +257,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Overthrone Game State | Characters")
 		FOnMordathBaseDeathSignature OnMordathBaseDeath;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Difficulty Option")
+		TEnumAsByte<EDifficultyOptions> ChosenDifficultyOption;
+
 	class UCameraShake* CurrentCameraShake;
 
 	class ABoundingBox* PlayArea{};

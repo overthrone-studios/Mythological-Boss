@@ -181,6 +181,8 @@ protected:
 
 	class USkeletalMeshComponent* GetShield();
 
+	class UMordathStageData* GetStageData() const;
+
 	#pragma region Events
 	// Called when the player's health is less than or equal to 0
 	void OnPlayerDeath() override;
@@ -495,9 +497,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class UDashComponent* DashComponent;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
-	//	class UAttackIndicatorComponent* FlashIndicator;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class USphereComponent* EnergyShieldCollision;
 
@@ -555,15 +554,15 @@ protected:
 
 	// The data the boss will reference during stage 1 of the fight
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		class UMordathStageData* StageOneData;
+		class UMordathDifficultyData* CasualDifficulty;
 
 	// The data the boss will reference during stage 2 of the fight
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		class UMordathStageData* StageTwoData;
+		class UMordathDifficultyData* ExperiencedDifficulty;
 
 	// The data the boss will reference during stage 3 of the fight
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
-		class UMordathStageData* StageThreeData;
+		class UMordathDifficultyData* RealisticDifficulty;
 
 	// How long (in seconds) should we stay dead before being destroyed?
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath", meta = (ClampMin = 0.0f))
