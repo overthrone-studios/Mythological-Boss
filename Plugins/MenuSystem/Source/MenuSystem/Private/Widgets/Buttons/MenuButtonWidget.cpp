@@ -46,9 +46,11 @@ TSharedRef<SWidget> UMenuButtonWidget::RebuildWidget()
 void UMenuButtonWidget::OnButtonHovered()
 {
 	TextBlock->SetColorAndOpacity(HoveredColorAndOpacity);
+	SetKeyboardFocus();
 }
 
 void UMenuButtonWidget::OnButtonUnhovered()
 {
 	TextBlock->SetColorAndOpacity(UnhoveredColorAndOpacity);
+	SetKeyboardFocus();
 }
