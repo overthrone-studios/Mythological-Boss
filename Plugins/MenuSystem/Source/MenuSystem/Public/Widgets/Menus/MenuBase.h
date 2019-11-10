@@ -59,10 +59,16 @@ protected:
 
 	void AddSetting(class UMenuSetting* Setting);
 
-	UFUNCTION(BlueprintCallable, Category = "Video Menu")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Menu Base | Navigation")
+		bool NavigateUp();
+	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Menu Base | Navigation")
+		bool NavigateDown();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu Base")
 		virtual void StoreAllSettings(class UPanelWidget* ParentWidget);
 
-	UPROPERTY(BlueprintReadWrite, Category = "Animations")
+	UPROPERTY(BlueprintReadWrite, Category = "Menu Base | Animations")
 		UWidgetAnimation* Animation {};
 
 	UPROPERTY(BlueprintReadWrite, Category = "Menu Base")
