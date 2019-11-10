@@ -3,6 +3,11 @@
 #include "BoidMovementComponent.h"
 #include "Boid.h"
 
+UBoidMovementComponent::UBoidMovementComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
 void UBoidMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -20,13 +25,4 @@ void UBoidMovementComponent::BeginPlay()
 	MaxSpeed = Owner->GetSpeed();
 	TurningBoost = Owner->GetTurnSpeed();
 	SetUpdateNavAgentWithOwnersCollisions(false);
-}
-
-void UBoidMovementComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// Set the boids' new rotation, after we've calculated the steering vector
-	Owner->UpdateRotation(DeltaTime);
-	//Owner->Debug();
 }

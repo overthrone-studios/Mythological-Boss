@@ -13,9 +13,12 @@ class FLOCKINGBEHAVIOURSYSTEM_API UBoidMovementComponent : public UFloatingPawnM
 {
 	GENERATED_BODY()
 
+public:
+	UBoidMovementComponent();
+
 protected:
 	void BeginPlay() override;
-	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	//void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	class ABoid* Owner;
