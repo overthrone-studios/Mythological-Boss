@@ -16,12 +16,4 @@ class MYTHOLOGICALBOSS_API ABossAIController final : public AAIController
 	
 public:
 	ABossAIController();
-
-	void Possess(APawn* InPawn) override;
-
-protected:
-	// Cached game instance
-	class UOverthroneGameInstance* GameInstance;
-
-	class AMordath* Mordath;
 };
