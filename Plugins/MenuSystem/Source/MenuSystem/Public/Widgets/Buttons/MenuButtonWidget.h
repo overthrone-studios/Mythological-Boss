@@ -18,6 +18,20 @@ class MENUSYSTEM_API UMenuButtonWidget final : public UButton
 public:
 	UMenuButtonWidget();
 
+	UFUNCTION(BlueprintCallable, Category = "Menu Button")
+		void OnButtonHovered();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu Button")
+		void OnButtonUnhovered();
+
+	FORCEINLINE FText GetButtonTooltip() const { return ButtonTooltip; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Menu Button")
+		USoundBase* PressedSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Menu Button")
+		USoundBase* HoveredSound;
+
 protected:
 	TSharedRef<SWidget> RebuildWidget() override;
 
@@ -47,12 +61,6 @@ protected:
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Button Text")
 		TEnumAsByte<ETextJustify::Type> Justification = ETextJustify::Center;
-
-	UFUNCTION(BlueprintCallable, Category = "Menu Button")
-		void OnButtonHovered();
-
-	UFUNCTION(BlueprintCallable, Category = "Menu Button")
-		void OnButtonUnhovered();
 
 private:
 	class UTextBlock* TextBlock;

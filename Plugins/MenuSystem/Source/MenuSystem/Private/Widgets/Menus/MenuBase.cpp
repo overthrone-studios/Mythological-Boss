@@ -9,6 +9,7 @@
 #include "WidgetTree.h"
 #include "MenuSetting.h"
 #include "WidgetAnimation.h"
+#include "Buttons/MenuButtonWidget.h"
 #include "Log.h"
 
 void UMenuBase::Init()
@@ -33,6 +34,25 @@ void UMenuBase::InitializeSettings()
 void UMenuBase::AddSetting(UMenuSetting* Setting)
 {
 	MenuSettings.Add(Setting);
+}
+
+bool UMenuBase::OnButtonHovered_Implementation(UMenuButtonWidget* Button)
+{
+	Button->OnButtonHovered();
+	MenuTooltipText = Button->GetButtonTooltip();
+
+	if (bCanPlayHoverSound)
+		UGameplayStatics::PlaySound2D(this, Button->HoveredSound);
+
+	return true;
+}
+
+bool UMenuBase::OnButtonUnhovered_Implementation(UMenuButtonWidget* Button)
+{
+	Button->OnButtonUnhovered();
+	MenuTooltipText = FText::AsCultureInvariant("");
+
+	return true;
 }
 
 void UMenuBase::StoreAllSettings(UPanelWidget* ParentWidget)

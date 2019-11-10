@@ -65,6 +65,15 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Menu Base | Navigation")
 		bool NavigateDown();
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Menu Base | Navigation")
+		bool OnButtonHovered(class UMenuButtonWidget* Button);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Menu Base | Navigation")
+		bool OnButtonUnhovered(class UMenuButtonWidget* Button);
+
+	bool OnButtonHovered_Implementation(class UMenuButtonWidget* Button);
+	bool OnButtonUnhovered_Implementation(class UMenuButtonWidget* Button);
+
 	UFUNCTION(BlueprintCallable, Category = "Menu Base")
 		virtual void StoreAllSettings(class UPanelWidget* ParentWidget);
 
@@ -77,6 +86,9 @@ protected:
 	int32 SelectedMenuIndex;
 
 	UPanelWidget* ParentBox;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Menu Base")
+		uint8 bCanPlayHoverSound : 1;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Menu Base")
 		class AMenuHUD* MenuHUD{};
