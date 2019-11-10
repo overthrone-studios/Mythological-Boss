@@ -18,6 +18,7 @@
 ABoid::ABoid()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	// Scene component
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(FName("SceneComponent"));
@@ -42,21 +43,28 @@ ABoid::ABoid()
 	StaticMeshComponent->SetEnableGravity(false);
 	StaticMeshComponent->SetCanEverAffectNavigation(false);
 	StaticMeshComponent->SetCastShadow(false);
+	StaticMeshComponent->CanCharacterStepUpOn = ECB_No;
+	StaticMeshComponent->bApplyImpulseOnDamage = false;
 
 	// Sphere component
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(FName("Sphere Component"));
-	//SphereComponent->PrimaryComponentTick.bCanEverTick = false;
+	SphereComponent->SetComponentTickEnabled(false);
 	SphereComponent->SetupAttachment(RootComponent);
 	SphereComponent->SetSphereRadius(PerceptionRadius, true);
 	SphereComponent->SetEnableGravity(false);
 	SphereComponent->bApplyImpulseOnDamage = false;
 	SphereComponent->CanCharacterStepUpOn = ECB_No;
+	SphereComponent->AreaClass = nullptr;
+	SphereComponent->SetCanEverAffectNavigation(false);
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ABoid::OnBoidDetected);
 	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &ABoid::OnBoidLost);
 
 	// Movement component
 	BoidMovementComponent = CreateDefaultSubobject<UBoidMovementComponent>(TEXT("BoidMovementComponent"));
 	BoidMovementComponent->UpdatedComponent = RootComponent;
+	BoidMovementComponent->SetUpdateNavAgentWithOwnersCollisions(false);
+	BoidMovementComponent->SetCanEverAffectNavigation(false);
+	//BoidMovementComponent->bTickBeforeOwner = false;
 
 	// Custom default pawn settings
 	AIControllerClass = ABoidController::StaticClass();
@@ -238,6 +246,9 @@ void ABoid::ApplyForces()
 
 void ABoid::OnBoidDetected(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (Boids.Num() == 0)
+		SphereComponent->SetComponentTickEnabled(true);
+
 	if (OtherActor->IsA(ABoid::StaticClass()))
 	{
 		Boids.AddUnique(Cast<ABoid>(OtherActor));
@@ -250,6 +261,9 @@ void ABoid::OnBoidLost(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	{
 		Boids.Remove(Cast<ABoid>(OtherActor));
 	}
+
+	if (Boids.Num() == 0)
+		SphereComponent->SetComponentTickEnabled(false);
 }
 
 void ABoid::ApplyForce(const FVector& Force)
