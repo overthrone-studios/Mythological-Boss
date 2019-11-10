@@ -107,7 +107,6 @@ FReply UMenuBase::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& In
 	if (InKeyEvent.GetKey() == EKeys::Gamepad_FaceButton_Right)
 	{
 		OnGamepadBackButtonPressed();
-		//MenuHUD->ShowMenu(0);
 	}
 
 	return FReply::Handled();
