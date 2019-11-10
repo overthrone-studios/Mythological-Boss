@@ -1014,13 +1014,6 @@ void AYlva::HeavyAttack()
 	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina())
 		return;
 
-	if (CanDashAttack())
-	{
-		FSM->PopState();
-		FSM->PushState("Dash Attack");
-		return;
-	}
-
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
 		FSM->PopState();
