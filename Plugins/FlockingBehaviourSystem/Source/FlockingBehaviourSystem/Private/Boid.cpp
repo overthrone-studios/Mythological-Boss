@@ -83,6 +83,7 @@ void ABoid::Tick(const float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	ApplyBehaviors(Boids);
+	UpdateRotation(DeltaSeconds);
 }
 
 FVector ABoid::SeekTowardsGoal()
