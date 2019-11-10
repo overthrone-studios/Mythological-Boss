@@ -30,10 +30,10 @@ uint32 FlockWorker::Run()
 	while (StopTaskCounter.GetValue() == 0)
 	{
 		//Mutex.Lock();
-		for (auto Boid : *Boids)
-		{
-			Boid->ApplyBehaviors(*Boids);
-		}
+		//for (auto Boid : *Boids)
+		//{
+		//	Boid->ApplyBehaviors(*Boids);
+		//}
 		//Mutex.Unlock();
 	}
 

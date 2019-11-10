@@ -26,3 +26,11 @@ void UBoidMovementComponent::BeginPlay()
 	TurningBoost = Owner->GetTurnSpeed();
 	SetUpdateNavAgentWithOwnersCollisions(false);
 }
+
+void UBoidMovementComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	Owner->ApplyBehaviors();
+	Owner->UpdateRotation(DeltaTime);
+}

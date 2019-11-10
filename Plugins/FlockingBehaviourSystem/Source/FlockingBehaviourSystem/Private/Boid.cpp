@@ -17,7 +17,7 @@
 
 ABoid::ABoid()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// Scene component
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(FName("SceneComponent"));
@@ -45,6 +45,7 @@ ABoid::ABoid()
 
 	// Sphere component
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(FName("Sphere Component"));
+	//SphereComponent->PrimaryComponentTick.bCanEverTick = false;
 	SphereComponent->SetupAttachment(RootComponent);
 	SphereComponent->SetSphereRadius(PerceptionRadius, true);
 	SphereComponent->SetEnableGravity(false);
@@ -81,9 +82,6 @@ void ABoid::BeginPlay()
 void ABoid::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	ApplyBehaviors(Boids);
-	UpdateRotation(DeltaSeconds);
 }
 
 FVector ABoid::SeekTowardsGoal()
@@ -188,7 +186,7 @@ void ABoid::CheckForObstacles()
 	}
 }
 
-void ABoid::ApplyBehaviors(TArray<ABoid*>& Boids)
+void ABoid::ApplyBehaviors()
 {
 	// Seek towards a goal
 	if (Behaviors.GoalSeeking.bEnabled && Behaviors.GoalSeeking.Goal)

@@ -95,7 +95,7 @@ public:
 	ABoid();
 
 	#pragma region Flocking
-	void ApplyBehaviors(TArray<ABoid*>& Boids);
+	void ApplyBehaviors();
 	void CalculateRotation(FVector Steering);
 	void UpdateRotation(float DeltaTime);
 	#pragma endregion
