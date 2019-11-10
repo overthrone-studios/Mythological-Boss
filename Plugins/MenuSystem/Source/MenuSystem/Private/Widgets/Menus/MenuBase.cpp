@@ -100,6 +100,19 @@ void UMenuBase::OnAnimationFinished_Implementation(const UWidgetAnimation* Anima
 		SetVisibility(ESlateVisibility::Hidden);
 }
 
+FReply UMenuBase::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	Super::NativeOnKeyUp(InGeometry, InKeyEvent);
+
+	if (InKeyEvent.GetKey() == EKeys::Gamepad_FaceButton_Right)
+	{
+		OnGamepadBackButtonPressed();
+		//MenuHUD->ShowMenu(0);
+	}
+
+	return FReply::Handled();
+}
+
 void UMenuBase::Apply()
 {
 	for (auto MenuSetting : MenuSettings)

@@ -43,7 +43,7 @@ void UControlsMenu::Back()
 
 void UControlsMenu::GoBack()
 {
-	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
+	MenuHUD->ShowMenu(3);
 
 	Super::GoBack();
 }
@@ -331,4 +331,3 @@ bool UControlsMenu::IsGamepadInputKeyDuplicate(UInputKeyBinding* ControlToCheck,
 
 	return false;
 }
-

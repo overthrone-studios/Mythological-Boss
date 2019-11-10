@@ -57,6 +57,8 @@ protected:
 	void OnAnimationStarted_Implementation(const UWidgetAnimation* Animation) override;
 	void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 
+	FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
 	void AddSetting(class UMenuSetting* Setting);
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Menu Base | Navigation")
@@ -70,6 +72,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Menu Base | Navigation")
 		bool OnButtonUnhovered(class UMenuButtonWidget* Button);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Menu Base | Navigation")
+		bool OnGamepadBackButtonPressed();
 
 	bool OnButtonHovered_Implementation(class UMenuButtonWidget* Button);
 	bool OnButtonUnhovered_Implementation(class UMenuButtonWidget* Button);

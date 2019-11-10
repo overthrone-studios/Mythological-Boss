@@ -71,7 +71,7 @@ void UVideoMenu::Back()
 void UVideoMenu::GoBack()
 {
 	// Switch to the options menu
-	MenuHUD->ShowMenu(UOptionsMenu::StaticClass());
+	MenuHUD->ShowMenu(3);
 	Super::GoBack();
 }
 
