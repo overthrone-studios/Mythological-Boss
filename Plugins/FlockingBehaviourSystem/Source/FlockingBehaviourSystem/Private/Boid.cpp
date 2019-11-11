@@ -64,7 +64,6 @@ ABoid::ABoid()
 	BoidMovementComponent->UpdatedComponent = RootComponent;
 	BoidMovementComponent->SetUpdateNavAgentWithOwnersCollisions(false);
 	BoidMovementComponent->SetCanEverAffectNavigation(false);
-	//BoidMovementComponent->bTickBeforeOwner = false;
 
 	// Custom default pawn settings
 	AIControllerClass = ABoidController::StaticClass();
