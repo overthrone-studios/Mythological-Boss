@@ -542,7 +542,8 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AYlva::MoveForward(const float Value)
 {
-	ForwardInput = Value;
+	if (!IsDashing())
+		ForwardInput = Value;
 
 	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased || IsBeingPushedBack())
 		return;
@@ -572,7 +573,8 @@ void AYlva::MoveForward(const float Value)
 
 void AYlva::MoveRight(const float Value)
 {
-	RightInput = Value;
+	if (!IsDashing())
+		RightInput = Value;
 
 	if (IsDashing() || bIsDead || IsMoveInputIgnored() || IsLocked() || bPerformingArtificialMovement || YlvaAnimInstance->bChargeReleased || IsBeingPushedBack())
 		return;
