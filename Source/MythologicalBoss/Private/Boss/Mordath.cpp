@@ -25,7 +25,6 @@
 #include "Components/HealthComponent.h"
 #include "Components/TeleportationComponent.h"
 #include "Components/DashComponent.h"
-#include "Components/AttackIndicatorComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 
@@ -55,7 +54,7 @@ AMordath::AMordath() : AMordathBase()
 	FSM->AddState(12, "Damaged");
 	FSM->AddState(13, "Transition");
 	FSM->AddState(14, "Stunned");
-	FSM->AddState(15, "Laugh");
+	FSM->AddState(15, "Roar");
 	FSM->AddState(16, "Dash");
 	FSM->AddState(17, "Dash Combat");
 	FSM->AddState(18, "Teleport");
@@ -81,9 +80,9 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(14)->OnUpdateState.AddDynamic(this, &AMordath::UpdateStunnedState);
 	FSM->GetStateFromID(14)->OnExitState.AddDynamic(this, &AMordath::OnExitStunnedState);
 
-	FSM->GetStateFromID(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterLaughState);
-	FSM->GetStateFromID(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateLaughState);
-	FSM->GetStateFromID(15)->OnExitState.AddDynamic(this, &AMordath::OnExitLaughState);
+	FSM->GetStateFromID(15)->OnEnterState.AddDynamic(this, &AMordath::OnEnterRoarState);
+	FSM->GetStateFromID(15)->OnUpdateState.AddDynamic(this, &AMordath::UpdateRoarState);
+	FSM->GetStateFromID(15)->OnExitState.AddDynamic(this, &AMordath::OnExitRoarState);
 
 	FSM->GetStateFromID(16)->OnEnterState.AddDynamic(this, &AMordath::OnEnterDashState);
 	FSM->GetStateFromID(16)->OnUpdateState.AddDynamic(this, &AMordath::UpdateDashState);
@@ -165,9 +164,6 @@ AMordath::AMordath() : AMordathBase()
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash Component"));
 
-	// Flash indicator static mesh component
-	//FlashIndicator = CreateDefaultSubobject<UAttackIndicatorComponent>(FName("Flash Indicator Mesh"));
-
 	HealthComponent->OnFullHealth.AddDynamic(this, &AMordath::OnFullHealth);
 
 	// Energy shield collision component
@@ -217,6 +213,7 @@ void AMordath::BeginPlay()
 	const FMaterialParameterInfo MPC_Mordath{"Attack Color"};
 	MID_OriginalMaterial->GetVectorParameterValue(MPC_Mordath, OriginalAttackColor);
 
+	AnimInstance->OnMontageEnded.AddDynamic(this, &AMordath::OnAttackEnd_Implementation);
 	OnEnterPerfectDash.AddDynamic(this, &AMordath::OnEnterPerfectDashWindow);
 
 	// Begin the state machines
@@ -382,16 +379,6 @@ void AMordath::OnExitAnyStageState(int32 ID, FName Name)
 void AMordath::OnEnterFollowState()
 {
 	Super::OnEnterFollowState();
-
-	if (IsSuperCloseRange() && 
-		(CurrentActionData->Action->ActionType != ATM_Dash_Forward && 
-		CurrentActionData->Action->ActionType != ATM_Dash_Backward &&
-		CurrentActionData->Action->ActionType != ATM_Dash_Left && 
-		CurrentActionData->Action->ActionType != ATM_Dash_Right) &&
-		FVector::DotProduct(GetActorForwardVector(), DirectionToPlayer) < -0.3f)
-	{
-		FSM->PushState("Back Hand");
-	}
 }
 
 void AMordath::UpdateFollowState(float Uptime, int32 Frames)
@@ -888,19 +875,21 @@ void AMordath::OnExitStunnedState()
 }
 #pragma endregion
 
-#pragma region Laugh
-void AMordath::OnEnterLaughState()
+#pragma region Roar
+void AMordath::OnEnterRoarState()
 {
-	MordathAnimInstance->bCanLaugh = true;
+	MordathAnimInstance->bCanRoar = true;
 }
 
-void AMordath::UpdateLaughState(float Uptime, int32 Frames)
+void AMordath::UpdateRoarState(float Uptime, int32 Frames)
 {
+	if (AnimInstance->AnimTimeRemaining < 0.0f)
+		FSM->Stop();
 }
 
-void AMordath::OnExitLaughState()
+void AMordath::OnExitRoarState()
 {
-	MordathAnimInstance->bCanLaugh = false;
+	MordathAnimInstance->bCanRoar = false;
 }
 #pragma endregion
 
@@ -1397,6 +1386,14 @@ void AMordath::OnFullHealth()
 	{
 		HealthComponent->SetDefaultHealth(ThirdStageDefaultHealth);
 		UpdateCharacterInfo();
+	}
+}
+
+void AMordath::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterrupted)
+{
+	if (GameState->IsPlayerDead())
+	{
+		FSM->PushState("Roar");
 	}
 }
 

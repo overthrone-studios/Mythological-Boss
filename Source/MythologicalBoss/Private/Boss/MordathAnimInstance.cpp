@@ -7,7 +7,7 @@ void UMordathAnimInstance::LeaveAllStates()
 {
 	Super::LeaveAllStates();
 
-	bCanLaugh = false;
+	bCanRoar = false;
 	bIsBeaten = false;
 	bIsStunned = false;
 	bCanTeleport = false;

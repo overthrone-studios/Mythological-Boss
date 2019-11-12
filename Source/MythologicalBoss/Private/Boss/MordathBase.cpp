@@ -166,7 +166,7 @@ void AMordathBase::Tick(const float DeltaTime)
 		AnimInstance->MovementSpeed = 0.0f;
 		AnimInstance->ForwardInput = 0.0f;
 		AnimInstance->RightInput = 0.0f;
-		MordathAnimInstance->CurrentStage = Stage_None;
+		//MordathAnimInstance->CurrentStage = Stage_None;
 		return;
 	}
 	

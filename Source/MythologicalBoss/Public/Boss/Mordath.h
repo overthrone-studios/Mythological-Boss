@@ -244,6 +244,9 @@ protected:
 
 	UFUNCTION()
 		void OnFullHealth();
+
+	UFUNCTION()
+		void OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterrupted);
 	#pragma endregion 
 
 	#pragma region Any States
@@ -341,11 +344,11 @@ protected:
 
 		#pragma region Laugh
 		UFUNCTION()
-			void OnEnterLaughState();
+			void OnEnterRoarState();
 		UFUNCTION()
-			void UpdateLaughState(float Uptime, int32 Frames);
+			void UpdateRoarState(float Uptime, int32 Frames);
 		UFUNCTION()
-			void OnExitLaughState();
+			void OnExitRoarState();
 		#pragma endregion 
 
 		#pragma region Dash
