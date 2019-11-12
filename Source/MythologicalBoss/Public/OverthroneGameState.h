@@ -248,6 +248,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Game State | Lock-On")
 		class ALockOn* LockOn;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Game State | Tutorial")
+		uint8 bInTutorialSection : 1;
+
 	// Character Data
 	FPlayerData PlayerData;
 	FBossData BossData;
