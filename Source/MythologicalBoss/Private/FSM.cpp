@@ -63,6 +63,8 @@ void UFSM::Start()
 	OnEnterAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
 	AddStateToHistory(*Stack[0]);
 	bIsRunning = true;
+
+	EnableTick();
 }
 
 void UFSM::Stop()
@@ -77,6 +79,8 @@ void UFSM::Stop()
 	OnExitAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name);
 	AddStateToHistory(*Stack[0]);
 	bIsRunning = false;
+
+	DisableTick();
 }
 
 void UFSM::InitFSM(const int32 StateID)
