@@ -1306,7 +1306,7 @@ void AYlva::EndTakeDamage(const FDamageEvent& DamageEvent)
 #pragma region Movement
 void AYlva::Run()
 {
-	if (bIsDead || IsChargeAttacking() || IsDashAttacking() || IsLocked())
+	if (bIsDead || IsChargeAttacking() || IsDashAttacking() || IsLocked() || !IsMovingInAnyDirection())
 		return;
 
 	bCanRun = !bCanRun;
@@ -1332,10 +1332,7 @@ void AYlva::StopRunning()
 
 	// Delay stamina regeneration if we were running
 	if (IsRunning())
-	{
-
 		FSM->PopState("Run");
-	}
 }
 
 void AYlva::Dash()
@@ -1376,13 +1373,10 @@ void AYlva::Dash()
 		// Do we have enough stamina to dash?
 		if (StaminaComponent->HasEnoughForDash())
 		{
+		#if !UE_BUILD_SHIPPING
 			if (!bGodMode)
-			{
+		#endif
 				StartDashCooldown();
-
-				if (DashQueue.IsEmpty())
-					UpdateStamina(StaminaComponent->GetDashValue());
-			}
 
 			if (!IsRunning())
 				FSM->PopState();
@@ -2625,6 +2619,8 @@ void AYlva::OnEnterDashState()
 
 	LockedForwardInput = ForwardInput;
 	LockedRightInput = RightInput;
+
+	UpdateStamina(StaminaComponent->GetDashValue());
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
