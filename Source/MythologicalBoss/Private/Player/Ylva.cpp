@@ -2642,7 +2642,8 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		ULog::Info("Perfectly timed dash!", true);
 		#endif
 
-		MainHUD->ShowDashAttackPrompt();
+		if (StaminaComponent->HasEnoughForDashAttack())
+			MainHUD->ShowDashAttackPrompt();
 
 		EnableInvincibility();
 
