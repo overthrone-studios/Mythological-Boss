@@ -686,7 +686,7 @@ void AYlva::HandleInput(const FName ActionName)
 	}
 	else if (ActionName == "LockOn Switch")
 	{
-		if (IsLockedOn())
+		if (IsLockedOn() && !IsPerfectDashing() && !IsDashAttacking())
 			CurrentLockOnLocation = FollowCamera->CycleLockOnTargets(GameState->Mordaths);
 	}
 }
@@ -1011,7 +1011,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina() && IsPerfectDashing())
 		return;
 
 	// Finish the parry event early if we decide to attack
@@ -2521,6 +2521,8 @@ void AYlva::OnEnterDashAttackState()
 	PlayerController->SetIgnoreMoveInput(true);
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationWhileAttacking);
+
+	FaceBoss_Instant();
 }
 
 void AYlva::UpdateDashAttackState(float Uptime, int32 Frames)
@@ -2528,11 +2530,8 @@ void AYlva::UpdateDashAttackState(float Uptime, int32 Frames)
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.DashAttackSettings.TimeDilationWhileAttacking, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
 
-	if (FSM->GetActiveStateUptime() < 0.1f)
-	{
-		FaceBoss_Instant();
+	if (!IsLockedOn())
 		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
-	}
 
 	if (AnimInstance->AnimTimeRemaining < 0.1f)
 		FSM->PopState();
@@ -2932,7 +2931,7 @@ bool AYlva::IsBeingPushedBack() const
 
 bool AYlva::CanLockOn() const
 {
-	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance() && !GameState->IsBossTeleporting();
+	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance() && !GameState->IsBossTeleporting() && !IsPerfectDashing() && !IsDashAttacking();
 }
 
 bool AYlva::IsLocked() const
