@@ -86,7 +86,10 @@ FVector UPlayerCameraComponent::CycleLockOnTargets(TArray<class ACharacter*> Tar
 		++CurrentLockOnIndex;
 
 	if (Targets.IsValidIndex(CurrentLockOnIndex))
+	{
+		ClosestTarget = Targets[CurrentLockOnIndex];
 		return Targets[CurrentLockOnIndex]->GetMesh()->GetSocketLocation(SocketName);
+	}
 
 	return FVector(0.0f);
 }

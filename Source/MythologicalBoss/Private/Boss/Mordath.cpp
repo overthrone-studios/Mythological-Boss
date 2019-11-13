@@ -980,6 +980,10 @@ void AMordath::OnEnterTeleportState()
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CapsuleComp->SetCollisionObjectType(ECC_Vehicle);
 
+	GameState->Mordaths.Remove(this);
+	GameState->Mordaths.Shrink();
+	GameState->OnMordathBaseDeath.Broadcast();
+
 	EnableInvincibility();
 }
 
@@ -1025,6 +1029,8 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 void AMordath::OnExitTeleportState()
 {
 	TeleportationComponent->Reappear();
+
+	GameState->Mordaths.Add(this);
 
 	DisableInvincibility();
 

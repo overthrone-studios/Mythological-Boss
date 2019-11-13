@@ -10,6 +10,7 @@
 #include "OverthroneGameInstance.h"
 #include "OverthroneGameState.h"
 #include "OverthroneFunctionLibrary.h"
+#include "OverthroneMacros.h"
 
 #include "FSM.h"
 #include "Log.h"
@@ -904,7 +905,8 @@ void AYlva::PauseAllAudioSources()
 
 void AYlva::ResumeAllAudioSources()
 {
-	LowHealthAudioComponent->Play();
+	if (HealthComponent->IsLowHealth())
+		LowHealthAudioComponent->Play();
 }
 
 void AYlva::OnAttackLanded(const FHitResult& HitResult)
@@ -1970,7 +1972,7 @@ void AYlva::OnExitMordathEnergySphere()
 
 void AYlva::OnMordathDisappeared()
 {
-	if (IsLockedOn() && !FollowCamera->GetLockedOnTarget()->IsA(AMordathGhost::StaticClass()))
+	if (IsLockedOn() && !CAST(FollowCamera->GetLockedOnTarget(), AMordathGhost))
 	{
 		bWasLockedOn = true;
 		FollowCamera->DisableLockOn();
@@ -1989,6 +1991,7 @@ void AYlva::OnMordathReappeared()
 void AYlva::OnMordathBaseDeath()
 {
 	FollowCamera->ResetLockOnTarget();
+	FollowCamera->DetermineClosestLockOnTarget(GameState->Mordaths);
 	CurrentLockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths);
 }
 #pragma endregion
