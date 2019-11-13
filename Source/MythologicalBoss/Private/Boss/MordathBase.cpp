@@ -677,7 +677,7 @@ void AMordathBase::ChooseCombo()
 
 	if (CurrentStageData->ComboSettings.bChooseRandomCombo)
 		ComboIndex = FMath::RandRange(0, CachedCombos.Num()-1);
-	else if (ComboIndex > CachedCombos.Num())
+	else if (ComboIndex > CachedCombos.Num()-1)
 		ComboIndex = 0;
 
 	if (CachedCombos.Num() > 0)
@@ -694,6 +694,8 @@ void AMordathBase::ChooseCombo()
 			StartExecutionExpiryTimer();
 
 			CachedCombos.Remove(ChosenCombo);
+
+			++ComboIndex;
 		}
 		else
 		{
