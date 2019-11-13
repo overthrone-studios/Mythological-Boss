@@ -29,7 +29,6 @@ void UANS_ApplyDamageMordathGhost::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	if (!MordathGhost)
 		return;
 
-	AttackRadius = MordathGhost->GetAttackRadius();
 	AttackDamage = MordathGhost->GetActionDamage();
 
 #if !UE_BUILD_SHIPPING

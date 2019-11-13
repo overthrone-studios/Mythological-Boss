@@ -64,7 +64,6 @@ AMordath::AMordath() : AMordathBase()
 	FSM->AddState(20, "Kick");
 	FSM->AddState(21, "Recover");
 	FSM->AddState(23, "Tired");
-	FSM->AddState(24, "Back Hand");
 	FSM->AddState(26, "Close Action");
 	FSM->AddState(27, "Far Action");
 	FSM->AddState(28, "Invincible");
@@ -113,10 +112,6 @@ AMordath::AMordath() : AMordathBase()
 	FSM->GetStateFromID(23)->OnEnterState.AddDynamic(this, &AMordath::OnEnterTiredState);
 	FSM->GetStateFromID(23)->OnUpdateState.AddDynamic(this, &AMordath::UpdateTiredState);
 	FSM->GetStateFromID(23)->OnExitState.AddDynamic(this, &AMordath::OnExitTiredState);
-
-	FSM->GetStateFromID(24)->OnEnterState.AddDynamic(this, &AMordath::OnEnterBackHandState);
-	FSM->GetStateFromID(24)->OnUpdateState.AddDynamic(this, &AMordath::UpdateBackHandState);
-	FSM->GetStateFromID(24)->OnExitState.AddDynamic(this, &AMordath::OnExitBackHandState);
 
 	FSM->GetStateFromID(26)->OnEnterState.AddDynamic(this, &AMordath::OnEnterCloseActionState);
 	FSM->GetStateFromID(26)->OnUpdateState.AddDynamic(this, &AMordath::UpdateCloseActionState);
@@ -970,33 +965,6 @@ void AMordath::OnExitTiredState()
 }
 #pragma endregion
 
-#pragma region Back Hand
-void AMordath::OnEnterBackHandState()
-{
-	PlayAnimMontage(CurrentStageData->Combat.BackHandActionData->ActionMontage);
-
-	ActionDamage = CurrentStageData->Combat.BackHandActionData->ActionDamage;
-}
-
-void AMordath::UpdateBackHandState(float Uptime, int32 Frames)
-{
-	FacePlayerBasedOnActionData(CurrentStageData->Combat.BackHandActionData);
-
-	if (HasFinishedAction(CurrentStageData->Combat.BackHandActionData->ActionMontage))
-	{
-		FSM->PopState();
-	}
-}
-
-void AMordath::OnExitBackHandState()
-{
-	// Ensure that anim montage has stopped playing when leaving this state
-	StopAnimMontage(CurrentStageData->Combat.BackHandActionData->ActionMontage);
-
-	ResetActionDamage();
-}
-#pragma endregion
-
 #pragma region Teleport
 void AMordath::OnEnterTeleportState()
 {
@@ -1153,7 +1121,7 @@ void AMordath::UpdateSuperCloseRange(float Uptime, int32 Frames)
 		return;
 	#endif
 
-	if (IsDashing() || IsAttacking() || IsRecovering() || IsStunned() || IsKicking() || IsTired() || IsDoingBackHand() ||
+	if (IsDashing() || IsAttacking() || IsRecovering() || IsStunned() || IsKicking() || IsTired() ||
 		IsPerformingCloseAction() || IsPerformingFarAction() || IsTeleporting() || IsTransitioning())
 		return;
 
@@ -1185,7 +1153,7 @@ void AMordath::OnExitSuperCloseRange()
 void AMordath::OnEnterFirstStage()
 {
 	CurrentStageData = GetStageData();
-	CurrentStageData->Init();
+	CurrentStageData->InitStageData();
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
@@ -1367,8 +1335,6 @@ void AMordath::OnExitThirdStage()
 #pragma region Events
 void AMordath::OnFullHealth()
 {
-	ChangeHitboxSize(CurrentStageData->GetAttackRadius());
-
 	if (IsInThirdStage())
 	{
 		HealthComponent->SetDefaultHealth(ThirdStageDefaultHealth);
@@ -1386,7 +1352,6 @@ void AMordath::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInt
 
 void AMordath::OnLowHealth()
 {
-	ChangeHitboxSize(CurrentStageData->GetAttackRadius() / 2.0f);
 }
 
 void AMordath::OnPlayerDeath()
@@ -1940,11 +1905,6 @@ bool AMordath::IsTransitioning() const
 bool AMordath::IsTired() const
 {
 	return FSM->GetActiveStateID() == 23;
-}
-
-bool AMordath::IsDoingBackHand() const
-{
-	return FSM->GetActiveStateID() == 24;
 }
 
 bool AMordath::IsTeleporting() const

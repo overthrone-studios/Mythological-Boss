@@ -45,10 +45,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		virtual float GetActionDamage() const;
 
-	// Returns the attack radius value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetAttackRadius() const;
-
 	bool IsAttacking() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")

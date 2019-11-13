@@ -108,10 +108,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTired() const;
 
-	// Returns true if we are currently doing a back hand attack
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsDoingBackHand() const;
-
 	// Returns true if we are teleporting to another location
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTeleporting() const;
@@ -376,15 +372,6 @@ protected:
 			void UpdateTiredState(float Uptime, int32 Frames);
 		UFUNCTION()
 			void OnExitTiredState();
-		#pragma endregion 
-
-		#pragma region Back Hand
-		UFUNCTION()
-			void OnEnterBackHandState();
-		UFUNCTION()
-			void UpdateBackHandState(float Uptime, int32 Frames);
-		UFUNCTION()
-			void OnExitBackHandState();
 		#pragma endregion 
 
 		#pragma region Teleport
