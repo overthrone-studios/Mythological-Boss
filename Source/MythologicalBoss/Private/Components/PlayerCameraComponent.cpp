@@ -91,12 +91,11 @@ FVector UPlayerCameraComponent::CycleLockOnTargets(TArray<class ACharacter*> Tar
 	return FVector(0.0f);
 }
 
-ACharacter* UPlayerCameraComponent::DetermineClosestBoss(TArray<ACharacter*> Targets)
+ACharacter* UPlayerCameraComponent::DetermineClosestLockOnTarget(TArray<ACharacter*> Targets)
 {
 	if (Targets.Num() == 0)
 		return nullptr;
 
-	ACharacter* ClosestBoss = nullptr;
 	float CurrentClosestDistance = TNumericLimits<float>::Max();
 
 	uint8 i = 0;
@@ -107,14 +106,14 @@ ACharacter* UPlayerCameraComponent::DetermineClosestBoss(TArray<ACharacter*> Tar
 		if (Distance < CurrentClosestDistance)
 		{
 			CurrentClosestDistance = Distance;
-			ClosestBoss = Mordath;
+			ClosestTarget = Mordath;
 			CurrentLockOnIndex = i;
 		}
 
 		++i;
 	}
 
-	return ClosestBoss;
+	return ClosestTarget;
 }
 
 void UPlayerCameraComponent::ResetLockOnTarget()

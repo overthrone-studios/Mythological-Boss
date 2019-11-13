@@ -110,7 +110,10 @@ public:
 		FVector CycleLockOnTargets(TArray<class ACharacter*> Targets, FName SocketName = NAME_None);
 
 	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
-		ACharacter* DetermineClosestBoss(TArray<class ACharacter*> Targets);
+		ACharacter* DetermineClosestLockOnTarget(TArray<class ACharacter*> Targets);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
+		ACharacter* GetLockedOnTarget() const { return ClosestTarget; }
 
 	UFUNCTION(BlueprintCallable, Category = "Camera | Lock-On")
 		void ResetLockOnTarget();
@@ -174,6 +177,8 @@ protected:
 private:
 	AActor* Owner;
 	APlayerController* PlayerController;
+
+	ACharacter* ClosestTarget;
 
 	uint8 bIsLockedOn : 1;
 	uint8 bWasLockedOn : 1;
