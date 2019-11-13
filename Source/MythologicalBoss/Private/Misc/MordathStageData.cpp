@@ -18,15 +18,10 @@ float FRetreatStateData::CalculateRetreatTime()
 	return FMath::Clamp(FMath::FRandRange(Min, Max), 0.0f, Max);
 }
 
-void UMordathStageData::Init()
+void UMordathStageData::InitStageData()
 {
 	CachedCloseRangeActions = Combat.SuperCloseRangeActions;
 	CachedFarRangeActions = Combat.FarRangeActions;
-}
-
-float UMordathStageData::GetAttackRadius()
-{
-	return Combat.AttackSettings.AttackRadius;
 }
 
 bool UMordathStageData::IsHitStopEnabled()
@@ -42,7 +37,7 @@ float UMordathStageData::GetHitStopTime()
 UMordathActionData* UMordathStageData::GetRandomSuperCloseRangeAction()
 {
 	if (CachedCloseRangeActions.Num() == 0)
-		Init();
+		InitStageData();
 
 	const int32& Index = FMath::RandRange(0, CachedCloseRangeActions.Num() - 1);
 
@@ -59,7 +54,7 @@ UMordathActionData* UMordathStageData::GetRandomSuperCloseRangeAction()
 UMordathActionData* UMordathStageData::GetRandomFarRangeAction()
 {
 	if (CachedFarRangeActions.Num() == 0)
-		Init();
+		this->InitStageData();
 
 	const int32& Index = FMath::RandRange(0, CachedFarRangeActions.Num() - 1);
 

@@ -75,22 +75,9 @@ struct FComboSettings
 };
 
 USTRUCT(BlueprintType)
-struct FAttackSettings_Mordath
-{
-	GENERATED_BODY()
-
-	// The radius of the capsule collision
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (ClampMin = 0.0f))
-		float AttackRadius = 40.0f;
-};
-
-USTRUCT(BlueprintType)
 struct FCombatSettings_Mordath : public FCombatSettings
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditInstanceOnly)
-		FAttackSettings_Mordath AttackSettings;
 
 	// The animation montage to play when in far range on this stage 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
@@ -103,10 +90,6 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	// The action to randomly play when the player is super close to us
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		TArray<UMordathActionData*> SuperCloseRangeActions;
-
-	// The animation montage to play when the player is behind us
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
-		UMordathActionData* BackHandActionData = nullptr;
 };
 
 /**
@@ -119,10 +102,7 @@ class MYTHOLOGICALBOSS_API UMordathStageData final : public UDataAsset
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
-		void Init();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetAttackRadius();
+		void InitStageData();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsHitStopEnabled();
