@@ -2016,7 +2016,7 @@ void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
 
-	if (GameState->PlayerData.CurrentAttackType == ATP_Charge)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Charge && YlvaAnimInstance->bChargeReleased)
 	{
 		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 	}
