@@ -17,6 +17,8 @@ class MYTHOLOGICALBOSS_API UChargeAttackComponent final : public UActorComponent
 public:	
 	UChargeAttackComponent();
 
+	void InitChargeAttackEconomyValues(const class UYlvaDifficultyData& DifficultyData);
+
 	FOnChargeFullSignature OnChargeFilled;
 	FOnChargeEmptySignature OnChargeEmpty;
 

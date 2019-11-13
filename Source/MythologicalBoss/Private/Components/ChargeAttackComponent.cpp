@@ -1,7 +1,11 @@
 // Copyright Overthrone Studios 2019
 
 #include "Components/ChargeAttackComponent.h"
+
+#include "Misc/YlvaDifficultyData.h"
+
 #include "GameFramework/Actor.h"
+
 #include "TimerManager.h"
 
 UChargeAttackComponent::UChargeAttackComponent()
@@ -11,6 +15,21 @@ UChargeAttackComponent::UChargeAttackComponent()
 	MaxCharge = 100.0f;
 
 	InitChargeAttack();
+}
+
+void UChargeAttackComponent::InitChargeAttackEconomyValues(const UYlvaDifficultyData& DifficultyData)
+{
+	ChargeGainPerLightHit = DifficultyData.ChargeGainPerLightHit;
+	ChargeGainPerHeavyHit = DifficultyData.ChargeGainPerHeavyHit;
+	ChargeLossPerHit = DifficultyData.ChargeLossPerHit;
+	HealthGainOnChargeAttack = DifficultyData.HealthGainOnChargeAttack;
+	MaxChargeHoldTime = DifficultyData.MaxChargeHoldTime;
+	ChargeHoldFrames = DifficultyData.ChargeHoldFrames;
+	bResetChargeAfterMaxHits = DifficultyData.bResetChargeAfterMaxHits;
+	MaxHitsForChargeReset = DifficultyData.MaxHitsForChargeReset;
+	bLoseChargeOvertime = DifficultyData.bLoseChargeOvertime;
+	DelayBeforeChargeLoss = DifficultyData.DelayBeforeChargeLoss;
+	ChargeLossRate = DifficultyData.ChargeLossRate;
 }
 
 void UChargeAttackComponent::DelayChargeLoss()

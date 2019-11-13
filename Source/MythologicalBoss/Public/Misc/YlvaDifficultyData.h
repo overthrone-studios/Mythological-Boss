@@ -56,4 +56,48 @@ public:
 	// The stamina value to subtract when being hit while blocking
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Ylva Difficulty Data | Stamina", meta = (ClampMin = 0.0f))
 		float ShieldHit = 0.0f;
+
+	// The amount of charge we gain after a successful light attack hit
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
+		float ChargeGainPerLightHit = 10.0f;
+
+	// The amount of charge we gain after a successful heavy attack hit
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
+		float ChargeGainPerHeavyHit = 20.0f;
+
+	// The amount of charge we lose after we've taken damage
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
+		float ChargeLossPerHit = 20.0f;
+
+	// The amount of health we gain when we've successfully landed a charge attack
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
+		float HealthGainOnChargeAttack = 20.0f;
+
+	// The maximum amount of time (in seconds) we can hold the charge attack for
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
+		float MaxChargeHoldTime = 6.0f;
+
+	// The amount of frames to hold the charge for, before releasing it
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0))
+		int32 ChargeHoldFrames = 50;
+
+	// Should we reset the charge meter when we've taken damage?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack")
+		uint8 bResetChargeAfterMaxHits : 1;
+
+	// The number of hits we can take before our charge is reset
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (EditCondition = "bResetChargeAfterMaxHits"))
+		uint8 MaxHitsForChargeReset = 1;
+
+	// Should we lose charge overtime?
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack")
+		uint8 bLoseChargeOvertime : 1;
+
+	// The amount of time (in seconds) to delay, before starting to lose charge
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f, ClampMax = 60.0f))
+		float DelayBeforeChargeLoss = 3.0f;
+
+	// The speed of the charge loss (How fast or slow do we lose charge?)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (EditCondition = "bLoseChargeOvertime", ClampMin = 0.0f))
+		float ChargeLossRate = 30.0f;
 };

@@ -276,6 +276,7 @@ void AYlva::BeginPlay()
 	StaminaComponent->SetDefaultStamina(CurrentDifficultyData->DefaultStamina);
 	StaminaComponent->SetStamina(CurrentDifficultyData->DefaultStamina);
 	StaminaComponent->InitStaminaEconomyValues(*CurrentDifficultyData);
+	ChargeAttackComponent->InitChargeAttackEconomyValues(*CurrentDifficultyData);
 
 	GameState->PlayerData.StartingHealth = HealthComponent->GetDefaultHealth();
 	GameState->PlayerData.Health = HealthComponent->GetCurrentHealth();
@@ -307,8 +308,6 @@ void AYlva::BeginPlay()
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
-
-	ParryCollisionComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	bCanDash = true;
 
