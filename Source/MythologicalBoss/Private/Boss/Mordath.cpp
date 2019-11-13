@@ -1677,10 +1677,11 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 void AMordath::EndTakeDamage(const FDamageEvent& DamageEvent)
 {
 	// Handled in blueprints
-	OnAfterTakeDamage();
+	if (static_cast<int32>(RecentDamage) > 0)
+		OnAfterTakeDamage();
 
 	// Are we dead?
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead && IsInThirdStage())
 	{
 		Die();
 	}

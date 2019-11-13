@@ -1297,7 +1297,9 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	MainHUD->HideChargeInputKeyWidget();
 	MainHUD->StopChargeRingFlash();
 
-	OnAfterTakeDamage();
+	// Handled in blueprints
+	if (static_cast<int32>(RecentDamage) > 0)
+		OnAfterTakeDamage();
 }
 
 void AYlva::EndTakeDamage(const FDamageEvent& DamageEvent)
