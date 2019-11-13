@@ -64,11 +64,13 @@ bool AOverthroneGameState::IsGamePaused() const
 void AOverthroneGameState::PauseGame() const
 {
 	UOverthroneFunctionLibrary::PauseGame(this, PlayerController);
+	OnGamePaused.Broadcast(IsGamePaused());
 }
 
 void AOverthroneGameState::UnPauseGame() const
 {
 	UOverthroneFunctionLibrary::UnPauseGame(this, PlayerController);
+	OnGamePaused.Broadcast(IsGamePaused());
 }
 
 bool AOverthroneGameState::IsBossTeleporting() const

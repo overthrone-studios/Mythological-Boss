@@ -32,6 +32,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMordathBeginDisappearSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActorEnterEnergySphereSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActorExitEnergySphereSignature);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePausedSignature, bool, bIsPaused);
+
 USTRUCT()
 struct FCharacterData
 {
@@ -158,6 +160,9 @@ class MYTHOLOGICALBOSS_API AOverthroneGameState final : public AGameStateBase
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(BlueprintAssignable, Category = "Overthrone Game State | General")
+		FOnGamePausedSignature OnGamePaused;
+
 	// Trigger a boss stage
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
 		void EnterBossStage(EBossStage_Mordath InBossStage) const;
