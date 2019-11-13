@@ -1010,8 +1010,8 @@ void AMordath::OnEnterTeleportState()
 
 	SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CapsuleComp->SetCollisionObjectType(ECC_Vehicle);
 
 	EnableInvincibility();
 }
@@ -1049,8 +1049,6 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), TeleportRadius, 32, FColor::Purple, 3.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 		#endif
 		
-		TeleportationComponent->Reappear();
-
 		SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, TeleportRadius, GameState->PlayArea));
 
 		FSM->PopState();
@@ -1059,26 +1057,16 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 
 void AMordath::OnExitTeleportState()
 {
-	if (CurrentActionData->bExecutionTimeExpired)
-	{
-		StopActionMontage();
-		NextAction();
-
-		return;
-	}
+	TeleportationComponent->Reappear();
 
 	DisableInvincibility();
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	CapsuleComp->SetCollisionProfileName("Mordath");
 
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopActionMontage();
 
-	CurrentActionData->ExecutionCount++;
-
-	if (CurrentActionData->ExecutionCount >= CurrentActionData->Loops)
-		NextAction();
+	NextAction();
 }
 #pragma endregion  
 #pragma endregion

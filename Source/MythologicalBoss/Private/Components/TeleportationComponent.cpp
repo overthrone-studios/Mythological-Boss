@@ -43,15 +43,15 @@ void UTeleportationComponent::Disappear()
 
 void UTeleportationComponent::Reappear()
 {
-	if (!TL_Dissolve.IsPlaying())
-	{
+	//if (!TL_Dissolve.IsPlaying())
+	//{
 		MID_Dissolve->SetScalarParameterValue("IsDissolving", 1.0f);
 
 		OnBeginReappear.Broadcast();
 
 		bWasReversing = true;
 		TL_Dissolve.ReverseFromEnd();
-	}
+	//}
 }
 
 void UTeleportationComponent::BeginPlay()
