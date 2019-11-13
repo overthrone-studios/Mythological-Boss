@@ -12,6 +12,7 @@
 
 #include "Misc/MordathStageData.h"
 #include "Misc/MordathDifficultyData.h"
+#include "Misc/BoundingBox.h"
 
 #include "FSM.h"
 #include "Log.h"
@@ -33,6 +34,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "HUD/MasterHUD.h"
 #include "HUD/MainPlayerHUD.h"
@@ -951,9 +953,6 @@ void AMordath::OnEnterTiredState()
 	PlayActionMontage();
 
 	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
-
-	if (IsInThirdStage())
-		SpawnGhostDelayed(2, 1.0f);
 }
 
 void AMordath::UpdateTiredState(float Uptime, int32 Frames)
@@ -1790,6 +1789,14 @@ void AMordath::ChooseAction()
 	break;
 	}
 
+	if (CurrentActionData->bSpawnGhost)
+	{
+		if (CurrentActionData->GhostCount > 1)
+			SpawnGhostDelayed(CurrentActionData->GhostCount);
+		else
+			SpawnGhost();
+	}
+
 	// Update data
 	CurrentActionType = ActionDataToUse->ActionType;
 	CurrentCounterType = ActionDataToUse->CounterType;
@@ -1989,10 +1996,13 @@ void AMordath::SpawnGhost()
 		return;
 	}
 
-	const auto Transform = GetActorTransform();
+	FVector	NewLocation = UKismetMathLibrary::RandomPointInBoundingBox(GameState->PlayArea->GetActorLocation(), GameState->PlayArea->GetBoundingBox().GetExtent());
+	NewLocation.Z = CurrentLocation.Z;
+
+	//const auto Transform = GetActorTransform();
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	World->SpawnActor(GhostClass, &Transform, SpawnParameters);
+	World->SpawnActor(GhostClass, &NewLocation, &CurrentRotation, SpawnParameters);
 }
 
 void AMordath::SpawnGhostDelayed(const int32 Amount, const float DelayInterval)

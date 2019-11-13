@@ -45,6 +45,12 @@ struct FComboData_Action
 	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "bIsTeleport"))
 		TEnumAsByte<EBossRange_Mordath> TeleportToRange = BRM_Mid;
 
+	UPROPERTY(EditInstanceOnly)
+		uint8 bSpawnGhost : 1;
+	
+	UPROPERTY(EditInstanceOnly, meta = (EditCondition = "bSpawnGhost", ClampMin = 1))
+		uint8 GhostCount = 1;
+
 	uint8 ExecutionCount = 0;
 
 	uint8 bExecutionTimeExpired : 1;
