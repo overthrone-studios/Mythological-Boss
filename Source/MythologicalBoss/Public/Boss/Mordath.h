@@ -193,6 +193,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnEndExecuteAction();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnLifeStolen();
+
 	UFUNCTION()
 		void OnAttackParryed();
 
