@@ -1631,7 +1631,7 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 		FSM->PushState("Stunned");
 	}
 
-	if (GameState->PlayerData.CurrentAttackType == ATP_Special)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Charge)
 		OnLifeStolen();
 }
 

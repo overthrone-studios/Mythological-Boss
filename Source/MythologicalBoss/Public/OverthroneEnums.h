@@ -37,6 +37,7 @@ enum EAttackType_Player
 	ATP_Light		UMETA(DisplayName="Light"),
 	ATP_Heavy		UMETA(DisplayName="Heavy"),
 	ATP_Special		UMETA(DisplayName="Special"),
+	ATP_Charge		UMETA(DisplayName="Charge"),
 	ATP_Dash		UMETA(DisplayName="Dash"),
 	ATP_None		UMETA(DisplayName="None")
 };

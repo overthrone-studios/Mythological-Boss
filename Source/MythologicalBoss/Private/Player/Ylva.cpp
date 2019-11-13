@@ -1145,6 +1145,8 @@ void AYlva::FinishChargeAttack()
 
 	DisableInvincibility();
 
+	CapsuleComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+
 	GameState->PlayerData.CurrentAttackType = ATP_None;
 
 	YlvaAnimInstance->bCanCharge = false;
@@ -2013,6 +2015,11 @@ void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
 
 	FSMVisualizer->UpdateStateFrames(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateFrames());
 	FSMVisualizer->UpdateStateUptime(FSM->GetActiveStateName().ToString(), FSM->GetActiveStateUptime());
+
+	if (GameState->PlayerData.CurrentAttackType == ATP_Charge)
+	{
+		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
+	}
 }
 
 void AYlva::OnExitAnyState(int32 ID, FName Name)
@@ -2242,7 +2249,7 @@ void AYlva::OnEnterChargeAttackState()
 	MovementComponent->SetMovementMode(MOVE_None);
 	YlvaAnimInstance->bCanCharge = true;
 
-	GameState->PlayerData.CurrentAttackType = ATP_Special;
+	GameState->PlayerData.CurrentAttackType = ATP_Charge;
 
 	if (!Combat.ChargeSettings.ChargeCameraAnimInst)
 	{
@@ -2254,6 +2261,8 @@ void AYlva::OnEnterChargeAttackState()
 	PlayerController->SetControlRotation(NewRotation);
 
 	PlayerController->SetIgnoreLookInput(true);
+
+	CapsuleComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 
 	VibrateController(Combat.ChargeSettings.ChargeAttackForce, true);
 }
