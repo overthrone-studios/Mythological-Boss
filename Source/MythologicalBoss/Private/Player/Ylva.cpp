@@ -1155,7 +1155,8 @@ void AYlva::StopBlocking()
 
 void AYlva::BeginTakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
-	Super::BeginTakeDamage(DamageAmount, DamageEvent);
+	if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
+		RecentDamage = 0.0f;
 
 	GameState->PlayerData.bHasTakenDamage = true;
 }
