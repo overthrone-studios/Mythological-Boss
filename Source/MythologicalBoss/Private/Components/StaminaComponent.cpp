@@ -14,7 +14,7 @@ UStaminaComponent::UStaminaComponent()
 	InitStamina();
 }
 
-void UStaminaComponent::InitStaminaEconomyValues(UYlvaDifficultyData& DifficultyData)
+void UStaminaComponent::InitStaminaEconomyValues(const UYlvaDifficultyData& DifficultyData)
 {
 	RegenerationRate = DifficultyData.RegenerationRate;
 	RegenerationDelay = DifficultyData.RegenerationDelay;

@@ -15,7 +15,7 @@ class MYTHOLOGICALBOSS_API UStaminaComponent final : public UActorComponent
 public:	
 	UStaminaComponent();
 
-	void InitStaminaEconomyValues(class UYlvaDifficultyData& DifficultyData);
+	void InitStaminaEconomyValues(const class UYlvaDifficultyData& DifficultyData);
 
 	// Delay stamina regeneration by the regeneration delay
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
