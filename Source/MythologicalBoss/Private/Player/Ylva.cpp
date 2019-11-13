@@ -67,8 +67,6 @@
 #include "GameFramework/InputSettings.h"
 #include "Kismet/KismetMaterialLibrary.h"
 
-#define CAST(Object, Type) Cast<Type>(Object)
-
 AYlva::AYlva() : AOverthroneCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -910,9 +908,6 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 	{
 		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
 	}
-
-	if (CAST(this, AActor))
-		ULog::Hello(true);
 }
 
 float AYlva::GetDistanceToBoss() const
