@@ -310,6 +310,7 @@ void AYlva::BeginPlay()
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
 
 	bCanDash = true;
+	bCanPausedGame = true;
 
 	// Begin the state machine
 	FSM->Start();
@@ -1465,6 +1466,9 @@ void AYlva::OnLockOnDisabled()
 #pragma region Controls
 void AYlva::Pause()
 {
+	if (!bCanPausedGame)
+		return;
+
 	if (GameState->IsGamePaused())
 	{
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);

@@ -420,6 +420,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Input")
 		FOnHandleInputSignature OnHandleInput;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Ylva")
+		uint8 bCanPausedGame : 1;
+
 protected:
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;
