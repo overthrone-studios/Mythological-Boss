@@ -1474,6 +1474,8 @@ void AYlva::Pause()
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
 		
+		LowHealthAudioComponent->Play();
+
 		GameState->UnPauseGame();
 	}
 	else
@@ -1481,6 +1483,8 @@ void AYlva::Pause()
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(3);
 		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
 		
+		LowHealthAudioComponent->Stop();
+
 		GameState->PauseGame();
 	}
 }
