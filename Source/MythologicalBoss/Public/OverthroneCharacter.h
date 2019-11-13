@@ -80,6 +80,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		void StopVibrateController(class UForceFeedbackEffect* ForceFeedbackToStop);
 
+	// Returns the recent damage value
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character | Combat")
+		float GetRecentDamage() const;
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -300,6 +304,9 @@ protected:
 	FTimerHandle HitStopTimerHandle;
 
 	uint8 bWasLowHealthEventTriggered : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		float RecentDamage = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		FRotator ControlRotation;

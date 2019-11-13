@@ -1608,7 +1608,7 @@ void AMordath::BroadcastLowHealth()
 
 void AMordath::BeginTakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
-	CurrentStageData->Combat.RecentDamage = DamageAmount;
+	Super::BeginTakeDamage(DamageAmount, DamageEvent);
 
 	// Shake the camera
 	GameState->CurrentCameraShake = GameState->GetCameraManager()->PlayCameraShake(CurrentStageData->GetDamagedShake().Shake, CurrentStageData->GetDamagedShake().Intensity);

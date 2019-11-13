@@ -107,8 +107,6 @@ struct FCombatSettings_Mordath : public FCombatSettings
 	// The animation montage to play when the player is behind us
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		UMordathActionData* BackHandActionData = nullptr;
-
-	float RecentDamage = 0.0f;
 };
 
 /**
@@ -125,9 +123,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetAttackRadius();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetRecentDamage();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsHitStopEnabled();

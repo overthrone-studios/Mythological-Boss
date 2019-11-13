@@ -106,9 +106,9 @@ void AOverthroneCharacter::ApplyDamage(float DamageAmount, const FDamageEvent& D
 	check(0 && "You must implement ApplyDamage()");
 }
 
-void AOverthroneCharacter::BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent)
+void AOverthroneCharacter::BeginTakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
-	check(0 && "You must implement BeginTakeDamage()");
+	RecentDamage = DamageAmount;
 }
 
 void AOverthroneCharacter::EndTakeDamage(const FDamageEvent& DamageEvent)
@@ -366,6 +366,11 @@ void AOverthroneCharacter::StopVibrateController(UForceFeedbackEffect* ForceFeed
 {
 	if (ForceFeedbackToStop)
 		PlayerController->ClientStopForceFeedback(ForceFeedbackToStop, ForceFeedbackToStop->GetFName());
+}
+
+float AOverthroneCharacter::GetRecentDamage() const
+{
+	return RecentDamage;
 }
 
 bool AOverthroneCharacter::IsAttacking() const

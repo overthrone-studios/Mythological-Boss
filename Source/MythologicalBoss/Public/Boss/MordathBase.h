@@ -49,10 +49,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		float GetAttackRadius() const;
 
-	// Returns the recent damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetRecentDamage() const;
-
 	bool IsAttacking() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")

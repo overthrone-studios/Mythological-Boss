@@ -1153,8 +1153,10 @@ void AYlva::StopBlocking()
 	FSM->PopState("Block");
 }
 
-void AYlva::BeginTakeDamage(float DamageAmount, const FDamageEvent& DamageEvent)
+void AYlva::BeginTakeDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
+	Super::BeginTakeDamage(DamageAmount, DamageEvent);
+
 	GameState->PlayerData.bHasTakenDamage = true;
 }
 
@@ -1195,6 +1197,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 					FSM->PushState("Damaged");
 					UpdateHealth(DamageAmount);
 				}
+
+				OnAfterTakeDamage();
 
 				return;
 			}
@@ -1292,6 +1296,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 	MainHUD->HideChargeInputKeyWidget();
 	MainHUD->StopChargeRingFlash();
+
+	OnAfterTakeDamage();
 }
 
 void AYlva::EndTakeDamage(const FDamageEvent& DamageEvent)

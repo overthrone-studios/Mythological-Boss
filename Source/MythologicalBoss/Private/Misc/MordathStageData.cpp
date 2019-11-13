@@ -29,11 +29,6 @@ float UMordathStageData::GetAttackRadius()
 	return Combat.AttackSettings.AttackRadius;
 }
 
-float UMordathStageData::GetRecentDamage()
-{
-	return Combat.RecentDamage;
-}
-
 bool UMordathStageData::IsHitStopEnabled()
 {
 	return Combat.bEnableHitStop;

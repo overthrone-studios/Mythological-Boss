@@ -759,6 +759,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ylva | Combat")
 		void OnLightAttackComboCompleted();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnAfterTakeDamage();
+
 	UFUNCTION()
 		void OnEnterMordathEnergySphere();
 
