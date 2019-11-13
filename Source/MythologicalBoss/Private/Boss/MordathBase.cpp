@@ -834,11 +834,6 @@ float AMordathBase::GetActionDamage() const
 	return ActionDamage;
 }
 
-float AMordathBase::GetAttackRadius() const
-{
-	return CurrentStageData->GetAttackRadius();
-}
-
 bool AMordathBase::IsAttacking() const
 {
 	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
