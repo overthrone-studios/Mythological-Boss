@@ -900,12 +900,13 @@ UYlvaDifficultyData* AYlva::GetDifficultyData() const
 
 void AYlva::PauseAllAudioSources()
 {
-	LowHealthAudioComponent->Stop();
+	if (LowHealthAudioComponent)
+		LowHealthAudioComponent->Stop();
 }
 
 void AYlva::ResumeAllAudioSources()
 {
-	if (HealthComponent->IsLowHealth())
+	if (LowHealthAudioComponent && HealthComponent->IsLowHealth())
 		LowHealthAudioComponent->Play();
 }
 
