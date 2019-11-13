@@ -490,10 +490,10 @@ void AYlva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		PlayerInputComponent->AddActionBinding(ActionBindingOneParam).bExecuteWhenPaused = true;
 	}
 
-	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking);
+	PlayerInputComponent->BindAction("Block", IE_Released, this, &AYlva::StopBlocking).bExecuteWhenPaused = true;
 
-	PlayerInputComponent->BindAction("Run", IE_Repeat, this, &AYlva::UpdateIsRunHeld);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning);
+	PlayerInputComponent->BindAction("Run", IE_Repeat, this, &AYlva::UpdateIsRunHeld).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &AYlva::StopRunning).bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAction("Charge Attack", IE_Released, this, &AYlva::ReleaseChargeAttack);
 
