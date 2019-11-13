@@ -40,6 +40,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/InputSettings.h"
 
 #include "Misc/FeatData.h"
 #include "Misc/HitSoundData.h"
@@ -50,8 +51,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "DamageTypes/DmgType_Lightning.h"
-
 #include "Engine/Engine.h"
 
 #include "Materials/MaterialInstanceDynamic.h"
@@ -59,13 +58,12 @@
 #include "ConstructorHelpers.h"
 #include "TimerManager.h"
 
+#include "DamageTypes/DmgType_Lightning.h"
 #include "DamageTypes/DmgType_AOE.h"
 #include "DamageTypes/DmgType_MordathKick.h"
 #include "DamageTypes/DmgType_MordathElectricShield.h"
 
 #include "DrawDebugHelpers.h"
-#include "GameFramework/InputSettings.h"
-#include "Kismet/KismetMaterialLibrary.h"
 
 AYlva::AYlva() : AOverthroneCharacter()
 {
