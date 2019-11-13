@@ -4,8 +4,6 @@
 
 #include "Materials/MaterialInstanceDynamic.h"
 
-#include "Kismet/KismetMaterialLibrary.h"
-
 USwordComponent::USwordComponent()
 {
 	UStaticMeshComponent::SetCollisionProfileName(FName("NoCollision"));
@@ -27,6 +25,11 @@ void USwordComponent::BeginPlay()
 void USwordComponent::Glow()
 {
 	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, EmissiveStrength);
+}
+
+void USwordComponent::PeakGlow()
+{
+	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, EmissiveStrength * 10);
 }
 
 void USwordComponent::Revert()

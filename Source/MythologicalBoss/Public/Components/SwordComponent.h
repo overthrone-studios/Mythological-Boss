@@ -17,9 +17,11 @@ class MYTHOLOGICALBOSS_API USwordComponent final : public UStaticMeshComponent
 public:
 	USwordComponent();
 
-	// Assign the glow material to the given material slot (specified in the editor)
 	UFUNCTION(BlueprintCallable, Category = "Sword")
 		void Glow();
+
+	UFUNCTION(BlueprintCallable, Category = "Sword")
+		void PeakGlow();
 
 	// Reverts back to the original sword material
 	UFUNCTION(BlueprintCallable, Category = "Sword")

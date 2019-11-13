@@ -897,6 +897,8 @@ UYlvaDifficultyData* AYlva::GetDifficultyData() const
 
 void AYlva::OnAttackLanded(const FHitResult& HitResult)
 {
+	HitCounter = 0;
+
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
 	if (HitResult.GetActor() && !HitResult.GetActor()->IsA(AMordathGhost::StaticClass()) && !HitResult.GetActor()->IsA(AMordathTutorial::StaticClass()))
@@ -2230,6 +2232,12 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 {
 	UpdateStamina(StaminaComponent->GetChargeAttackValue() * World->DeltaTimeSeconds);
 
+	if (ChargeAttackHoldFrames > ChargeAttackComponent->GetChargeHoldFrames()/(1.0f / World->DeltaTimeSeconds))
+	{
+		LSword->PeakGlow();
+		RSword->PeakGlow();
+	}
+
 	if (Uptime > ChargeAttackComponent->GetMaxChargeHoldTime() || StaminaComponent->IsStaminaEmpty())
 	{
 		FSM->PopState();
@@ -2259,19 +2267,16 @@ void AYlva::OnExitChargeAttackState()
 
 	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
 
-	LSword->Revert();
-	RSword->Revert();
-
+	// Did we not reach the peak charge?
 	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames()/(1.0f / World->DeltaTimeSeconds))
 	{
 		if (Combat.ChargeSettings.ChargeCameraAnimInst)
 			Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 3.0f;
-
+	
 		Combat.ChargeSettings.ChargeCameraAnimInst = nullptr;
-
-		ResetCharge();
+	
 		FinishChargeAttack();
-
+	
 		return;
 	}
 
@@ -2298,6 +2303,9 @@ void AYlva::OnExitChargeAttackState()
 		GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().ChargeEnd.Shake, FollowCamera->GetShakes().ChargeEnd.Intensity);
 		ResetCharge();
 	}
+
+	LSword->Revert();
+	RSword->Revert();
 
 	TimerManager->SetTimer(TH_ChargeAttackRelease, this, &AYlva::FinishChargeAttack, 0.7f);
 }
