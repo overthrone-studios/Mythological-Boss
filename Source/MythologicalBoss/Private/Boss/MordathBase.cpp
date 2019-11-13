@@ -921,12 +921,14 @@ UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const
 
 void AMordathBase::RemoveFromLockOnTargetsArray()
 {
-	GameState->Mordaths.Remove(this);
+	if (GameState)
+		GameState->Mordaths.Remove(this);
 }
 
 void AMordathBase::AddToLockOnTargetsArray()
 {
-	GameState->Mordaths.Add(this);
+	if (GameState)
+		GameState->Mordaths.Add(this);
 }
 
 bool AMordathBase::WantsMoveRight() const
