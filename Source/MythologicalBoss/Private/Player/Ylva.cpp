@@ -305,6 +305,8 @@ void AYlva::BeginPlay()
 	GameState->BossData.OnMordathBeginReappear.AddDynamic(this, &AYlva::OnMordathReappeared);
 	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
 
+	GameState->OnGamePaused.AddDynamic(this, &AYlva::OnGamePaused);
+
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
@@ -895,6 +897,16 @@ UYlvaDifficultyData* AYlva::GetDifficultyData() const
 	}
 }
 
+void AYlva::PauseAllAudioSources()
+{
+	LowHealthAudioComponent->Stop();
+}
+
+void AYlva::ResumeAllAudioSources()
+{
+	LowHealthAudioComponent->Play();
+}
+
 void AYlva::OnAttackLanded(const FHitResult& HitResult)
 {
 	HitCounter = 0;
@@ -1421,7 +1433,7 @@ void AYlva::ToggleLockOn()
 	if (GameState->BossData.bIsDead || bIsDead || !CanLockOn())
 		return;
 
-	FollowCamera->DetermineClosestBoss(GameState->Mordaths);
+	FollowCamera->DetermineClosestLockOnTarget(GameState->Mordaths);
 
 	FollowCamera->ToggleLockOn();
 }
@@ -1474,8 +1486,6 @@ void AYlva::Pause()
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(2);
 		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
 		
-		LowHealthAudioComponent->Play();
-
 		GameState->UnPauseGame();
 	}
 	else
@@ -1483,8 +1493,6 @@ void AYlva::Pause()
 		OverthroneHUD->GetMasterHUD()->SwitchToHUDIndex(3);
 		OverthroneHUD->GetMasterHUD()->HideDebugInfo();
 		
-		LowHealthAudioComponent->Stop();
-
 		GameState->PauseGame();
 	}
 }
@@ -1962,7 +1970,7 @@ void AYlva::OnExitMordathEnergySphere()
 
 void AYlva::OnMordathDisappeared()
 {
-	if (IsLockedOn())
+	if (IsLockedOn() && !FollowCamera->GetLockedOnTarget()->IsA(AMordathGhost::StaticClass()))
 	{
 		bWasLockedOn = true;
 		FollowCamera->DisableLockOn();
@@ -3028,6 +3036,18 @@ void AYlva::OnUntouchableFeatAchieved()
 	GameInstance->AchievedFeat = UntouchableFeat;
 
 	UntouchableFeat->OnFeatAchieved.Broadcast();
+}
+
+void AYlva::OnGamePaused(const bool bIsPaused)
+{
+	if (bIsPaused)
+	{
+		PauseAllAudioSources();
+	}
+	else
+	{
+		ResumeAllAudioSources();
+	}
 }
 
 void AYlva::AddDebugMessages()

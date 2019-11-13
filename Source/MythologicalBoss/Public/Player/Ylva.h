@@ -482,6 +482,12 @@ protected:
 
 	class UYlvaDifficultyData* GetDifficultyData() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void PauseAllAudioSources();
+	
+	UFUNCTION(BlueprintCallable, Category = "Ylva")
+		void ResumeAllAudioSources();
+
 	UFUNCTION()
 		void HandleInput(FName ActionName);
 
@@ -709,6 +715,9 @@ protected:
 	#pragma endregion 
 
 	#pragma region Events
+	UFUNCTION()
+		void OnGamePaused(bool bIsPaused);
+
 	// Called when our health is below the given threshold
 	void OnLowHealth() override;
 
