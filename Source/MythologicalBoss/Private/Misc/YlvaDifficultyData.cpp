@@ -6,4 +6,5 @@
 UYlvaDifficultyData::UYlvaDifficultyData()
 {
 	DefaultHealth = 300.0f;
+	bResetChargeAfterMaxHits = true;
 }

@@ -59,7 +59,7 @@ public:
 
 	// The amount of charge we gain after a successful light attack hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
-		float ChargeGainPerLightHit = 10.0f;
+		float ChargeGainPerLightHit = 15.0f;
 
 	// The amount of charge we gain after a successful heavy attack hit
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
@@ -67,19 +67,19 @@ public:
 
 	// The amount of charge we lose after we've taken damage
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
-		float ChargeLossPerHit = 20.0f;
+		float ChargeLossPerHit = 15.0f;
 
 	// The amount of health we gain when we've successfully landed a charge attack
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
-		float HealthGainOnChargeAttack = 20.0f;
+		float HealthGainOnChargeAttack = 80.0f;
 
 	// The maximum amount of time (in seconds) we can hold the charge attack for
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
-		float MaxChargeHoldTime = 6.0f;
+		float MaxChargeHoldTime = 5.0f;
 
 	// The amount of frames to hold the charge for, before releasing it
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0))
-		int32 ChargeHoldFrames = 50;
+		int32 ChargeHoldFrames = 25;
 
 	// Should we reset the charge meter when we've taken damage?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack")
@@ -87,7 +87,7 @@ public:
 
 	// The number of hits we can take before our charge is reset
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (EditCondition = "bResetChargeAfterMaxHits"))
-		uint8 MaxHitsForChargeReset = 1;
+		uint8 MaxHitsForChargeReset = 3;
 
 	// Should we lose charge overtime?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack")
