@@ -416,14 +416,16 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	// Smoothly auto-rotate towards the closest boss, when in its close range
-	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking() && !GameState->IsBossTeleporting())
+	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && 
+		IsAttacking() && !GameState->IsBossTeleporting())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
 
 		if (GameState->PlayerData.CurrentRange == BRM_SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
-		FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
+		if (GameInstance->ChosenDifficultyOption == DO_Casual || GameState->PlayerData.CurrentRange == BRM_SuperClose)
+			FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
 	}
 
 #if !UE_BUILD_SHIPPING
@@ -970,6 +972,9 @@ void AYlva::LightAttack()
 	if (IsParrying())
 		FSM->PopState();
 
+	if (IsDashing())
+		FSM->PopState();
+
 	// Queue the attack, if we can
 	if (IsAttacking() && 
 		AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackQueue.LightAttackTriggerTime && 
@@ -1028,11 +1033,14 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina() || IsPerfectDashing() || IsDashing())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || StaminaComponent->IsStaminaEmpty() || IsPerfectDashing())
 		return;
 
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
+		FSM->PopState();
+
+	if (IsDashing())
 		FSM->PopState();
 
 	// Queue the attack, if we can
@@ -1056,7 +1064,7 @@ void AYlva::HeavyAttack()
 		return;
 	}
 
-	if (/*StaminaComponent->HasEnoughForHeavyAttack() &&*/ // Do we have enough stamina for heavy attack?
+	if (StaminaComponent->HasEnoughForHeavyAttack() && // Do we have enough stamina for heavy attack?
 		AttackComboComponent->CanAttack() && 
 		!AttackComboComponent->IsAtTreeEnd() && // Are we not at the combo tree's end?
 		AttackQueue.IsEmpty())
@@ -2654,6 +2662,32 @@ void AYlva::OnEnterDashState()
 
 	if (IsLockedOn())
 	{
+		if (IsMovingLeft())
+			CurrentDashAnim = DashComponent->GetDashLeftAnim();
+		else if (IsMovingRight())
+			CurrentDashAnim = DashComponent->GetDashRightAnim();
+		else if (IsMovingBackward())
+			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
+		else if (IsMovingForward())
+			CurrentDashAnim = DashComponent->GetDashForwardAnim();
+		else 
+			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
+
+		if (bWasRunning)
+			CurrentDashAnim = DashComponent->GetDashForwardAnim();
+	}
+	else
+	{
+		if (IsMovingInAnyDirection())
+			CurrentDashAnim = DashComponent->GetDashForwardAnim();
+		else
+			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
+	}
+
+	PlayAnimMontage(CurrentDashAnim);
+
+	if (IsLockedOn())
+	{
 		MovementComponent->bOrientRotationToMovement = true;
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
@@ -2665,7 +2699,10 @@ void AYlva::OnEnterDashState()
 	LockedForwardInput = ForwardInput;
 	LockedRightInput = RightInput;
 
-	UpdateStamina(StaminaComponent->GetDashValue());
+#if !UE_BUILD_SHIPPING
+	if (!bGodMode)
+#endif
+		UpdateStamina(StaminaComponent->GetDashValue());
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
@@ -2708,7 +2745,7 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(CurrentDashAnim))
 	{
 		FSM->PopState();
 	}

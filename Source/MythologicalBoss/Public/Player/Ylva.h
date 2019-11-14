@@ -1094,6 +1094,8 @@ private:
 
 	class UForceFeedbackEffect* CurrentForceFeedback;
 
+	class UAnimMontage* CurrentDashAnim;
+
 	class APlayerCameraManager* CameraManager;
 
 	class UAudioComponent* LowHealthAudioComponent;

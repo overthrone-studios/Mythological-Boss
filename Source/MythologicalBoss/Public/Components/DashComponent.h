@@ -47,12 +47,36 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dash")
 		void StopCooldown();
 
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashForwardAnim() const { return DashForwardAnim; }
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashBackwardAnim() const { return DashBackwardAnim; }
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashLeftAnim() const { return DashLeftAnim; }
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashRightAnim() const { return DashRightAnim; }
+
 protected:
 	void BeginPlay() override;
 
 	// The amount of time (in seconds) until we can dash again
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, meta = (ClampMin = 0.0f, ClampMax = 60.0f))
 		float DashCooldown = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashForwardAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashBackwardAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashLeftAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashRightAnim;
 
 private:
 	AActor* Owner;
