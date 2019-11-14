@@ -1620,7 +1620,7 @@ void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageE
 
 	UpdateHealth(DamageAmount);
 
-	if (GameState->PlayerData.CurrentAttackType == ATP_Special || GameState->PlayerData.CurrentAttackType == ATP_Dash)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Charge || GameState->PlayerData.CurrentAttackType == ATP_Dash)
 	{
 		#if !UE_BUILD_SHIPPING
 		if (IsLocked())

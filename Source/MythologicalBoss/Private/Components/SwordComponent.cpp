@@ -24,16 +24,19 @@ void USwordComponent::BeginPlay()
 
 void USwordComponent::Glow()
 {
+	MID_SwordMaterial->SetVectorParameterValue("Emissive Colour", DefaultGlowColor);
 	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, EmissiveStrength);
 }
 
 void USwordComponent::PeakGlow()
 {
+	MID_SwordMaterial->SetVectorParameterValue("Emissive Colour", PeakGlowColor);
 	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, EmissiveStrength * 10);
 }
 
 void USwordComponent::Revert()
 {
+	MID_SwordMaterial->SetVectorParameterValue("Emissive Colour", DefaultGlowColor);
 	MID_SwordMaterial->SetScalarParameterValue(EmissiveParameterName, 0.0f);
 }
 

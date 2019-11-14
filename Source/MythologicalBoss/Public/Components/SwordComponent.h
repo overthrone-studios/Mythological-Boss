@@ -36,12 +36,20 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sword")
 		uint8 MaterialIndex = 0;
 
-	// The name of the paramater from the material instance to track and modify
+	// The name of the parameter from the material instance to track and modify
 	UPROPERTY(EditAnywhere, Category = "Sword")
 		FName EmissiveParameterName = "Emissive Strength";
 
 	UPROPERTY(EditAnywhere, Category = "Sword")
 		float EmissiveStrength = 100.0f;
+
+	// The default color of the sword when the charge meter is full
+	UPROPERTY(EditAnywhere, Category = "Sword")
+		FLinearColor DefaultGlowColor = FLinearColor(1.0f, 0.231267f, 0.0f, 1.0f);
+
+	// The color to change to when we are at the peak of the charge
+	UPROPERTY(EditAnywhere, Category = "Sword")
+		FLinearColor PeakGlowColor = FColor::Purple;
 
 private:
 	class UMaterialInterface* DefaultSwordMaterial;
