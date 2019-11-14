@@ -921,7 +921,7 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 	if (HitResult.GetActor() && !HitResult.GetActor()->IsA(AMordathGhost::StaticClass()) && !HitResult.GetActor()->IsA(AMordathTutorial::StaticClass()))
 		IncreaseCharge();
 
-	if (GameState->PlayerData.CurrentAttackType == ATP_Special && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
+	if (GameState->PlayerData.CurrentAttackType == ATP_Charge && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
 	{
 		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
 	}
@@ -1309,21 +1309,24 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	}
 
 	// Determine whether to reset the charge meter or not
-	if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
+	if (!ChargeAttackComponent->IsChargeFull())
 	{
-		HitCounter = 0;
-		ResetCharge();
-	}
-	else
-	{
-		DecreaseCharge();
-	}
+		if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
+		{
+			HitCounter = 0;
+			ResetCharge();
+		}
+		else
+		{
+			DecreaseCharge();
+		}
 
-	LSword->Revert();
-	RSword->Revert();
+		LSword->Revert();
+		RSword->Revert();
 
-	MainHUD->HideChargeInputKeyWidget();
-	MainHUD->StopChargeRingFlash();
+		MainHUD->HideChargeInputKeyWidget();
+		MainHUD->StopChargeRingFlash();
+	}
 
 	// Handled in blueprints
 	if (static_cast<int32>(RecentDamage) > 0)
