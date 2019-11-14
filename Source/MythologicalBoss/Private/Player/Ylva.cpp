@@ -2257,6 +2257,8 @@ void AYlva::OnEnterChargeAttackState()
 	MovementComponent->SetMovementMode(MOVE_None);
 	YlvaAnimInstance->bCanCharge = true;
 
+	MainHUD->UpdateChargeAttackMessage("Hold");
+
 	GameState->PlayerData.CurrentAttackType = ATP_Charge;
 
 	if (!Combat.ChargeSettings.ChargeCameraAnimInst)
@@ -2279,8 +2281,10 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 {
 	UpdateStamina(StaminaComponent->GetChargeAttackValue() * World->DeltaTimeSeconds);
 
-	if (ChargeAttackHoldFrames > ChargeAttackComponent->GetChargeHoldFrames()/(1.0f / World->DeltaTimeSeconds))
+	if (ChargeAttackHoldFrames > ChargeAttackComponent->GetChargeHoldFrames() * World->DeltaTimeSeconds)
 	{
+		MainHUD->UpdateChargeAttackMessage("Release");
+
 		LSword->PeakGlow();
 		RSword->PeakGlow();
 	}
@@ -2311,6 +2315,8 @@ void AYlva::OnExitChargeAttackState()
 {
 	PlayerController->ResetIgnoreLookInput();
 	MovementComponent->SetMovementMode(MOVE_Walking);
+
+	MainHUD->UpdateChargeAttackMessage("Hold");
 
 	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
 
