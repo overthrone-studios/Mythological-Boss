@@ -416,14 +416,16 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	// Smoothly auto-rotate towards the closest boss, when in its close range
-	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && IsAttacking() && !GameState->IsBossTeleporting())
+	if ((GameState->PlayerData.CurrentRange == BRM_Close || GameState->PlayerData.CurrentRange == BRM_SuperClose) && 
+		IsAttacking() && !GameState->IsBossTeleporting())
 	{
 		float RotationSpeed = Combat.AttackSettings.CloseRangeAttackRotationSpeed;
 
 		if (GameState->PlayerData.CurrentRange == BRM_SuperClose)
 			RotationSpeed = Combat.AttackSettings.SuperCloseRangeAttackRotationSpeed;
 
-		FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
+		if (GameInstance->ChosenDifficultyOption == DO_Casual || GameState->PlayerData.CurrentRange == BRM_SuperClose)
+			FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
 	}
 
 #if !UE_BUILD_SHIPPING
