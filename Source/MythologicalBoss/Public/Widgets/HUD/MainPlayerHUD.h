@@ -20,6 +20,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Main Player HUD")
 		FLinearColor GetBossHealthBarColor() const;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Main Player HUD")
+		void UpdateChargeAttackMessage(const FString& NewMessage);
+
 	UFUNCTION(BlueprintCallable, Category = "Main Player HUD")
 		void ChangeBossHealthBarColor(const FLinearColor& InColor);
 	
