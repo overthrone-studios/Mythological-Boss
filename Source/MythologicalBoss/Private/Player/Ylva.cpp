@@ -2679,7 +2679,9 @@ void AYlva::OnEnterDashState()
 			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
 		else if (IsMovingForward())
 			CurrentDashAnim = DashComponent->GetDashForwardAnim();
-		else 
+		else if (IsMovingLeft() && IsMovingForward())
+			CurrentDashAnim = DashComponent->GetDashNWAnim();
+		else
 			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
 
 		if (bWasRunning)

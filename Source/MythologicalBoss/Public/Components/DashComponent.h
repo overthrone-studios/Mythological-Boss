@@ -59,6 +59,18 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Dash")
 		class UAnimMontage* GetDashRightAnim() const { return DashRightAnim; }
 
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashNEAnim() const { return DashNEAnim; }
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashNWAnim() const { return DashNWAnim; }
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashSEAnim() const { return DashSEAnim; }
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+		class UAnimMontage* GetDashSWAnim() const { return DashSWAnim; }
+
 protected:
 	void BeginPlay() override;
 
@@ -77,6 +89,18 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class UAnimMontage* DashRightAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashNEAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashNWAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashSEAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UAnimMontage* DashSWAnim;
 
 private:
 	AActor* Owner;
