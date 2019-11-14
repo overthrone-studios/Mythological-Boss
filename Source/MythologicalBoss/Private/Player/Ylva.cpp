@@ -1031,7 +1031,7 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina() || IsPerfectDashing())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || StaminaComponent->IsStaminaEmpty() || IsPerfectDashing())
 		return;
 
 	// Finish the parry event early if we decide to attack
@@ -1062,7 +1062,7 @@ void AYlva::HeavyAttack()
 		return;
 	}
 
-	if (/*StaminaComponent->HasEnoughForHeavyAttack() &&*/ // Do we have enough stamina for heavy attack?
+	if (StaminaComponent->HasEnoughForHeavyAttack() && // Do we have enough stamina for heavy attack?
 		AttackComboComponent->CanAttack() && 
 		!AttackComboComponent->IsAtTreeEnd() && // Are we not at the combo tree's end?
 		AttackQueue.IsEmpty())
