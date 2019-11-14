@@ -970,6 +970,9 @@ void AYlva::LightAttack()
 	if (IsParrying())
 		FSM->PopState();
 
+	if (IsDashing())
+		FSM->PopState();
+
 	// Queue the attack, if we can
 	if (IsAttacking() && 
 		AnimInstance->Montage_GetPosition(AttackComboComponent->GetCurrentAttackAnim()) > Combat.AttackQueue.LightAttackTriggerTime && 
@@ -1028,11 +1031,14 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 void AYlva::HeavyAttack()
 {
 	// Are we in any of these states?
-	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina() || IsPerfectDashing() || IsDashing())
+	if (bIsDead || IsDamaged() || IsChargeAttacking() || IsDashAttacking() || IsBeingPushedBack() || IsLowStamina() || IsPerfectDashing())
 		return;
 
 	// Finish the parry event early if we decide to attack
 	if (IsParrying())
+		FSM->PopState();
+
+	if (IsDashing())
 		FSM->PopState();
 
 	// Queue the attack, if we can
