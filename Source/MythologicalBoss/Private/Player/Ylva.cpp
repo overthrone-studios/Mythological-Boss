@@ -2654,6 +2654,32 @@ void AYlva::OnEnterDashState()
 
 	if (IsLockedOn())
 	{
+		if (IsMovingLeft())
+			CurrentDashAnim = DashComponent->GetDashLeftAnim();
+		else if (IsMovingRight())
+			CurrentDashAnim = DashComponent->GetDashRightAnim();
+		else if (IsMovingBackward())
+			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
+		else if (IsMovingForward())
+			CurrentDashAnim = DashComponent->GetDashForwardAnim();
+		else 
+			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
+
+		if (bWasRunning)
+			CurrentDashAnim = DashComponent->GetDashForwardAnim();
+	}
+	else
+	{
+		if (IsMovingInAnyDirection())
+			CurrentDashAnim = DashComponent->GetDashForwardAnim();
+		else
+			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
+	}
+
+	PlayAnimMontage(CurrentDashAnim);
+
+	if (IsLockedOn())
+	{
 		MovementComponent->bOrientRotationToMovement = true;
 		MovementComponent->bUseControllerDesiredRotation = false;
 	}
@@ -2665,7 +2691,10 @@ void AYlva::OnEnterDashState()
 	LockedForwardInput = ForwardInput;
 	LockedRightInput = RightInput;
 
-	UpdateStamina(StaminaComponent->GetDashValue());
+#if !UE_BUILD_SHIPPING
+	if (!bGodMode)
+#endif
+		UpdateStamina(StaminaComponent->GetDashValue());
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
@@ -2708,7 +2737,7 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		return;
 	}
 
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(CurrentDashAnim))
 	{
 		FSM->PopState();
 	}
