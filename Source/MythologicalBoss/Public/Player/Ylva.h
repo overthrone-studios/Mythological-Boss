@@ -374,6 +374,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsParrying() const;
 
+	// Returns true if oue shield has been hit
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		bool IsShieldHit() const;
+
 	// Returns true if we are allowed to perform a dash attack
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool CanDashAttack() const;

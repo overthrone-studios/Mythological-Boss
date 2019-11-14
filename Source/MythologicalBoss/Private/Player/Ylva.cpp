@@ -1207,11 +1207,11 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			// Shake the camera
 			GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().ShieldHit.Shake, FollowCamera->GetShakes().ShieldHit.Intensity);
 
+			FSM->PopState();
+
 			// Are we facing away from the boss?
 			if (FVector::DotProduct(ForwardVector, DirectionToBoss) < 0.3f)
 			{
-				FSM->PopState();
-
 				// Determine the damage state to enter in
 				if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 				{
@@ -1226,7 +1226,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 					UpdateHealth(DamageAmount);
 				}
 
-				OnAfterTakeDamage();
+				if (static_cast<int32>(RecentDamage) > 0)
+					OnAfterTakeDamage();
 
 				return;
 			}
@@ -1234,25 +1235,23 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			// Determine the damage state to enter in
 			if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 			{
-				FSM->PopState();
 				FSM->PushState("Shocked");
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass())
 			{
-				FSM->PopState();
 				FSM->PushState("Push Back");
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass() ||
 					DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
 			{
-				FSM->PopState();
 				FSM->PushState("Push Back");
 			}
 			else
 			{
 				FSM->PushState("Shield Hit");
+
 				UpdateHealth(DamageAmount * Combat.BlockSettings.DamageBuffer);
 			}
 
@@ -2801,8 +2800,8 @@ void AYlva::OnEnterParryState()
 
 	YlvaAnimInstance->bCanParry = true;
 
-	const int32 RandomIndex = FMath::RandRange(0, Combat.ParrySettings.ParryHitSoundData->HitSounds.Num()-1);
-	UGameplayStatics::PlaySoundAtLocation(this, Combat.ParrySettings.ParryHitSoundData->HitSounds[RandomIndex], CurrentLocation);
+	//const int32 RandomIndex = FMath::RandRange(0, Combat.ParrySettings.ParryHitSoundData->HitSounds.Num()-1);
+	//UGameplayStatics::PlaySoundAtLocation(this, Combat.ParrySettings.ParryHitSoundData->HitSounds[RandomIndex], CurrentLocation);
 
 	PlayerController->SetIgnoreLookInput(true);
 
@@ -3003,6 +3002,11 @@ bool AYlva::IsDamaged() const
 bool AYlva::IsParrying() const
 {
 	return FSM->GetActiveStateID() == 22;
+}
+
+bool AYlva::IsShieldHit() const
+{
+	return FSM->GetActiveStateID() == 21;
 }
 
 bool AYlva::CanDashAttack() const
