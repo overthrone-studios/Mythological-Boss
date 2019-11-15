@@ -339,6 +339,22 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
 		bool IsMovingLeft() const;
 
+	// Returns true if our right input is > 0.0f AND our forward input > 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
+		bool IsMovingNE() const;
+
+	// Returns true if our right input is < 0.0f AND our forward input > 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
+		bool IsMovingNW() const;
+
+	// Returns true if our right input is > 0.0f AND our forward input < 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
+		bool IsMovingSE() const;
+
+	// Returns true if our right input is < 0.0f AND our forward input < 0.0f
+	UFUNCTION(BlueprintPure, Category = "Ylva | Movement")
+		bool IsMovingSW() const;
+
 	// Returns true if our forward input or right input != 0.0f
 	bool IsMovingInAnyDirection() const override;
 
