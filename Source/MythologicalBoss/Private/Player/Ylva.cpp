@@ -2701,8 +2701,16 @@ void AYlva::OnEnterDashState()
 			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
 		else if (IsMovingForward())
 			CurrentDashAnim = DashComponent->GetDashForwardAnim();
-		else if (IsMovingLeft() && IsMovingForward())
+		else if (IsMovingLeft())
+			CurrentDashAnim = DashComponent->GetDashLeftAnim();
+		else if (IsMovingNE())
+			CurrentDashAnim = DashComponent->GetDashNEAnim();
+		else if (IsMovingNW())
 			CurrentDashAnim = DashComponent->GetDashNWAnim();
+		else if (IsMovingSE())
+			CurrentDashAnim = DashComponent->GetDashSEAnim();
+		else if (IsMovingSW())
+			CurrentDashAnim = DashComponent->GetDashSWAnim();
 		else
 			CurrentDashAnim = DashComponent->GetDashBackwardAnim();
 
@@ -2965,6 +2973,26 @@ bool AYlva::IsMovingRight() const
 bool AYlva::IsMovingLeft() const
 {
 	return ForwardInput == 0.0f && RightInput < 0.0f;
+}
+
+bool AYlva::IsMovingNE() const
+{
+	return ForwardInput > 0.0f && RightInput > 0.0f;
+}
+
+bool AYlva::IsMovingNW() const
+{
+	return ForwardInput > 0.0f && RightInput < 0.0f;
+}
+
+bool AYlva::IsMovingSE() const
+{
+	return ForwardInput < 0.0f && RightInput > 0.0f;
+}
+
+bool AYlva::IsMovingSW() const
+{
+	return ForwardInput < 0.0f && RightInput < 0.0f;
 }
 
 bool AYlva::IsMovingInAnyDirection() const
