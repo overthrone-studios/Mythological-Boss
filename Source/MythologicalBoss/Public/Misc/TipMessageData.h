@@ -9,15 +9,15 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class MYTHOLOGICALBOSS_API UTipMessageData : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditInstanceOnly, Category = "Tip Message Data")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tip Message Data")
 		FText TipMessage = FText::FromString("None");
 
-	UPROPERTY(EditInstanceOnly, Category = "Tip Message Data")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Tip Message Data")
 		FName ActionName = "None";
 };
