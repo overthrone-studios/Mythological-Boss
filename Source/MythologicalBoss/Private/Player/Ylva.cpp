@@ -46,6 +46,7 @@
 #include "Misc/FeatData.h"
 #include "Misc/HitSoundData.h"
 #include "Misc/YlvaDifficultyData.h"
+#include "Misc/BoundingBox.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -429,6 +430,25 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 #if !UE_BUILD_SHIPPING
+	GameState->BossData.GhostSpawnPoints.Empty();
+	for (const FVector& NodeLocation : GameState->PlayArea->GetNodes())
+	{
+		const FVector DirectionToNode = NodeLocation - CurrentLocation;
+		const FVector ModifiedDirectionToNode = FVector(DirectionToNode.X, DirectionToNode.Y, 0.0f).GetSafeNormal();
+		FVector2D ScreenLocation;
+		FVector2D ViewportSize;
+		PlayerController->ProjectWorldLocationToScreen(NodeLocation, ScreenLocation);
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		if (FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), ModifiedDirectionToNode.GetSafeNormal()) > 0.7f &&
+			ScreenLocation.X < ViewportSize.X && ScreenLocation.Y < ViewportSize.Y)
+		{
+			GameState->BossData.GhostSpawnPoints.Add(NodeLocation);
+
+			DrawDebugLine(World, CurrentLocation, NodeLocation, FColor::Red, false, -1, 0, 2.0f);
+		}
+	}
+
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));

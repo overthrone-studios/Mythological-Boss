@@ -131,6 +131,8 @@ struct FBossData : public FCharacterData
 
 	FLinearColor DamageColor = FLinearColor::White;
 
+	TArray<FVector> GhostSpawnPoints;
+
 	EActionType_Mordath CurrentActionType;
 	EAttackCounters_Mordath CurrentCounterType;
 

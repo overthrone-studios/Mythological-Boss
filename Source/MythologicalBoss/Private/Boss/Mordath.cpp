@@ -1965,7 +1965,18 @@ void AMordath::SpawnGhost()
 		return;
 	}
 
-	FVector	NewLocation = UKismetMathLibrary::RandomPointInBoundingBox(GameState->PlayArea->GetActorLocation(), GameState->PlayArea->GetBoundingBox().GetExtent());
+	FVector NewLocation;
+	if (GameState->BossData.GhostSpawnPoints.Num() > 2)
+	{
+		const uint16 RandomIndex = FMath::RandRange(0, GameState->BossData.GhostSpawnPoints.Num() - 1);
+		NewLocation = GameState->BossData.GhostSpawnPoints[RandomIndex];
+	}
+	else
+	{
+		const uint16 RandomIndex = FMath::RandRange(0, GameState->PlayArea->GetNodes().Num() - 1);
+		NewLocation = GameState->PlayArea->GetNodes()[RandomIndex];
+	}
+
 	NewLocation.Z = CurrentLocation.Z;
 
 	//const auto Transform = GetActorTransform();
