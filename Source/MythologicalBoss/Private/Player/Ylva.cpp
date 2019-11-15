@@ -445,9 +445,9 @@ void AYlva::Tick(const float DeltaTime)
 		{
 			GameState->BossData.GhostSpawnPoints.Add(NodeLocation);
 
-		#if !UE_BUILD_SHIPPING
-			DrawDebugLine(World, CurrentLocation, NodeLocation, FColor::Red, false, -1, 0, 2.0f);
-		#endif
+		//#if !UE_BUILD_SHIPPING
+		//	DrawDebugLine(World, CurrentLocation, NodeLocation, FColor::Red, false, -1, 0, 2.0f);
+		//#endif
 		}
 	}
 
