@@ -46,6 +46,7 @@
 #include "Misc/FeatData.h"
 #include "Misc/HitSoundData.h"
 #include "Misc/YlvaDifficultyData.h"
+#include "Misc/BoundingBox.h"
 
 #include "Animation/AnimInstance.h"
 
@@ -426,6 +427,28 @@ void AYlva::Tick(const float DeltaTime)
 
 		if (GameInstance->ChosenDifficultyOption == DO_Casual || GameState->PlayerData.CurrentRange == BRM_SuperClose)
 			FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
+	}
+
+	// Determine where ghosts can spawn
+	GameState->BossData.GhostSpawnPoints.Empty();
+	for (const FVector& NodeLocation : GameState->PlayArea->GetNodes())
+	{
+		const FVector DirectionToNode = NodeLocation - CurrentLocation;
+		const FVector ModifiedDirectionToNode = FVector(DirectionToNode.X, DirectionToNode.Y, 0.0f).GetSafeNormal();
+		FVector2D ScreenLocation;
+		FVector2D ViewportSize;
+		PlayerController->ProjectWorldLocationToScreen(NodeLocation, ScreenLocation);
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		if (FVector::DotProduct(ControlRotation.Vector().GetSafeNormal(), ModifiedDirectionToNode.GetSafeNormal()) > 0.7f &&
+			ScreenLocation.X < ViewportSize.X && ScreenLocation.Y < ViewportSize.Y)
+		{
+			GameState->BossData.GhostSpawnPoints.Add(NodeLocation);
+
+		#if !UE_BUILD_SHIPPING
+			DrawDebugLine(World, CurrentLocation, NodeLocation, FColor::Red, false, -1, 0, 2.0f);
+		#endif
+		}
 	}
 
 #if !UE_BUILD_SHIPPING

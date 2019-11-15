@@ -116,7 +116,7 @@ float AMordathTutorial::TakeDamage(const float DamageAmount, FDamageEvent const&
 
 bool AMordathTutorial::CanAttack() const
 {
-	return !IsAttacking() && IsCloseRange() && !IsLocked() && !bIsDead;
+	return !IsAttacking() && IsCloseRange() && !IsLocked() && !bIsDead && !bStopAtTimeEventTriggered;
 }
 
 void AMordathTutorial::OnEnterFollowState()
@@ -145,6 +145,10 @@ void AMordathTutorial::UpdateFollowState(const float Uptime, const int32 Frames)
 	if (CanAttack())
 	{
 		ChooseAction();
+	}
+	else if (bStopAtTimeEventTriggered)
+	{
+		FSM->PushState("Locked");
 	}
 }
 
@@ -177,10 +181,7 @@ void AMordathTutorial::UpdateActionState(const float Uptime, const int32 Frames)
 		bStopAtTimeEventTriggered = true;
 	}
 
-	// If action has finished, go back to previous state
-	if (HasFinishedAction() && !Actions[CurrentActionIndex].bKillOnActionCompleted && !bCurrentTutorialCompleted)
-		PlayActionMontage();
-	else if (HasFinishedAction())
+	if (HasFinishedAction())
 		FSM->PopState();
 }
 
