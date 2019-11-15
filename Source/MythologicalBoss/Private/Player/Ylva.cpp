@@ -429,7 +429,7 @@ void AYlva::Tick(const float DeltaTime)
 			FaceRotation_Custom(DirectionToBoss.Rotation(), DeltaTime, RotationSpeed);
 	}
 
-#if !UE_BUILD_SHIPPING
+	// Determine where ghosts can spawn
 	GameState->BossData.GhostSpawnPoints.Empty();
 	for (const FVector& NodeLocation : GameState->PlayArea->GetNodes())
 	{
@@ -445,10 +445,13 @@ void AYlva::Tick(const float DeltaTime)
 		{
 			GameState->BossData.GhostSpawnPoints.Add(NodeLocation);
 
+		#if !UE_BUILD_SHIPPING
 			DrawDebugLine(World, CurrentLocation, NodeLocation, FColor::Red, false, -1, 0, 2.0f);
+		#endif
 		}
 	}
 
+#if !UE_BUILD_SHIPPING
 	OverthroneHUD->UpdateOnScreenDebugMessage(1, "Camera Pitch: " + FString::SanitizeFloat(ControlRotation.Pitch));
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(2, "Player Forward Input: " + FString::SanitizeFloat(ForwardInput));
