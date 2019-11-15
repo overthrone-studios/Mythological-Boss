@@ -51,6 +51,9 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Nodes")
 		float NodeZHeight = 130.0f;
 
+	UPROPERTY(EditInstanceOnly, Category = "Nodes")
+		uint8 bShowRaycasts : 1;
+
 	TArray<FVector> Nodes;
 
 private:

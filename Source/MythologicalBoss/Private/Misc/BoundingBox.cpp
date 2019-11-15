@@ -42,13 +42,16 @@ void ABoundingBox::BeginPlay()
 #if !UE_BUILD_SHIPPING
 void ABoundingBox::Tick(float DeltaSeconds)
 {
-	for (FVector NodeLocation : Nodes)
+	if (bShowRaycasts)
 	{
-		DrawDebugSphere(GetWorld(), NodeLocation, 50.0f, 12, FColor::Green, false, -1.0f, 0, 1.0f);
-	}
+		for (FVector NodeLocation : Nodes)
+		{
+			DrawDebugSphere(GetWorld(), NodeLocation, 50.0f, 12, FColor::Green, false, -1.0f, 0, 1.0f);
+		}
 
-	DrawDebugSphere(GetWorld(), MinBoxExtent, 50.0f, 12, FColor::Red, false, -1.0f, 0, 1.0f);
-	DrawDebugSphere(GetWorld(), MaxBoxExtent, 50.0f, 12, FColor::Red, false, -1.0f, 0, 1.0f);
+		DrawDebugSphere(GetWorld(), MinBoxExtent, 50.0f, 12, FColor::Red, false, -1.0f, 0, 1.0f);
+		DrawDebugSphere(GetWorld(), MaxBoxExtent, 50.0f, 12, FColor::Red, false, -1.0f, 0, 1.0f);
+	}
 }
 #endif
 
