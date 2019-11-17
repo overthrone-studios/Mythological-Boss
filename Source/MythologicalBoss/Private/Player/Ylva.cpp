@@ -728,7 +728,7 @@ void AYlva::HardLockOnTo(const FVector& TargetLocation, const float DeltaTime, c
 	if (bControlPitch)
 		NewPitch = FMath::Clamp(Target.Pitch, FollowCamera->GetMinLockOnPitch(), FollowCamera->GetMaxLockOnPitch());
 
-	const FRotator& NewRotation = FRotator(bControlPitch ? -NewPitch : ControlRotation.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+	const FRotator& NewRotation = FRotator(bControlPitch ? -NewPitch * 1.3f : ControlRotation.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 	PlayerController->SetControlRotation(NewRotation);
 }
@@ -1222,7 +1222,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 		return;
 	}
 
-	if (bGodMode || IsParrying() || IsLocked() || IsBeingPushedBack())
+	if (bGodMode || IsParrying() || IsLocked())
 		return;
 
 	// Test against states
@@ -1311,7 +1311,10 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				UpdateHealth(DamageAmount);
 			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
+			{
+				MovementSettings.KnockbackForce = 900.0f;
 				FSM->PushState("Push Back");
+			}
 			else if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
 			{
 				MovementSettings.KnockbackForce = 700.0f;
@@ -2318,12 +2321,6 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 		RSword->PeakGlow();
 	}
 
-	if (Uptime > ChargeAttackComponent->GetMaxChargeHoldTime() || StaminaComponent->IsStaminaEmpty())
-	{
-		FSM->PopState();
-		return;
-	}
-
 	FaceBoss(World->DeltaTimeSeconds);
 
 	HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
@@ -2334,6 +2331,12 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 
 	if (Combat.ChargeSettings.ChargeCameraAnimInst && Combat.ChargeSettings.ChargeCameraAnimInst->CurTime >= Combat.ChargeSettings.ChargeCameraAnim->AnimLength/2.0f)
 		Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 0.0f;
+
+	if (Uptime > ChargeAttackComponent->GetMaxChargeHoldTime())
+	{
+		FSM->PopState();
+		return;
+	}
 
 #if !UE_BUILD_SHIPPING
 	ULog::Number(ChargeAttackHoldFrames, "Charge Hold: ",true);
