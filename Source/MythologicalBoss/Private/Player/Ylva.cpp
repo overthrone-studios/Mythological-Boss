@@ -1271,6 +1271,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			else if (DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass() ||
 					DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
 			{
+				MovementSettings.KnockbackForce = 700.0f;
+
 				FSM->PushState("Push Back");
 			}
 			else
@@ -2400,6 +2402,8 @@ void AYlva::OnExitChargeAttackState()
 void AYlva::OnEnterPushBackState()
 {
 	YlvaAnimInstance->bIsHitByAOE = true;
+
+	FollowCamera->ResetLockOnTarget();
 
 	EndAttackLocation = GetDirectionToBoss();
 
