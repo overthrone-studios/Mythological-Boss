@@ -941,7 +941,9 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
-	if (HitResult.GetActor() && !HitResult.GetActor()->IsA(AMordathGhost::StaticClass()) && !HitResult.GetActor()->IsA(AMordathTutorial::StaticClass()))
+	if (HitResult.GetActor() && 
+		!HitResult.GetActor()->IsA(AMordathGhost::StaticClass()) && 
+		!HitResult.GetActor()->IsA(AMordathTutorial::StaticClass()))
 		IncreaseCharge();
 
 	if (GameState->PlayerData.CurrentAttackType == ATP_Charge && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
@@ -1796,6 +1798,8 @@ void AYlva::IncreaseCharge()
 	if (IsLightAttacking())
 		StartGainingCharge(ChargeAttackComponent->GetChargeGainForLight());
 	else if (IsHeavyAttacking())
+		StartGainingCharge(ChargeAttackComponent->GetChargeGainForHeavy());
+	else if (IsDashAttacking())
 		StartGainingCharge(ChargeAttackComponent->GetChargeGainForHeavy());
 
 	UpdateCharacterInfo();
