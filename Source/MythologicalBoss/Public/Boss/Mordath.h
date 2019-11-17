@@ -581,6 +581,7 @@ private:
 
 	class UMordathDifficultyData* CurrentDifficultyData;
 
+	class UMordathActionData* CurrentAction;
 	class UMordathActionData* SuperCloseRange_ActionData;
 	class UMordathActionData* FarRange_ActionData;
 

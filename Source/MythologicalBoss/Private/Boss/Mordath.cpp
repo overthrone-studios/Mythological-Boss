@@ -19,22 +19,21 @@
 
 #include "Boss/BossAIController.h"
 #include "Boss/MordathAnimInstance.h"
-#include "Boss/MordathGhost.h"
 #include "Boss/MordathFeatherComponent.h"
+#include "Boss/MordathGhost.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/TeleportationComponent.h"
 #include "Components/DashComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Animation/AnimInstance.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 #include "HUD/MasterHUD.h"
 #include "HUD/MainPlayerHUD.h"
@@ -274,7 +273,7 @@ void AMordath::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 6, "Current Action: " + UOverthroneEnums::MordathAttackTypeToString(GameState->BossData.CurrentActionType)/*CurrentActionData->Action->GetCurrentActionAsString()*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 5, "Current Counter: " + UOverthroneEnums::MordathAttackCounterTypeToString(GameState->BossData.CurrentCounterType) /*CurrentActionData->Action->GetCounterTypeAsString()*/);
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 4, "Lock-on Location Z: " + FString::SanitizeFloat(GameState->LockOnLocation.Z));
-	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(GetActionDamage()));
+	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 3, "Action Damage: " + FString::SanitizeFloat(ActionDamage));
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 2, "Current Combo: " + ChosenCombo->GetName());
 	OverthroneHUD->UpdateOnScreenDebugMessage(TotalMessages - 1, "Current Action Montage: " + CurrentMontageName);
 #endif
@@ -630,10 +629,13 @@ void AMordath::OnEnterCloseActionState()
 
 	CurrentActionType = SuperCloseRange_ActionData->ActionType;
 	CurrentCounterType = SuperCloseRange_ActionData->CounterType;
+	ActionDamage = SuperCloseRange_ActionData->ActionDamage;
 	GameState->BossData.CurrentActionType = SuperCloseRange_ActionData->ActionType;
 	GameState->BossData.CurrentCounterType = SuperCloseRange_ActionData->CounterType;
 
 	StartActionLocation = CurrentLocation;
+
+	CurrentAction = SuperCloseRange_ActionData;
 
 	OnBeginExecuteAction();
 }
@@ -711,10 +713,13 @@ void AMordath::OnEnterFarActionState()
 
 	CurrentActionType = FarRange_ActionData->ActionType;
 	CurrentCounterType = FarRange_ActionData->CounterType;
+	ActionDamage = FarRange_ActionData->ActionDamage;
 	GameState->BossData.CurrentActionType = FarRange_ActionData->ActionType;
 	GameState->BossData.CurrentCounterType = FarRange_ActionData->CounterType;
 
 	StartActionLocation = CurrentLocation;
+
+	CurrentAction = FarRange_ActionData;
 
 	OnBeginExecuteAction();
 }
@@ -1777,6 +1782,8 @@ void AMordath::ChooseAction()
 	GameState->BossData.CurrentActionType = ActionDataToUse->ActionType;
 	GameState->BossData.CurrentCounterType = ActionDataToUse->CounterType;
 
+	CurrentAction = ActionDataToUse;
+
 	ExecuteAction(ActionDataToUse);
 }
 
@@ -2012,16 +2019,16 @@ float AMordath::GetActionDamage() const
 	switch (GameInstance->ChosenDifficultyOption)
 	{
 	case DO_Casual:
-		return ActionDamage * CasualDifficulty->DamageMultiplier;
+		return CurrentAction->ActionDamage * CasualDifficulty->DamageMultiplier;
 
 	case DO_Experienced:
-		return ActionDamage * ExperiencedDifficulty->DamageMultiplier;
+		return CurrentAction->ActionDamage * ExperiencedDifficulty->DamageMultiplier;
 
 	case DO_Realistic:
-		return ActionDamage * RealisticDifficulty->DamageMultiplier;
+		return CurrentAction->ActionDamage * RealisticDifficulty->DamageMultiplier;
 
 	default:
-		return ActionDamage;
+		return CurrentAction->ActionDamage;
 	}
 }
 
