@@ -981,7 +981,6 @@ void AMordath::OnEnterTeleportState()
 
 	SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
 
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CapsuleComp->SetCollisionObjectType(ECC_Vehicle);
 
 	GameState->Mordaths.Remove(this);
@@ -1034,7 +1033,7 @@ void AMordath::OnExitTeleportState()
 {
 	TeleportationComponent->Reappear();
 
-	GameState->Mordaths.Add(this);
+	GameState->Mordaths.Insert(this, 0);
 
 	DisableInvincibility();
 
@@ -1471,11 +1470,10 @@ void AMordath::OnReappeared()
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
 	//MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
-	//SKMComponent->SetMaterial(0, MID_OriginalMaterial);
-	//SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
+	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
+	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	CapsuleComp->SetCollisionProfileName("Mordath");
 
 	DisableInvincibility();
 }
@@ -1489,8 +1487,7 @@ void AMordath::OnBeginReappear()
 {
 	GameState->BossData.OnMordathBeginReappear.Broadcast();
 
-	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
+	CapsuleComp->SetCollisionProfileName("Mordath");
 
 	DisableInvincibility();
 }
