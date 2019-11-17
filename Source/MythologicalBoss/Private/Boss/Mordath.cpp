@@ -204,7 +204,6 @@ void AMordath::BeginPlay()
 	OriginalMaterial = SKMComponent->GetMaterial(0);
 	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
 
-	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
 	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
 	const FMaterialParameterInfo MPC_Mordath{"Attack Color"};
@@ -1466,9 +1465,9 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
-	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
-	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
-	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
+	//MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
+	//SKMComponent->SetMaterial(0, MID_OriginalMaterial);
+	//SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CapsuleComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
