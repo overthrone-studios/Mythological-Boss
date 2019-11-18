@@ -959,8 +959,6 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 			Mordath->ApplyKnockbackEffect();
 	}
 
-	ULog::Number(Combat.HitStopTime, "Hit stop: ", true);
-
 	LandedHits++;
 
 	if (HitActor && 
