@@ -1371,11 +1371,11 @@ void AMordath::DoKnockback()
 	const float Time = TL_Knockback.GetPlaybackPosition();
 	const float Alpha = KnockbackCurve->GetFloatValue(Time);
 
-	if (Time > TL_Knockback.GetTimelineLength()/2 && !SKMComponent->bPauseAnims && !IsAttacking())
-		PauseAnims();
-
 	if (HitCounter >= 3)
+	{
+		PauseAnims();
 		AddMovementInput(10000.0f * -FVector(DirectionToPlayer.X, DirectionToPlayer.Y, 0.0f));
+	}
 	else
 		AddMovementInput(Alpha * -FVector(DirectionToPlayer.X, DirectionToPlayer.Y, 0.0f));
 }
