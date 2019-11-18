@@ -84,6 +84,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Overthrone Character | Combat")
 		float GetRecentDamage() const;
 
+	// Hit stop functions
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void PauseAnims() const;
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
+		virtual void UnPauseAnims() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Character | Combat")
+		virtual void ApplyKnockbackEffect();
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
@@ -145,12 +154,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void Die();
 
-	// Hit stop functions
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void PauseAnims() const;
-	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
-		virtual void UnPauseAnims() const;
-
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual bool IsInvincible() const;
 
@@ -184,6 +187,12 @@ protected:
 				virtual void OnExitLockedState();
 		#pragma endregion
 	#pragma endregion
+
+	UFUNCTION()
+		virtual void DoKnockback();
+
+	UFUNCTION()
+		virtual void OnFinishedKnockback();
 
 	// Called when the character's health is less than or equal to the low health threshold
 	UFUNCTION()
@@ -232,12 +241,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Overthrone Character")
 		class UHealthComponent* HealthComponent;
 
-	// This timeline plays when we have taken damage
-	FTimeline HealthLossTimeline;
-
 	// The float curve to use when taking damage
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		class UCurveFloat* HealthLossCurve;
+
+	// The float curve to use when being knocked back
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Overthrone Character | Combat")
+		UCurveFloat* KnockbackCurve;
 
 	// The skeletal mesh representing the character
 	USkeletalMesh* SkeletalMesh;
@@ -303,7 +313,14 @@ protected:
 	FTimerHandle DeathExpiryTimerHandle;
 	FTimerHandle HitStopTimerHandle;
 
+	// These timelines play when we have taken damage
+	FTimeline TL_HealthLoss;
+	FTimeline TL_Knockback;
+
 	uint8 bWasLowHealthEventTriggered : 1;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		uint8 LandedHits = 0;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		float RecentDamage = 0.0f;

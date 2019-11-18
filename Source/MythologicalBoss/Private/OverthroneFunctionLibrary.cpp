@@ -245,7 +245,10 @@ void UOverthroneFunctionLibrary::SetupTimeline(UObject* Object, FTimeline& InTim
 	}
 	else
 	{
-		ULog::DebugMessage(ERROR, FString("Failed to initialize timeline. A curve float asset is missing!"), true);
+		if (Object)
+			ULog::DebugMessage(ERROR, FString(Object->GetName() + ": Failed to initialize timeline. A curve float asset is missing!"), true);
+		else
+			ULog::DebugMessage(ERROR, FString("Failed to initialize timeline. A curve float asset is missing!"), true);
 	}
 
 	if (TimelineCallbackFuncName != NAME_None)

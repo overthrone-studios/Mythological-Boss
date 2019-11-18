@@ -138,8 +138,12 @@ public:
 
 	bool IsInvincible() const override;
 
+	void OnAttackLanded(const FHitResult& HitResult) override;
+
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
+
+	void ApplyKnockbackEffect() override;
 
 	// List of debugging options
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath")
@@ -245,7 +249,10 @@ protected:
 		void OnFullHealth();
 
 	UFUNCTION()
-		void OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInterrupted);
+		void OnAttackEnd_Implementation(UAnimMontage* Montage, bool bInterrupted);
+
+	void DoKnockback() override;
+	void OnFinishedKnockback() override;
 	#pragma endregion 
 
 	#pragma region Any States
@@ -573,6 +580,7 @@ private:
 	FLinearColor OriginalAttackColor = FColor::Blue;
 
 	float CurrentHealth = 0.0f;
+	float HitStopTime = 0.0f;
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;

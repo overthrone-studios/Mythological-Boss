@@ -46,6 +46,7 @@
 #include "Engine/StaticMesh.h"
 
 #include "TimerManager.h"
+#include "OverthroneMacros.h"
 
 AMordath::AMordath() : AMordathBase()
 {
@@ -780,8 +781,8 @@ void AMordath::OnExitDamagedState()
 	if (PreviousActionMontage)
 		PreviousActionMontage->BlendOut.SetBlendTime(0.5f);
 
-	if (ChosenCombo)
-		NextAction();
+	//if (ChosenCombo)
+	//	NextAction();
 }
 #pragma endregion
 
@@ -1164,6 +1165,8 @@ void AMordath::OnEnterFirstStage()
 	CurrentStageData = GetStageData();
 	CurrentStageData->InitStageData();
 
+	HitStopTime = CurrentStageData->GetHitStopTime();
+
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
 	MordathAnimInstance->CurrentStage = Stage_1;
@@ -1214,6 +1217,8 @@ void AMordath::OnExitFirstStage()
 void AMordath::OnEnterSecondStage()
 {
 	CurrentStageData = GetStageData();
+
+	HitStopTime = CurrentStageData->GetHitStopTime();
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
@@ -1278,6 +1283,8 @@ void AMordath::OnExitSecondStage()
 void AMordath::OnEnterThirdStage()
 {
 	CurrentStageData = GetStageData();
+
+	HitStopTime = CurrentStageData->GetHitStopTime();
 
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
@@ -1357,6 +1364,33 @@ void AMordath::OnAttackEnd_Implementation(UAnimMontage* Montage, const bool bInt
 	{
 		FSM->PushState("Roar");
 	}
+}
+
+void AMordath::DoKnockback()
+{
+	const float Time = TL_Knockback.GetPlaybackPosition();
+	const float Alpha = KnockbackCurve->GetFloatValue(Time);
+
+	if (Time > TL_Knockback.GetTimelineLength()/2 && !SKMComponent->bPauseAnims && !IsAttacking())
+		PauseAnims();
+
+	ULog::Number(HitCounter, "HitCounter: ", true);
+	if (HitCounter >= 3)
+		AddMovementInput(10000.0f * -FVector(DirectionToPlayer.X, DirectionToPlayer.Y, 0.0f));
+	else
+		AddMovementInput(Alpha * -FVector(DirectionToPlayer.X, DirectionToPlayer.Y, 0.0f));
+}
+
+void AMordath::OnFinishedKnockback()
+{
+	UnPauseAnims();
+
+	//if (HitCounter >= 3)
+	//	MovementComponent->MoveSmooth(-DirectionToPlayer * 4000.0f, World->DeltaTimeSeconds);
+	//else
+	//	MovementComponent->MoveSmooth(-DirectionToPlayer * 1000.0f, World->DeltaTimeSeconds);
+
+	TL_Knockback.SetPlaybackPosition(0.0f, false);
 }
 
 void AMordath::OnLowHealth()
@@ -1575,6 +1609,14 @@ void AMordath::BeginTakeDamage(const float DamageAmount, const FDamageEvent& Dam
 
 void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
+	HitStopTime = FMath::GetMappedRangeValueClamped({0, 2}, {CurrentStageData->GetHitStopTime(), 0.25f}, HitCounter);
+
+	if (HitCounter >= 3)
+	{
+		HitCounter = 0;
+		HitStopTime = CurrentStageData->GetHitStopTime();
+	}
+
 	HitCounter++;
 
 	#if !UE_BUILD_SHIPPING
@@ -1865,8 +1907,13 @@ void AMordath::PauseAnimsWithTimer()
 	if (CurrentStageData->IsHitStopEnabled())
 	{
 		PauseAnims();
-		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, CurrentStageData->GetHitStopTime());
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, HitStopTime);
 	}
+}
+
+void AMordath::ApplyKnockbackEffect()
+{
+	TL_Knockback.Play();
 }
 
 bool AMordath::IsInFirstStage() const
@@ -1953,6 +2000,20 @@ void AMordath::EnterStage(const EBossStage_Mordath InStage)
 bool AMordath::IsInvincible() const
 {
 	return FSM->GetActiveStateID() == 28;
+}
+
+void AMordath::OnAttackLanded(const FHitResult& HitResult)
+{
+	HitStopTime = CurrentStageData->GetHitStopTime();
+
+	AActor* HitActor = HitResult.GetActor();
+	if (HitActor->IsA(AOverthroneCharacter::StaticClass()))
+	{
+		AOverthroneCharacter* Ylva = CAST(HitActor, AOverthroneCharacter);
+
+		if (!Ylva->IsMovingInAnyDirection())
+			Ylva->ApplyKnockbackEffect();
+	}
 }
 
 void AMordath::SpawnGhost()

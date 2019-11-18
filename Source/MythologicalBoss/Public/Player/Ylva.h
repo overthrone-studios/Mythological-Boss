@@ -425,6 +425,8 @@ public:
 
 	bool IsLocked() const override;
 
+	void ApplyKnockbackEffect() override;
+
 	// Turn rate, in deg/sec. Other scaling may affect final turn rate.
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Camera")
 		float TurnRate;
@@ -808,6 +810,9 @@ protected:
 
 	UFUNCTION()
 		void OnMordathBaseDeath();
+
+	void DoKnockback() override;
+	void OnFinishedKnockback() override;
 	#pragma endregion
 
 	#pragma region Any States

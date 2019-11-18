@@ -724,11 +724,11 @@ void AYlva::HardLockOnTo(const FVector& TargetLocation, const float DeltaTime, c
 	const FRotator& Target = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, TargetLocation);
 	const FRotator& SmoothedRotation = FMath::RInterpTo(ControlRotation, Target, DeltaTime, FollowCamera->GetLockOnRotationSpeed());
 
-	float NewPitch = Target.Pitch;
+	float NewPitch = SmoothedRotation.Pitch;
 	if (bControlPitch)
-		NewPitch = FMath::Clamp(Target.Pitch, FollowCamera->GetMinLockOnPitch(), FollowCamera->GetMaxLockOnPitch());
+		NewPitch = FMath::GetMappedRangeValueClamped({1300.0f, 200.0f}, {FollowCamera->GetMinLockOnPitch(), FollowCamera->GetMaxLockOnPitch()}, DistanceToBoss);
 
-	const FRotator& NewRotation = FRotator(bControlPitch ? -NewPitch * 1.3f : ControlRotation.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
+	const FRotator& NewRotation = FRotator(bControlPitch ? -NewPitch : ControlRotation.Pitch, SmoothedRotation.Yaw, ControlRotation.Roll);
 
 	PlayerController->SetControlRotation(NewRotation);
 }
@@ -939,11 +939,27 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 {
 	HitCounter = 0;
 
+	if (LandedHits >= 3)
+		LandedHits = 0;
+
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
-	if (HitResult.GetActor() && 
-		!HitResult.GetActor()->IsA(AMordathGhost::StaticClass()) && 
-		!HitResult.GetActor()->IsA(AMordathTutorial::StaticClass()))
+	AActor* HitActor = HitResult.GetActor();
+	if (HitActor->IsA(AMordathBase::StaticClass()))
+	{
+		Combat.HitStopTime = FMath::GetMappedRangeValueClamped({0, 2}, {0.07f, 0.15f}, LandedHits);
+
+		AMordathBase* Mordath = CAST(HitActor, AMordathBase);
+
+		if (!Mordath->IsMovingInAnyDirection())
+			Mordath->ApplyKnockbackEffect();
+	}
+
+	LandedHits++;
+
+	if (HitActor && 
+		!HitActor->IsA(AMordathGhost::StaticClass()) && 
+		!HitActor->IsA(AMordathTutorial::StaticClass()))
 		IncreaseCharge();
 
 	if (GameState->PlayerData.CurrentAttackType == ATP_Charge && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
@@ -1254,6 +1270,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				if (static_cast<int32>(RecentDamage) > 0)
 					OnAfterTakeDamage();
 
+				LandedHits = 0;
+
 				return;
 			}
 
@@ -1336,6 +1354,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				GameState->CurrentCameraShake = CameraManager->PlayCameraShake(FollowCamera->GetShakes().Damaged.Shake, FollowCamera->GetShakes().Damaged.Intensity);
 		break;
 	}
+
+	LandedHits = 0;
 
 	// Determine whether to reset the charge meter or not
 	if (!ChargeAttackComponent->IsChargeFull())
@@ -2039,6 +2059,24 @@ void AYlva::OnMordathBaseDeath()
 	FollowCamera->DetermineClosestLockOnTarget(GameState->Mordaths);
 	CurrentLockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths);
 }
+
+void AYlva::DoKnockback()
+{
+	const float Time = TL_Knockback.GetPlaybackPosition();
+	const float Alpha = KnockbackCurve->GetFloatValue(Time);
+
+	MovementComponent->bOrientRotationToMovement = false;
+	ULog::Number(Alpha, "Doing Knockback: ", true);
+
+	//MovementComponent->MoveSmooth(Alpha * -ForwardVector, World->DeltaTimeSeconds);
+}
+
+void AYlva::OnFinishedKnockback()
+{
+	MovementComponent->bOrientRotationToMovement = true;
+
+	TL_Knockback.SetPlaybackPosition(0.0f, false);
+}
 #pragma endregion
 
 #pragma region Any States
@@ -2620,6 +2658,9 @@ void AYlva::UpdateDashAttackState(float Uptime, int32 Frames)
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.DashAttackSettings.TimeDilationWhileAttacking, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
 
+	if (Uptime < 0.5f * NewTimeDilation)// Mid point of dash attack animation
+		FaceBoss_Instant();
+
 	if (!IsLockedOn())
 		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 
@@ -2776,7 +2817,7 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		ULog::Info("Perfectly timed dash!", true);
 		#endif
 
-		if (StaminaComponent->HasEnoughForDashAttack())
+		if (/*StaminaComponent->HasEnoughForDashAttack() && */(GameInstance->ChosenDifficultyOption == DO_Casual || GameInstance->ChosenDifficultyOption == DO_Experienced))
 			MainHUD->ShowDashAttackPrompt();
 
 		EnableInvincibility();
@@ -3073,7 +3114,7 @@ bool AYlva::IsShieldHit() const
 
 bool AYlva::CanDashAttack() const
 {
-	return bPerfectlyTimedDash && !IsLowStamina() && StaminaComponent->HasEnoughForDashAttack();
+	return bPerfectlyTimedDash /*&& !IsLowStamina() && StaminaComponent->HasEnoughForDashAttack()*/;
 }
 
 bool AYlva::IsPerfectDashing() const
@@ -3094,6 +3135,11 @@ bool AYlva::CanLockOn() const
 bool AYlva::IsLocked() const
 {
 	return FSM->GetActiveStateID() == 23;
+}
+
+void AYlva::ApplyKnockbackEffect()
+{
+	TL_Knockback.Play();
 }
 
 class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const

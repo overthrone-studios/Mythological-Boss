@@ -19,6 +19,7 @@ UAnimNotifyState_ApplyDamageBoss::UAnimNotifyState_ApplyDamageBoss()
 void UAnimNotifyState_ApplyDamageBoss::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2)); // Ylva
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_Destructible));
 
 	Mordath = Cast<AMordath>(MeshComp->GetOwner());
 
@@ -67,10 +68,6 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp, c
 
 		bIsHit = true;
 
-		// Apply hit stop
-		if (Mordath)
-			Mordath->PauseAnimsWithTimer();
-
 		if (HitActor->IsA(ADestructibleActor::StaticClass()))
 		{
 			HitActor->TakeDamage(AttackDamage, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());
@@ -85,6 +82,9 @@ void UAnimNotifyState_ApplyDamageBoss::OnHit(USkeletalMeshComponent* MeshComp, c
 			PlayHitSound(MeshComp, HitResult);
 
 			Mordath->OnAttackLanded(HitResult);
+
+			// Apply hit stop
+			Mordath->PauseAnimsWithTimer(); 
 		}
 	}
 }

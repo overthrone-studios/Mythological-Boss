@@ -39,7 +39,8 @@ void AOverthroneCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UOverthroneFunctionLibrary::SetupTimeline(this, HealthLossTimeline, HealthLossCurve, false, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
+	UOverthroneFunctionLibrary::SetupTimeline(this, TL_HealthLoss, HealthLossCurve, false, 1.0f, FName("LoseHealth"), FName("FinishLosingHealth"));
+	UOverthroneFunctionLibrary::SetupTimeline(this, TL_Knockback, KnockbackCurve, false, 1.0f, FName("DoKnockback"), FName("OnFinishedKnockback"));
 
 	// Store all our child components
 	Components = GetComponents();
@@ -65,7 +66,8 @@ void AOverthroneCharacter::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	HealthLossTimeline.TickTimeline(DeltaSeconds);
+	TL_HealthLoss.TickTimeline(DeltaSeconds);
+	TL_Knockback.TickTimeline(DeltaSeconds);
 
 	CurrentLocation = GetActorLocation();
 	CurrentRotation = GetActorRotation();
@@ -186,6 +188,14 @@ void AOverthroneCharacter::OnExitLockedState()
 #pragma endregion
 #pragma endregion
 
+void AOverthroneCharacter::DoKnockback()
+{
+}
+
+void AOverthroneCharacter::OnFinishedKnockback()
+{
+}
+
 void AOverthroneCharacter::OnLowHealth()
 {
 }
@@ -196,12 +206,12 @@ void AOverthroneCharacter::OnExitLowHealth()
 
 void AOverthroneCharacter::StartLosingHealth()
 {
-	HealthLossTimeline.PlayFromStart();
+	TL_HealthLoss.PlayFromStart();
 }
 
 void AOverthroneCharacter::LoseHealth()
 {
-	const float Alpha = HealthLossCurve->GetFloatValue(HealthLossTimeline.GetPlaybackPosition());
+	const float Alpha = HealthLossCurve->GetFloatValue(TL_HealthLoss.GetPlaybackPosition());
 
 	HealthComponent->SetSmoothedHealth(FMath::Lerp(HealthComponent->GetPreviousHealth(), HealthComponent->GetCurrentHealth(), Alpha));
 
@@ -267,8 +277,8 @@ void AOverthroneCharacter::UpdateHealth(const float HealthToSubtract)
 	HealthComponent->UpdatePreviousHealth();
 
 	// Stop animating displayed health
-	if (HealthLossTimeline.IsPlaying())
-		HealthLossTimeline.Stop();
+	if (TL_HealthLoss.IsPlaying())
+		TL_HealthLoss.Stop();
 
 	DecreaseHealth(HealthToSubtract);
 
@@ -307,6 +317,10 @@ void AOverthroneCharacter::PauseAnims() const
 void AOverthroneCharacter::UnPauseAnims() const
 {
 	SKMComponent->bPauseAnims = false;
+}
+
+void AOverthroneCharacter::ApplyKnockbackEffect()
+{
 }
 
 bool AOverthroneCharacter::IsInvincible() const
