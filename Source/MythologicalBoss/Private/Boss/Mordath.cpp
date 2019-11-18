@@ -1374,7 +1374,6 @@ void AMordath::DoKnockback()
 	if (Time > TL_Knockback.GetTimelineLength()/2 && !SKMComponent->bPauseAnims && !IsAttacking())
 		PauseAnims();
 
-	ULog::Number(HitCounter, "HitCounter: ", true);
 	if (HitCounter >= 3)
 		AddMovementInput(10000.0f * -FVector(DirectionToPlayer.X, DirectionToPlayer.Y, 0.0f));
 	else
@@ -1384,11 +1383,6 @@ void AMordath::DoKnockback()
 void AMordath::OnFinishedKnockback()
 {
 	UnPauseAnims();
-
-	//if (HitCounter >= 3)
-	//	MovementComponent->MoveSmooth(-DirectionToPlayer * 4000.0f, World->DeltaTimeSeconds);
-	//else
-	//	MovementComponent->MoveSmooth(-DirectionToPlayer * 1000.0f, World->DeltaTimeSeconds);
 
 	TL_Knockback.SetPlaybackPosition(0.0f, false);
 }
@@ -2009,10 +2003,7 @@ void AMordath::OnAttackLanded(const FHitResult& HitResult)
 	AActor* HitActor = HitResult.GetActor();
 	if (HitActor->IsA(AOverthroneCharacter::StaticClass()))
 	{
-		AOverthroneCharacter* Ylva = CAST(HitActor, AOverthroneCharacter);
-
-		if (!Ylva->IsMovingInAnyDirection())
-			Ylva->ApplyKnockbackEffect();
+		CAST(HitActor, AOverthroneCharacter)->ApplyKnockbackEffect();
 	}
 }
 

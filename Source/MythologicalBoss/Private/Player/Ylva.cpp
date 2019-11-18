@@ -2065,15 +2065,13 @@ void AYlva::DoKnockback()
 	const float Time = TL_Knockback.GetPlaybackPosition();
 	const float Alpha = KnockbackCurve->GetFloatValue(Time);
 
-	MovementComponent->bOrientRotationToMovement = false;
-	ULog::Number(Alpha, "Doing Knockback: ", true);
-
-	//MovementComponent->MoveSmooth(Alpha * -ForwardVector, World->DeltaTimeSeconds);
+	MovementComponent->MoveSmooth(Alpha * -DirectionToBoss * FVector(1.0f, 1.0f, 0.0f), World->DeltaTimeSeconds);
 }
 
 void AYlva::OnFinishedKnockback()
 {
-	MovementComponent->bOrientRotationToMovement = true;
+	if (!IsLockedOn())
+		MovementComponent->bOrientRotationToMovement = true;
 
 	TL_Knockback.SetPlaybackPosition(0.0f, false);
 }
