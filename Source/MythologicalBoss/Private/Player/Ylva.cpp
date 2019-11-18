@@ -2824,7 +2824,7 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		ULog::Info("Perfectly timed dash!", true);
 		#endif
 
-		if (/*StaminaComponent->HasEnoughForDashAttack() && */(GameInstance->ChosenDifficultyOption == DO_Casual || GameInstance->ChosenDifficultyOption == DO_Experienced))
+		//if (/*StaminaComponent->HasEnoughForDashAttack() && */(GameInstance->ChosenDifficultyOption == DO_Casual || GameInstance->ChosenDifficultyOption == DO_Experienced))
 			MainHUD->ShowDashAttackPrompt();
 
 		EnableInvincibility();
