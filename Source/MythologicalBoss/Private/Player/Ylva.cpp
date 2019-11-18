@@ -1223,6 +1223,8 @@ void AYlva::BeginTakeDamage(const float DamageAmount, const FDamageEvent& Damage
 {
 	Super::BeginTakeDamage(DamageAmount, DamageEvent);
 
+	DamageType = DamageEvent.DamageTypeClass;
+
 	if (DamageEvent.DamageTypeClass == UDmgType_MordathElectricShield::StaticClass())
 		RecentDamage = 0.0f;
 
@@ -3137,7 +3139,8 @@ bool AYlva::IsLocked() const
 
 void AYlva::ApplyKnockbackEffect()
 {
-	TL_Knockback.Play();
+	if (DamageType == nullptr)
+		TL_Knockback.Play();
 }
 
 class UForceFeedbackEffect* AYlva::GetCurrentForceFeedback() const

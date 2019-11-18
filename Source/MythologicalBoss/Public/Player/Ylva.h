@@ -1050,6 +1050,8 @@ protected:
 		float FastestTime = 0.0f;
 
 private:
+	TSubclassOf<UDamageType> DamageType;
+
 	TQueue<EAttackType_Player> AttackQueue;
 	TQueue<uint8> DashQueue;
 
