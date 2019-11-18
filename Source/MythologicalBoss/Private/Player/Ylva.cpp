@@ -267,6 +267,7 @@ void AYlva::BeginPlay()
 	Combat.AttackSettings.OriginalHeavyAttackDamage = Combat.AttackSettings.HeavyAttackDamage;
 
 	OriginalAttackRadius = Combat.AttackSettings.AttackRadius;
+	OriginalHitStopTime = Combat.HitStopTime;
 
 	// Set pitch min max values
 	CameraManager->ViewPitchMin = 360.0f - FollowCamera->GetMaxPitch();
@@ -940,7 +941,10 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 	HitCounter = 0;
 
 	if (LandedHits >= 3)
+	{
+		Combat.HitStopTime = OriginalHitStopTime;
 		LandedHits = 0;
+	}
 
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
@@ -954,6 +958,8 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 		if (!Mordath->IsMovingInAnyDirection())
 			Mordath->ApplyKnockbackEffect();
 	}
+
+	ULog::Number(Combat.HitStopTime, "Hit stop: ", true);
 
 	LandedHits++;
 
@@ -1985,6 +1991,9 @@ void AYlva::OnComboReset_Implementation()
 
 	Combat.AttackSettings.LightAttackDamage = Combat.AttackSettings.OriginalLightAttackDamage;
 	Combat.AttackSettings.HeavyAttackDamage = Combat.AttackSettings.OriginalHeavyAttackDamage;
+
+	Combat.HitStopTime = OriginalHitStopTime;
+	LandedHits = 0;
 }
 
 void AYlva::OnComboMultiplierReached()
@@ -2353,7 +2362,7 @@ void AYlva::UpdateChargeAttackState(float Uptime, int32 Frames)
 {
 	UpdateStamina(StaminaComponent->GetChargeAttackValue() * World->DeltaTimeSeconds);
 
-	if (ChargeAttackHoldFrames > ChargeAttackComponent->GetChargeHoldFrames() * World->DeltaTimeSeconds)
+	if (ChargeAttackHoldFrames > ChargeAttackComponent->GetChargeHoldFrames())
 	{
 		MainHUD->UpdateChargeAttackMessage("Release");
 
@@ -2393,7 +2402,7 @@ void AYlva::OnExitChargeAttackState()
 	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
 
 	// Did we not reach the peak charge?
-	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames()/(1.0f / World->DeltaTimeSeconds))
+	if (ChargeAttackHoldFrames < ChargeAttackComponent->GetChargeHoldFrames())
 	{
 		if (Combat.ChargeSettings.ChargeCameraAnimInst)
 			Combat.ChargeSettings.ChargeCameraAnimInst->PlayRate = 3.0f;

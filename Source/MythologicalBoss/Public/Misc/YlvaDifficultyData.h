@@ -73,13 +73,13 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
 		float HealthGainOnChargeAttack = 80.0f;
 
+	// The amount of frames to hold the charge for, before releasing it
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0))
+		float ChargeHoldTime = 1.0f;
+
 	// The maximum amount of time (in seconds) we can hold the charge attack for
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0.0f))
 		float MaxChargeHoldTime = 5.0f;
-
-	// The amount of frames to hold the charge for, before releasing it
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack", meta = (ClampMin = 0))
-		int32 ChargeHoldFrames = 25;
 
 	// Should we reset the charge meter when we've taken damage?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Ylva Difficulty Data | Charge Attack")

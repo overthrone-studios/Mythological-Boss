@@ -1072,6 +1072,7 @@ private:
 	float PlayerLeanRollAmount = 0.0f;
 	float PlayerLeanPitchAmount = 0.0f;
 
+	float OriginalHitStopTime = 0.07f;
 	float OriginalAttackRadius = 20.0f;
 
 	uint8 MaxDashInQueue = 1;

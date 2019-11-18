@@ -36,7 +36,7 @@ public:
 
 	// Return the actor's maximum hits
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
-		FORCEINLINE int32 GetChargeHoldFrames() const { return ChargeHoldFrames; }
+		FORCEINLINE float GetChargeHoldFrames() const { return ChargeHoldTime; }
 
 	// Return the actor's health gain on charge attack
 	UFUNCTION(BlueprintPure, Category = "Charge Attack")
@@ -149,13 +149,13 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
 		float HealthGainOnChargeAttack = 20.0f;
 
+	// The amount of time (in seconds) required to hold the charge for, before releasing it
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0))
+		float ChargeHoldTime = 1.0f;
+
 	// The maximum amount of time (in seconds) we can hold the charge attack for
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0.0f))
 		float MaxChargeHoldTime = 6.0f;
-
-	// The amount of frames to hold the charge for, before releasing it
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy", meta = (ClampMin = 0))
-		int32 ChargeHoldFrames = 50;
 
 	// Should we reset the charge meter when we've taken damage?
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Charge Attack Economy")

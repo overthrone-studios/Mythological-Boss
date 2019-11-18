@@ -24,7 +24,7 @@ void UChargeAttackComponent::InitChargeAttackEconomyValues(const UYlvaDifficulty
 	ChargeLossPerHit = DifficultyData.ChargeLossPerHit;
 	HealthGainOnChargeAttack = DifficultyData.HealthGainOnChargeAttack;
 	MaxChargeHoldTime = DifficultyData.MaxChargeHoldTime;
-	ChargeHoldFrames = DifficultyData.ChargeHoldFrames;
+	ChargeHoldTime = DifficultyData.ChargeHoldTime;
 	bResetChargeAfterMaxHits = DifficultyData.bResetChargeAfterMaxHits;
 	MaxHitsForChargeReset = DifficultyData.MaxHitsForChargeReset;
 	bLoseChargeOvertime = DifficultyData.bLoseChargeOvertime;
