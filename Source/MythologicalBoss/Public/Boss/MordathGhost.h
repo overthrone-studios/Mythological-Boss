@@ -21,6 +21,8 @@ public:
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();
 
+	void Die() override;
+
 protected:
 	void BeginPlay() override;
 

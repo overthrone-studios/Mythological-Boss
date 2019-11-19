@@ -86,6 +86,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void AddToLockOnTargetsArray();
 
+	void Die() override;
+
 protected:
 	void BeginPlay() override;
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -93,8 +95,6 @@ protected:
 	void PossessedBy(AController* NewController) override;
 
 	void StopMovement() override;
-
-	void Die() override;
 
 	void OnExecutionTimeExpired();
 

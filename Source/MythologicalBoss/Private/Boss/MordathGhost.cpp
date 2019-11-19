@@ -57,8 +57,7 @@ float AMordathGhost::TakeDamage(const float DamageAmount, FDamageEvent const& Da
 {
 	if (!DamageCauser->IsA(AMordathBase::StaticClass()))
 	{
-		if (!bIsDead)
-			FSM->PushState("Death");
+		Die();
 	}
 
 	return DamageAmount;
@@ -205,6 +204,12 @@ void AMordathGhost::ExecuteAction(UMordathActionData* ActionData)
 	Super::ExecuteAction(ActionData);
 
 	FSM->PushState("Action");
+}
+
+void AMordathGhost::Die()
+{
+	if (!bIsDead)
+		FSM->PushState("Death");
 }
 
 void AMordathGhost::PauseAnimsWithTimer()

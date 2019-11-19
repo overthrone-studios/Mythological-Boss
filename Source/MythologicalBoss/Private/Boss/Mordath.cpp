@@ -795,6 +795,12 @@ void AMordath::OnEnterDeathState()
 
 	GameState->BossData.OnDeath.Broadcast();
 
+	for (const auto& Mordath: GameState->Mordaths)
+	{
+		if (Mordath != this)
+			CAST(Mordath, AMordathBase)->Die();
+	}
+
 	RangeFSM->Stop();
 	StageFSM->Stop();
 
