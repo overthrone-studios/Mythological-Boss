@@ -104,6 +104,10 @@ struct FDashAttackSettings_Ylva
 {
 	GENERATED_BODY()
 
+	// The animation montage to play when dash has been performed perfectly
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+		class UAnimMontage* DashAttackAnim;
+
 	// The camera animation to play when dash has been performed perfectly
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 		class UCameraAnim* CameraAnim;

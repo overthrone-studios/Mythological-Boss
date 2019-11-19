@@ -969,6 +969,7 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 	if (GameState->PlayerData.CurrentAttackType == ATP_Charge && !bIsDead && HealthComponent->GetCurrentHealth() >= 0.0f)
 	{
 		IncreaseHealth(ChargeAttackComponent->GetHealthGainOnChargeAttack());
+		SetStamina(StaminaComponent->GetDefaultStamina());
 	}
 }
 
@@ -2657,27 +2658,31 @@ void AYlva::OnEnterDashAttackState()
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationWhileAttacking);
 
+	PlayAnimMontage(Combat.DashAttackSettings.DashAttackAnim);
+
 	FaceBoss_Instant();
 }
 
-void AYlva::UpdateDashAttackState(float Uptime, int32 Frames)
+void AYlva::UpdateDashAttackState(const float Uptime, int32 Frames)
 {
 	const float& NewTimeDilation = FMath::InterpExpoIn(Combat.DashAttackSettings.TimeDilationWhileAttacking, 1.0f, FMath::Clamp(FSM->GetActiveStateUptime(), 0.0f, 1.0f));
 	UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
 
-	if (Uptime < 0.5f * NewTimeDilation)// Mid point of dash attack animation
+	if (Uptime < 0.35f * NewTimeDilation)// Mid point of dash attack animation
 		FaceBoss_Instant();
 
 	if (!IsLockedOn())
 		HardLockOnTo(GameState->BossData.Location, World->DeltaTimeSeconds);
 
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (!AnimInstance->Montage_IsPlaying(Combat.DashAttackSettings.DashAttackAnim))
 		FSM->PopState();
 }
 
 void AYlva::OnExitDashAttackState()
 {
 	YlvaAnimInstance->bCanDashAttack = false;
+
+	StopAnimMontage(Combat.DashAttackSettings.DashAttackAnim);
 
 	if (HealthComponent->IsLowHealth())
 		ChangeHitboxSize(Combat.AttackSettings.AttackRadiusOnLowHealth);
@@ -2982,12 +2987,12 @@ float AYlva::GetHeavyAttackDamage() const
 
 float AYlva::GetChargeAttackDamage() const
 {
-	return Combat.AttackSettings.ChargeAttackDamage * CurrentDifficultyData->DamageMultiplier;
+	return Combat.AttackSettings.ChargeAttackDamage;
 }
 
 float AYlva::GetDashAttackDamage() const
 {
-	return Combat.DashAttackSettings.DashAttackDamage * CurrentDifficultyData->DamageMultiplier;
+	return Combat.DashAttackSettings.DashAttackDamage;
 }
 
 bool AYlva::IsLightAttacking() const
