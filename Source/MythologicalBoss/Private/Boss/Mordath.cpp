@@ -826,6 +826,8 @@ void AMordath::OnExitDeathState()
 void AMordath::OnEnterTransitionState()
 {
 	CurrentHealth = HealthComponent->GetCurrentHealth();
+
+	EnableInvincibility();
 }
 
 void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
@@ -836,12 +838,13 @@ void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
 		SetHealth(NewHealth);
 	}
 
-	if (AnimInstance->AnimTimeRemaining < 0.1f)
+	if (IsInThirdStage() && !AnimInstance->Montage_IsPlaying(Stage3_Transition) || IsInSecondStage() && !AnimInstance->Montage_IsPlaying(Stage2_Transition))
 		FSM->PopState();
 }
 
 void AMordath::OnExitTransitionState()
 {
+	DisableInvincibility();
 }
 #pragma endregion
 
@@ -1310,7 +1313,10 @@ void AMordath::OnEnterThirdStage()
 void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 {
 	if (AnimInstance->Montage_IsPlaying(Stage3_Transition))
+	{
+		UnPauseAnims();
 		return;
+	}
 
 //#if !UE_BUILD_SHIPPING
 //	// Can we enter the second stage?
@@ -1320,6 +1326,13 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 //		return;
 //	}
 //#endif
+
+	// Are we dead?
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
+	{
+		Die();
+		return;
+	}
 
 	if (GameState->Mordaths.Num() > MaxGhosts && !IsInvincible())
 	{
@@ -1683,12 +1696,6 @@ void AMordath::EndTakeDamage(const FDamageEvent& DamageEvent)
 	// Handled in blueprints
 	if (static_cast<int32>(RecentDamage) > 0)
 		OnAfterTakeDamage();
-
-	// Are we dead?
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead && IsInThirdStage())
-	{
-		Die();
-	}
 }
 
 void AMordath::LockSelf()
@@ -1958,7 +1965,7 @@ bool AMordath::IsPerformingCloseAction() const
 
 bool AMordath::IsTransitioning() const
 {
-	return FSM->GetActiveStateID() == 13;
+	return FSM->GetActiveStateID() == 13 || AnimInstance->Montage_IsPlaying(Stage2_Transition) || AnimInstance->Montage_IsPlaying(Stage3_Transition);
 }
 
 bool AMordath::IsTired() const
