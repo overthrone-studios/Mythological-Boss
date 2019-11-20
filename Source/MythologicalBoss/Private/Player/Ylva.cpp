@@ -407,7 +407,7 @@ void AYlva::Tick(const float DeltaTime)
 	}
 
 	// Charge Attack Mechanic
-	if (bChargeKeyPressed && ChargeAttackComponent->IsChargeFull())
+	if (bChargeKeyPressed && ChargeAttackComponent->IsChargeFull() && !IsDamaged())
 	{
 		ChargeKeyHeldFrames++;
 		if (ChargeKeyHeldFrames > Combat.ChargeSettings.MaxChargeKeyHeldFrames && !IsChargeAttacking())
@@ -1365,7 +1365,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 	LandedHits = 0;
 
 	// Determine whether to reset the charge meter or not
-	if (!ChargeAttackComponent->IsChargeFull())
+	if (!ChargeAttackComponent->IsChargeFull() || bChargeKeyPressed)
 	{
 		if (ChargeAttackComponent->WantsResetAfterMaxHits() && HitCounter == ChargeAttackComponent->GetMaxHits())
 		{
@@ -2264,6 +2264,8 @@ void AYlva::OnEnterDamagedState()
 	StopAnimMontage();
 	AttackComboComponent->ClearCurrentAttack();
 
+	ChargeKeyHeldFrames = 0;
+
 	if (GameState->BossData.CurrentCounterType == ACM_NoCounter)
 		YlvaAnimInstance->bIsHitByNoCounter = true;
 	else
@@ -2840,7 +2842,14 @@ void AYlva::UpdateDashState(float Uptime, int32 Frames)
 		GameState->PlayerData.OnPlayerPerfectDash.Broadcast();
 
 		// Todo: Play sound
-		UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationOnPerfectDash);
+		//UGameplayStatics::SetGlobalTimeDilation(this, Combat.DashAttackSettings.TimeDilationOnPerfectDash);
+	}
+
+	if (bPerfectlyTimedDash)
+	{
+		const float& NewTimeDilation = FMath::InterpExpoOut(UGameplayStatics::GetGlobalTimeDilation(this), Combat.DashAttackSettings.TimeDilationOnPerfectDash, 3 * World->DeltaTimeSeconds);
+		UGameplayStatics::SetGlobalTimeDilation(this, NewTimeDilation);
+		ULog::Number(NewTimeDilation, "Time Dilation: ", true);
 	}
 
 	// This means we've taken damage while we've performed the perfect dash, so exit this state
