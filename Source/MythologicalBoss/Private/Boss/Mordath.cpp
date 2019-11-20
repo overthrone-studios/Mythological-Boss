@@ -1518,8 +1518,7 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
-	//MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
-	SKMComponent->SetMaterial(0, MID_OriginalMaterial);
+	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
 	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
 
 	CapsuleComp->SetCollisionProfileName("Mordath");
