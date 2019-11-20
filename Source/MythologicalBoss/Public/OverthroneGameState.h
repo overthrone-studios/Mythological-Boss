@@ -34,6 +34,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActorExitEnergySphereSignature);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePausedSignature, bool, bIsPaused);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLightningStrikeSpawned);
+
+
 USTRUCT()
 struct FCharacterData
 {
@@ -164,6 +167,9 @@ class MYTHOLOGICALBOSS_API AOverthroneGameState final : public AGameStateBase
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Overthrone Game State | General")
 		FOnGamePausedSignature OnGamePaused;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Overthrone Game State | General")
+		FOnLightningStrikeSpawned OnLightningStrikeSpawned;
 
 	// Trigger a boss stage
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State | Boss")
