@@ -1435,7 +1435,7 @@ void AYlva::Dash()
 	AnimInstance->ForwardInput = ForwardInput;
 	AnimInstance->RightInput = RightInput;
 
-	if (IsDashAttacking())
+	if (IsDashAttacking() || IsChargeAttacking())
 		return;
 
 	if (IsAttacking())

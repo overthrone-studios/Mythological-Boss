@@ -832,13 +832,15 @@ void AMordath::OnEnterTransitionState()
 
 void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
 {
+	float NewHealth = 0.0f;
+
 	if (IsInThirdStage())
 	{
-		const float NewHealth = FMath::GetMappedRangeValueClamped({0.0f, 1.0f}, {CurrentHealth, HealthComponent->GetDefaultHealth()}, 0.5f * Uptime);
+		NewHealth = FMath::GetMappedRangeValueClamped({0.0f, 1.0f}, {CurrentHealth, HealthComponent->GetDefaultHealth()}, 0.5f * Uptime);
 		SetHealth(NewHealth);
 	}
 
-	if (IsInThirdStage() && !AnimInstance->Montage_IsPlaying(Stage3_Transition) || IsInSecondStage() && !AnimInstance->Montage_IsPlaying(Stage2_Transition))
+	if (NewHealth >= HealthComponent->GetDefaultHealth() || IsInSecondStage() && !AnimInstance->Montage_IsPlaying(Stage2_Transition))
 		FSM->PopState();
 }
 
