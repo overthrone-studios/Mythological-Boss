@@ -3014,6 +3014,23 @@ bool AYlva::IsHeavyAttacking() const
 	return AttackComboComponent->GetCurrentAttack() == ATP_Heavy;
 }
 
+float AYlva::GetActionDamage() const
+{
+	if (IsLightAttacking())
+		return Combat.AttackSettings.LightAttackDamage;
+
+	if (IsHeavyAttacking())
+		return Combat.AttackSettings.HeavyAttackDamage;
+
+	if (IsChargeAttacking())
+		return Combat.AttackSettings.ChargeAttackDamage;
+
+	if (IsDashAttacking())
+		return Combat.DashAttackSettings.DashAttackDamage;
+
+	return ActionDamage;
+}
+
 bool AYlva::IsAttacking() const
 {
 	return IsLightAttacking() || IsHeavyAttacking() || IsChargeAttacking();
