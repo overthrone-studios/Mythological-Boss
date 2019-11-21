@@ -41,9 +41,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | General")
 		bool IsFarRange() const;
 
-	// Returns the current action damage value
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		virtual float GetActionDamage() const;
+	float GetActionDamage() const override;
 
 	bool IsAttacking() const override;
 
@@ -316,8 +314,6 @@ protected:
 	USkeletalMesh* FeatherSkeletalMesh;
 
 	UAnimationAsset* FeatherAnim;
-
-	float ActionDamage = 0.0f;
 
 	FName CurrentMontageSection = "None";
 

@@ -90,6 +90,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character")
 		virtual void UnPauseAnims() const;
 
+	// Returns the current action damage value
+	UFUNCTION(BlueprintPure, Category = "Overthrone Character")
+		virtual float GetActionDamage() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Character | Combat")
 		virtual void ApplyKnockbackEffect();
 
@@ -321,6 +325,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		uint8 LandedHits = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
+		float ActionDamage = 0.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Overthrone Character")
 		float RecentDamage = 0.0f;

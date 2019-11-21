@@ -319,6 +319,11 @@ void AOverthroneCharacter::UnPauseAnims() const
 	SKMComponent->bPauseAnims = false;
 }
 
+float AOverthroneCharacter::GetActionDamage() const
+{
+	return ActionDamage;
+}
+
 void AOverthroneCharacter::ApplyKnockbackEffect()
 {
 }

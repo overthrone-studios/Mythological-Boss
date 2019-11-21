@@ -3014,6 +3014,23 @@ bool AYlva::IsHeavyAttacking() const
 	return AttackComboComponent->GetCurrentAttack() == ATP_Heavy;
 }
 
+float AYlva::GetActionDamage() const
+{
+	if (IsLightAttacking())
+		return Combat.AttackSettings.LightAttackDamage;
+
+	if (IsHeavyAttacking())
+		return Combat.AttackSettings.HeavyAttackDamage;
+
+	if (IsChargeAttacking())
+		return Combat.AttackSettings.ChargeAttackDamage;
+
+	if (IsDashAttacking())
+		return Combat.DashAttackSettings.DashAttackDamage;
+
+	return ActionDamage;
+}
+
 bool AYlva::IsAttacking() const
 {
 	return IsLightAttacking() || IsHeavyAttacking() || IsChargeAttacking();
@@ -3022,7 +3039,7 @@ bool AYlva::IsAttacking() const
 bool AYlva::IsParrySuccessful() const
 {
 	return	IsBlocking() && 
-			bIsParryBoxHit && 
+			/*bIsParryBoxHit && */
 			FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && 
 			FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
 			FVector::DotProduct(ForwardVector, DirectionToBoss) > 0.5f;
