@@ -308,6 +308,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		bool IsHeavyAttacking() const;
 
+	float GetActionDamage() const override;
+
 	// Returns true if we are doing any attack
 	bool IsAttacking() const override;
 

@@ -181,6 +181,7 @@ void AMordath::BeginPlay()
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("BossFSMVisualizer"));
 
 	CurrentDifficultyData = GetDifficultyData();
+	CurrentStageData = GetStageData();
 
 	SKM_Feathers = GetFeathers();
 	SKM_ElectricShield = GetShield();
@@ -212,11 +213,6 @@ void AMordath::BeginPlay()
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AMordath::OnAttackEnd_Implementation);
 	OnEnterPerfectDash.AddDynamic(this, &AMordath::OnEnterPerfectDashWindow);
 
-	// Begin the state machines
-	FSM->Start();
-	RangeFSM->Start();
-	StageFSM->Start();
-
 	ChooseCombo();
 
 	ResetActionDamage();
@@ -226,6 +222,11 @@ void AMordath::BeginPlay()
 	HealthComponent->SetDefaultHealth(CurrentDifficultyData->DefaultHealth);
 	HealthComponent->SetHealth(CurrentDifficultyData->DefaultHealth);
 	UpdateCharacterInfo();
+
+	// Begin the state machines
+	FSM->Start();
+	RangeFSM->Start();
+	StageFSM->Start();
 
 #if !UE_BUILD_SHIPPING
 	if (Debug.bShowRaycasts)
@@ -587,6 +588,16 @@ void AMordath::OnEnterActionState()
 	Super::OnEnterActionState();
 
 	OnBeginExecuteAction();
+
+	if (!CurrentActionData)
+	{
+		ULog::Error("Current action data is null. Exiting action state...", true);
+
+		if (!CurrentActionData->Action)
+			ULog::Error("Current action is null", true);
+
+		FSM->PopState();
+	}
 }
 
 void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
