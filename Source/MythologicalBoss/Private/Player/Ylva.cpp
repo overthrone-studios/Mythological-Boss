@@ -307,8 +307,10 @@ void AYlva::BeginPlay()
 	GameState->BossData.OnMordathBeginDisappear.AddDynamic(this, &AYlva::OnMordathDisappeared);
 	GameState->BossData.OnMordathBeginReappear.AddDynamic(this, &AYlva::OnMordathReappeared);
 	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
-
 	GameState->OnGamePaused.AddDynamic(this, &AYlva::OnGamePaused);
+
+	GameInstance->OnGameLoaded.AddDynamic(this, &AYlva::OnGameLoaded);
+	GameInstance->OnGameSaved.AddDynamic(this, &AYlva::OnGameSaved);
 
 	UntouchableFeat = GameInstance->GetFeat("Untouchable");
 
@@ -316,6 +318,8 @@ void AYlva::BeginPlay()
 
 	bCanDash = true;
 	bCanPausedGame = true;
+
+	GameInstance->LoadGame();
 
 	// Begin the state machine
 	FSM->Start();
@@ -341,6 +345,14 @@ void AYlva::BeginPlay()
 
 	ParryCollisionComponent->SetHiddenInGame(true);
 #endif
+}
+
+void AYlva::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	GameState->SavePlayerActions();
+	GameInstance->SaveGame();
 }
 
 void AYlva::Tick(const float DeltaTime)
@@ -1074,6 +1086,9 @@ void AYlva::BeginLightAttack(class UAnimMontage* AttackMontage)
 	}
 
 	FSM->PushState("Attack");
+
+	GameInstance->LightAttackUses_GI++;
+	GameState->UpdatePlayerActionCount(ATP_Light, GameInstance->LightAttackUses_GI);
 }
 
 void AYlva::HeavyAttack()
@@ -1141,6 +1156,9 @@ void AYlva::BeginHeavyAttack(class UAnimMontage* AttackMontage)
 	}
 
 	FSM->PushState("Attack");
+
+	GameInstance->HeavyAttackUses_GI++;
+	GameState->UpdatePlayerActionCount(ATP_Heavy, GameInstance->HeavyAttackUses_GI);
 }
 
 void AYlva::Attack_Queued()
@@ -2070,6 +2088,14 @@ void AYlva::OnMordathBaseDeath()
 	CurrentLockOnLocation = FollowCamera->GetCurrentLockOnTargetLocation(GameState->Mordaths);
 }
 
+void AYlva::OnGameLoaded()
+{
+}
+
+void AYlva::OnGameSaved()
+{
+}
+
 void AYlva::DoKnockback()
 {
 	const float Time = TL_Knockback.GetPlaybackPosition();
@@ -2311,6 +2337,9 @@ void AYlva::OnEnterDeathState()
 		LowHealthAudioComponent->Stop();
 
 	OnDeath();
+
+	GameState->SavePlayerActions();
+	GameInstance->SaveGame();
 }
 
 void AYlva::UpdateDeathState(const float Uptime, const int32 Frames)
@@ -2424,6 +2453,9 @@ void AYlva::OnExitChargeAttackState()
 	{
 		YlvaAnimInstance->bChargeReleased = true;
 		CurrentForceFeedback = Combat.ChargeSettings.ChargeAttackEndForce;
+
+		GameInstance->ChargeAttackUses_GI++;
+		GameState->UpdatePlayerActionCount(ATP_Charge, GameInstance->ChargeAttackUses_GI);
 	}
 	else
 	{
@@ -2663,6 +2695,9 @@ void AYlva::OnEnterDashAttackState()
 	PlayAnimMontage(Combat.DashAttackSettings.DashAttackAnim);
 
 	FaceBoss_Instant();
+
+	GameInstance->DashAttackUses_GI++;
+	GameState->UpdatePlayerActionCount(ATP_Dash, GameInstance->DashAttackUses_GI);
 }
 
 void AYlva::UpdateDashAttackState(const float Uptime, int32 Frames)
@@ -2810,6 +2845,9 @@ void AYlva::OnEnterDashState()
 	if (!bGodMode)
 #endif
 		UpdateStamina(StaminaComponent->GetDashValue());
+
+	GameInstance->DashUses_GI++;
+	GameState->UpdatePlayerActionCount("Dash", GameInstance->DashUses_GI);
 }
 
 void AYlva::UpdateDashState(float Uptime, int32 Frames)
@@ -2912,6 +2950,9 @@ void AYlva::OnEnterParryState()
 	GameState->BossData.OnAttackParryed.Broadcast();
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
+
+	GameInstance->ParryUses_GI++;
+	GameState->UpdatePlayerActionCount("Parry", GameInstance->ParryUses_GI);
 }
 
 void AYlva::UpdateParryState(float Uptime, int32 Frames)

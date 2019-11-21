@@ -1385,7 +1385,7 @@ void AMordath::OnFullHealth()
 {
 	if (IsInThirdStage())
 	{
-		HealthComponent->SetDefaultHealth(ThirdStageDefaultHealth);
+		HealthComponent->SetDefaultHealth(CurrentDifficultyData->ThirdStageDefaultHealth);
 		UpdateCharacterInfo();
 	}
 }

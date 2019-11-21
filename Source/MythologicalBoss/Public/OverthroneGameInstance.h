@@ -7,6 +7,8 @@
 #include "OverthroneGameInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamepadConnectionUpdatedSignature, bool, bIsConnected);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameLoadedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameSavedSignature);
 
 /**
  * High-level manager object for Overthrone game
@@ -21,8 +23,20 @@ public:
 
 	void Init() override;
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Overthrone Game Instance")
+		bool SaveGame();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Overthrone Game Instance")
+		bool LoadGame();
+
 	UPROPERTY(BlueprintAssignable, Category = "Gamepad")
-	FOnGamepadConnectionUpdatedSignature OnGamepadConnectionUpdated;
+		FOnGamepadConnectionUpdatedSignature OnGamepadConnectionUpdated;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Overthrone Game Instance")
+		FOnGameLoadedSignature OnGameLoaded;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Overthrone Game Instance")
+		FOnGameSavedSignature OnGameSaved;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game Instance")
 		class UFeatData* GetFeat(const FString& FeatName);
@@ -52,6 +66,27 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Game Instance | Difficulty Option")
 		TEnumAsByte<EDifficultyOptions> ChosenDifficultyOption;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 LightAttackUses_GI = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 HeavyAttackUses_GI = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 ChargeAttackUses_GI = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 DashAttackUses_GI = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 DashUses_GI = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 BlockUses_GI = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Overthrone Save Game | Player Actions")
+		int32 ParryUses_GI = 0;
 
 private:
 	APlayerController* PlayerController{};

@@ -112,6 +112,14 @@ struct FPlayerData : public FCharacterData
 	FOnExitLowStaminaSignature OnExitLowStamina;
 
 	FOnPlayerPerfectDashSignature OnPlayerPerfectDash;
+
+	uint32 LightAttacks = 0;
+	uint32 HeavyAttacks = 0;
+	uint32 ChargeAttacks = 0;
+	uint32 DashAttacks = 0;
+	uint32 Dashes = 0;
+	uint32 Blocks = 0;
+	uint32 Parries = 0;
 };
 
 USTRUCT()
@@ -203,6 +211,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
 		void UnPauseGame() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
+		void StartRecordingPlayerActions();
+
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
+		void StopRecordingPlayerActions();
+
+	void UpdatePlayerActionCount(const FString& ActionName, int32 Count);
+	void UpdatePlayerActionCount(EAttackType_Player AttackType, int32 Count);
+	void SavePlayerActions() const;
+
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State")
 		FORCEINLINE APlayerCameraManager* GetCameraManager() const { return CameraManager; }
 
@@ -285,4 +303,6 @@ protected:
 private:
 	APlayerController* PlayerController{};
 	APlayerCameraManager* CameraManager{};
+
+	uint8 bCanRecordPlayerData : 1;
 };

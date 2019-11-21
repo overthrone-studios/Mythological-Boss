@@ -453,6 +453,7 @@ public:
 
 protected:
 	void BeginPlay() override;
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
@@ -816,6 +817,12 @@ protected:
 
 	UFUNCTION()
 		void OnMordathBaseDeath();
+
+	UFUNCTION()
+		void OnGameLoaded();
+
+	UFUNCTION()
+		void OnGameSaved();
 
 	void DoKnockback() override;
 	void OnFinishedKnockback() override;

@@ -18,6 +18,9 @@ class MYTHOLOGICALBOSS_API UMordathDifficultyData final : public UCharacterDiffi
 public:
 	UMordathDifficultyData();
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Difficulty Data Base | Health")
+		float ThirdStageDefaultHealth = 3000.0f;
+
 	// The data the boss will use during stage 1 of the boss fight for this difficulty setting
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Difficulty Data | Combat")
 		UMordathStageData* StageOneData;
