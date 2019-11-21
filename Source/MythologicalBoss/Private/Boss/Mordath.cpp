@@ -845,6 +845,8 @@ void AMordath::UpdateTransitionState(const float Uptime, int32 Frames)
 {
 	float NewHealth = 0.0f;
 
+	UnPauseAnims();
+
 	if (IsInThirdStage())
 	{
 		NewHealth = FMath::GetMappedRangeValueClamped({0.0f, 1.0f}, {CurrentHealth, HealthComponent->GetDefaultHealth()}, 0.5f * Uptime);
