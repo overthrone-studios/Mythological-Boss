@@ -36,6 +36,8 @@ void ALockOn::BeginPlay()
 
 			LockOnWidget->RenderOpacity = 0.0f;
 
+			LockOnWidgetComponent->PrimaryComponentTick.bCanEverTick = false;
+
 			break;
 		}
 	}
