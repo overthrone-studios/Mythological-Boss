@@ -27,8 +27,6 @@ void UAnimNotifyState_ApplyDamagePlayer::NotifyBegin(USkeletalMeshComponent* Mes
 		DebugTrace = EDrawDebugTrace::None;
 #endif
 
-	//AttackRadius = Ylva->GetAttackRadius();
-
 	if (Ylva->IsLightAttacking())
 		AttackDamage = Ylva->GetLightAttackDamage();
 	else if (Ylva->IsHeavyAttacking())

@@ -3,11 +3,14 @@
 #include "AnimNotifyStates/AnimNotifyState_ApplyDamageBase.h"
 #include "HitSoundData.h"
 #include "Kismet/GameplayStatics.h"
+#include "OverthroneCharacter.h"
 
 void UAnimNotifyState_ApplyDamageBase::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel2));
+
+	OverthroneCharacter = Cast<AOverthroneCharacter>(MeshComp->GetOwner());
 }
 
 void UAnimNotifyState_ApplyDamageBase::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
