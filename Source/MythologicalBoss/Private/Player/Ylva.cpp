@@ -3039,7 +3039,7 @@ bool AYlva::IsAttacking() const
 bool AYlva::IsParrySuccessful() const
 {
 	return	IsBlocking() && 
-			bIsParryBoxHit && 
+			/*bIsParryBoxHit && */
 			FSM->GetActiveStateFrames() > Combat.ParrySettings.MinParryFrame && 
 			FSM->GetActiveStateFrames() < Combat.ParrySettings.MaxParryFrame &&
 			FVector::DotProduct(ForwardVector, DirectionToBoss) > 0.5f;
