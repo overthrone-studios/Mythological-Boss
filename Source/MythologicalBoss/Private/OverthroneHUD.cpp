@@ -18,6 +18,8 @@
 
 AOverthroneHUD::AOverthroneHUD()
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	static ConstructorHelpers::FClassFinder<UWidget> MasterHUDWidget(TEXT("WidgetBlueprint'/Game/UI/PlayerHUD/UI_MasterPlayerHUD.UI_MasterPlayerHUD_C'"));
 
 	if (MasterHUDWidget.Succeeded())
