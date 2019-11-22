@@ -1487,8 +1487,8 @@ void AMordath::OnFirstStageHealth()
 
 void AMordath::OnSecondStageHealth()
 {
-	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
-	SpawnLightningStrike(NewLocation);
+	const FVector NewLocation = CurrentLocation + GetActorUpVector() * 2000.0f;
+	SpawnLightningStrike(NewLocation, FRotator(180.0f, 0.0f, 0.0f));
 
 	StopMovement();
 
@@ -1504,8 +1504,8 @@ void AMordath::OnSecondStageHealth()
 
 void AMordath::OnThirdStageHealth()
 {
-	const FVector NewLocation = CurrentLocation * FVector(1.0f, 1.0f, 0.0f);
-	SpawnLightningStrike(NewLocation);
+	const FVector NewLocation = CurrentLocation + GetActorUpVector() * 2000.0f;
+	SpawnLightningStrike(NewLocation, FRotator(180.0f, 0.0f, 0.0f));
 
 	StopMovement();
 
