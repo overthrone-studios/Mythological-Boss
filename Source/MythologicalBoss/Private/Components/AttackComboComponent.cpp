@@ -11,7 +11,7 @@
 
 UAttackComboComponent::UAttackComboComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 FString UAttackComboComponent::GetCurrentAttackAsString() const
@@ -57,12 +57,6 @@ void UAttackComboComponent::BeginPlay()
 	CurrentAttack = ATP_None;
 
 	StoreAllMontageBlendTimes();
-}
-
-void UAttackComboComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 FPlayerAttack_Data* UAttackComboComponent::AdvanceCombo(const EAttackType_Player InAttackType)
