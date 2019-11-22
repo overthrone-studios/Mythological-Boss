@@ -609,6 +609,7 @@ void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
 
 void AMordath::OnExitActionState()
 {
+	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
 	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
 
 	OnEndExecuteAction();
@@ -690,6 +691,8 @@ void AMordath::OnExitCloseActionState()
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage();
 
+	//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
+
 	bPerfectDashEmitterSpawned = false;
 
 	CurrentMontageSection = "None";
@@ -702,8 +705,6 @@ void AMordath::OnExitCloseActionState()
 
 	SuperCloseRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
-
-	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
 
 	OnEndExecuteAction();
 }
@@ -753,6 +754,8 @@ void AMordath::OnExitFarActionState()
 	// Ensure that anim montage has stopped playing when leaving this state
 	StopAnimMontage();
 
+	//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
+
 	CurrentMontageSection = "None";
 	CurrentMontageName = "None";
 
@@ -763,8 +766,6 @@ void AMordath::OnExitFarActionState()
 
 	FarRange_ActionData->bCanBeDodged = false;
 	GameState->BossData.bHasAttackBegun = false;
-
-	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
 
 	OnEndExecuteAction();
 }
