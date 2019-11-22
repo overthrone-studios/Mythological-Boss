@@ -99,7 +99,7 @@ protected:
 	class UMordathFeatherComponent* GetFeathers() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
-		void FacePlayer(float RotationSpeed = 10.0f);
+		void FacePlayer(float RotationSpeed = 5.0f);
 
 	UFUNCTION(BlueprintCallable, Category = "Mordath | General")
 		void FacePlayer_Instant();
