@@ -1028,6 +1028,10 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 		float TeleportRadius;
 		switch (CurrentActionData->TeleportToRange)
 		{
+		case BRM_SuperClose:
+			TeleportRadius = CurrentStageData->GetSuperCloseRangeRadius();
+		break;
+
 		case BRM_Close:
 			TeleportRadius = CurrentStageData->GetCloseRangeRadius();
 		break;
