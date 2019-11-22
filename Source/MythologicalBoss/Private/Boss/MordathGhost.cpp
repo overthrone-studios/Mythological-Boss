@@ -214,9 +214,9 @@ void AMordathGhost::Die()
 
 void AMordathGhost::PauseAnimsWithTimer()
 {
-	if (CurrentStageData->IsHitStopEnabled())
+	if (bEnableHitStop)
 	{
 		PauseAnims();
-		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordathGhost::UnPauseAnims, CurrentStageData->GetHitStopTime());
+		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordathGhost::UnPauseAnims, HitStopTime);
 	}
 }

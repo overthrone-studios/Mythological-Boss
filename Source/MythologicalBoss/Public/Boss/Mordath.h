@@ -580,7 +580,7 @@ private:
 	FLinearColor OriginalAttackColor = FColor::Blue;
 
 	float CurrentHealth = 0.0f;
-	float HitStopTime = 0.0f;
+	float OriginalHitStopTime = 0.0f;
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;

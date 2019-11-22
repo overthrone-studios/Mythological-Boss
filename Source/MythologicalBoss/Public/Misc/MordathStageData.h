@@ -75,7 +75,7 @@ struct FComboSettings
 };
 
 USTRUCT(BlueprintType)
-struct FCombatSettings_Mordath : public FCombatSettings
+struct FCombatSettings_Mordath
 {
 	GENERATED_BODY()
 
@@ -103,12 +103,6 @@ class MYTHOLOGICALBOSS_API UMordathStageData final : public UDataAsset
 public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath | Combat")
 		void InitStageData();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsHitStopEnabled();
-
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		float GetHitStopTime();
 
 	UFUNCTION(BlueprintPure, Category = "Mordath")
 		FORCEINLINE float GetAttackBlockedBlendOutTime() const { return AttackBlockedBlendOutTime; }

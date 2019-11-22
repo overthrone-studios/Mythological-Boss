@@ -172,6 +172,8 @@ AMordath::AMordath() : AMordathBase()
 
 	Tags.Empty();
 	Tags.Add("Mordath-Main");
+
+	bEnableHitStop = true;
 }
 
 void AMordath::BeginPlay()
@@ -216,6 +218,8 @@ void AMordath::BeginPlay()
 	ChooseCombo();
 
 	ResetActionDamage();
+
+	OriginalHitStopTime = HitStopTime;
 
 	MainHUD->ChangeBossHealthBarColor(BossDefaultHealth_BarColor);
 
@@ -764,7 +768,9 @@ void AMordath::OnExitFarActionState()
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
-	FarRange_ActionData->bCanBeDodged = false;
+	if (FarRange_ActionData)
+		FarRange_ActionData->bCanBeDodged = false;
+
 	GameState->BossData.bHasAttackBegun = false;
 
 	OnEndExecuteAction();
@@ -1194,7 +1200,7 @@ void AMordath::OnEnterFirstStage()
 	CurrentStageData = GetStageData();
 	CurrentStageData->InitStageData();
 
-	HitStopTime = CurrentStageData->GetHitStopTime();
+	HitStopTime = OriginalHitStopTime;
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
 
@@ -1247,7 +1253,7 @@ void AMordath::OnEnterSecondStage()
 {
 	CurrentStageData = GetStageData();
 
-	HitStopTime = CurrentStageData->GetHitStopTime();
+	HitStopTime = OriginalHitStopTime;
 
 	if (Stage2_Transition)
 		PlayAnimMontage(Stage2_Transition);
@@ -1313,7 +1319,7 @@ void AMordath::OnEnterThirdStage()
 {
 	CurrentStageData = GetStageData();
 
-	HitStopTime = CurrentStageData->GetHitStopTime();
+	HitStopTime = OriginalHitStopTime;
 
 	if (Stage3_Transition)
 		PlayAnimMontage(Stage3_Transition);
@@ -1641,12 +1647,12 @@ void AMordath::BeginTakeDamage(const float DamageAmount, const FDamageEvent& Dam
 
 void AMordath::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEvent)
 {
-	HitStopTime = FMath::GetMappedRangeValueClamped({0, 2}, {CurrentStageData->GetHitStopTime(), 0.25f}, HitCounter);
+	HitStopTime = FMath::GetMappedRangeValueClamped({0, 2}, {OriginalHitStopTime, 0.25f}, HitCounter);
 
 	if (HitCounter >= 3)
 	{
 		HitCounter = 0;
-		HitStopTime = CurrentStageData->GetHitStopTime();
+		HitStopTime = OriginalHitStopTime;
 	}
 
 	HitCounter++;
@@ -1930,7 +1936,7 @@ void AMordath::Die()
 
 void AMordath::PauseAnimsWithTimer()
 {
-	if (CurrentStageData->IsHitStopEnabled())
+	if (bEnableHitStop)
 	{
 		PauseAnims();
 		TimerManager->SetTimer(HitStopTimerHandle, this, &AMordath::UnPauseAnims, HitStopTime);
@@ -2030,7 +2036,7 @@ bool AMordath::IsInvincible() const
 
 void AMordath::OnAttackLanded(const FHitResult& HitResult)
 {
-	HitStopTime = CurrentStageData->GetHitStopTime();
+	HitStopTime = OriginalHitStopTime;
 
 	AActor* HitActor = HitResult.GetActor();
 	if (HitActor->IsA(AOverthroneCharacter::StaticClass()))

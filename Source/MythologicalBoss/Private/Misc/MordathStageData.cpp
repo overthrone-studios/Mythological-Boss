@@ -24,16 +24,6 @@ void UMordathStageData::InitStageData()
 	CachedFarRangeActions = Combat.FarRangeActions;
 }
 
-bool UMordathStageData::IsHitStopEnabled()
-{
-	return Combat.bEnableHitStop;
-}
-
-float UMordathStageData::GetHitStopTime()
-{
-	return Combat.HitStopTime;
-}
-
 UMordathActionData* UMordathStageData::GetRandomSuperCloseRangeAction()
 {
 	if (CachedCloseRangeActions.Num() == 0)

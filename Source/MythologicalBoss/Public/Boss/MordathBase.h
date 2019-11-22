@@ -275,6 +275,14 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		UParticleSystem* PerfectDashParticle;
 
+	// Should we enable hit-stop?
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
+		uint8 bEnableHitStop : 1;
+
+	// The amount of time (in seconds) to pause the active animation for
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat", meta = (EditCondition = "bEnableHitStop"))
+		float HitStopTime = 0.05f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Mordath | Combat")
 		class UAnimMontage* CurrentActionMontage;
 
