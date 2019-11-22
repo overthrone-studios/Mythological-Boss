@@ -198,7 +198,6 @@ public:
 
 protected:
 	void BeginPlay() override;
-	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// The list of light attacks we can use
 	UPROPERTY(EditInstanceOnly, Category = "Combo")
