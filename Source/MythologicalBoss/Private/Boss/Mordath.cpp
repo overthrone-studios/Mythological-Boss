@@ -207,8 +207,6 @@ void AMordath::BeginPlay()
 	OriginalMaterial = SKMComponent->GetMaterial(0);
 	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
 
-	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
-
 	const FMaterialParameterInfo MPC_Mordath{"Attack Color"};
 	MID_OriginalMaterial->GetVectorParameterValue(MPC_Mordath, OriginalAttackColor);
 
@@ -593,11 +591,11 @@ void AMordath::OnEnterActionState()
 
 	OnBeginExecuteAction();
 
-	if (!CurrentActionData)
+	if (CurrentActionData)
 	{
 		ULog::Error("Current action data is null. Exiting action state...", true);
 
-		if (!CurrentActionData->Action)
+		if (CurrentActionData->Action)
 			ULog::Error("Current action is null", true);
 
 		FSM->PopState();
@@ -613,8 +611,13 @@ void AMordath::UpdateActionState(const float Uptime, const int32 Frames)
 
 void AMordath::OnExitActionState()
 {
-	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
-	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
+	//MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
+	//if (!MID_OriginalMaterial)
+	//{
+	//	ULog::Warning(CUR_FUNC + " MID_OriginalMaterial is null", true);
+	//}
+	//else
+	//	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
 
 	OnEndExecuteAction();
 
@@ -707,7 +710,9 @@ void AMordath::OnExitCloseActionState()
 	GameState->BossData.CurrentActionType = ATM_None;
 	GameState->BossData.CurrentCounterType = ACM_None;
 
-	SuperCloseRange_ActionData->bCanBeDodged = false;
+	if (SuperCloseRange_ActionData)
+		SuperCloseRange_ActionData->bCanBeDodged = false;
+
 	GameState->BossData.bHasAttackBegun = false;
 
 	OnEndExecuteAction();
@@ -1011,7 +1016,7 @@ void AMordath::OnEnterTeleportState()
 	TeleportationComponent->GenerateTeleportTime();
 	TeleportationComponent->Disappear();
 
-	SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
+	//SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
 
 	CapsuleComp->SetCollisionObjectType(ECC_Vehicle);
 
@@ -1067,6 +1072,8 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 
 void AMordath::OnExitTeleportState()
 {
+	SKM_Feathers->RevertMaterial();
+
 	TeleportationComponent->Reappear();
 
 	GameState->Mordaths.Insert(this, 0);
@@ -1542,9 +1549,6 @@ void AMordath::OnReappeared()
 {
 	GameState->BossData.OnMordathReappeared.Broadcast();
 
-	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
-	SKM_Feathers->SetMaterial(0, MID_OriginalMaterial);
-
 	CapsuleComp->SetCollisionProfileName("Mordath");
 
 	DisableInvincibility();
@@ -1562,6 +1566,16 @@ void AMordath::OnBeginReappear()
 	CapsuleComp->SetCollisionProfileName("Mordath");
 
 	DisableInvincibility();
+
+	////MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
+	//if (!MID_OriginalMaterial)
+	//{
+	//	ULog::Warning(CUR_FUNC + " MID_OriginalMaterial is null", true);
+	//	//ULog::Error("MID_OriginalMaterial is null", true);
+	//	return;
+	//}
+	//
+	//SKM_Feathers->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
 }
 
 void AMordath::OnEnterPerfectDashWindow()
@@ -1805,6 +1819,12 @@ void AMordath::ChooseAction()
 	if (CurrentActionData->bExecutionTimeExpired && CurrentActionData->FailSafeAction)
 		ActionDataToUse = CurrentActionData->FailSafeAction;
 
+	if (!ActionDataToUse)
+	{
+		ULog::Error("Action data is null. Aborting...", true);
+		return;
+	}
+
 	CurrentActionMontage = ActionDataToUse->ActionMontage;
 
 	FString NewMontageName = CurrentActionMontage->GetName();
@@ -1815,22 +1835,22 @@ void AMordath::ChooseAction()
 	switch (ActionDataToUse->CounterType)
 	{
 	case ACM_Parryable:
-		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
+		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
 		//FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 	
 	case ACM_Blockable:
-		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::White);
+		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::White);
 		//FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
 	break;
 	
 	case ACM_ParryableBlockable:
-		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
+		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
 		//FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 	
 	case ACM_NoCounter:
-		MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Red);
+		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Red);
 		//FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
 	break;
 	

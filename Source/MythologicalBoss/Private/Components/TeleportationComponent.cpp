@@ -45,6 +45,7 @@ void UTeleportationComponent::Reappear()
 {
 	//if (!TL_Dissolve.IsPlaying())
 	//{
+		MID_Dissolve = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Dissolve"));
 		MID_Dissolve->SetScalarParameterValue("IsDissolving", 1.0f);
 
 		OnBeginReappear.Broadcast();

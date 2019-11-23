@@ -573,7 +573,6 @@ protected:
 		float DeathTime = 2.0f;
 
 private:
-	//TSubclassOf<class APotionBase> HealthPotion;
 	class UMaterialInterface* OriginalMaterial;
 	class UMaterialInstanceDynamic* MID_OriginalMaterial;
 
