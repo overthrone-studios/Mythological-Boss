@@ -597,11 +597,11 @@ void AMordath::OnEnterActionState()
 
 	OnBeginExecuteAction();
 
-	if (CurrentActionData)
+	if (!CurrentActionData)
 	{
 		ULog::Error("Current action data is null. Exiting action state...", true);
 
-		if (CurrentActionData->Action)
+		if (!CurrentActionData->Action)
 			ULog::Error("Current action is null", true);
 
 		FSM->PopState();
