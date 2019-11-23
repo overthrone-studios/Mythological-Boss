@@ -31,7 +31,6 @@ public:
 
 protected:
 	void BeginPlay() override;
-	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Draw a sphere at the teleported location
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport Debug")
