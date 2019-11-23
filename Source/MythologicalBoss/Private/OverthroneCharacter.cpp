@@ -22,7 +22,7 @@
 
 #include "FSM.h"
 
-AOverthroneCharacter::AOverthroneCharacter()
+AOverthroneCharacter::AOverthroneCharacter(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -58,7 +58,7 @@ void AOverthroneCharacter::BeginPlay()
 	MainHUD = OverthroneHUD->GetMainHUD();
 	GameInstance = UOverthroneFunctionLibrary::GetGameInstance(this);
 	GameState = UOverthroneFunctionLibrary::GetGameState(this);
-	SKMComponent = GetMesh();
+	SKMComp = GetMesh();
 	CapsuleComp = GetCapsuleComponent();
 }
 
@@ -311,12 +311,12 @@ void AOverthroneCharacter::BroadcastExitLowHealth()
 
 void AOverthroneCharacter::PauseAnims() const
 {
-	SKMComponent->bPauseAnims = true;
+	SKMComp->bPauseAnims = true;
 }
 
 void AOverthroneCharacter::UnPauseAnims() const
 {
-	SKMComponent->bPauseAnims = false;
+	SKMComp->bPauseAnims = false;
 }
 
 float AOverthroneCharacter::GetActionDamage() const

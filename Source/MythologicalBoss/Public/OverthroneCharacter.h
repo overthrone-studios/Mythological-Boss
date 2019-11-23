@@ -37,7 +37,7 @@ class MYTHOLOGICALBOSS_API AOverthroneCharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	AOverthroneCharacter();
+	AOverthroneCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void AddDebugMessages();
 
@@ -309,7 +309,7 @@ protected:
 		class UFSMVisualizerHUD* FSMVisualizer{};
 
 	// To access sockect locations
-	class USkeletalMeshComponent* SKMComponent;
+	class USkeletalMeshComponent* SKMComp;
 
 	// A cache to the timer manager object
 	FTimerManager* TimerManager;

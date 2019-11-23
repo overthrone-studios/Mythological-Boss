@@ -16,7 +16,8 @@
 
 #include "FSM.h"
 
-AMordathTutorial::AMordathTutorial()
+AMordathTutorial::AMordathTutorial(const FObjectInitializer& ObjectInitializer)
+	: AMordathBase(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 

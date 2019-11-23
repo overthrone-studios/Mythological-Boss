@@ -15,7 +15,7 @@ class MYTHOLOGICALBOSS_API AMordathBase : public AOverthroneCharacter
 	GENERATED_BODY()
 
 public:
-	AMordathBase();
+	AMordathBase(const FObjectInitializer& ObjectInitializer);
 
 	FOnEnterPerfectDashSignature OnEnterPerfectDash;
 
@@ -270,7 +270,7 @@ protected:
 		virtual void OnPlayerDeath();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
-		class UMordathFeatherComponent* SKM_Feathers;
+		class UMordathFeatherComponent* SKMComp_Feathers;
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Mordath Combat")
 		UParticleSystem* PerfectDashParticle;
@@ -319,7 +319,7 @@ protected:
 		class UMordathAnimInstance* MordathAnimInstance{};
 
 	// The skeletal mesh representing the feathers
-	USkeletalMesh* FeatherSkeletalMesh;
+	USkeletalMesh* SKM_Feathers;
 
 	UAnimationAsset* FeatherAnim;
 

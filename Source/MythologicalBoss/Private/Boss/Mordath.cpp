@@ -21,6 +21,7 @@
 #include "Boss/MordathAnimInstance.h"
 #include "Boss/MordathFeatherComponent.h"
 #include "Boss/MordathGhost.h"
+#include "Boss/MordathSKMComponentBase.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/HealthComponent.h"
@@ -48,7 +49,8 @@
 #include "TimerManager.h"
 #include "OverthroneMacros.h"
 
-AMordath::AMordath() : AMordathBase()
+AMordath::AMordath(const FObjectInitializer& ObjectInitializer) 
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UMordathSKMComponentBase>(MeshComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -153,10 +155,6 @@ AMordath::AMordath() : AMordathBase()
 
 	// Teleportation component
 	TeleportationComponent = CreateDefaultSubobject<UTeleportationComponent>(FName("Teleportation Component"));
-	TeleportationComponent->OnDisappeared.AddDynamic(this, &AMordath::OnDisappeared);
-	TeleportationComponent->OnReappeared.AddDynamic(this, &AMordath::OnReappeared);
-	TeleportationComponent->OnBeginDisappear.AddDynamic(this, &AMordath::OnBeginDisappear);
-	TeleportationComponent->OnBeginReappear.AddDynamic(this, &AMordath::OnBeginReappear);
 
 	// Dash component
 	DashComponent = CreateDefaultSubobject<UDashComponent>(FName("Dash Component"));
@@ -185,9 +183,17 @@ void AMordath::BeginPlay()
 	CurrentDifficultyData = GetDifficultyData();
 	CurrentStageData = GetStageData();
 
-	SKM_Feathers = GetFeathers();
-	SKM_ElectricShield = GetShield();
-	SKM_ElectricShield->SetVisibility(false);
+	SKMComp_Feathers = GetFeathers();
+	SKMComp_ElectricShield = GetShield();
+
+	if (SKMComp_ElectricShield)
+		SKMComp_ElectricShield->SetVisibility(false);
+
+	SKMComp_Mordath = CAST(SKMComp, UMordathSKMComponentBase);
+	SKMComp_Mordath->OnDisappeared.AddDynamic(this, &AMordath::OnDisappeared);
+	SKMComp_Mordath->OnReappeared.AddDynamic(this, &AMordath::OnReappeared);
+	SKMComp_Mordath->OnBeginDisappear.AddDynamic(this, &AMordath::OnBeginDisappear);
+	SKMComp_Mordath->OnBeginReappear.AddDynamic(this, &AMordath::OnBeginReappear);
 
 	// Initialize game instance variables
 	GameState->BossData.StartingHealth = HealthComponent->GetDefaultHealth();
@@ -204,11 +210,11 @@ void AMordath::BeginPlay()
 	GameState->Mordath = this;
 	UpdateCharacterInfo();
 
-	OriginalMaterial = SKMComponent->GetMaterial(0);
-	MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
-
-	const FMaterialParameterInfo MPC_Mordath{"Attack Color"};
-	MID_OriginalMaterial->GetVectorParameterValue(MPC_Mordath, OriginalAttackColor);
+	//OriginalMaterial = SKMComponent->GetMaterial(0);
+	//MID_OriginalMaterial = SKMComponent->CreateDynamicMaterialInstance(0, OriginalMaterial, FName("MID_Mordath"));
+	//
+	//const FMaterialParameterInfo MPC_Mordath{"Attack Color"};
+	//MID_OriginalMaterial->GetVectorParameterValue(MPC_Mordath, OriginalAttackColor);
 
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AMordath::OnAttackEnd_Implementation);
 	OnEnterPerfectDash.AddDynamic(this, &AMordath::OnEnterPerfectDashWindow);
@@ -494,7 +500,7 @@ void AMordath::OnEnterInvincibleState()
 {
 	MordathAnimInstance->bIsInvincible = true;
 
-	SKM_ElectricShield->SetVisibility(true);
+	SKMComp_ElectricShield->SetVisibility(true);
 	EnableInvincibility();
 
 	MainHUD->ChangeBossHealthBarColor(BossInvincibleHealth_BarColor);
@@ -520,7 +526,7 @@ void AMordath::OnExitInvincibleState()
 {
 	MordathAnimInstance->bIsInvincible = false;
 
-	SKM_ElectricShield->SetVisibility(false);
+	SKMComp_ElectricShield->SetVisibility(false);
 	DisableInvincibility();
 
 	MainHUD->ChangeBossHealthBarColor(BossDefaultHealth_BarColor);
@@ -1013,9 +1019,9 @@ void AMordath::OnEnterTeleportState()
 
 	TimerManager->PauseTimer(CurrentActionData->TH_ExecutionExpiry);
 
-	TeleportationComponent->GenerateTeleportTime();
-	TeleportationComponent->Disappear();
-
+	GeneratedTeleportDelay = TeleportationComponent->GenerateTeleportTime();
+	SKMComp_Mordath->Disappear();
+	SKMComp_Feathers->Disappear();
 	//SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
 
 	CapsuleComp->SetCollisionObjectType(ECC_Vehicle);
@@ -1032,7 +1038,7 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 	if (Uptime >= CurrentActionMontage->SequenceLength - 0.2f)
 		AnimInstance->Montage_Pause();
 
-	if (Uptime > TeleportationComponent->GetTeleportTime() && !TeleportationComponent->IsCoolingDown())
+	if (Uptime > GeneratedTeleportDelay && !TeleportationComponent->IsCoolingDown())
 	{
 		TeleportationComponent->StartCooldown();
 
@@ -1061,7 +1067,8 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 		}
 
 		#if !UE_BUILD_SHIPPING
-		UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), TeleportRadius, 32, FColor::Purple, 3.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
+		if (Debug.bShowRaycasts)
+			UKismetSystemLibrary::DrawDebugCircle(this, CurrentLocation * FVector(1.0f, 1.0f, 0.5f), TeleportRadius, 32, FColor::Purple, 3.0f, 5.0f, FVector::ForwardVector, FVector::RightVector);
 		#endif
 		
 		SetActorLocation(TeleportationComponent->FindLocationToTeleport(GameState->PlayerData.Location, TeleportRadius, GameState->PlayArea));
@@ -1072,9 +1079,13 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 
 void AMordath::OnExitTeleportState()
 {
-	SKM_Feathers->RevertMaterial();
+	//SKM_Feathers->RevertMaterial();
 
-	TeleportationComponent->Reappear();
+	SKMComp_Mordath->Reappear();
+	SKMComp_Feathers->Reappear();
+
+	SKMComp_Mordath->UpdateScalarParameter("Emissive", 10.0f);
+	SKMComp_Feathers->UpdateScalarParameter("Emissive", 10.0f);
 
 	GameState->Mordaths.Insert(this, 0);
 
@@ -1831,25 +1842,36 @@ void AMordath::ChooseAction()
 	NewMontageName.RemoveAt(0, 11);
 	CurrentMontageName = NewMontageName;
 
+	SKMComp_Mordath->UpdateScalarParameter("Emissive", 10.0f);
+	SKMComp_Feathers->UpdateScalarParameter("Emissive", 10.0f);
+
 	// Do a flash to indicate what kind of attack this is
 	switch (ActionDataToUse->CounterType)
 	{
 	case ACM_Parryable:
+		SKMComp_Mordath->UpdateVectorParameter("Attack Color", FColor::Yellow);
+		SKMComp_Feathers->UpdateVectorParameter("Attack Color", FColor::Yellow);
 		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
 		//FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 	
 	case ACM_Blockable:
+		SKMComp_Mordath->UpdateVectorParameter("Attack Color", FColor::White);
+		SKMComp_Feathers->UpdateVectorParameter("Attack Color", FColor::White);
 		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::White);
 		//FlashIndicator->Flash(FlashIndicator->BlockableFlashColor);
 	break;
 	
 	case ACM_ParryableBlockable:
+		SKMComp_Mordath->UpdateVectorParameter("Attack Color", FColor::Yellow);
+		SKMComp_Feathers->UpdateVectorParameter("Attack Color", FColor::Yellow);
 		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Yellow);
 		//FlashIndicator->Flash(FlashIndicator->ParryableFlashColor);
 	break;
 	
 	case ACM_NoCounter:
+		SKMComp_Mordath->UpdateVectorParameter("Attack Color", FColor::Red);
+		SKMComp_Feathers->UpdateVectorParameter("Attack Color", FColor::Red);
 		//MID_OriginalMaterial->SetVectorParameterValue("Attack Color", FColor::Red);
 		//FlashIndicator->Flash(FlashIndicator->NoCounterFlashColor);
 	break;
@@ -2069,7 +2091,7 @@ void AMordath::SpawnGhost()
 {
 	if (GameState->Mordaths.Num() > MaxGhosts)
 	{
-		SKM_ElectricShield->SetVisibility(true);
+		SKMComp_ElectricShield->SetVisibility(true);
 
 		StopMovement();
 
@@ -2151,7 +2173,7 @@ USkeletalMeshComponent* AMordath::GetShield()
 {
 	for (auto Component : Components)
 	{
-		if (Component->GetName() == "EnergyShieldMesh")
+		if (Component->GetName() == "SKM_EnergyShield")
 			return Cast<USkeletalMeshComponent>(Component);
 	}
 

@@ -67,7 +67,8 @@
 
 #include "DrawDebugHelpers.h"
 
-AYlva::AYlva() : AOverthroneCharacter()
+AYlva::AYlva(const FObjectInitializer& ObjectInitializer) 
+	: AOverthroneCharacter(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -256,7 +257,7 @@ void AYlva::BeginPlay()
 	// Initialize our variables
 	MovementComponent->MaxWalkSpeed = MovementSettings.WalkSpeed;
 	CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0);
-	YlvaAnimInstance = Cast<UYlvaAnimInstance>(SKMComponent->GetAnimInstance());
+	YlvaAnimInstance = Cast<UYlvaAnimInstance>(SKMComp->GetAnimInstance());
 	FSMVisualizer = Cast<UFSMVisualizerHUD>(OverthroneHUD->GetMasterHUD()->GetHUD("FSMVisualizer"));
 	FastestTime = 0.0f;
 
@@ -3022,7 +3023,7 @@ void AYlva::ResumeMovement()
 
 void AYlva::SpawnGhost()
 {
-	World->SpawnActor(GhostClass, &SKMComponent->GetComponentTransform());
+	World->SpawnActor(GhostClass, &SKMComp->GetComponentTransform());
 }
 
 float AYlva::GetLightAttackDamage() const

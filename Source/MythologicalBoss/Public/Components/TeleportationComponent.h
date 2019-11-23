@@ -4,13 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Components/TimelineComponent.h"
 #include "TeleportationComponent.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBeginReappearSignature);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisappearedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReappearedSignature);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), HideCategories=("Tags", "Activation", "Cooking", "AssetUserData", "Collision"))
 class MYTHOLOGICALBOSS_API UTeleportationComponent final : public UActorComponent
@@ -20,26 +14,14 @@ class MYTHOLOGICALBOSS_API UTeleportationComponent final : public UActorComponen
 public:	
 	UTeleportationComponent();
 
-	FOnBeginReappearSignature OnBeginReappear;
-	FOnBeginReappearSignature OnBeginDisappear;
-
-	FOnDisappearedSignature OnDisappeared;
-	FOnReappearedSignature OnReappeared;
-
-	void Disappear();
-	void Reappear();
-
-	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
-		class UMaterialInstanceDynamic* GetDissolveMaterial() const { return MID_Dissolve; }
-
 	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
 		FVector FindLocationToTeleport(const FVector& Origin, float Radius, const class ABoundingBox* InPlayArea) const;
 
 	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
 		FORCEINLINE float GetTeleportTime() const { return TeleportTime; }
 
-	UFUNCTION(BlueprintCallable, Category = "Teleportation Component")
-		void GenerateTeleportTime();
+	UFUNCTION(BlueprintPure, Category = "Teleportation Component")
+		float GenerateTeleportTime();
 
 	UFUNCTION(BlueprintCallable, Category = "Teleportation Component")
 		void StartCooldown();
@@ -50,12 +32,6 @@ public:
 protected:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UFUNCTION()
-		void UpdateDissolve();
-
-	UFUNCTION()
-		void FinishDissolve();
 
 	// Draw a sphere at the teleported location
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport Debug")
@@ -77,25 +53,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "Teleport", meta = (ClampMin = 0.0f))
 		float CooldownTime = 1.0f;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Teleport")
-		class UCurveFloat* DissolveCurve;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Teleport", meta = (ClampMin = 0.0f))
-		float DissolveSpeed = 1.0f;
-
 private:
-	class UMaterialInterface* OriginalMaterial;
-
 	class USkeletalMeshComponent* SKMComponent;
-	class UMaterialInstanceDynamic* MID_Dissolve;
-
-	FTimeline TL_Dissolve;
 
 	FTimerHandle TH_Cooldown;
 
 	FTimerManager* TimerManager;
 
 	class ACharacter* Owner;
-
-	uint8 bWasReversing : 1;
 };

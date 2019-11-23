@@ -16,7 +16,7 @@ class MYTHOLOGICALBOSS_API AMordathGhost final : public AMordathBase
 	GENERATED_BODY()
 	
 public:
-	AMordathGhost();
+	AMordathGhost(const FObjectInitializer& ObjectInitializer);
 
 	// Pause current animation, triggers a reset timer when called
 	void PauseAnimsWithTimer();

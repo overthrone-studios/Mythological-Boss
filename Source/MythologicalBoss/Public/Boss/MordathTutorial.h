@@ -36,7 +36,7 @@ class MYTHOLOGICALBOSS_API AMordathTutorial final : public AMordathBase
 	GENERATED_BODY()
 	
 public:
-	AMordathTutorial();
+	AMordathTutorial(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(BlueprintAssignable, Category = "Mordath Tutorial")
 		FOnStopAtTimeReachedSignature OnStopAtTimeReached;

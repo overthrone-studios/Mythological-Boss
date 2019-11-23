@@ -3,26 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "MordathSKMComponentBase.h"
 #include "MordathFeatherComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYTHOLOGICALBOSS_API UMordathFeatherComponent final : public USkeletalMeshComponent
+class MYTHOLOGICALBOSS_API UMordathFeatherComponent final : public UMordathSKMComponentBase
 {
 	GENERATED_BODY()
 	
 public:
 	UMordathFeatherComponent();
-	
-	void RevertMaterial();
-
-protected:
-	void BeginPlay() override;
-
-private:
-	class UMaterialInterface* OriginalMaterial;
-	class UMaterialInstanceDynamic* MID_OriginalMaterial;
 };

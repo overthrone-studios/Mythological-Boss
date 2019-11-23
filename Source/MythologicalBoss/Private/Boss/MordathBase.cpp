@@ -22,7 +22,8 @@
 #include "OverthroneFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
-AMordathBase::AMordathBase() : AOverthroneCharacter()
+AMordathBase::AMordathBase(const FObjectInitializer& ObjectInitializer) 
+	: AOverthroneCharacter(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -31,7 +32,7 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 
 	// Get the skeletal mesh to use
 	SkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath.SKM_Mordath'")));
-	FeatherSkeletalMesh = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath_Feathers.SKM_Mordath_Feathers'")));
+	SKM_Feathers = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, TEXT("SkeletalMesh'/Game/Characters/Mordath/SKM_Mordath_Feathers.SKM_Mordath_Feathers'")));
 	FeatherAnim = Cast<UAnimationAsset>(StaticLoadObject(UAnimationAsset::StaticClass(), nullptr, TEXT("AnimSequence'/Game/Characters/Mordath/Animations/Global/Mordath_featherShake.Mordath_featherShake'")));
 
 	// Configure our mesh
@@ -46,16 +47,16 @@ AMordathBase::AMordathBase() : AOverthroneCharacter()
 			GetMesh()->AnimClass = AnimBP.Class;
 	}
 
-	SKM_Feathers = CreateDefaultSubobject<UMordathFeatherComponent>(FName("Feathers"));
-	SKM_Feathers->SetupAttachment(GetMesh(), "head_jnt_NULL");
+	SKMComp_Feathers = CreateDefaultSubobject<UMordathFeatherComponent>(FName("Feathers"));
+	SKMComp_Feathers->SetupAttachment(GetMesh(), "head_jnt_NULL");
 
-	if (FeatherSkeletalMesh)
+	if (SKM_Feathers)
 	{
-		SKM_Feathers->SetSkeletalMesh(FeatherSkeletalMesh);
-		SKM_Feathers->SetRelativeLocation(FVector(0.0f));
+		SKMComp_Feathers->SetSkeletalMesh(SKM_Feathers);
+		SKMComp_Feathers->SetRelativeLocation(FVector(0.0f));
 
-		SKM_Feathers->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-		SKM_Feathers->SetAnimation(FeatherAnim);
+		SKMComp_Feathers->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		SKMComp_Feathers->SetAnimation(FeatherAnim);
 	}
 
 	// Configure capsule component
@@ -145,7 +146,7 @@ void AMordathBase::BeginPlay()
 	
 	GameState->BossData.LockOnBoneName = "spine01_jnt";
 
-	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComponent->GetAnimInstance());
+	MordathAnimInstance = Cast<UMordathAnimInstance>(SKMComp->GetAnimInstance());
 	PlayerCharacter = UOverthroneFunctionLibrary::GetPlayerCharacter(this);
 
 	GameState->Mordaths.Add(this);
@@ -911,7 +912,7 @@ void AMordathBase::ResetActionDamage()
 
 void AMordathBase::SpawnPerfectDashEmitter()
 {
-	UGameplayStatics::SpawnEmitterAttached(PerfectDashParticle, SKMComponent, "spine02_jnt", FVector(0.0f, -50.0f, 0.0f), FRotator(-30.0f, 0.0f, 70.0f));
+	UGameplayStatics::SpawnEmitterAttached(PerfectDashParticle, SKMComp, "spine02_jnt", FVector(0.0f, -50.0f, 0.0f), FRotator(-30.0f, 0.0f, 70.0f));
 }
 
 UForceFeedbackEffect* AMordathBase::GetCurrentForceFeedbackEffect() const

@@ -254,7 +254,7 @@ class MYTHOLOGICALBOSS_API AYlva final : public AOverthroneCharacter
 	GENERATED_BODY()
 
 public:
-	AYlva();
+	AYlva(const FObjectInitializer& ObjectInitializer);
 
 	void AddDebugMessages() override;
 

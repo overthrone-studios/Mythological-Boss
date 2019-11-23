@@ -47,7 +47,7 @@ class MYTHOLOGICALBOSS_API AMordath final : public AMordathBase
 	GENERATED_BODY()
 
 public:
-	AMordath();
+	AMordath(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(BlueprintAssignable)
 		FOnEnterFirstStageSignature BeginFirstStage;
@@ -504,7 +504,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mordath")
 		class USphereComponent* EnergyShieldCollision;
 
-	class USkeletalMeshComponent* SKM_ElectricShield;
+	class USkeletalMeshComponent* SKMComp_ElectricShield;
+
+	class UMordathSKMComponentBase* SKMComp_Mordath;
 	#pragma endregion
 
 	// The health value where we enter the second stage
@@ -583,6 +585,8 @@ private:
 
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
+
+	float GeneratedTeleportDelay = 0.0f;
 
 	FString CurrentMontageName = "None";
 
