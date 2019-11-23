@@ -75,6 +75,12 @@ FString UOverthroneEnums::PlayerAttackTypeToString(const EAttackType_Player& Enu
 	case ATP_Special:
 		return FString("Special");
 
+	case ATP_Charge:
+		return FString("Charge");
+		
+	case ATP_Dash:
+		return FString("Dash");
+
 	default:
 		return FString("None");
 	}
