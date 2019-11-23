@@ -3163,7 +3163,7 @@ bool AYlva::IsBlocking() const
 
 bool AYlva::IsChargeAttacking() const
 {
-	return FSM->GetActiveStateID() == 6 || GameState->PlayerData.CurrentAttackType == ATP_Special;
+	return FSM->GetActiveStateID() == 6 || GameState->PlayerData.CurrentAttackType == ATP_Charge;
 }
 
 bool AYlva::IsDashing() const
