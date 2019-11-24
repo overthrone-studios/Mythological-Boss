@@ -58,6 +58,9 @@ protected:
 
 	void ExecuteAction(class UMordathActionData* ActionData) override;
 
+	UFUNCTION()
+		void OnMainMordathDeath();
+
 	// The data the boss will reference during it's life
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mordath")
 		class UMordathStageData* StageData;

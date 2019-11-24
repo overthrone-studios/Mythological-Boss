@@ -815,13 +815,13 @@ void AMordath::OnEnterDeathState()
 
 	GameState->BossData.OnDeath.Broadcast();
 
-	TArray<AActor*> FoundGhosts;
-	UGameplayStatics::GetAllActorsOfClass(this, AMordathGhost::StaticClass(), FoundGhosts);
-	for (auto FoundGhost : FoundGhosts)
-	{
-		CAST(FoundGhost, AMordathGhost)->Die();
-	}
-
+	//TArray<AActor*> FoundGhosts;
+	//UGameplayStatics::GetAllActorsOfClass(this, AMordathGhost::StaticClass(), FoundGhosts);
+	//for (auto FoundGhost : FoundGhosts)
+	//{
+	//	CAST(FoundGhost, AMordathGhost)->Die();
+	//}
+	//
 	//for (const auto& Mordath: GameState->Mordaths)
 	//{
 	//	if (Mordath != this)

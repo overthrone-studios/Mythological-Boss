@@ -45,6 +45,8 @@ void AMordathGhost::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GameState->BossData.OnDeath.AddDynamic(this, &AMordathGhost::OnMainMordathDeath);
+
 	CurrentStageData = StageData;
 	MordathAnimInstance->CurrentStage = Stage_1;
 
@@ -205,6 +207,11 @@ void AMordathGhost::ExecuteAction(UMordathActionData* ActionData)
 	Super::ExecuteAction(ActionData);
 
 	FSM->PushState("Action");
+}
+
+void AMordathGhost::OnMainMordathDeath()
+{
+	Die();
 }
 
 void AMordathGhost::Die()
