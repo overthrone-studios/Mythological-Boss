@@ -2022,6 +2022,8 @@ void AYlva::OnBossDeath_Implementation()
 {
 	OnBossDeath();
 
+	EnableInvincibility();
+
 	FollowCamera->DisableLockOn();
 
 	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
