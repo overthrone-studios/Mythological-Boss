@@ -2106,7 +2106,7 @@ void AYlva::OnExitMordathEnergySphere()
 
 void AYlva::OnMordathDisappeared()
 {
-	if (IsLockedOn() && IsValid(FollowCamera->GetLockedOnTarget()) && FollowCamera->IsA(AMordathGhost::StaticClass()))
+	if (IsLockedOn())
 	{
 		bWasLockedOn = true;
 		FollowCamera->DisableLockOn();

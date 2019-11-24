@@ -815,19 +815,6 @@ void AMordath::OnEnterDeathState()
 
 	GameState->BossData.OnDeath.Broadcast();
 
-	//TArray<AActor*> FoundGhosts;
-	//UGameplayStatics::GetAllActorsOfClass(this, AMordathGhost::StaticClass(), FoundGhosts);
-	//for (auto FoundGhost : FoundGhosts)
-	//{
-	//	CAST(FoundGhost, AMordathGhost)->Die();
-	//}
-	//
-	//for (const auto& Mordath: GameState->Mordaths)
-	//{
-	//	if (Mordath != this)
-	//		CAST(Mordath, AMordathBase)->Die();
-	//}
-
 	RangeFSM->Stop();
 	StageFSM->Stop();
 
@@ -1019,7 +1006,6 @@ void AMordath::OnEnterTeleportState()
 	GeneratedTeleportDelay = TeleportationComponent->GenerateTeleportTime();
 	SKMComp_Mordath->Disappear();
 	SKMComp_Feathers->Disappear();
-	//SKM_Feathers->SetMaterial(0, TeleportationComponent->GetDissolveMaterial());
 
 	CapsuleComp->SetCollisionObjectType(ECC_Vehicle);
 
@@ -1076,18 +1062,16 @@ void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 
 void AMordath::OnExitTeleportState()
 {
-	//SKM_Feathers->RevertMaterial();
-
 	SKMComp_Mordath->Reappear();
 	SKMComp_Feathers->Reappear();
 
 	SKMComp_Mordath->UpdateScalarParameter("Emissive", 10.0f);
 	SKMComp_Feathers->UpdateScalarParameter("Emissive", 10.0f);
 
-	if (IsDangerousAction())
+	//if (IsDangerousAction())
 		GameState->Mordaths.Insert(this, 0);
-	else
-		GameState->Mordaths.Add(this);
+	//else
+		//GameState->Mordaths.Add(this);
 
 	DisableInvincibility();
 
@@ -1368,17 +1352,8 @@ void AMordath::UpdateThirdStage(float Uptime, int32 Frames)
 		return;
 	}
 
-//#if !UE_BUILD_SHIPPING
-//	// Can we enter the second stage?
-//	if (HealthComponent->GetCurrentHealth() > HealthComponent->GetDefaultHealth() * ThirdStageHealth)
-//	{
-//		GameState->BossData.OnEnterSecondStage.Broadcast();
-//		return;
-//	}
-//#endif
-
 	// Are we dead?
-	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead)
+	if (HealthComponent->GetCurrentHealth() <= 0.0f && !bIsDead && !IsTransitioning())
 	{
 		Die();
 		return;
