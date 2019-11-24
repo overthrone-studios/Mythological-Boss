@@ -66,12 +66,6 @@ protected:
 		class UMordathStageData* StageData;
 
 private:
-	float DefaultRotationSpeed = 10.0f;
-
-	float ShortAttackDamage = 0.0f;
-	float LongAttackDamage = 0.0f;
-	float SpecialAttackDamage = 0.0f;
-
 	float ThinkTime = 0.0f;
 	float RetreatTime = 0.0f;
 
@@ -80,9 +74,5 @@ private:
 
 	FName CurrentMontageSection = "None";
 
-	uint8 MoveDirection = 0;
-
 	UMaterialInterface* GhostMaterial;
-
-	class UAnimMontage* CurrentLongAttackMontage;
 };
