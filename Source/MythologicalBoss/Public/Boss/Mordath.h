@@ -73,8 +73,7 @@ public:
 		bool IsInThirdStage() const;
 
 	// Returns true if we are in the recovering state/animation
-	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
-		bool IsRecovering() const;
+	bool IsRecovering() const override;
 
 	// Returns true if we are currently dashing
 	UFUNCTION(BlueprintPure, Category = "Mordath | Movement")
@@ -89,8 +88,7 @@ public:
 		bool IsDamaged() const;
 
 	// Returns true if we are currently stunned by an attack
-	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
-		bool IsStunned() const;
+	bool IsStunned() const override;
 
 	// Returns true if we are kicking the player
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")

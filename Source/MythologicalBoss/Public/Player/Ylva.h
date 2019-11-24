@@ -280,6 +280,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		FORCEINLINE bool HasTakenAnyDamage() const { return HitCounter_Persistent > 0; }
 
+	// Returns true if we have taken 1 or more hits
+	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
+		FORCEINLINE bool HasUsedChargeAttack() const { return ChargeAttackUses_Persistent > 0; }
+
 	// Returns the light attack damage value
 	UFUNCTION(BlueprintPure, Category = "Ylva | Combat")
 		float GetLightAttackDamage() const;
@@ -739,8 +743,7 @@ protected:
 	#pragma endregion
 
 	#pragma region Feats
-	UFUNCTION(BlueprintCallable, Category = "Ylva | Feats")
-		void OnUntouchableFeatAchieved();
+	void OnFeatAchieved(class UFeatData* Feat);
 	#pragma endregion 
 
 	#pragma region Events
@@ -823,6 +826,15 @@ protected:
 
 	UFUNCTION()
 		void OnGameSaved();
+	
+	UFUNCTION()
+		void OnMordathEnterFirstStage();
+
+	UFUNCTION()
+		void OnMordathEnterSecondStage();
+	
+	UFUNCTION()
+		void OnMordathEnterThirdStage();
 
 	void DoKnockback() override;
 	void OnFinishedKnockback() override;
@@ -1117,6 +1129,13 @@ private:
 	uint8 bWasLowStaminaEventTriggered : 1;
 
 	uint8 HitCounter_Persistent = 0;
+	uint8 HitCounterPerStage_Persistent = 0;
+	uint8 ChargeAttackUses_Persistent = 0;
+	uint8 ParryCounter_Persistent = 0;
+	uint8 HitsAfterParry_Persistent = 0;
+	uint8 bParriedStage1Attack : 1;
+	uint8 bParriedStage2Attack : 1;
+	uint8 bParriedStage3Attack : 1;
 
 	float ChargeAttackHoldFrames = 0;
 
@@ -1142,4 +1161,8 @@ private:
 	class UAudioComponent* LowHealthAudioComponent;
 
 	class UFeatData* UntouchableFeat;
+	class UFeatData* UnchargedFeat;
+	class UFeatData* ParryMasterIFeat;
+	class UFeatData* ParryMasterIIFeat;
+	class UFeatData* KarmaFeat;
 };

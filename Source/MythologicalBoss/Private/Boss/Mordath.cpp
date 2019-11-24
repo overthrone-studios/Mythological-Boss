@@ -815,11 +815,18 @@ void AMordath::OnEnterDeathState()
 
 	GameState->BossData.OnDeath.Broadcast();
 
-	for (const auto& Mordath: GameState->Mordaths)
+	TArray<AActor*> FoundGhosts;
+	UGameplayStatics::GetAllActorsOfClass(this, AMordathGhost::StaticClass(), FoundGhosts);
+	for (auto FoundGhost : FoundGhosts)
 	{
-		if (Mordath != this)
-			CAST(Mordath, AMordathBase)->Die();
+		CAST(FoundGhost, AMordathGhost)->Die();
 	}
+
+	//for (const auto& Mordath: GameState->Mordaths)
+	//{
+	//	if (Mordath != this)
+	//		CAST(Mordath, AMordathBase)->Die();
+	//}
 
 	RangeFSM->Stop();
 	StageFSM->Stop();
@@ -1211,6 +1218,8 @@ void AMordath::OnEnterFirstStage()
 	CurrentStageData = GetStageData();
 	CurrentStageData->InitStageData();
 
+	GameState->BossData.CurrentStage = Stage_1;
+
 	HitStopTime = OriginalHitStopTime;
 
 	SuperCloseRange_ActionData = CurrentStageData->GetRandomSuperCloseRangeAction();
@@ -1263,6 +1272,8 @@ void AMordath::OnExitFirstStage()
 void AMordath::OnEnterSecondStage()
 {
 	CurrentStageData = GetStageData();
+
+	GameState->BossData.CurrentStage = Stage_2;
 
 	HitStopTime = OriginalHitStopTime;
 
@@ -1329,6 +1340,8 @@ void AMordath::OnExitSecondStage()
 void AMordath::OnEnterThirdStage()
 {
 	CurrentStageData = GetStageData();
+
+	GameState->BossData.CurrentStage = Stage_3;
 
 	HitStopTime = OriginalHitStopTime;
 

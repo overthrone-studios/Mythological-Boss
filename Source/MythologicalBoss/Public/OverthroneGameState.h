@@ -146,6 +146,7 @@ struct FBossData : public FCharacterData
 
 	EActionType_Mordath CurrentActionType;
 	EAttackCounters_Mordath CurrentCounterType;
+	EBossStage_Mordath CurrentStage;
 
 	FOnAttackParryedSignature OnAttackParryed;
 	FOnAttackBlockedSignature OnAttackBlocked;
@@ -257,6 +258,15 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == ACM_NoCounter; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE bool IsBossInFirstStage() const { return BossData.CurrentStage == Stage_1; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE bool IsBossInSecondStage() const { return BossData.CurrentStage == Stage_2; }
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		FORCEINLINE bool IsBossInThirdStage() const { return BossData.CurrentStage == Stage_3; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		int32 GetNumOfMordathGhostsAlive() const;

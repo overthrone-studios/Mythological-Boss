@@ -46,6 +46,12 @@ public:
 	bool IsAttacking() const override;
 
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		virtual bool IsStunned() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		virtual bool IsRecovering() const;
+
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsShortAttacking() const;
 	
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")

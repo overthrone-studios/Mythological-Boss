@@ -307,15 +307,22 @@ void AYlva::BeginPlay()
 	GameState->BossData.OnActorExitEnergySphere.AddDynamic(this, &AYlva::OnExitMordathEnergySphere);
 	GameState->BossData.OnMordathBeginDisappear.AddDynamic(this, &AYlva::OnMordathDisappeared);
 	GameState->BossData.OnMordathBeginReappear.AddDynamic(this, &AYlva::OnMordathReappeared);
+	GameState->BossData.OnEnterFirstStage.AddDynamic(this, &AYlva::OnMordathEnterFirstStage);
+	GameState->BossData.OnEnterSecondStage.AddDynamic(this, &AYlva::OnMordathEnterSecondStage);
+	GameState->BossData.OnEnterThirdStage.AddDynamic(this, &AYlva::OnMordathEnterThirdStage);
 	GameState->OnMordathBaseDeath.AddDynamic(this, &AYlva::OnMordathBaseDeath);
 	GameState->OnGamePaused.AddDynamic(this, &AYlva::OnGamePaused);
 
 	GameInstance->OnGameLoaded.AddDynamic(this, &AYlva::OnGameLoaded);
 	GameInstance->OnGameSaved.AddDynamic(this, &AYlva::OnGameSaved);
 
-	UntouchableFeat = GameInstance->GetFeat("Untouchable");
-
 	AnimInstance->OnMontageEnded.AddDynamic(this, &AYlva::OnAttackEnd_Implementation);
+
+	UntouchableFeat = GameInstance->GetFeat("Untouchable");
+	UnchargedFeat = GameInstance->GetFeat("Uncharged");
+	ParryMasterIFeat = GameInstance->GetFeat("Parry Master I");
+	ParryMasterIIFeat = GameInstance->GetFeat("Parry Master II");
+	KarmaFeat = GameInstance->GetFeat("Karma");
 
 	bCanDash = true;
 	bCanPausedGame = true;
@@ -977,6 +984,14 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 
 		if (!Mordath->IsMovingInAnyDirection())
 			Mordath->ApplyKnockbackEffect();
+
+		// BEGIN Karma achievement tracking
+		if (Mordath->IsStunned() || Mordath->IsRecovering())
+			HitsAfterParry_Persistent++;
+
+		if (HitsAfterParry_Persistent > KarmaFeat->MaxCount && !KarmaFeat->bIsComplete)
+			OnFeatAchieved(KarmaFeat);
+		// END Karma achievement tracking
 	}
 
 	LandedHits++;
@@ -1296,6 +1311,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				if (DamageEvent.DamageTypeClass == UDmgType_Lightning::StaticClass())
 				{
 					FSM->PushState("Shocked");
+					HitCounter++;
+					HitCounter_Persistent++;
 					UpdateHealth(DamageAmount);
 				}
 				else if (DamageEvent.DamageTypeClass == UDmgType_AOE::StaticClass() || DamageEvent.DamageTypeClass == UDmgType_MordathKick::StaticClass())
@@ -1303,6 +1320,8 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 				else
 				{
 					FSM->PushState("Damaged");
+					HitCounter++;
+					HitCounter_Persistent++;
 					UpdateHealth(DamageAmount);
 				}
 
@@ -1343,6 +1362,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 			if (StaminaComponent->IsLowStamina() || GameState->IsBossAttackNoCounter() || GameState->IsBossAttackParryable())
 			{
 				HitCounter++;
+				HitCounter_Persistent++;
 				bHasBeenDamaged = true;
 			}
 
@@ -1351,6 +1371,7 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 
 		default:
 			HitCounter++;
+			HitCounter_Persistent++;
 
 			bHasBeenDamaged = true;
 
@@ -2004,7 +2025,10 @@ void AYlva::OnBossDeath_Implementation()
 	FollowCamera->DisableLockOn();
 
 	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
-		OnUntouchableFeatAchieved();
+		OnFeatAchieved(UntouchableFeat);
+
+	if (!HasUsedChargeAttack() && !UnchargedFeat->bIsComplete)
+		OnFeatAchieved(UnchargedFeat);
 }
 
 void AYlva::OnLowStamina()
@@ -2108,6 +2132,18 @@ void AYlva::OnGameLoaded()
 }
 
 void AYlva::OnGameSaved()
+{
+}
+
+void AYlva::OnMordathEnterFirstStage()
+{
+}
+
+void AYlva::OnMordathEnterSecondStage()
+{
+}
+
+void AYlva::OnMordathEnterThirdStage()
 {
 }
 
@@ -2469,6 +2505,7 @@ void AYlva::OnExitChargeAttackState()
 		YlvaAnimInstance->bChargeReleased = true;
 		CurrentForceFeedback = Combat.ChargeSettings.ChargeAttackEndForce;
 
+		ChargeAttackUses_Persistent++;
 		GameInstance->ChargeAttackUses_GI++;
 		GameState->UpdatePlayerActionCount(ATP_Charge, GameInstance->ChargeAttackUses_GI);
 	}
@@ -2966,6 +3003,25 @@ void AYlva::OnEnterParryState()
 
 	UGameplayStatics::SetGlobalTimeDilation(this, Combat.ParrySettings.TimeDilationOnSuccessfulParry);
 
+	// BEGIN Parry Master I acheivement tracking
+	if (GameState->IsBossInFirstStage())
+		bParriedStage1Attack = true;
+	else if (GameState->IsBossInSecondStage())
+		bParriedStage2Attack = true;
+	else if (GameState->IsBossInThirdStage())
+		bParriedStage3Attack = true;
+
+	if (bParriedStage1Attack && bParriedStage2Attack && bParriedStage3Attack && !ParryMasterIFeat->bIsComplete)
+		OnFeatAchieved(ParryMasterIFeat);
+	// END Parry Master I acheivement tracking
+
+	// BEGIN Parry Master II acheivement tracking
+	ParryCounter_Persistent++;
+
+	if (ParryCounter_Persistent > ParryMasterIIFeat->MaxCount && !ParryMasterIIFeat->bIsComplete)
+		OnFeatAchieved(ParryMasterIIFeat);
+	// END Parry Master I acheivement tracking
+
 	GameInstance->ParryUses_GI++;
 	GameState->UpdatePlayerActionCount("Parry", GameInstance->ParryUses_GI);
 }
@@ -3299,11 +3355,11 @@ UStaticMeshComponent* AYlva::GetRightHandSword() const
 	return nullptr;
 }
 
-void AYlva::OnUntouchableFeatAchieved()
+void AYlva::OnFeatAchieved(class UFeatData* Feat)
 {
-	GameInstance->AchievedFeat = UntouchableFeat;
+	GameInstance->AchievedFeat = Feat;
 
-	UntouchableFeat->OnFeatAchieved.Broadcast();
+	Feat->OnFeatAchieved.Broadcast();
 }
 
 void AYlva::OnGamePaused(const bool bIsPaused)

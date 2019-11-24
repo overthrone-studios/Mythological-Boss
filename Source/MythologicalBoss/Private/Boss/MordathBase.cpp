@@ -850,6 +850,16 @@ bool AMordathBase::IsAttacking() const
 	return IsShortAttacking() || IsLongAttacking() || IsSpecialAttacking();
 }
 
+bool AMordathBase::IsStunned() const
+{
+	return false;
+}
+
+bool AMordathBase::IsRecovering() const
+{
+	return false;
+}
+
 bool AMordathBase::IsShortAttacking() const
 {
 	return IsPerformingAction() && (CurrentActionType == ATM_ShortAttack_1 || CurrentActionType == ATM_ShortAttack_2 || CurrentActionType == ATM_ShortAttack_3);
