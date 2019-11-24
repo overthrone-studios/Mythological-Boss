@@ -47,6 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mordath SKM Component")
 		void UpdateScalarParameter(const FName& ParameterName, float Scalar);
 
+	UFUNCTION(BlueprintCallable, Category = "Mordath SKM Component")
+		void ResetActionColor();
+
 protected:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -69,6 +72,8 @@ protected:
 	uint8 bWasReversing : 1;
 
 	FTimeline TL_Dissolve;
+
+	FLinearColor OriginalActionColor;
 
 	class ACharacter* Owner;
 };

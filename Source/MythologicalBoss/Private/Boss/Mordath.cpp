@@ -625,6 +625,9 @@ void AMordath::OnExitActionState()
 	//else
 	//	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalAttackColor);
 
+	SKMComp_Mordath->ResetActionColor();
+	SKMComp_Feathers->ResetActionColor();
+
 	OnEndExecuteAction();
 
 	if (CurrentActionData->bExecutionTimeExpired)

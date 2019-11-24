@@ -24,6 +24,9 @@ void UMordathSKMComponentBase::BeginPlay()
 	OriginalMaterial = GetMaterial(0);
 	MID_OriginalMaterial = CreateDynamicMaterialInstance(0, OriginalMaterial, *("MID_"+GetName()));
 
+	const FMaterialParameterInfo ParameterInfo{"Attack Color"};
+	MID_OriginalMaterial->GetVectorParameterValue(ParameterInfo, OriginalActionColor);
+
 	UOverthroneFunctionLibrary::SetupTimeline(this, TL_Dissolve, DissolveCurve, false, DissolveSpeed, "UpdateDissolve", "FinishDissolve");
 }
 
@@ -67,6 +70,11 @@ void UMordathSKMComponentBase::UpdateVectorParameter(const FName& ParameterName,
 void UMordathSKMComponentBase::UpdateScalarParameter(const FName& ParameterName, const float Scalar)
 {
 	MID_OriginalMaterial->SetScalarParameterValue(ParameterName, Scalar);
+}
+
+void UMordathSKMComponentBase::ResetActionColor()
+{
+	MID_OriginalMaterial->SetVectorParameterValue("Attack Color", OriginalActionColor);
 }
 
 void UMordathSKMComponentBase::UpdateDissolve()
