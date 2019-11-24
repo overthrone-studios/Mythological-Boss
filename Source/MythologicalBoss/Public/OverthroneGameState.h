@@ -259,6 +259,9 @@ public:
 		FORCEINLINE bool IsBossAttackNoCounter() const { return BossData.CurrentCounterType == ACM_NoCounter; }
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
+		int32 GetNumOfMordathGhostsAlive() const;
+
+	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")
 		bool IsBossTeleporting() const;
 
 	UFUNCTION(BlueprintPure, Category = "Overthrone Game State | Boss")

@@ -227,6 +227,10 @@ protected:
 			UFUNCTION()
 				virtual void OnExitActionState();
 		#pragma endregion 
+
+		#pragma region Death
+			void OnEnterDeathState() override;
+		#pragma endregion 
 	#pragma endregion 
 
 	#pragma region Mordath Base Range States

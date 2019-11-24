@@ -489,6 +489,13 @@ void AYlva::Tick(const float DeltaTime)
 	OverthroneHUD->UpdateOnScreenDebugMessage(13, "Direction To Boss: " + DirectionToBoss.ToString());
 
 	OverthroneHUD->UpdateOnScreenDebugMessage(14, "Chosen Difficulty: " + UOverthroneEnums::DifficultyOptionToString(GameInstance->ChosenDifficultyOption));
+
+	OverthroneHUD->UpdateOnScreenDebugMessage(15, "Lock-On Targets: " + FString::FromInt(GameState->Mordaths.Num()));
+
+	if (IsValid(FollowCamera->GetLockedOnTarget()))
+		OverthroneHUD->UpdateOnScreenDebugMessage(16, "Lock-On Target: " + FollowCamera->GetLockedOnTarget()->GetName());
+	else
+		OverthroneHUD->UpdateOnScreenDebugMessage(16, "Lock-On Target: None");
 #endif
 }
 
@@ -993,18 +1000,24 @@ float AYlva::GetDistanceToBoss() const
 
 float AYlva::GetNearestDistanceToBoss() const
 {
-	float CurrentClosestDistance = TNumericLimits<float>::Max();
+	for (auto Mordath : GameState->Mordaths)
+	{
+		if (!IsValid(Mordath))
+			return FVector::Dist(GameState->BossData.Location, CurrentLocation);
+	}
 
+	float CurrentClosestDistance = TNumericLimits<float>::Max();
+	
 	for (auto Mordath : GameState->Mordaths)
 	{
 		const float Distance = FVector::Dist(CurrentLocation, Mordath->GetActorLocation());
-
+	
 		if (Distance < CurrentClosestDistance)
 		{
 			CurrentClosestDistance = Distance;
 		}
 	}
-
+	
 	return CurrentClosestDistance;
 }
 
@@ -1556,6 +1569,7 @@ void AYlva::OnLockOnEnabled()
 void AYlva::OnLockOnDisabled()
 {
 	GameState->LockOn->OnToggleLockOn.Broadcast(true);
+	PlayerController->ResetIgnoreLookInput();
 	MovementComponent->bOrientRotationToMovement = true;
 	MovementComponent->bUseControllerDesiredRotation = false;
 	YlvaAnimInstance->bIsLockedOn = false;
@@ -2066,7 +2080,7 @@ void AYlva::OnExitMordathEnergySphere()
 
 void AYlva::OnMordathDisappeared()
 {
-	if (IsLockedOn() && !CAST(FollowCamera->GetLockedOnTarget(), AMordathGhost))
+	if (IsLockedOn() && IsValid(FollowCamera->GetLockedOnTarget()) && FollowCamera->IsA(AMordathGhost::StaticClass()))
 	{
 		bWasLockedOn = true;
 		FollowCamera->DisableLockOn();
@@ -3209,7 +3223,7 @@ bool AYlva::IsBeingPushedBack() const
 
 bool AYlva::CanLockOn() const
 {
-	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance() && !GameState->IsBossTeleporting() && !IsPerfectDashing() && !IsDashAttacking();
+	return DistanceToBoss < FollowCamera->GetMaxLockOnDistance() && (!GameState->IsBossTeleporting() || GameState->GetNumOfMordathGhostsAlive() > 0) && !IsPerfectDashing() && !IsDashAttacking();
 }
 
 bool AYlva::IsLocked() const
@@ -3321,4 +3335,6 @@ void AYlva::AddDebugMessages()
 	OverthroneHUD->AddOnScreenDebugMessage("Yaw Input: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Direction To Boss: ", FColor::Green);
 	OverthroneHUD->AddOnScreenDebugMessage("Chosen Difficulty: ", FColor::Green);
+	OverthroneHUD->AddOnScreenDebugMessage("Lock-on Targets: ", FColor::Cyan);
+	OverthroneHUD->AddOnScreenDebugMessage("Lock-on Target: ", FColor::Cyan);
 }

@@ -888,7 +888,6 @@ void AMordath::OnEnterStunnedState()
 	HitCounter = 0;
 
 	StopAnimMontage();
-	//StopActionMontage();
 
 	GameState->BossData.bHasTakenDamage = true;
 	MordathAnimInstance->bIsStunned = true;
@@ -1087,7 +1086,10 @@ void AMordath::OnExitTeleportState()
 	SKMComp_Mordath->UpdateScalarParameter("Emissive", 10.0f);
 	SKMComp_Feathers->UpdateScalarParameter("Emissive", 10.0f);
 
-	GameState->Mordaths.Insert(this, 0);
+	if (IsDangerousAction())
+		GameState->Mordaths.Insert(this, 0);
+	else
+		GameState->Mordaths.Add(this);
 
 	DisableInvincibility();
 
@@ -2038,6 +2040,11 @@ bool AMordath::IsTransitioning() const
 bool AMordath::IsTired() const
 {
 	return FSM->GetActiveStateID() == 23;
+}
+
+bool AMordath::IsDangerousAction()
+{
+	return CurrentActionType == ATM_LongAttack_1 || CurrentActionType == ATM_SpecialAttack_1;
 }
 
 bool AMordath::IsTeleporting() const

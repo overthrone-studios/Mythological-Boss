@@ -108,6 +108,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTired() const;
 
+	// Returns true if the current action selected is "dangerous" to the player
+	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
+		bool IsDangerousAction();
+
 	// Returns true if we are teleporting to another location
 	UFUNCTION(BlueprintPure, Category = "Mordath | Combat")
 		bool IsTeleporting() const;

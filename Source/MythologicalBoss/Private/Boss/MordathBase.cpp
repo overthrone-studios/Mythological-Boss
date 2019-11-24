@@ -415,6 +415,16 @@ void AMordathBase::OnExitActionState()
 		NextAction();
 }
 #pragma endregion
+
+#pragma region Death
+void AMordathBase::OnEnterDeathState()
+{
+	Super::OnEnterDeathState();
+
+	GameState->Mordaths.Remove(this);
+	GameState->OnMordathBaseDeath.Broadcast();
+}
+#pragma endregion
 #pragma endregion
 
 #pragma region Mordath Base Range States

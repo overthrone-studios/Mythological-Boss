@@ -10,6 +10,7 @@
 #include "PlatformFilemanager.h"
 #include "FileHelper.h"
 #include "Log.h"
+#include "MordathGhost.h"
 
 void AOverthroneGameState::EnterBossStage(const EBossStage_Mordath InBossStage) const
 {
@@ -154,6 +155,19 @@ void AOverthroneGameState::SavePlayerActions() const
 			//ULog::Success("File saved! " + AbsoluteFilePath, true);
 		}
 	}
+}
+
+int32 AOverthroneGameState::GetNumOfMordathGhostsAlive() const
+{
+	int32 GhostsAlive = 0;
+
+	for (auto Mordath : Mordaths)
+	{
+		if (IsValid(Mordath) && Mordath->IsA(AMordathGhost::StaticClass()))
+			GhostsAlive++;
+	}
+
+	return GhostsAlive;
 }
 
 bool AOverthroneGameState::IsBossTeleporting() const
