@@ -1580,14 +1580,13 @@ void AMordath::OnEnterPerfectDashWindow()
 
 void AMordath::OnEnterEnergySphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherActor->IsA(AMordathBase::StaticClass()) && OtherActor->IsA(ACharacter::StaticClass()))
+	if (!OtherActor->IsA(AMordathBase::StaticClass()) && OtherActor->IsA(ACharacter::StaticClass()) && IsInvincible())
 	{
 		bHasActorEnteredEnergySphere = true;
 		CharacterInEnergySphere = Cast<ACharacter>(OtherActor);
 
-		if (IsInvincible())
-			CharacterInEnergySphere->TakeDamage(10.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
-			GameState->BossData.OnActorEnterEnergySphere.Broadcast();
+		CharacterInEnergySphere->TakeDamage(10.0f, FDamageEvent(UDmgType_MordathElectricShield::StaticClass()), Controller, this);
+		GameState->BossData.OnActorEnterEnergySphere.Broadcast();
 	}
 }
 
