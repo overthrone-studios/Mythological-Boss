@@ -39,7 +39,7 @@ void UMordathSKMComponentBase::TickComponent(const float DeltaTime, const ELevel
 
 void UMordathSKMComponentBase::Reappear()
 {
-	MID_OriginalMaterial->SetScalarParameterValue("IsDissolving", 0.0f);
+	MID_OriginalMaterial->SetScalarParameterValue("IsDissolving", 1.0f);
 
 	OnBeginReappear.Broadcast();
 
@@ -90,6 +90,8 @@ void UMordathSKMComponentBase::FinishDissolve()
 	if (bWasReversing)
 	{
 		bWasReversing = false;
+
+		MID_OriginalMaterial->SetScalarParameterValue("IsDissolving", 0.0f);
 
 		SetMaterial(0, MID_OriginalMaterial);
 
