@@ -53,12 +53,6 @@ public:
 	UFUNCTION()
 		void OnFeatAchieved();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Overthrone Game Instance")
-		class UInputKeyToImageData* KeyboardKeysToTextures;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Overthrone Game Instance")
-		class UInputKeyToImageData* GamepadKeysToTextures;
-
 	class UFeatData* AchievedFeat;
 
 	UFUNCTION()
