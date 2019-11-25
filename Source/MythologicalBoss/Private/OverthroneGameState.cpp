@@ -87,6 +87,19 @@ void AOverthroneGameState::StopRecordingPlayerActions()
 	bCanRecordPlayerData = false;
 }
 
+void AOverthroneGameState::ResetPlayerActions()
+{
+	PlayerData.LightAttacks = 0;
+	PlayerData.HeavyAttacks = 0;
+	PlayerData.ChargeAttacks = 0;
+	PlayerData.DashAttacks = 0;
+	PlayerData.Dashes = 0;
+	PlayerData.Blocks = 0;
+	PlayerData.Parries = 0;
+
+	SavePlayerActions();
+}
+
 void AOverthroneGameState::UpdatePlayerActionCount(const FString& ActionName, const int32 Count)
 {
 	if (ActionName == "Light Attack")
@@ -150,10 +163,7 @@ void AOverthroneGameState::SavePlayerActions() const
 
 	if (PlatformFile.CreateDirectoryTree(*SaveDirectory))
 	{
-		if (FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath))
-		{
-			//ULog::Success("File saved! " + AbsoluteFilePath, true);
-		}
+		FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath);
 	}
 }
 

@@ -218,6 +218,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
 		void StopRecordingPlayerActions();
 
+	UFUNCTION(BlueprintCallable, Category = "Overthrone Game State")
+		void ResetPlayerActions();
+
 	void UpdatePlayerActionCount(const FString& ActionName, int32 Count);
 	void UpdatePlayerActionCount(EAttackType_Player AttackType, int32 Count);
 	void SavePlayerActions() const;
