@@ -3,6 +3,7 @@ OverThrone is a vertical slice of a fantasy inspired, 3rd person action boss fig
 
 # Gameplay Screenshots
 ![](https://github.com/overthrone-studios/Mythological-Boss/blob/master/Gameplay%20Screenshots/Gameplay%20Screenshot%203.png)
+![](https://github.com/overthrone-studios/Mythological-Boss/blob/master/Gameplay%20Screenshots/Gameplay%20Screenshot%206.png)
 ![](https://github.com/overthrone-studios/Mythological-Boss/blob/master/Gameplay%20Screenshots/Gameplay%20Screenshot%204.png)
 ![](https://github.com/overthrone-studios/Mythological-Boss/blob/master/Gameplay%20Screenshots/Gameplay%20Screenshot%205.png)
 ![](https://github.com/overthrone-studios/Mythological-Boss/blob/master/Gameplay%20Screenshots/Gameplay%20Screenshot%202.png)
