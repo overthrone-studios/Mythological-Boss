@@ -2032,10 +2032,10 @@ void AYlva::OnBossDeath_Implementation()
 
 	FollowCamera->DisableLockOn();
 
-	if (!HasTakenAnyDamage() && !UntouchableFeat->bIsComplete)
+	if (!HasTakenAnyDamage())
 		OnFeatAchieved(UntouchableFeat);
 
-	if (!HasUsedChargeAttack() && !UnchargedFeat->bIsComplete)
+	if (!HasUsedChargeAttack())
 		OnFeatAchieved(UnchargedFeat);
 }
 
