@@ -3006,8 +3006,8 @@ void AYlva::OnEnterParryState()
 
 	YlvaAnimInstance->bCanParry = true;
 
-	//const int32 RandomIndex = FMath::RandRange(0, Combat.ParrySettings.ParryHitSoundData->HitSounds.Num()-1);
-	//UGameplayStatics::PlaySoundAtLocation(this, Combat.ParrySettings.ParryHitSoundData->HitSounds[RandomIndex], CurrentLocation);
+	const int32 RandomIndex = FMath::RandRange(0, Combat.ParrySettings.ParryHitSoundData->HitSounds.Num()-1);
+	UGameplayStatics::PlaySoundAtLocation(this, Combat.ParrySettings.ParryHitSoundData->HitSounds[RandomIndex], CurrentLocation);
 
 	PlayerController->SetIgnoreLookInput(true);
 
