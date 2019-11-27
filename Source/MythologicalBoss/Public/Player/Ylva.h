@@ -243,6 +243,10 @@ struct FCombatSettings_Ylva : public FCombatSettings
 	// The force effect to play when being damage by an electric shield
 	UPROPERTY(EditInstanceOnly)
 		class UForceFeedbackEffect* ElectricShieldForce;
+
+	// The force effect to play when being damage by an enemy attack
+	UPROPERTY(EditInstanceOnly)
+		class UForceFeedbackEffect* DamagedForce;
 };
 
 /*

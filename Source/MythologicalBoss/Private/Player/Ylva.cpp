@@ -973,6 +973,9 @@ void AYlva::OnAttackLanded(const FHitResult& HitResult)
 		LandedHits = 0;
 	}
 
+	StopVibrateController(GetCurrentForceFeedback());
+	VibrateController(GetCurrentForceFeedback());
+
 	UGameplayStatics::SpawnEmitterAtLocation(this, SlashParticle, HitResult.Location);
 
 	AActor* HitActor = HitResult.GetActor();
@@ -1291,6 +1294,9 @@ void AYlva::ApplyDamage(const float DamageAmount, const FDamageEvent& DamageEven
 		FSM->PushState("Parry");
 		return;
 	}
+
+	StopVibrateController(CurrentForceFeedback);
+	VibrateController(Combat.DamagedForce);
 
 	if (bGodMode || IsParrying() || IsLocked())
 		return;
@@ -2094,6 +2100,7 @@ void AYlva::OnParryBoxHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 
 void AYlva::OnEnterMordathEnergySphere()
 {
+	StopVibrateController(CurrentForceFeedback);
 	VibrateController(Combat.ElectricShieldForce, true);
 
 	FSM->PushState("PushBack");
@@ -2101,6 +2108,7 @@ void AYlva::OnEnterMordathEnergySphere()
 
 void AYlva::OnExitMordathEnergySphere()
 {
+	StopVibrateController(CurrentForceFeedback);
 	StopVibrateController(Combat.ElectricShieldForce);
 }
 
@@ -2438,6 +2446,7 @@ void AYlva::OnEnterChargeAttackState()
 
 	CapsuleComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 
+	StopVibrateController(CurrentForceFeedback);
 	VibrateController(Combat.ChargeSettings.ChargeAttackForce, true);
 }
 
@@ -2482,6 +2491,7 @@ void AYlva::OnExitChargeAttackState()
 
 	MainHUD->UpdateChargeAttackMessage("Hold");
 
+	StopVibrateController(CurrentForceFeedback);
 	StopVibrateController(Combat.ChargeSettings.ChargeAttackForce);
 
 	// Did we not reach the peak charge?

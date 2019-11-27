@@ -63,8 +63,6 @@ void UAnimNotifyState_ApplyDamagePlayer::OnHit(USkeletalMeshComponent* MeshComp,
 
 		Ylva->ApplyHitStop();
 
-		Ylva->VibrateController(Ylva->GetCurrentForceFeedback());
-
 		if (HitActor->IsA(ADestructibleActor::StaticClass()))
 		{
 			HitActor->TakeDamage(AttackDamage * Multiplier, DamageEvent, MeshComp->GetOwner()->GetInstigatorController(), MeshComp->GetOwner());

@@ -1018,7 +1018,7 @@ void AMordath::OnEnterTeleportState()
 
 void AMordath::UpdateTeleportState(float Uptime, int32 Frames)
 {
-	if (Uptime >= CurrentActionMontage->SequenceLength - 0.2f)
+	if (Uptime >= CurrentActionMontage->SequenceLength - 0.1f)
 		AnimInstance->Montage_Pause();
 
 	if (Uptime > GeneratedTeleportDelay && !TeleportationComponent->IsCoolingDown())
