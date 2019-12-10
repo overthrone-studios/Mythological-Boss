@@ -848,7 +848,7 @@ protected:
 	UFUNCTION()
 		void OnEnterAnyState(int32 ID, FName Name);
 	UFUNCTION()
-		void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
+		void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime);
 	UFUNCTION()
 		void OnExitAnyState(int32 ID, FName Name);
 	#pragma endregion 

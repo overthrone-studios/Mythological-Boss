@@ -2183,7 +2183,7 @@ void AYlva::OnEnterAnyState(int32 ID, FName Name)
 	FSMVisualizer->HighlightState(FSM->GetActiveStateName().ToString());
 }
 
-void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
+void AYlva::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime)
 {
 	if (!FSMVisualizer)
 		return;
