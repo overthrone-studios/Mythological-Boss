@@ -260,13 +260,13 @@ protected:
 	#pragma region Any States
 		#pragma region Main FSM
 			void OnEnterAnyState(int32 ID, FName Name) override;
-			void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames) override;
+			void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime) override;
 			void OnExitAnyState(int32 ID, FName Name) override;
 		#pragma endregion
 
 		#pragma region Range FSM
 			void OnEnterAnyRangeState(int32 ID, FName Name) override;
-			void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames) override;
+			void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime) override;
 			void OnExitAnyRangeState(int32 ID, FName Name) override;
 		#pragma endregion
 
@@ -274,7 +274,7 @@ protected:
 		UFUNCTION()
 			void OnEnterAnyStageState(int32 ID, FName Name);
 		UFUNCTION()
-			void UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames);
+			void UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime);
 		UFUNCTION()
 			void OnExitAnyStageState(int32 ID, FName Name);
 		#pragma endregion

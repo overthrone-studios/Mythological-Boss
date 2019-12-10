@@ -35,7 +35,7 @@ void UFSM::TickComponent(const float DeltaTime, const ELevelTick TickType, FActo
 	if (bIsRunning)
 	{
 		Stack[0]->OnUpdateState.Broadcast(Stack[0]->Uptime, Stack[0]->Frames);
-		OnUpdateAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name, Stack[0]->Uptime, Stack[0]->Frames);
+		OnUpdateAnyState.Broadcast(Stack[0]->ID, Stack[0]->Name, Stack[0]->Uptime, Stack[0]->Frames, DeltaTime);
 		Stack[0]->Uptime += DeltaTime;
 		Stack[0]->Frames++;
 	}

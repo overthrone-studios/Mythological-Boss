@@ -298,9 +298,9 @@ void AMordath::OnEnterAnyState(int32 ID, FName Name)
 	FSMVisualizer->HighlightState(Name.ToString());
 }
 
-void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
+void AMordath::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime)
 {
-	Super::UpdateAnyState(ID, Name, Uptime, Frames);
+	Super::UpdateAnyState(ID, Name, Uptime, Frames, DeltaTime);
 
 	if (!FSMVisualizer)
 		return;
@@ -330,7 +330,7 @@ void AMordath::OnEnterAnyRangeState(int32 ID, FName Name)
 	FSMVisualizer->HighlightState(Name.ToString());
 }
 
-void AMordath::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames)
+void AMordath::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime)
 {
 	if (!FSMVisualizer)
 		return;
@@ -358,7 +358,7 @@ void AMordath::OnEnterAnyStageState(int32 ID, FName Name)
 	FSMVisualizer->HighlightState(Name.ToString());
 }
 
-void AMordath::UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames)
+void AMordath::UpdateAnyStageState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime)
 {
 	if (!FSMVisualizer)
 		return;

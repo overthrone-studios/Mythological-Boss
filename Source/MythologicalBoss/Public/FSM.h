@@ -7,7 +7,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEnterAnyStateSignature, int32, StateID, FName, StateName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnExitAnyStateSignature, int32, StateID, FName, StateName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnUpdateAnyStateSignature, int32, StateID, FName, StateName, float, StateUptime, int32, StateFrames);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnUpdateAnyStateSignature, int32, StateID, FName, StateName, float, StateUptime, int32, StateFrames, float, DeltaTime);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterStateSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitStateSignature);
@@ -26,10 +26,15 @@ struct FState
 		Frames = 0;
 	}
 
+	// Called when entering this state
 	UPROPERTY(BlueprintAssignable, Category = "State")
 		FOnEnterStateSignature OnEnterState;
+
+	// Called when exiting this state
 	UPROPERTY(BlueprintAssignable, Category = "State")
 		FOnExitStateSignature OnExitState;
+
+	// Called when updating this state
 	UPROPERTY(BlueprintAssignable, Category = "State")
 		FOnUpdateStateSignature OnUpdateState;
 
@@ -58,12 +63,15 @@ class MYTHOLOGICALBOSS_API UFSM : public UActorComponent
 public:	
 	UFSM();
 
+	// Called when entering any state that is on the stack
 	UPROPERTY(BlueprintAssignable, Category = "FSM")
 		FOnEnterAnyStateSignature OnEnterAnyState;
 
+	// Called when exiting any state that is on the stack
 	UPROPERTY(BlueprintAssignable, Category = "FSM")
 		FOnExitAnyStateSignature OnExitAnyState;
 	
+	// Called when updating any state that is on the stack
 	UPROPERTY(BlueprintAssignable, Category = "FSM")
 		FOnUpdateAnyStateSignature OnUpdateAnyState;
 
@@ -147,7 +155,6 @@ public:
 	 * @param  StateID - The state's ID to search for and push
 	*/
 	void PushState(int32 StateID);
-
 	
 	/**
 	 * Removes the given state from the stack, using a name

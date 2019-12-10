@@ -182,7 +182,7 @@ protected:
 		UFUNCTION()
 			virtual void OnEnterAnyState(int32 ID, FName Name);
 		UFUNCTION()
-			virtual void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames);
+			virtual void UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime);
 		UFUNCTION()
 			virtual void OnExitAnyState(int32 ID, FName Name);
 		#pragma endregion 
@@ -191,7 +191,7 @@ protected:
 		UFUNCTION()
 			virtual void OnEnterAnyRangeState(int32 ID, FName Name);
 		UFUNCTION()
-			virtual void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames);
+			virtual void UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime);
 		UFUNCTION()
 			virtual void OnExitAnyRangeState(int32 ID, FName Name);
 		#pragma endregion 

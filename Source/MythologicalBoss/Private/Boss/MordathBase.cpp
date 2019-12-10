@@ -192,7 +192,7 @@ void AMordathBase::OnEnterAnyState(int32 ID, FName Name)
 {
 }
 
-void AMordathBase::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames)
+void AMordathBase::UpdateAnyState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime)
 {
 	if (GameState->IsPlayerDead() && !AnimInstance->Montage_IsPlaying(nullptr))
 	{
@@ -210,7 +210,7 @@ void AMordathBase::OnEnterAnyRangeState(int32 ID, FName Name)
 {
 }
 
-void AMordathBase::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames)
+void AMordathBase::UpdateAnyRangeState(int32 ID, FName Name, float Uptime, int32 Frames, float DeltaTime)
 {
 }
 
